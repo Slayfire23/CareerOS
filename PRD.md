@@ -1,6 +1,6 @@
 # CareerOS — Product Requirements
 
-Status: reconciled from the Connect Chats To Codex conversation on October 14, 2026. Implementation has not started.
+Status: updated October 16, 2026. Milestone 1 core functionality is implemented and deployed at https://career-os-flax-chi.vercel.app. Live account/profile/email workflows were verified by the owner. Milestone 2 has not started; the full first-release feature list below is still the product roadmap. Open foundation follow-ups are tracked in TASKS.md.
 
 ## Vision
 
@@ -34,7 +34,7 @@ Automatic job discovery, AI resume improvement, application assistance, intervie
 1. Foundation: Next.js/TypeScript, PostgreSQL/Prisma, authentication, migrations, environment configuration, and initial automated tests. Success: two users can register, sign in, sign out, and manage separate basic profiles through a protected dashboard.
 2. Career profiles and resumes: employment history, skills, projects, preferences, and multiple resume versions.
 3. AI job analysis: analyze pasted job descriptions, explain qualifications and blockers, and recommend resumes without fabricating claims.
-4. Application tracking: application records, status history, filtering, and basic feedback; deploy for real use by both initial users.
+4. Application tracking: application records, status history, filtering, and basic feedback. The initial live deployment was brought forward into Milestone 1.
 
 ## Quality goals
 
@@ -43,3 +43,7 @@ Automated coverage for account boundaries and critical workflows, understandable
 ## Learning workflow
 
 Build one checkpoint at a time. Explain the design, implement it, verify it, and review the relevant concept before expanding scope. Completion must be supported by executed checks, not just generated code.
+
+## Milestone 2 starting scope
+
+Replace overreliance on the single careerGoals paragraph with structured target roles/related paths, technical skills, professional experience, work arrangement, salary expectations (currency and pay period), industries, and location/commute preferences. Preserve existing free text during migration. Extend projects/education and private resume version management incrementally. No AI matching or resume storage is implemented yet.

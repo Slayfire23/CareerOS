@@ -1,65 +1,77 @@
 # CareerOS — Development Checklist
 
-## Inspection and reconciliation
+Updated October 16, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 is not started.
 
-- [x] Locate the existing desktop CareerOS directory.
-- [x] Inspect PRD.md, ARCHITECTURE.md, and TASKS.md: all three were empty.
-- [x] Reconcile the requirements with the referenced conversation.
-- [x] Verify Node, npm, and Git are discoverable; Docker was not found on PATH.
-- [ ] Record installed tool versions and verify compatibility with selected dependencies.
+## Milestone 1 — Foundation completed
 
-## Milestone 1 — Foundation
+- [x] Initialize Next.js/TypeScript, Git, ignores, and a committed dependency lockfile.
+- [x] Configure Supabase Auth and PostgreSQL with Prisma and its PostgreSQL adapter.
+- [x] Create User/CareerProfile models, uniqueness and ownership constraints, and the initial migration.
+- [x] Provision profiles idempotently without overwriting existing edits.
+- [x] Implement signup, email confirmation, sign-in, sign-out, and password recovery.
+- [x] Protect the dashboard and validate private reads/writes on the server.
+- [x] Save display name, headline, and career goals with validation and ownership filtering.
+- [x] Add 53 passing Vitest unit tests (directly executed against staged implementation).
+- [x] Add 6 PostgreSQL integration tests; owner supplied passing output.
+- [x] Add 10 Playwright browser tests; owner supplied passing output.
+- [x] Verify two-account browser isolation, profile persistence, sign-out protection, and session-cookie loss.
+- [x] Verify forged ownership inputs cannot change another profile in database integration tests.
+- [x] Pass TypeScript, lint, and production build checks after recovery changes.
+- [x] Push application changes to GitHub and deploy to Vercel.
+- [x] Owner verifies live sign-in, save/refresh persistence, and logout redirects.
+- [x] Owner verifies live signup/confirmation/profile creation and password recovery.
+- [x] Document local configuration, migrations, testing, deployment, and email setup.
+- [x] Update requirements and architecture to reflect the implemented application.
 
-### Checkpoint 1: application shell
+## Open foundation follow-ups
 
-- [ ] Initialize Git if necessary and add appropriate ignores.
-- [ ] Scaffold Next.js with TypeScript into the existing project without replacing planning files.
-- [ ] Add a simple CareerOS home page and shared application layout.
-- [ ] Commit dependency versions in a lockfile.
-- [ ] Document local install/start commands.
-- [ ] Run lint, type checks, production build, and a local page smoke check.
+- [ ] Exercise real access-token expiration, refresh success/failure, and revoked sessions. Clearing browser cookies is not equivalent.
+- [ ] Exercise crafted cross-account HTTP/server-action requests. Existing browser tests cover normal saves and account switching; forged ownership is covered at the database-function boundary.
+- [ ] Verify real used/expired email-link rejection. Current automated callback tests cover absent/invalid mocked codes; live happy paths were manually tested.
+- [ ] Recheck dependency audit and resolve the Next.js ESLint/braces advisory. Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
+- [ ] Confirm email delivery for the brother's actual address if it was not one of the live test recipients; reassess default SMTP before broader public use.
+- [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
+- [ ] Commit and push this documentation reconciliation.
 
-Learning focus: which code executes in the browser and which executes on the server.
+## Milestone 2 — Structured career profile and resumes (not started)
 
-### Checkpoint 2: persistent data
+Start with checkpoint 1. Each checkpoint includes implementation and verification before moving to the next.
 
-- [ ] Select an accessible development PostgreSQL instance and separate test database.
-- [ ] Add Prisma and safe example environment configuration.
-- [ ] Resolve the authentication provider before finalizing user identity/schema requirements.
-- [ ] Add User and basic CareerProfile models, ownership constraints, and an initial migration.
-- [ ] Apply the migration to the development database and verify persistence.
+### Checkpoint 1: agree on the profile model
 
-Learning focus: foreign keys express relationships; a unique userId enforces one profile per user.
+- [ ] Define target roles and related career paths.
+- [ ] Define technical skills and professional experience fields.
+- [ ] Define work arrangement, industries, and location/commute preferences.
+- [ ] Define salary range, currency, and pay period.
+- [ ] Decide which fields are optional and how users edit or remove values.
+- [ ] Preserve existing careerGoals text; do not silently convert it into verified facts.
 
-### Checkpoint 3: authentication and protected dashboard
+Acceptance: the field definitions and migration approach are documented before schema changes begin.
 
-- [ ] Configure the selected provider/library and required local credentials.
-- [ ] Implement registration, sign-in, sign-out, and account recovery behavior supported by that provider.
-- [ ] Validate sessions on the server and protect the dashboard and private operations.
-- [ ] Provision internal users/profiles idempotently.
-- [ ] Implement viewing and editing the current user's basic profile with server validation.
-- [ ] Ensure private reads and writes derive ownership from the session.
+### Checkpoint 2: persist and edit structured profiles
 
-Learning focus: a protected page does not automatically protect its backing API or server action.
+- [ ] Add reviewed Prisma migrations without deleting existing profiles.
+- [ ] Add server validation, ownership-scoped queries, and editable forms.
+- [ ] Verify existing accounts retain their saved information after migration.
+- [ ] Add validation, database-isolation, and two-account browser tests for new fields.
+- [ ] Run TypeScript, lint, build, and relevant tests; update documentation.
 
-### Checkpoint 4: proof the foundation works
+Acceptance: each user can save, reopen, change, and clear their own structured fields without affecting another account.
 
-- [x] Add and run Vitest unit tests for validation, authentication, and ownership filters (33 passing).
-- [ ] Add and run PostgreSQL integration tests against a separate test database.
-- [ ] Verify unauthenticated and expired sessions cannot access private data.
-- [ ] Verify account A cannot read or change account B's profile through crafted requests.
-- [ ] Add and run Playwright registration/sign-in/profile/sign-out workflows.
-- [x] Verify two real test users can maintain distinct persisted profiles (user-reported manual check).
-- [x] Run lint, type checks, unit tests, and production build; record results and test limitations in TESTING.md.
-- [x] Fix Prisma dependency audit findings by updating matched packages to 7.10.1; production dependency audit reports zero vulnerabilities.
-- [ ] Resolve upstream braces advisory in Next.js ESLint tooling (5 high-severity affected-package entries remain; no patched braces release available).
-- [ ] Document environment setup, migrations, tests, and troubleshooting.
+### Checkpoint 3: projects, education, and resumes
 
-Milestone 1 is complete only after the working application passes these checks. Planning documents alone do not complete it.
+- [ ] Add projects and education where needed by the agreed profile design.
+- [ ] Choose private resume storage and permitted file types/size limits.
+- [ ] Implement upload, listing, download, and deletion with ownership checks.
+- [ ] Support multiple resumes and version history without replacing older files silently.
+- [ ] Test unauthorized access and document storage configuration.
+
+Acceptance: each user can manage multiple private resume versions and cannot access another user's files.
+
+Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a later milestone.
 
 ## Later milestones
 
-- [ ] Milestone 2: full career profile and multiple resume versions.
-- [ ] Milestone 3: explainable AI job analysis and resume selection.
-- [ ] Milestone 4: application tracking and initial deployment for both users.
+- [ ] Milestone 3: explainable job-description analysis and resume selection.
+- [ ] Milestone 4: application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.

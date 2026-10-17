@@ -1,32 +1,98 @@
 # CareerOS testing
 
-## Latest verification — October 15, 2026
+Updated October 16, 2026. These are the latest recorded results, not a new execution of every suite during this documentation update.
 
-- `npm test`: 33 tests passed across 2 files (Vitest 5.0.5).
-- `npm run typecheck`: passed.
-- `npm run lint`: passed.
-- `npm run build`: passed with Next.js 16.4.1 and Cache Components enabled.
-- Node runtime: 24.16.0; Node type definitions updated to the 24.x line for test-runner compatibility.
-- Updated Prisma CLI, client, and PostgreSQL adapter together to 7.10.1 and regenerated the client. This replaces vulnerable deepmerge-ts and mysql2 dependencies. All checks above passed again after the update.
-- `npm audit --omit=dev`: 0 vulnerabilities. Full `npm audit`: 5 high-severity affected-package entries from one unpatched braces advisory (GHSA-vfj7-8cjw-p6xm) in the Next.js ESLint dependency chain. Latest plugin 16.4.2 still depends on fast-glob 3.3.1. The suggested forced fix downgrades eslint-config-next to 14.2.35; it was not applied to this Next.js 16 app. Full remediation remains pending an upstream fix. Lint patterns must remain trusted project configuration.
+## Evidence
 
-Run `npm test` for a single run or `npm run test:watch` while editing. Also run `npm run typecheck`, `npm run lint`, and `npm run build` before publishing changes.
+| Check | Recorded result | Evidence |
+|---|---|---|
+| Unit tests | 53 passed, 3 files | Executed against staged recovery implementation with installed project dependencies |
+| PostgreSQL integration | 6 passed, 1 file | Owner supplied output from isolated local PostgreSQL |
+| Chromium browser tests | 10 passed | Owner supplied output against localhost with real Auth |
+| TypeScript | Passed | Staged checks and owner-supplied project output; final build also checked types |
+| ESLint | Passed | Owner supplied final output after recovery changes |
+| Production build | Passed | Owner supplied final Next.js 16.4.1 output including recovery routes |
+| Live flows | Passed, user-reported | Sign-in, profile save/refresh, logout protection, fresh signup/confirmation, password recovery |
 
-## What these tests prove
+The owner explicitly confirmed rejection of the previous password during local recovery testing and later reported the live recovery sequence successful. This is manual evidence, not an automated production test.
 
-The tests import the actual authentication actions, profile save action, and profile reader. Supabase Auth, Prisma, and Next.js response helpers are replaced with test doubles. No real accounts, database credentials, or network connections are needed.
+## Unit tests
 
-- Missing and invalid sessions cannot reach profile database operations.
-- Reads and updates are scoped to the identity returned by Auth, including when forged ownership fields or previous form state are supplied.
-- Only the three editable fields are sent to Prisma for updates, and only those fields are selected for reads.
-- Missing fields, files masquerading as text, empty names, and excessive lengths are rejected. Boundary lengths are accepted.
-- Optional fields can be cleared, write failures do not expose internal errors, and missing profiles cannot report a successful save.
-- Authentication failure cannot provision a profile; provisioning failure cannot redirect as if setup succeeded.
+```powershell
+npm test
+npm run test:watch
+```
 
-## Limits and outstanding checks
+Vitest tests the real server actions/readers with Supabase, Prisma, and Next response helpers replaced by test doubles. Coverage includes authentication rejection, profile field validation, ownership filters, ignored forged ownership fields, provisioning sequencing, recovery input validation, uniform provider-error responses, callback destinations, and trusted app-origin validation. No live accounts are required.
 
-These are unit tests of the application boundary, not live database or browser security tests. They verify the Prisma filter sent by our code; they do not execute that filter in PostgreSQL or prove RLS, cookies, session refresh, redirects in a browser, or concurrent provisioning behavior. A build checks compilation, not the deployed authentication flow.
+## PostgreSQL integration tests
 
-Manual tests reported successful by the project owner: sign-in, sign-out, protected dashboard access, profile persistence after refresh and sign-in, and distinct profiles for two accounts.
+Start the existing container:
 
-Next: add database integration tests against a separate disposable test database and browser tests using dedicated test identities. Do not run destructive test fixtures against the existing development accounts. Public signup/email confirmation and password recovery remain deferred until email delivery is configured.
+```powershell
+docker start careeros-test-db
+docker exec careeros-test-db pg_isready -U careeros_test -d careeros_test
+```
+
+On a machine without that container, create it once:
+
+```powershell
+docker run --name careeros-test-db -e POSTGRES_USER=careeros_test -e POSTGRES_PASSWORD=local_test_only -e POSTGRES_DB=careeros_test -p 127.0.0.1:5433:5432 -d postgres:17
+```
+
+From the project root:
+
+```powershell
+npx prisma generate --config prisma7.config.ts
+npx prisma migrate deploy --config prisma.integration.config.ts
+npx vitest run --config vitest.integration.config.mts
+```
+
+The integration configuration uses only the fixed local database address from tests/support/local-database.ts; it does not load the app's .env. No reset is required. Fixtures use random identities and cleanup deletes only those generated users, with cascading profile deletion.
+
+The six tests exercise concurrent/idempotent provisioning, separate persisted profiles, forged ownership input, unauthenticated operations, preservation of edits, and uniqueness/foreign-key constraints. Prisma and PostgreSQL are real; Supabase identity and Next response helpers are mocked. This does not test Supabase RLS or real session expiration.
+
+## Browser tests
+
+Install Chromium once:
+
+```powershell
+npx playwright install chromium
+```
+
+Create ignored `.env.playwright.local` with two different disposable, confirmed Supabase accounts:
+
+```dotenv
+E2E_TEST_EMAIL=first-test-account@example.com
+E2E_TEST_PASSWORD=REPLACE_WITH_TEST_PASSWORD
+E2E_TEST_EMAIL_B=second-test-account@example.com
+E2E_TEST_PASSWORD_B=REPLACE_WITH_SECOND_TEST_PASSWORD
+```
+
+Verify these remain ignored: `git check-ignore .env .env.playwright.local`. Do not use personal accounts. Keep passwords current after manual recovery tests.
+
+Run `npm run dev`, then in another terminal:
+
+```powershell
+npx playwright test
+```
+
+The configuration targets localhost:3000 with fresh browser sessions. It does not automatically test Vercel. Ten tests cover sign-in/out, save-and-refresh persistence, two-account isolation and switching, signed-out redirects, missing-session reads/writes, form validation, recovery navigation, protected new-password access, and a missing-code callback. Modified profiles are restored; inspect the disposable accounts if cleanup reports a failure. Traces/screenshots/videos are disabled; runner output is under the OS temporary directory.
+
+These browser tests do not send confirmation/recovery emails or change passwords. Follow AUTH_EMAIL_SETUP.md for the manual email flow. Normal account switching does not prove resistance to crafted HTTP requests. Cookie deletion does not prove real token expiration/refresh behavior.
+
+## Final checks and outstanding audit
+
+```powershell
+npm run typecheck
+npm run lint
+npm run build
+```
+
+Stop the development server before building into the same .next directory. Restart it for browser tests.
+
+Last successful dependency audit recorded October 15, 2026: updating Prisma CLI/client/adapter to 7.10.1 resolved the Prisma-chain findings; `npm audit --omit=dev` reported 0 vulnerabilities. Full audit retained 5 high-severity affected-package entries from one braces advisory, GHSA-vfj7-8cjw-p6xm, through Next.js ESLint tooling. These are not five independent flaws. The suggested forced fix downgraded eslint-config-next to 14.2.35 and was not applied. A later audit attempt failed because the registry was unreachable; a current clean audit is not claimed.
+
+Recheck with `npm audit` and `npm audit --omit=dev`. Track the upstream patch rather than blindly using `npm audit fix --force`.
+
+Open scenarios: actual expired/refreshed/revoked sessions, crafted cross-account HTTP requests, real reused/expired email links, production RLS policy verification, and broader recipient delivery. See TASKS.md.
