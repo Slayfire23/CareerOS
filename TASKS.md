@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are in progress.
+Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
 
 ## Milestone 1 — Foundation completed
 
@@ -73,17 +73,24 @@ First increment: target roles, industries, work arrangements, and employment typ
 
 - [x] Define optional base-pay range, currency, and hourly/monthly/yearly period.
 - [x] Implement validation, clearing, and account isolation; pass 135 unit tests, 14 database tests, TypeScript, and lint.
-- [ ] Verify production build and browser suite.
+- [x] Verify production build and all 15 browser tests (owner supplied passing output).
+- [x] Confirm hosted migrations are up to date, deploy, and verify salary save/refresh/edit/clear live (owner confirmed).
+
+### Education increment
+
+- [x] Define institution, qualification/program, optional field of study, month dates/current study, and optional details.
+- [x] Implement account-scoped add/edit/remove and additive local migration.
+- [ ] Complete build and browser verification before hosted rollout.
 - [ ] Apply hosted migration, deploy, and verify live.
 
 ### Checkpoint 1: agree on the profile model
 
 - [ ] Define target roles and related career paths.
-- [ ] Define technical skills and professional experience fields.
-- [ ] Define work arrangement, industries, and location/commute preferences.
+- [x] Define technical skills and professional experience fields.
+- [x] Define work arrangement, industries, and location/commute preferences.
 - [x] Define salary range, currency, and pay period.
 - [ ] Decide which fields are optional and how users edit or remove values.
-- [ ] Preserve existing careerGoals text; do not silently convert it into verified facts.
+- [x] Preserve existing careerGoals text; do not silently convert it into verified facts.
 
 Acceptance: the field definitions and migration approach are documented before schema changes begin.
 
@@ -99,7 +106,8 @@ Acceptance: each user can save, reopen, change, and clear their own structured f
 
 ### Checkpoint 3: projects, education, and resumes
 
-- [ ] Add projects and education where needed by the agreed profile design.
+- [ ] Add education entries (next increment: institution, qualification, field of study, dates, and optional details).
+- [ ] Add projects with descriptions, contributions, skills, and optional links.
 - [ ] Choose private resume storage and permitted file types/size limits.
 - [ ] Implement upload, listing, download, and deletion with ownership checks.
 - [ ] Support multiple resumes and version history without replacing older files silently.

@@ -80,3 +80,7 @@ CareerProfile now has preferredLocations (text array, empty by default), relocat
 ## Salary expectations
 
 Nullable salaryMinCents/salaryMaxCents integers hold exact hundredths for supported USD/CAD/EUR/GBP currencies. salaryCurrency and salaryPeriod accompany any amount; periods are hour/month/year, with no conversion. Server validation and database checks enforce nonnegative bounds, ordered ranges, valid choices, and consistent nullability. All four fields clear when both amounts are blank. A separate authenticated action updates only salary fields. See SALARY_EXPECTATIONS_SETUP.md. Previous location migration and live rollout were confirmed by the owner; salary migration is local only.
+
+## Education
+
+Education is a profile-owned related table with institution, qualification/program, optional fieldOfStudy, month dates, and optional description. A null endMonth means current study; an entry does not certify an awarded qualification. Server validation and a database constraint reject invalid/reversed dates. Update/delete scope combines record ID with verified identity; creation derives profileId. Migration 20261017060000_education is applied only to isolated local PostgreSQL.

@@ -234,3 +234,31 @@ it("persists precise salary values, isolates accounts, preserves other fields, a
  signIn(accountB);expect((await getCurrentProfile())!.salaryMinCents).toBe(0);
  auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveSalaryExpectations({},f)).error).toBeTruthy();
 });
+
+function educationForm() {
+ const f = new FormData();
+ for (const [key,value] of Object.entries({educationId:"",qualification:"Engineer",institution:"Test Institution",fieldOfStudy:"Engineering",startMonth:"2020-01",endMonth:"2021-02",description:"Built things"})) f.set(key,value);
+ return f;
+}
+it("creates, edits, and removes education while preserving profile data", async()=>{
+ const {saveEducation,removeEducation}=await import("@/app/dashboard/education-actions");
+ await saveProfile({},form("Keep me"));
+ const f=educationForm();expect((await saveEducation({},f)).message).toBeTruthy();
+ let entries=(await getCurrentProfile())!.educationEntries;expect(entries).toHaveLength(1);
+ f.set("educationId",entries[0].id);f.set("current","on");f.set("qualification","Master of Science");f.set("fieldOfStudy","");
+ expect((await saveEducation({},f)).message).toBeTruthy();
+ entries=(await getCurrentProfile())!.educationEntries;expect(entries[0]).toMatchObject({qualification:"Master of Science",fieldOfStudy:null,endMonth:null});
+ expect((await removeEducation({},f)).message).toBeTruthy();
+ expect(await getCurrentProfile()).toMatchObject({displayName:"Keep me",educationEntries:[]});
+});
+it("rejects foreign education edits/deletion and expired sessions",async()=>{
+ const {saveEducation,removeEducation}=await import("@/app/dashboard/education-actions");
+ const f=educationForm();f.set("profileId","forged");await saveEducation({},f);
+ const original=(await getCurrentProfile())!.educationEntries[0];
+ signIn(accountB);expect((await getCurrentProfile())!.educationEntries).toEqual([]);
+ f.set("educationId",original.id);f.set("qualification","Attack");
+ expect((await saveEducation({},f)).error).toBeTruthy();expect((await removeEducation({},f)).error).toBeTruthy();
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});
+ expect((await saveEducation({},f)).error).toBeTruthy();expect((await removeEducation({},f)).error).toBeTruthy();
+ signIn(accountA);expect((await getCurrentProfile())!.educationEntries).toEqual([original]);
+});

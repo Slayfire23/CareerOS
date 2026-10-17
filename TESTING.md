@@ -115,4 +115,8 @@ Directly executed: 112 unit tests, 13 local database tests, TypeScript, lint, an
 
 ## Salary expectations
 
-Location preferences passed the production build and all 14 browser tests; hosted migration and live save/refresh/clear were confirmed by the owner. Salary implementation passed 135 unit tests, 14 isolated PostgreSQL tests, TypeScript, and lint. Added salary browser coverage (15 total tests, execution pending). Local migration and client generation succeeded; build, hosted migration, and live rollout remain pending.
+Location preferences passed the production build and all 14 browser tests; hosted migration and live save/refresh/clear were confirmed by the owner. Salary implementation passed 135 unit tests, 14 isolated PostgreSQL tests, TypeScript, and lint. All 15 browser tests and the production build passed (owner supplied output). Hosted Prisma reported no pending migrations. The owner pushed/deployed and verified salary save/refresh/edit/clear on the live site.
+
+## Education entries
+
+Directly executed: 148 unit tests, 16 local PostgreSQL integration tests, TypeScript, lint, and diff whitespace checks passed. Coverage includes optional field clearing, date validation, create/edit/remove, profile preservation, and rejection of foreign-account updates/deletes and expired sessions. Client generation and local migration succeeded. Added a browser test (16 total browser tests; execution pending). Production build, hosted migration, deployment, and live verification remain pending.
