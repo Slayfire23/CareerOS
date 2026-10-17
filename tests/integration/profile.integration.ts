@@ -223,3 +223,14 @@ it("persists and clears location preferences without changing another account or
  const afterB=await prisma.careerProfile.findUniqueOrThrow({where:{id:beforeB.id}});expect(afterB).toMatchObject({displayName:beforeB.displayName,maxCommuteMinutes:60,preferredLocations:["Chicago, IL"]});
  auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveLocationPreferences({},f)).error).toBeTruthy();
 });
+
+it("persists precise salary values, isolates accounts, preserves other fields, and clears",async()=>{
+ const {saveSalaryExpectations}=await import("@/app/dashboard/salary-actions");
+ const f=new FormData();for(const [k,v] of Object.entries({salaryMin:"25.10",salaryMax:"40.99",salaryCurrency:"USD",salaryPeriod:"hour"}))f.set(k,v);
+ const original=await getCurrentProfile();f.set("supabaseAuthId",accountB);
+ expect((await saveSalaryExpectations({},f)).message).toBeTruthy();expect(await getCurrentProfile()).toEqual({...original,salaryMinCents:2510,salaryMaxCents:4099,salaryCurrency:"USD",salaryPeriod:"hour"});
+ signIn(accountB);expect((await getCurrentProfile())!.salaryMinCents).toBeNull();f.set("salaryMin","0");await saveSalaryExpectations({},f);
+ signIn(accountA);expect((await getCurrentProfile())!.salaryMinCents).toBe(2510);f.set("salaryMin","");f.set("salaryMax","");await saveSalaryExpectations({},f);expect(await getCurrentProfile()).toEqual(original);
+ signIn(accountB);expect((await getCurrentProfile())!.salaryMinCents).toBe(0);
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveSalaryExpectations({},f)).error).toBeTruthy();
+});

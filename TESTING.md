@@ -112,3 +112,7 @@ Directly executed: 95 unit tests, 12 local PostgreSQL integration tests, TypeScr
 ## Location and commute preferences
 
 Directly executed: 112 unit tests, 13 local database tests, TypeScript, lint, and diff whitespace checks passed. Local migration and client generation succeeded. Browser coverage added for save/refresh/clear, zero-minute commute, and two-account isolation (14 total browser tests, execution pending). Production build, hosted migration, deployment, and live checks remain pending.
+
+## Salary expectations
+
+Location preferences passed the production build and all 14 browser tests; hosted migration and live save/refresh/clear were confirmed by the owner. Salary implementation passed 135 unit tests, 14 isolated PostgreSQL tests, TypeScript, and lint. Added salary browser coverage (15 total tests, execution pending). Local migration and client generation succeeded; build, hosted migration, and live rollout remain pending.

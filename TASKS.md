@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are in progress.
+Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are in progress.
 
 ## Milestone 1 — Foundation completed
 
@@ -66,15 +66,22 @@ First increment: target roles, industries, work arrangements, and employment typ
 
 - [x] Define optional preferred locations, relocation willingness, and maximum one-way commute.
 - [x] Implement validation, ownership, persistence, and clearing; pass 112 unit tests, 13 database tests, TypeScript, and lint.
-- [ ] Verify browser tests and production build.
-- [ ] Apply hosted migration and verify deployment live.
+- [x] Verify all 14 browser tests and production build (owner confirmed).
+- [x] Apply hosted migration and verify live save/refresh/clear (owner confirmed).
+
+### Salary expectations increment
+
+- [x] Define optional base-pay range, currency, and hourly/monthly/yearly period.
+- [x] Implement validation, clearing, and account isolation; pass 135 unit tests, 14 database tests, TypeScript, and lint.
+- [ ] Verify production build and browser suite.
+- [ ] Apply hosted migration, deploy, and verify live.
 
 ### Checkpoint 1: agree on the profile model
 
 - [ ] Define target roles and related career paths.
 - [ ] Define technical skills and professional experience fields.
 - [ ] Define work arrangement, industries, and location/commute preferences.
-- [ ] Define salary range, currency, and pay period.
+- [x] Define salary range, currency, and pay period.
 - [ ] Decide which fields are optional and how users edit or remove values.
 - [ ] Preserve existing careerGoals text; do not silently convert it into verified facts.
 

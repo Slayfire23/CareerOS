@@ -1,5 +1,6 @@
 import { ProfessionalExperience } from "@/components/professional-experience";
 import { LocationPreferencesForm } from "@/components/location-preferences-form";
+import { SalaryExpectationsForm } from "@/components/salary-expectations-form";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -40,6 +41,7 @@ async function DashboardContent() {
           <ProfileForm profile={profile} />
           <CareerPreferencesForm profile={profile} />
           <LocationPreferencesForm profile={profile} />
+          <SalaryExpectationsForm profile={profile} />
           <TechnicalSkills skills={profile.technicalSkills} />
           <ProfessionalExperience entries={profile.professionalExperiences} />
         </div>

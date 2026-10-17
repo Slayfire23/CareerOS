@@ -76,3 +76,7 @@ Supersedes the pending skills rollout status above: the owner confirmed the buil
 ## Location and commute preferences
 
 CareerProfile now has preferredLocations (text array, empty by default), relocationWillingness (nullable yes/no/undecided), and maxCommuteMinutes (nullable integer, 0–300). Separate authenticated action updates only these fields. Server validation rejects malformed or duplicate scalar inputs; database constraints enforce relocation choices and commute range. Locations are free-text preferences without geocoding. Migration 20261017040000_location_preferences was applied only to isolated local PostgreSQL.
+
+## Salary expectations
+
+Nullable salaryMinCents/salaryMaxCents integers hold exact hundredths for supported USD/CAD/EUR/GBP currencies. salaryCurrency and salaryPeriod accompany any amount; periods are hour/month/year, with no conversion. Server validation and database checks enforce nonnegative bounds, ordered ranges, valid choices, and consistent nullability. All four fields clear when both amounts are blank. A separate authenticated action updates only salary fields. See SALARY_EXPECTATIONS_SETUP.md. Previous location migration and live rollout were confirmed by the owner; salary migration is local only.

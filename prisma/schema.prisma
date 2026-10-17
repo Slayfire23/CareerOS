@@ -33,6 +33,10 @@ model CareerProfile {
   preferredLocations String[] @default([])
   relocationWillingness String? @db.VarChar(10)
   maxCommuteMinutes Int?
+  salaryMinCents Int?
+  salaryMaxCents Int?
+  salaryCurrency String? @db.VarChar(3)
+  salaryPeriod String? @db.VarChar(5)
   technicalSkills TechnicalSkill[]
   professionalExperiences ProfessionalExperience[]
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
