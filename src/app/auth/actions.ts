@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
+import { getAppOrigin } from "@/lib/app-origin";
 
 export type AuthState = {
   error?: string;
@@ -46,7 +48,10 @@ export async function signUp(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp(credentials);
+  const { error } = await supabase.auth.signUp({
+    ...credentials,
+    options: { emailRedirectTo: `${getAppOrigin()}/auth/callback` },
+  });
 
   if (error) {
     return {
@@ -77,6 +82,14 @@ export async function signIn(
   if (error) {
     return {
       error: "Unable to sign in. Check your credentials and confirm your email.",
+    };
+  }
+
+  try {
+    await ensureCurrentUserProfile();
+  } catch {
+    return {
+      error: "You signed in, but profile setup failed. Please try signing in again.",
     };
   }
 

@@ -44,12 +44,15 @@ Learning focus: a protected page does not automatically protect its backing API 
 
 ### Checkpoint 4: proof the foundation works
 
-- [ ] Add and run Vitest validation tests and PostgreSQL integration tests.
+- [x] Add and run Vitest unit tests for validation, authentication, and ownership filters (33 passing).
+- [ ] Add and run PostgreSQL integration tests against a separate test database.
 - [ ] Verify unauthenticated and expired sessions cannot access private data.
 - [ ] Verify account A cannot read or change account B's profile through crafted requests.
 - [ ] Add and run Playwright registration/sign-in/profile/sign-out workflows.
-- [ ] Verify two real test users can maintain distinct persisted profiles.
-- [ ] Run lint, type checks, tests, and production build; record results and any blocked checks.
+- [x] Verify two real test users can maintain distinct persisted profiles (user-reported manual check).
+- [x] Run lint, type checks, unit tests, and production build; record results and test limitations in TESTING.md.
+- [x] Fix Prisma dependency audit findings by updating matched packages to 7.10.1; production dependency audit reports zero vulnerabilities.
+- [ ] Resolve upstream braces advisory in Next.js ESLint tooling (5 high-severity affected-package entries remain; no patched braces release available).
 - [ ] Document environment setup, migrations, tests, and troubleshooting.
 
 Milestone 1 is complete only after the working application passes these checks. Planning documents alone do not complete it.

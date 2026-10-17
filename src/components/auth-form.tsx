@@ -82,6 +82,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </button>
       </form>
 
+      {!isSignup && (
+        <p className="mt-4 text-sm">
+          <Link href="/forgot-password" className="underline">Forgot password?</Link>
+        </p>
+      )}
+
       <p className="mt-6 text-sm">
         {isSignup ? "Already have an account? " : "New to CareerOS? "}
         <Link
