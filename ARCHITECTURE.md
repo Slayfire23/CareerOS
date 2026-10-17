@@ -1,6 +1,6 @@
 # CareerOS — Architecture
 
-Status: implemented foundation, October 16, 2026. Milestone 2 is in progress locally; the structured-preferences increment is not deployed.
+Status: implemented foundation, October 16, 2026. Milestone 2 is in progress; preferences and technical skills are deployed and verified by the owner.
 
 ## Runtime and structure
 
@@ -68,3 +68,7 @@ CareerProfile now includes targetRoles, industries, workArrangements, and employ
 ## Technical skills increment — October 17, 2026
 
 Career preferences are deployed: the owner supplied passing 11-browser-test and build results, applied the hosted preferences migration, and verified live save/refresh/clear behavior. Technical skills are now implemented locally with a name and optional self-assessed proficiency. Names are normalized to prevent duplicate skills within a profile; saving an existing name updates its level. Removal enforces account ownership. The new related table and proficiency enum were migrated only to isolated local PostgreSQL. Current checks: 83 unit tests, 10 database tests, TypeScript, and lint passed. Build and the 12-test browser suite for this increment are pending. The hosted skills migration and deployment have not been performed. See TECHNICAL_SKILLS_SETUP.md.
+
+## Professional experience — October 17, 2026
+
+Supersedes the pending skills rollout status above: the owner confirmed the build, 12 browser tests, hosted skills migration, and live feature verification. ProfessionalExperience is a separate profile-owned table with title, company, start/end month strings, and optional description. A null endMonth means current employment. Both server validation and database constraints reject invalid/reversed month ranges. Updates and deletes filter by verified identity and record ID; creation derives profileId on the server. Duplicate jobs are allowed. The migration passed local checks and was subsequently applied to hosted Supabase, confirmed by owner-supplied output. Deployment and live verification remain pending.

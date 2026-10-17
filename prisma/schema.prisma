@@ -31,6 +31,7 @@ model CareerProfile {
   workArrangements String[] @default([])
   employmentTypes String[] @default([])
   technicalSkills TechnicalSkill[]
+  professionalExperiences ProfessionalExperience[]
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
 
@@ -52,4 +53,16 @@ model TechnicalSkill {
   profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, normalizedName])
+}
+
+model ProfessionalExperience {
+ id String @id @default(uuid()) @db.Uuid
+ profileId String @db.Uuid
+ jobTitle String @db.VarChar(100)
+ company String @db.VarChar(100)
+ startMonth String @db.VarChar(7)
+ endMonth String? @db.VarChar(7)
+ description String? @db.VarChar(5000)
+ profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ @@index([profileId])
 }

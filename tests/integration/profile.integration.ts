@@ -182,3 +182,31 @@ it("enforces one profile per user and a valid user foreign key", async () => {
     data: { userId: randomUUID(), displayName: "Orphan" },
   })).rejects.toMatchObject({ code: "P2003" });
 });
+
+function experienceForm() {
+ const f = new FormData();
+ for (const [key,value] of Object.entries({experienceId:"",jobTitle:"Engineer",company:"Test Company",startMonth:"2020-01",endMonth:"2021-02",description:"Built things"})) f.set(key,value);
+ return f;
+}
+it("creates, edits, and removes experience while preserving profile data", async()=>{
+ const {saveExperience,removeExperience}=await import("@/app/dashboard/experience-actions");
+ await saveProfile({},form("Keep me"));
+ const f=experienceForm();expect((await saveExperience({},f)).message).toBeTruthy();
+ let entries=(await getCurrentProfile())!.professionalExperiences;expect(entries).toHaveLength(1);
+ f.set("experienceId",entries[0].id);f.set("current","on");f.set("jobTitle","Senior Engineer");
+ expect((await saveExperience({},f)).message).toBeTruthy();
+ entries=(await getCurrentProfile())!.professionalExperiences;expect(entries[0]).toMatchObject({jobTitle:"Senior Engineer",endMonth:null});
+ expect((await removeExperience({},f)).message).toBeTruthy();
+ expect(await getCurrentProfile()).toMatchObject({displayName:"Keep me",professionalExperiences:[]});
+});
+it("rejects foreign experience edits/deletion and expired sessions",async()=>{
+ const {saveExperience,removeExperience}=await import("@/app/dashboard/experience-actions");
+ const f=experienceForm();f.set("profileId","forged");await saveExperience({},f);
+ const original=(await getCurrentProfile())!.professionalExperiences[0];
+ signIn(accountB);expect((await getCurrentProfile())!.professionalExperiences).toEqual([]);
+ f.set("experienceId",original.id);f.set("jobTitle","Attack");
+ expect((await saveExperience({},f)).error).toBeTruthy();expect((await removeExperience({},f)).error).toBeTruthy();
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});
+ expect((await saveExperience({},f)).error).toBeTruthy();expect((await removeExperience({},f)).error).toBeTruthy();
+ signIn(accountA);expect((await getCurrentProfile())!.professionalExperiences).toEqual([original]);
+});

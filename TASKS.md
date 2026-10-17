@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are in progress locally.
+Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is in progress.
 
 ## Milestone 1 — Foundation completed
 
@@ -51,8 +51,16 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Define a skill name and optional self-assessed Beginner/Intermediate/Advanced level.
 - [x] Implement add/update/remove with account ownership and duplicate prevention.
 - [x] Apply the additive skills migration to local PostgreSQL; pass 83 unit tests, 10 database tests, TypeScript, and lint.
-- [ ] Verify build and all 12 browser tests for the skills increment.
-- [ ] Apply hosted migration, deploy, and verify live.
+- [x] Verify build and all 12 browser tests for the skills increment (owner supplied results).
+- [x] Apply hosted skills migration, deploy, and verify live (owner confirmed).
+
+### Professional experience increment
+
+- [x] Define required title/company, month dates, current employment, and optional responsibilities/accomplishments.
+- [x] Implement account-scoped add/edit/remove; pass 95 unit tests, 12 database tests, TypeScript, and lint.
+- [x] Verify validation and database isolation; owner supplied passing production build and all 13 browser tests.
+- [x] Apply hosted professional experience migration (owner supplied successful output).
+- [ ] Commit/push, deploy, and verify professional experience live.
 
 ### Checkpoint 1: agree on the profile model
 

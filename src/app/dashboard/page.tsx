@@ -1,3 +1,4 @@
+import { ProfessionalExperience } from "@/components/professional-experience";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -38,6 +39,7 @@ async function DashboardContent() {
           <ProfileForm profile={profile} />
           <CareerPreferencesForm profile={profile} />
           <TechnicalSkills skills={profile.technicalSkills} />
+          <ProfessionalExperience entries={profile.professionalExperiences} />
         </div>
       ) : (
         <p role="alert">
