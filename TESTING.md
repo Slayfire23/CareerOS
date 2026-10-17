@@ -96,3 +96,7 @@ Last successful dependency audit recorded October 15, 2026: updating Prisma CLI/
 Recheck with `npm audit` and `npm audit --omit=dev`. Track the upstream patch rather than blindly using `npm audit fix --force`.
 
 Open scenarios: actual expired/refreshed/revoked sessions, crafted cross-account HTTP requests, real reused/expired email links, production RLS policy verification, and broader recipient delivery. See TASKS.md.
+
+## Structured preferences increment — October 17, 2026
+
+Directly executed: 67 unit tests across 4 files, 8 integration tests, and an existing-row migration-preservation check passed. TypeScript and lint passed. The production build was blocked by Windows sandbox junction permissions. Browser tests now total 11, but the suite has not been executed against this increment. The previous 10 passing browser tests above describe the foundation only. See STRUCTURED_PROFILE_SETUP.md for an isolated local app run before applying the hosted migration.

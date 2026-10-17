@@ -1,6 +1,6 @@
 # CareerOS — Product Requirements
 
-Status: updated October 16, 2026. Milestone 1 core functionality is implemented and deployed at https://career-os-flax-chi.vercel.app. Live account/profile/email workflows were verified by the owner. Milestone 2 has not started; the full first-release feature list below is still the product roadmap. Open foundation follow-ups are tracked in TASKS.md.
+Status: updated October 16, 2026. Milestone 1 core functionality is implemented and deployed at https://career-os-flax-chi.vercel.app. Live account/profile/email workflows were verified by the owner. Milestone 2 is in progress locally; the structured-preferences increment is not deployed; the full first-release feature list below is still the product roadmap. Open foundation follow-ups are tracked in TASKS.md.
 
 ## Vision
 

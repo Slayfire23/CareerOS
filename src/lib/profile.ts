@@ -23,6 +23,10 @@ export async function getCurrentProfile() {
       displayName: true,
       headline: true,
       careerGoals: true,
+      targetRoles: true,
+      industries: true,
+      workArrangements: true,
+      employmentTypes: true,
     },
   });
 }

@@ -17,6 +17,7 @@ import { prisma } from "@/lib/db";
 import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
 import { getCurrentProfile } from "@/lib/profile";
 import { saveProfile } from "@/app/dashboard/actions";
+import { saveCareerPreferences } from "@/app/dashboard/preferences-actions";
 
 let identities: string[] = [];
 let accountA: string;
@@ -65,6 +66,29 @@ afterEach(async () => {
 });
 
 afterAll(async () => { await prisma.$disconnect(); });
+
+it("starts existing-style profiles with empty preferences", async () => {
+  expect(await getCurrentProfile()).toMatchObject({ targetRoles: [], industries: [], workArrangements: [], employmentTypes: [] });
+});
+
+it("persists and clears preferences without altering either account's basic profile", async () => {
+  await saveProfile({}, form("Account A original"));
+  const data = new FormData();
+  data.set("targetRoles", "Developer\nMechanical Engineer");
+  data.set("industries", "Manufacturing");
+  data.append("workArrangements", "hybrid");
+  data.append("employmentTypes", "contract");
+  const other = await prisma.careerProfile.findFirstOrThrow({ where: { user: { supabaseAuthId: accountB } } });
+  data.set("userId", other.userId); data.set("id", other.id); data.set("supabaseAuthId", accountB);
+  expect((await saveCareerPreferences({}, data)).message).toBe("Career preferences saved.");
+  expect(await getCurrentProfile()).toMatchObject({ displayName: "Account A original", careerGoals: "Integration test fixture", targetRoles: ["Developer", "Mechanical Engineer"], industries: ["Manufacturing"], workArrangements: ["hybrid"], employmentTypes: ["contract"] });
+  expect(await prisma.careerProfile.findUnique({ where: { id: other.id } })).toEqual(other);
+  await saveProfile({}, form("Basic edit"));
+  expect((await getCurrentProfile())?.targetRoles).toEqual(["Developer", "Mechanical Engineer"]);
+  data.set("targetRoles", ""); data.set("industries", ""); data.delete("workArrangements"); data.delete("employmentTypes");
+  await saveCareerPreferences({}, data);
+  expect(await getCurrentProfile()).toMatchObject({ displayName: "Basic edit", targetRoles: [], industries: [], workArrangements: [], employmentTypes: [] });
+});
 
 it("provisions exactly one user and profile when requests overlap", async () => {
   const id = randomUUID();

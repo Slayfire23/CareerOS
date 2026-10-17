@@ -9,7 +9,7 @@ Repository: [Slayfire23/CareerOS](https://github.com/Slayfire23/CareerOS)
 
 Milestone 1 core functionality is complete and deployed: email/password signup and confirmation, sign-in/out, recovery, a protected dashboard, and separate editable profiles. The owner reported successful live signup, profile persistence, logout protection, and password recovery. Follow-up security checks remain explicitly open in TASKS.md; this is not a claim of a comprehensive security audit.
 
-Milestone 2 has not started. Structured career fields and resume management are next. Job matching, AI features, and application tracking are not implemented.
+Milestone 2 is in progress locally: target roles, industries, work arrangements, and employment types are implemented. Hosted migration and deployment of these fields are pending; see [STRUCTURED_PROFILE_SETUP.md](STRUCTURED_PROFILE_SETUP.md). Structured skills/experience, salary/location preferences, and resume management are next. Job matching, AI features, and application tracking are not implemented.
 
 ## Available today
 
@@ -21,7 +21,7 @@ Milestone 2 has not started. Structured career fields and resume management are 
 
 Signup and recovery links must be opened in the browser that requested them. Email delivery has been manually verified for tested addresses; the default Supabase sender's wider delivery limitations remain a follow-up.
 
-## Recorded verification
+## Recorded foundation verification
 
 | Check | Latest recorded result |
 |---|---|
@@ -102,3 +102,7 @@ Stop the dev server before building; restart it before running `npx playwright t
 - [TASKS.md](TASKS.md): completed work and open follow-ups.
 - [TESTING.md](TESTING.md): test commands and verified coverage.
 - [AUTH_EMAIL_SETUP.md](AUTH_EMAIL_SETUP.md): confirmation/recovery setup and troubleshooting.
+
+## Latest local increment — October 17, 2026
+
+Structured preference validation and persistence now pass 67 unit tests and 8 database integration tests. The additive migration preserved an existing fixture. TypeScript and lint pass. The default build was blocked by a sandbox junction permission; the new 11-test browser suite remains pending. These local changes have not been migrated to the hosted database or deployed. Follow STRUCTURED_PROFILE_SETUP.md before pushing.

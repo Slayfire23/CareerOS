@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 16, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 is not started.
+Updated October 16, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 has started locally; its first increment is not deployed.
 
 ## Milestone 1 — Foundation completed
 
@@ -33,9 +33,18 @@ Updated October 16, 2026. Milestone 1 core functionality is complete and deploye
 - [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
 - [ ] Commit and push this documentation reconciliation.
 
-## Milestone 2 — Structured career profile and resumes (not started)
+## Milestone 2 — Structured career profile and resumes (in progress)
 
-Start with checkpoint 1. Each checkpoint includes implementation and verification before moving to the next.
+First increment: target roles, industries, work arrangements, and employment types. Remaining field design stays open. See STRUCTURED_PROFILE_SETUP.md for verification and rollout.
+
+- [x] Implement optional preference lists and checkbox choices with separate save action.
+- [x] Preserve existing profile text and enforce server-side ownership.
+- [x] Test additive migration against an existing fixture in isolated PostgreSQL.
+- [x] Pass 67 unit tests, 8 database tests, TypeScript, and lint.
+- [ ] Run the production build outside the sandbox (junction permission blocked the agent).
+- [ ] Run all 11 browser tests against the app configured with local test PostgreSQL.
+- [ ] Apply reviewed hosted migration after local verification.
+- [ ] Commit/push, deploy, and smoke-test new preferences.
 
 ### Checkpoint 1: agree on the profile model
 

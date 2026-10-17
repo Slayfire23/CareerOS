@@ -1,6 +1,6 @@
 # CareerOS — Architecture
 
-Status: implemented foundation, October 16, 2026. Milestone 2 has not started.
+Status: implemented foundation, October 16, 2026. Milestone 2 is in progress locally; the structured-preferences increment is not deployed.
 
 ## Runtime and structure
 
@@ -60,3 +60,7 @@ Browser tests run against localhost:3000 and real Supabase authentication with t
 Evidence and limits are recorded in TESTING.md. Actual access-token expiration/refresh, replay of real used/expired email links, and crafted cross-account HTTP requests remain follow-ups. Normal two-account browser isolation and forged ownership fields against real local PostgreSQL have passed.
 
 Object storage, resume processing, AI services, queues, Redis, and background jobs have not been added. Choose them when their milestone requires them.
+
+## Local structured-preferences increment — October 17, 2026
+
+CareerProfile now includes targetRoles, industries, workArrangements, and employmentTypes as PostgreSQL text arrays with empty defaults. A separate preferences form and authenticated server action validate and update only these fields. The existing basic-profile action preserves them. Migration 20261017010000_career_preferences has been applied and tested only in isolated local PostgreSQL. Hosted migration and browser/build verification remain pending; see STRUCTURED_PROFILE_SETUP.md.

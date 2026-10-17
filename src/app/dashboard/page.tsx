@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
 import { ProfileForm } from "@/components/profile-form";
+import { CareerPreferencesForm } from "@/components/career-preferences-form";
 import { SignOutButton } from "@/components/sign-out-button";
 
 async function DashboardContent() {
@@ -32,7 +33,10 @@ async function DashboardContent() {
       </div>
 
       {profile ? (
-        <ProfileForm key={user.id} profile={profile} />
+        <div key={user.id} className="space-y-10">
+          <ProfileForm profile={profile} />
+          <CareerPreferencesForm profile={profile} />
+        </div>
       ) : (
         <p role="alert">
           Your profile is missing. Please sign out and sign in again
