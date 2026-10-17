@@ -27,6 +27,7 @@ export async function getCurrentProfile() {
       industries: true,
       workArrangements: true,
       employmentTypes: true,
+      technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
     },
   });
 }

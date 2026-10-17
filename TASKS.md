@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 16, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 has started locally; its first increment is not deployed.
+Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are in progress locally.
 
 ## Milestone 1 — Foundation completed
 
@@ -31,7 +31,7 @@ Updated October 16, 2026. Milestone 1 core functionality is complete and deploye
 - [ ] Recheck dependency audit and resolve the Next.js ESLint/braces advisory. Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
 - [ ] Confirm email delivery for the brother's actual address if it was not one of the live test recipients; reassess default SMTP before broader public use.
 - [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
-- [ ] Commit and push this documentation reconciliation.
+- [x] Commit and push this documentation reconciliation.
 
 ## Milestone 2 — Structured career profile and resumes (in progress)
 
@@ -41,10 +41,18 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Preserve existing profile text and enforce server-side ownership.
 - [x] Test additive migration against an existing fixture in isolated PostgreSQL.
 - [x] Pass 67 unit tests, 8 database tests, TypeScript, and lint.
-- [ ] Run the production build outside the sandbox (junction permission blocked the agent).
-- [ ] Run all 11 browser tests against the app configured with local test PostgreSQL.
-- [ ] Apply reviewed hosted migration after local verification.
-- [ ] Commit/push, deploy, and smoke-test new preferences.
+- [x] Run the production build outside the sandbox (junction permission blocked the agent).
+- [x] Run all 11 browser tests against the app configured with local test PostgreSQL.
+- [x] Apply reviewed hosted migration after local verification.
+- [x] Commit/push, deploy, and smoke-test new preferences.
+
+### Technical skills increment
+
+- [x] Define a skill name and optional self-assessed Beginner/Intermediate/Advanced level.
+- [x] Implement add/update/remove with account ownership and duplicate prevention.
+- [x] Apply the additive skills migration to local PostgreSQL; pass 83 unit tests, 10 database tests, TypeScript, and lint.
+- [ ] Verify build and all 12 browser tests for the skills increment.
+- [ ] Apply hosted migration, deploy, and verify live.
 
 ### Checkpoint 1: agree on the profile model
 

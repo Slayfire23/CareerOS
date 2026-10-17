@@ -64,3 +64,7 @@ Object storage, resume processing, AI services, queues, Redis, and background jo
 ## Local structured-preferences increment — October 17, 2026
 
 CareerProfile now includes targetRoles, industries, workArrangements, and employmentTypes as PostgreSQL text arrays with empty defaults. A separate preferences form and authenticated server action validate and update only these fields. The existing basic-profile action preserves them. Migration 20261017010000_career_preferences has been applied and tested only in isolated local PostgreSQL. Hosted migration and browser/build verification remain pending; see STRUCTURED_PROFILE_SETUP.md.
+
+## Technical skills increment — October 17, 2026
+
+Career preferences are deployed: the owner supplied passing 11-browser-test and build results, applied the hosted preferences migration, and verified live save/refresh/clear behavior. Technical skills are now implemented locally with a name and optional self-assessed proficiency. Names are normalized to prevent duplicate skills within a profile; saving an existing name updates its level. Removal enforces account ownership. The new related table and proficiency enum were migrated only to isolated local PostgreSQL. Current checks: 83 unit tests, 10 database tests, TypeScript, and lint passed. Build and the 12-test browser suite for this increment are pending. The hosted skills migration and deployment have not been performed. See TECHNICAL_SKILLS_SETUP.md.

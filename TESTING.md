@@ -100,3 +100,7 @@ Open scenarios: actual expired/refreshed/revoked sessions, crafted cross-account
 ## Structured preferences increment — October 17, 2026
 
 Directly executed: 67 unit tests across 4 files, 8 integration tests, and an existing-row migration-preservation check passed. TypeScript and lint passed. The production build was blocked by Windows sandbox junction permissions. Browser tests now total 11, but the suite has not been executed against this increment. The previous 10 passing browser tests above describe the foundation only. See STRUCTURED_PROFILE_SETUP.md for an isolated local app run before applying the hosted migration.
+
+## Technical skills increment — October 17, 2026
+
+Career preferences are deployed: the owner supplied passing 11-browser-test and build results, applied the hosted preferences migration, and verified live save/refresh/clear behavior. Technical skills are now implemented locally with a name and optional self-assessed proficiency. Names are normalized to prevent duplicate skills within a profile; saving an existing name updates its level. Removal enforces account ownership. The new related table and proficiency enum were migrated only to isolated local PostgreSQL. Current checks: 83 unit tests, 10 database tests, TypeScript, and lint passed. Build and the 12-test browser suite for this increment are pending. The hosted skills migration and deployment have not been performed. See TECHNICAL_SKILLS_SETUP.md.

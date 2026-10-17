@@ -18,6 +18,7 @@ import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
 import { getCurrentProfile } from "@/lib/profile";
 import { saveProfile } from "@/app/dashboard/actions";
 import { saveCareerPreferences } from "@/app/dashboard/preferences-actions";
+import { saveTechnicalSkill, removeTechnicalSkill } from "@/app/dashboard/skills-actions";
 
 let identities: string[] = [];
 let accountA: string;
@@ -66,6 +67,36 @@ afterEach(async () => {
 });
 
 afterAll(async () => { await prisma.$disconnect(); });
+
+it("adds, updates and removes skills while keeping basic profile fields intact", async () => {
+  await saveProfile({}, form("Keep my profile"));
+  const data = new FormData(); data.set("name", "TypeScript"); data.set("proficiency", "BEGINNER");
+  expect((await saveTechnicalSkill({}, data)).message).toBe("Skill saved.");
+  data.set("name", " typescript "); data.set("proficiency", "ADVANCED");
+  await saveTechnicalSkill({}, data);
+  let profile = await getCurrentProfile();
+  expect(profile?.technicalSkills).toHaveLength(1);
+  expect(profile?.technicalSkills[0]).toMatchObject({ name: "typescript", proficiency: "ADVANCED" });
+  data.set("proficiency", ""); await saveTechnicalSkill({}, data);
+  profile = await getCurrentProfile(); expect(profile?.technicalSkills[0].proficiency).toBeNull();
+  data.set("skillId", profile!.technicalSkills[0].id);
+  expect((await removeTechnicalSkill({}, data)).message).toBe("Skill removed.");
+  expect(await getCurrentProfile()).toMatchObject({ displayName: "Keep my profile", careerGoals: "Integration test fixture", technicalSkills: [] });
+});
+
+it("isolates same-name skills and rejects deletion of another account's skill", async () => {
+  const data = new FormData(); data.set("name", "AutoCAD"); data.set("proficiency", "BEGINNER");
+  await saveTechnicalSkill({}, data);
+  const a = (await getCurrentProfile())!.technicalSkills[0];
+  signIn(accountB); data.set("proficiency", "ADVANCED"); data.set("profileId", "forged");
+  await saveTechnicalSkill({}, data);
+  const b = (await getCurrentProfile())!.technicalSkills[0];
+  expect(a.id).not.toBe(b.id);
+  data.set("skillId", a.id);
+  expect((await removeTechnicalSkill({}, data)).error).toBeTruthy();
+  expect((await getCurrentProfile())?.technicalSkills).toEqual([b]);
+  signIn(accountA); expect((await getCurrentProfile())?.technicalSkills).toEqual([a]);
+});
 
 it("starts existing-style profiles with empty preferences", async () => {
   expect(await getCurrentProfile()).toMatchObject({ targetRoles: [], industries: [], workArrangements: [], employmentTypes: [] });

@@ -1,6 +1,6 @@
 # Structured profile fields — first increment
 
-Prepared October 17, 2026. Local implementation is complete; hosted migration, browser verification, and deployment are pending.
+Prepared October 17, 2026. Preferences increment complete: hosted migration, 11 browser tests, production build, deployment, and live saving/clearing were verified by the owner. The setup steps below describe that completed rollout; the next increment is tracked in TECHNICAL_SKILLS_SETUP.md.
 
 ## Fields and behavior
 

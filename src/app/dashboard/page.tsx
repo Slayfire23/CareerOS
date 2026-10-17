@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
 import { ProfileForm } from "@/components/profile-form";
 import { CareerPreferencesForm } from "@/components/career-preferences-form";
+import { TechnicalSkills } from "@/components/technical-skills";
 import { SignOutButton } from "@/components/sign-out-button";
 
 async function DashboardContent() {
@@ -36,6 +37,7 @@ async function DashboardContent() {
         <div key={user.id} className="space-y-10">
           <ProfileForm profile={profile} />
           <CareerPreferencesForm profile={profile} />
+          <TechnicalSkills skills={profile.technicalSkills} />
         </div>
       ) : (
         <p role="alert">
