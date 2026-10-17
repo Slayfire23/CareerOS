@@ -17,7 +17,7 @@ export type CareerPreferences = {
   employmentTypes: string[];
 };
 
-function lines(form: FormData, field: string, label: string): string[] {
+export function lines(form: FormData, field: string, label: string): string[] {
   const values = form.getAll(field);
   if (values.length !== 1 || typeof values[0] !== "string") {
     throw new Error(`Invalid ${label.toLowerCase()}. Reload the page and try again.`);

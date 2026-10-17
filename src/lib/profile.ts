@@ -26,7 +26,7 @@ export async function getCurrentProfile() {
       targetRoles: true,
       industries: true,
       workArrangements: true,
-      employmentTypes: true,
+      employmentTypes: true, preferredLocations: true, relocationWillingness: true, maxCommuteMinutes: true,
       professionalExperiences: { select: { id: true, jobTitle: true, company: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
     },
   });

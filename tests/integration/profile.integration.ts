@@ -210,3 +210,16 @@ it("rejects foreign experience edits/deletion and expired sessions",async()=>{
  expect((await saveExperience({},f)).error).toBeTruthy();expect((await removeExperience({},f)).error).toBeTruthy();
  signIn(accountA);expect((await getCurrentProfile())!.professionalExperiences).toEqual([original]);
 });
+
+it("persists and clears location preferences without changing another account or career preferences",async()=>{
+ const {saveLocationPreferences}=await import("@/app/dashboard/location-actions");
+ const f=new FormData();f.set("preferredLocations","Chicago, IL");f.set("relocationWillingness","no");f.set("maxCommuteMinutes","0");f.set("supabaseAuthId",accountB);
+ const beforeB=await prisma.careerProfile.findFirstOrThrow({where:{user:{supabaseAuthId:accountB}}});
+ const beforeA=await getCurrentProfile();expect(beforeA).toMatchObject({preferredLocations:[],relocationWillingness:null,maxCommuteMinutes:null});
+ expect((await saveLocationPreferences({},f)).message).toBeTruthy();expect(await getCurrentProfile()).toMatchObject({...beforeA,preferredLocations:["Chicago, IL"],relocationWillingness:"no",maxCommuteMinutes:0});
+ signIn(accountB);f.set("maxCommuteMinutes","60");await saveLocationPreferences({},f);
+ signIn(accountA);expect((await getCurrentProfile())!.maxCommuteMinutes).toBe(0);
+ for(const key of ["preferredLocations","relocationWillingness","maxCommuteMinutes"])f.set(key,"");await saveLocationPreferences({},f);expect(await getCurrentProfile()).toEqual(beforeA);
+ const afterB=await prisma.careerProfile.findUniqueOrThrow({where:{id:beforeB.id}});expect(afterB).toMatchObject({displayName:beforeB.displayName,maxCommuteMinutes:60,preferredLocations:["Chicago, IL"]});
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveLocationPreferences({},f)).error).toBeTruthy();
+});

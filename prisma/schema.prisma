@@ -30,6 +30,9 @@ model CareerProfile {
   industries String[] @default([])
   workArrangements String[] @default([])
   employmentTypes String[] @default([])
+  preferredLocations String[] @default([])
+  relocationWillingness String? @db.VarChar(10)
+  maxCommuteMinutes Int?
   technicalSkills TechnicalSkill[]
   professionalExperiences ProfessionalExperience[]
   createdAt   DateTime @default(now()) @db.Timestamptz(3)

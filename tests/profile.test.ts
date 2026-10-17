@@ -66,7 +66,7 @@ describe("profile access", () => {
     await getCurrentProfile();
     expect(mocks.findFirst).toHaveBeenCalledExactlyOnceWith({
       where: { user: { supabaseAuthId: id } },
-      select: { displayName: true, headline: true, careerGoals: true, targetRoles: true, industries: true, workArrangements: true, employmentTypes: true, professionalExperiences: { select: { id: true, jobTitle: true, company: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } } },
+      select: { displayName: true, headline: true, careerGoals: true, targetRoles: true, industries: true, workArrangements: true, employmentTypes: true, preferredLocations: true, relocationWillingness: true, maxCommuteMinutes: true, professionalExperiences: { select: { id: true, jobTitle: true, company: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } } },
     });
   });
 
