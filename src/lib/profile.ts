@@ -27,7 +27,7 @@ export async function getCurrentProfile() {
       industries: true,
       workArrangements: true,
       employmentTypes: true, preferredLocations: true, relocationWillingness: true, maxCommuteMinutes: true, salaryMinCents: true, salaryMaxCents: true, salaryCurrency: true, salaryPeriod: true,
-      educationEntries: { select: { id: true, qualification: true, institution: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, professionalExperiences: { select: { id: true, jobTitle: true, company: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
+      projects: { select: { id: true, title: true, description: true, contribution: true, results: true, skills: true, links: true }, orderBy: [{ title: "asc" }, { id: "asc" }] }, educationEntries: { select: { id: true, qualification: true, institution: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, professionalExperiences: { select: { id: true, jobTitle: true, company: true, startMonth: true, endMonth: true, description: true }, orderBy: [{ startMonth: "desc" }, { id: "asc" }] }, technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
     },
   });
 }

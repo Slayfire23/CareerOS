@@ -80,8 +80,23 @@ First increment: target roles, industries, work arrangements, and employment typ
 
 - [x] Define institution, qualification/program, optional field of study, month dates/current study, and optional details.
 - [x] Implement account-scoped add/edit/remove and additive local migration.
-- [ ] Complete build and browser verification before hosted rollout.
+- [x] Complete education build and all 16 browser tests (owner confirmed).
+- [x] Apply hosted education migration (owner confirmed).
+- [ ] Explicitly verify live education add/edit/remove after deployment.
+
+### Projects and accomplishments increment
+
+- [x] Define a fully optional cross-career section; title required only when adding an entry.
+- [x] Add description, contribution, results, skills, and optional supporting links.
+- [x] Implement owned add/edit/remove and local additive migration; pass 170 unit tests, 18 database tests, TypeScript, and lint.
+- [ ] Verify production build and all 18 browser tests (includes dark-mode regression).
 - [ ] Apply hosted migration, deploy, and verify live.
+
+### Dark-mode form styling
+
+- [x] Fix native color scheme, shared control colors, placeholders, focus, and disabled states.
+- [x] Verify native month picker selection and dark-mode browser regression.
+- [x] Deploy and confirm live styling (owner confirmed).
 
 ### Checkpoint 1: agree on the profile model
 
@@ -106,7 +121,7 @@ Acceptance: each user can save, reopen, change, and clear their own structured f
 
 ### Checkpoint 3: projects, education, and resumes
 
-- [ ] Add education entries (next increment: institution, qualification, field of study, dates, and optional details).
+- [x] Implement education entries; see verification details above.
 - [ ] Add projects with descriptions, contributions, skills, and optional links.
 - [ ] Choose private resume storage and permitted file types/size limits.
 - [ ] Implement upload, listing, download, and deletion with ownership checks.

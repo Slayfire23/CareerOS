@@ -1,0 +1,9 @@
+import {expect,it} from "vitest";
+import {parseProject,projectId} from "@/lib/projects";
+function form(){const f=new FormData();for(const [k,v] of Object.entries({projectId:"",title:" Process improvement ",description:"",contribution:"",results:"",skills:"",links:""}))f.set(k,v);return f;}
+it("requires only a title and clears optional fields",()=>expect(parseProject(form())).toEqual({title:"Process improvement",description:null,contribution:null,results:null,skills:[],links:[]}));
+it("normalizes skills and links",()=>{const f=form();f.set("skills"," Welding \nwelding\nPlanning");f.set("links","https://example.com\nhttps://example.com/");expect(parseProject(f)).toMatchObject({skills:["Welding","Planning"],links:["https://example.com/"]});});
+it.each(["javascript:alert(1)","data:text/html,test","ftp://example.com","https://user:pass@example.com","example.com","https://"])("rejects unsafe or malformed URL %s",value=>{const f=form();f.set("links",value);expect(()=>parseProject(f)).toThrow();});
+it.each(["title","description","contribution","results","skills","links"])("rejects missing, duplicate, file input %s",key=>{const f=form();f.delete(key);expect(()=>parseProject(f)).toThrow();f.set(key,new Blob(["bad"]));expect(()=>parseProject(f)).toThrow();f.set(key,"");f.append(key,"");expect(()=>parseProject(f)).toThrow();});
+it.each([["title",""],["title","x".repeat(101)],["description","x".repeat(5001)],["contribution","x".repeat(5001)],["results","x".repeat(5001)],["skills","x".repeat(101)],["links",Array(6).fill("https://example.com").join("\n")]])("enforces limits (%#)",(key,value)=>{const f=form();f.set(key,value);expect(()=>parseProject(f)).toThrow();});
+it("requires a valid ID or explicit blank for creation",()=>{const f=form();expect(projectId(f)).toBe("");f.set("projectId","forged");expect(()=>projectId(f)).toThrow();});

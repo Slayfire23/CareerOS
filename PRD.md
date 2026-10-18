@@ -47,3 +47,7 @@ Build one checkpoint at a time. Explain the design, implement it, verify it, and
 ## Milestone 2 starting scope
 
 Replace overreliance on the single careerGoals paragraph with structured target roles/related paths, technical skills, professional experience, work arrangement, salary expectations (currency and pay period), industries, and location/commute preferences. Preserve existing free text during migration. Extend projects/education and private resume version management incrementally. No AI matching or resume storage is implemented yet.
+
+## Optional projects and accomplishments
+
+Users across careers may describe projects or accomplishments using a title, optional description, personal contribution, results, skills, and supporting links. No repository, demo, or technical project is required. Leaving the section empty must not be treated as a weakness by future job matching.

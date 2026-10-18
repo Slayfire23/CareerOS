@@ -262,3 +262,18 @@ it("rejects foreign education edits/deletion and expired sessions",async()=>{
  expect((await saveEducation({},f)).error).toBeTruthy();expect((await removeEducation({},f)).error).toBeTruthy();
  signIn(accountA);expect((await getCurrentProfile())!.educationEntries).toEqual([original]);
 });
+
+function projectForm(){const f=new FormData();for(const [k,v] of Object.entries({projectId:"",title:"Process improvement",description:"Reduced waste",contribution:"Coordinated team",results:"Saved materials",skills:"Planning",links:"https://example.com"}))f.set(k,v);return f;}
+it("adds, edits, clears optional project fields and removes without changing the profile",async()=>{
+ const {saveProject,removeProject}=await import("@/app/dashboard/project-actions");
+ const before=await getCurrentProfile();const f=projectForm();expect((await saveProject({},f)).message).toBeTruthy();
+ const entry=(await getCurrentProfile())!.projects[0];expect(entry).toMatchObject({title:"Process improvement",skills:["Planning"],links:["https://example.com/"]});
+ f.set("projectId",entry.id);f.set("title","Improved process");for(const k of ["description","contribution","results","skills","links"])f.set(k,"");
+ expect((await saveProject({},f)).message).toBeTruthy();expect((await getCurrentProfile())!.projects).toEqual([{id:entry.id,title:"Improved process",description:null,contribution:null,results:null,skills:[],links:[]}]);
+ expect((await removeProject({},f)).message).toBeTruthy();expect(await getCurrentProfile()).toEqual(before);
+});
+it("rejects foreign project edits/deletion and signed-out actions",async()=>{
+ const {saveProject,removeProject}=await import("@/app/dashboard/project-actions");const f=projectForm();f.set("profileId","forged");await saveProject({},f);const original=(await getCurrentProfile())!.projects[0];
+ signIn(accountB);expect((await getCurrentProfile())!.projects).toEqual([]);f.set("projectId",original.id);f.set("title","Attack");expect((await saveProject({},f)).error).toBeTruthy();expect((await removeProject({},f)).error).toBeTruthy();
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveProject({},f)).error).toBeTruthy();expect((await removeProject({},f)).error).toBeTruthy();signIn(accountA);expect((await getCurrentProfile())!.projects).toEqual([original]);
+});

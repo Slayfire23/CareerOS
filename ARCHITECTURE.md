@@ -84,3 +84,7 @@ Nullable salaryMinCents/salaryMaxCents integers hold exact hundredths for suppor
 ## Education
 
 Education is a profile-owned related table with institution, qualification/program, optional fieldOfStudy, month dates, and optional description. A null endMonth means current study; an entry does not certify an awarded qualification. Server validation and a database constraint reject invalid/reversed dates. Update/delete scope combines record ID with verified identity; creation derives profileId. Migration 20261017060000_education is applied only to isolated local PostgreSQL.
+
+## Projects and accomplishments
+
+ProjectAccomplishment is a profile-owned related table with title, optional description/contribution/results, and skills/links arrays. A separate authenticated action derives ownership on create and filters updates/deletes by ID and verified identity. Links accept only absolute HTTP(S) without embedded credentials, are not fetched, and render with noopener/noreferrer. Shared control styling preserves dark-mode consistency. Migration 20261017070000_projects_accomplishments is local only.
