@@ -89,8 +89,16 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Define a fully optional cross-career section; title required only when adding an entry.
 - [x] Add description, contribution, results, skills, and optional supporting links.
 - [x] Implement owned add/edit/remove and local additive migration; pass 170 unit tests, 18 database tests, TypeScript, and lint.
-- [ ] Verify production build and all 18 browser tests (includes dark-mode regression).
-- [ ] Apply hosted migration, deploy, and verify live.
+- [x] Verify production build and all 18 browser tests (owner confirmed).
+- [x] Apply hosted projects migration, deploy, and verify live save/edit/remove (owner confirmed).
+
+### Private resumes increment
+
+- [x] Implement authenticated PDF upload/list/download/delete and immutable upload versions.
+- [x] Prepare private bucket and ownership RLS setup SQL (not applied).
+- [ ] Execute storage setup and verify two-account RLS/browser tests.
+- [ ] Verify production build and deploy; confirm live lifecycle.
+- [ ] Revisit parsing, malware scanning, quotas, and richer version grouping before broader use.
 
 ### Dark-mode form styling
 
@@ -122,8 +130,8 @@ Acceptance: each user can save, reopen, change, and clear their own structured f
 ### Checkpoint 3: projects, education, and resumes
 
 - [x] Implement education entries; see verification details above.
-- [ ] Add projects with descriptions, contributions, skills, and optional links.
-- [ ] Choose private resume storage and permitted file types/size limits.
+- [x] Add optional projects and accomplishments with descriptions, contributions, results, skills, and links.
+- [x] Choose private Supabase Storage, PDF only, 2 MiB per upload.
 - [ ] Implement upload, listing, download, and deletion with ownership checks.
 - [ ] Support multiple resumes and version history without replacing older files silently.
 - [ ] Test unauthorized access and document storage configuration.

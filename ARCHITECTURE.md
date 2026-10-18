@@ -88,3 +88,7 @@ Education is a profile-owned related table with institution, qualification/progr
 ## Projects and accomplishments
 
 ProjectAccomplishment is a profile-owned related table with title, optional description/contribution/results, and skills/links arrays. A separate authenticated action derives ownership on create and filters updates/deletes by ID and verified identity. Links accept only absolute HTTP(S) without embedded credentials, are not fetched, and render with noopener/noreferrer. Shared control styling preserves dark-mode consistency. Migration 20261017070000_projects_accomplishments is local only.
+
+## Private resume uploads
+
+Supabase Storage is the source of truth for resume metadata and bytes; no new Prisma table. Immutable UUID-prefixed PDF objects live under auth UUID folders in a private bucket. The app uses the cookie-authenticated client, never a service-role key. Authenticated server actions upload/remove; a no-store attachment route downloads. Owner-folder RLS and restrictive guards are required separately (supabase/resume-storage.sql). Storage configuration and live RLS verification remain pending. See RESUME_STORAGE_SETUP.md.

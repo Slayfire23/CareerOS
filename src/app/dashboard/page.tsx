@@ -3,6 +3,8 @@ import { LocationPreferencesForm } from "@/components/location-preferences-form"
 import { SalaryExpectationsForm } from "@/components/salary-expectations-form";
 import { Education } from "@/components/education";
 import { Projects } from "@/components/projects";
+import { Resumes } from "@/components/resumes";
+import { getResumes } from "@/lib/resumes";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -27,6 +29,7 @@ async function DashboardContent() {
   }
 
   const profile = await getCurrentProfile();
+  const resumes = await getResumes();
 
   return (
     <section className="space-y-8">
@@ -48,6 +51,7 @@ async function DashboardContent() {
           <ProfessionalExperience entries={profile.professionalExperiences} />
           <Education entries={profile.educationEntries} />
           <Projects entries={profile.projects} />
+          <Resumes {...resumes} />
         </div>
       ) : (
         <p role="alert">

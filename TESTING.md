@@ -128,3 +128,7 @@ Shared CSS now declares the active native color scheme and explicit control/opti
 ## Projects and accomplishments
 
 Directly executed: 170 unit tests, 18 isolated PostgreSQL integration tests, TypeScript, and lint passed. Local client generation/migration succeeded. New browser test covers non-software accomplishments, save/refresh/edit/clear/remove, and two-account isolation; 18 total browser tests including the dark-mode regression, execution pending for this increment. Production build and hosted rollout remain pending.
+
+## Private resumes
+
+190 unit tests passed; TypeScript and lint passed. Resume unit coverage checks PDF constraints, malformed/foreign paths, unique non-overwriting uploads, owner-scoped operations, invalid sessions, storage errors, paginated listing, and private attachment response headers. Storage is mocked in these unit tests: actual RLS is not verified yet. Added a real two-account browser/Storage test (19 total browser tests) requiring supabase/resume-storage.sql setup first. Build, configured-storage tests, and hosted rollout remain pending. No Prisma migration is required. Projects build/all 18 browser tests and live save/refresh/edit/remove were confirmed by the owner.
