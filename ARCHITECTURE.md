@@ -92,3 +92,7 @@ ProjectAccomplishment is a profile-owned related table with title, optional desc
 ## Private resume uploads
 
 Supabase Storage is the source of truth for resume metadata and bytes; no new Prisma table. Immutable UUID-prefixed PDF objects live under auth UUID folders in a private bucket. The app uses the cookie-authenticated client, never a service-role key. Authenticated server actions upload/remove; a no-store attachment route downloads. Owner-folder RLS and restrictive guards are required separately (supabase/resume-storage.sql). Storage configuration and live RLS verification remain pending. See RESUME_STORAGE_SETUP.md.
+
+## Resume review — October 21, 2026
+
+Uploads now precede profile fields. A dedicated dynamic review page reads the selected owned PDF only after an explicit Read resume action. unpdf 1.9.0 extracts text on the server; no AI or OCR. Suggestions are editable and opt-in. Applying reviewed fields authenticates again, verifies source availability, and uses one database transaction for conditional name/headline updates plus duplicate-skipping skill inserts. No schema change. See RESUME_REVIEW_SETUP.md for scope and limits.

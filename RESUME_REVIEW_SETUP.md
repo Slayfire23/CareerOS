@@ -1,0 +1,9 @@
+# Resume-assisted profile review
+
+Initial scope: server-side PDF text extraction with unpdf 1.9.0 (Node >=22), basic editable name/headline guesses, and skills listed under recognized Skills/Technical Skills/Core Competencies headings. This is deterministic extraction, not AI. No third-party AI call or API key. Text is not logged or persisted; it is returned only to the authenticated reviewer. Each extraction derives the source folder from the verified identity and validates the object key. PDF content is rendered as text, never HTML or instructions.
+
+The review starts with every checkbox off. Only selected fields are saved. Name/headline replacements show their current values; stale snapshots reject the entire transaction. New skills are added with unspecified proficiency, normalized duplicates are skipped, and existing levels stay intact. Other profile fields, preferences, and original resumes remain unchanged. Source ownership/availability is checked again before applying edits.
+
+Limits: existing 2 MiB upload size, 20 pages, 50,000 extracted characters, and a 10-second cooperative extraction timeout. The timeout is not process isolation and cannot preempt synchronous parser work. Scanned/image-only, malformed, and locked PDFs get a useful fallback. No OCR or automated work/education/project records yet. Multi-column layouts and unusual headings can produce inaccurate suggestions; user review is required. Up to 30 explicit skills are suggested. No migration or new storage policies are needed.
+
+Verification: real synthetic PDF extraction is unit-tested; database tests cover selected fields, duplicate/proficiency preservation, foreign identity, source removal, and stale-review rollback. Browser testing uses a uniquely named synthetic PDF and skill, removes fixtures, and checks another account cannot extract it. Production build must pass before deploying; Vercel must use Node 22 or newer. Current environment uses Node 24.

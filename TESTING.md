@@ -132,3 +132,7 @@ Directly executed: 170 unit tests, 18 isolated PostgreSQL integration tests, Typ
 ## Private resumes
 
 190 unit tests passed; TypeScript and lint passed. Resume unit coverage checks PDF constraints, malformed/foreign paths, unique non-overwriting uploads, owner-scoped operations, invalid sessions, storage errors, paginated listing, and private attachment response headers. Storage is mocked in these unit tests: actual RLS is not verified yet. Added a real two-account browser/Storage test (19 total browser tests) requiring supabase/resume-storage.sql setup first. Build, configured-storage tests, and hosted rollout remain pending. No Prisma migration is required. Projects build/all 18 browser tests and live save/refresh/edit/remove were confirmed by the owner.
+
+## Resume-assisted review — October 21, 2026
+
+Directly executed: 203 unit tests, 21 isolated PostgreSQL tests, all 20 Chromium browser tests, TypeScript, lint, and git diff whitespace checks passed. Real synthetic PDF extraction and two-account source access were exercised. Reviewed skill import leaves name/headline unchanged; database coverage verifies stale-snapshot rollback and duplicate/proficiency preservation. The browser test caught and prompted removal of a duplicate resume section after moving uploads to the top. The sandbox build was blocked by Turbopack junction permissions; the owner subsequently supplied successful production-build output on October 21, including the resume-review route. All predeployment checks passed. Deployment and live verification remain pending.

@@ -2,10 +2,10 @@ import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { TEST_DATABASE_URL } from "../support/local-database";
 
-const auth = vi.hoisted(() => ({ getUser: vi.fn() }));
+const auth = vi.hoisted(() => ({ getUser: vi.fn(), download: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => ({ auth: { getUser: auth.getUser } }),
+  createClient: async () => ({ auth: { getUser: auth.getUser }, storage: { from: () => ({ download: auth.download }) } }),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({
@@ -276,4 +276,24 @@ it("rejects foreign project edits/deletion and signed-out actions",async()=>{
  const {saveProject,removeProject}=await import("@/app/dashboard/project-actions");const f=projectForm();f.set("profileId","forged");await saveProject({},f);const original=(await getCurrentProfile())!.projects[0];
  signIn(accountB);expect((await getCurrentProfile())!.projects).toEqual([]);f.set("projectId",original.id);f.set("title","Attack");expect((await saveProject({},f)).error).toBeTruthy();expect((await removeProject({},f)).error).toBeTruthy();
  auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await saveProject({},f)).error).toBeTruthy();expect((await removeProject({},f)).error).toBeTruthy();signIn(accountA);expect((await getCurrentProfile())!.projects).toEqual([original]);
+});
+
+function reviewForm(){const f=new FormData();for(const [k,v] of Object.entries({key:"12345678-1234-1234-1234-123456789abc_resume.pdf",displayName:"Reviewed Name",headline:"Reviewed headline",skills:"CAD\nPlanning",baseName:"My profile",baseHeadline:""}))f.set(k,v);return f;}
+it("applies only reviewed fields, preserves proficiency, and leaves other accounts untouched",async()=>{
+ const {applyResumeReview}=await import("@/app/dashboard/resume-review/actions");auth.download.mockResolvedValue({data:new Blob(["source"]),error:null});
+ const skill=new FormData();skill.set("name","CAD");skill.set("proficiency","ADVANCED");await saveTechnicalSkill({},skill);
+ const before=await getCurrentProfile();signIn(accountB);const other=await getCurrentProfile();signIn(accountA);
+ const f=reviewForm();f.set("useSkills","on");f.set("userId",accountB);expect((await applyResumeReview({},f)).message).toBeTruthy();
+ const after=await getCurrentProfile();expect(after).toMatchObject({displayName:before!.displayName,headline:before!.headline,careerGoals:before!.careerGoals});expect(after!.technicalSkills).toHaveLength(2);expect(after!.technicalSkills.find(s=>s.name==="CAD")!.proficiency).toBe("ADVANCED");
+ expect(auth.download).toHaveBeenCalledWith(accountA+"/"+f.get("key"));await applyResumeReview({},f);expect((await getCurrentProfile())!.technicalSkills).toHaveLength(2);
+ signIn(accountB);expect(await getCurrentProfile()).toEqual(other);
+});
+it("rejects stale review atomically and applies selected name/headline with a current snapshot",async()=>{
+ const {applyResumeReview}=await import("@/app/dashboard/resume-review/actions");auth.download.mockResolvedValue({data:new Blob(["source"]),error:null});const f=reviewForm();f.set("useName","on");f.set("useHeadline","on");f.set("useSkills","on");f.set("baseName","Stale name");
+ expect((await applyResumeReview({},f)).error).toContain("changed");expect((await getCurrentProfile())!.technicalSkills).toHaveLength(0);
+ f.set("baseName","My profile");expect((await applyResumeReview({},f)).message).toBeTruthy();expect(await getCurrentProfile()).toMatchObject({displayName:"Reviewed Name",headline:"Reviewed headline"});
+});
+it("rejects missing source and invalid sessions before importing",async()=>{
+ const {applyResumeReview}=await import("@/app/dashboard/resume-review/actions");const f=reviewForm();f.set("useSkills","on");auth.download.mockResolvedValue({data:null,error:{message:"denied"}});expect((await applyResumeReview({},f)).error).toContain("no longer available");expect((await getCurrentProfile())!.technicalSkills).toHaveLength(0);
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await applyResumeReview({},f)).error).toContain("session");
 });

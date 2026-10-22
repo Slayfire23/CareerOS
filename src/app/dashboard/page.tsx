@@ -43,6 +43,7 @@ async function DashboardContent() {
 
       {profile ? (
         <div key={user.id} className="space-y-10">
+          <Resumes {...resumes} />
           <ProfileForm profile={profile} />
           <CareerPreferencesForm profile={profile} />
           <LocationPreferencesForm profile={profile} />
@@ -51,7 +52,6 @@ async function DashboardContent() {
           <ProfessionalExperience entries={profile.professionalExperiences} />
           <Education entries={profile.educationEntries} />
           <Projects entries={profile.projects} />
-          <Resumes {...resumes} />
         </div>
       ) : (
         <p role="alert">

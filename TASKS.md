@@ -95,10 +95,21 @@ First increment: target roles, industries, work arrangements, and employment typ
 ### Private resumes increment
 
 - [x] Implement authenticated PDF upload/list/download/delete and immutable upload versions.
-- [x] Prepare private bucket and ownership RLS setup SQL (not applied).
-- [ ] Execute storage setup and verify two-account RLS/browser tests.
-- [ ] Verify production build and deploy; confirm live lifecycle.
+- [x] Configure private bucket and ownership RLS (owner executed SQL successfully).
+- [x] Execute storage setup and verify all 19 browser tests, including two-account RLS (owner confirmed).
+- [x] Verify production build, deploy, and confirm live upload/download/version deletion (owner confirmed).
 - [ ] Revisit parsing, malware scanning, quotas, and richer version grouping before broader use.
+
+### Resume-assisted profile setup (October 21, 2026)
+
+- [x] Move resume uploads before profile fields and retain manual entry.
+- [x] Extract text locally from owned PDFs; suggest name/headline and explicit skills sections.
+- [x] Require explicit selection/editing before saving; preserve existing skill proficiency and reject stale profile snapshots atomically.
+- [x] Pass 203 unit tests, 21 database tests, TypeScript, and lint; targeted browser review test passes.
+- [x] Run all 20 browser tests successfully (directly executed October 21).
+- [x] Run production build outside the sandbox (owner supplied successful output October 21).
+- [ ] Verify live review and selective save after deployment.
+- [ ] Later: structured experience/education/project suggestions, OCR, and improved layout parsing.
 
 ### Dark-mode form styling
 
@@ -132,9 +143,9 @@ Acceptance: each user can save, reopen, change, and clear their own structured f
 - [x] Implement education entries; see verification details above.
 - [x] Add optional projects and accomplishments with descriptions, contributions, results, skills, and links.
 - [x] Choose private Supabase Storage, PDF only, 2 MiB per upload.
-- [ ] Implement upload, listing, download, and deletion with ownership checks.
-- [ ] Support multiple resumes and version history without replacing older files silently.
-- [ ] Test unauthorized access and document storage configuration.
+- [x] Implement upload, listing, download, and deletion with ownership checks.
+- [x] Preserve each upload as a separate immutable version; richer grouping remains a follow-up.
+- [x] Test unauthorized access and document storage configuration.
 
 Acceptance: each user can manage multiple private resume versions and cannot access another user's files.
 
