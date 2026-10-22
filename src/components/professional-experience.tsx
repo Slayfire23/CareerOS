@@ -48,7 +48,7 @@ export function ProfessionalExperience({ entries }: { entries: Experience[] }) {
     <h2 id="experience-heading" className="text-xl font-semibold">Professional experience</h2>
     <p>Add jobs, internships, or other professional work. Describe your own responsibilities and accomplishments.</p>
     {entries.length ? <ul className="space-y-4">{entries.map(entry => <ExperienceRow key={entry.id} entry={entry} />)}</ul> : <p>No professional experience added yet.</p>}
-    <h3 className="font-semibold">Add experience</h3>
-    <ExperienceForm />
+    <details className="rounded border p-4"><summary className="cursor-pointer font-semibold">Add experience</summary>
+    <div className="mt-4"><ExperienceForm /></div></details>
   </section>;
 }

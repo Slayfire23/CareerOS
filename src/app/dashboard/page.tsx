@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ProfessionalExperience } from "@/components/professional-experience";
 import { LocationPreferencesForm } from "@/components/location-preferences-form";
 import { SalaryExpectationsForm } from "@/components/salary-expectations-form";
@@ -60,6 +61,7 @@ async function DashboardContent() {
         </p>
       )}
 
+      <Link className="inline-block underline" href="/jobs">View saved jobs</Link>
       <SignOutButton />
     </section>
   );

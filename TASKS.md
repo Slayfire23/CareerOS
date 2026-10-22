@@ -108,7 +108,7 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Pass 203 unit tests, 21 database tests, TypeScript, and lint; targeted browser review test passes.
 - [x] Run all 20 browser tests successfully (directly executed October 21).
 - [x] Run production build outside the sandbox (owner supplied successful output October 21).
-- [ ] Verify live review and selective save after deployment.
+- [x] Verify live review and selective save after deployment (owner confirmed October 21: only selected fields saved; all other profile information preserved).
 - [ ] Later: structured experience/education/project suggestions, OCR, and improved layout parsing.
 
 ### Dark-mode form styling
@@ -156,3 +156,16 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [ ] Milestone 3: explainable job-description analysis and resume selection.
 - [ ] Milestone 4: application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
+
+
+## Saved jobs — October 21, 2026
+
+- [x] Add private saved jobs with title, company, optional posting link, and pasted description.
+- [x] Add authenticated create/edit/delete actions and an ownership-scoped /jobs page linked from the dashboard.
+- [x] Add migration 20261021010000_saved_jobs without changing existing profile data; apply to isolated local PostgreSQL only.
+- [x] Collapse the Add experience form by default; keep saved summaries visible and existing edit forms collapsible.
+- [x] Pass 213 unit tests, 22 database tests, TypeScript, lint, and targeted saved-jobs/experience/dark-mode browser checks.
+- [x] Complete production build (owner supplied successful output including /jobs).
+- [x] Complete the full browser suite: all 21 Chromium tests passed.
+- [ ] Apply the saved-jobs migration to Supabase after verification, deploy, and verify live save/refresh/edit/delete.
+- [ ] Next increment: explainable job-requirement analysis against confirmed profile information.

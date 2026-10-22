@@ -96,3 +96,8 @@ Supabase Storage is the source of truth for resume metadata and bytes; no new Pr
 ## Resume review â€” October 21, 2026
 
 Uploads now precede profile fields. A dedicated dynamic review page reads the selected owned PDF only after an explicit Read resume action. unpdf 1.9.0 extracts text on the server; no AI or OCR. Suggestions are editable and opt-in. Applying reviewed fields authenticates again, verifies source availability, and uses one database transaction for conditional name/headline updates plus duplicate-skipping skill inserts. No schema change. See RESUME_REVIEW_SETUP.md for scope and limits.
+
+
+## Saved jobs — October 21, 2026
+
+SavedJob belongs directly to User, independently of career profile facts. The /jobs page authenticates before querying and selects only the verified user's records; create derives the internal user ID from the verified Supabase identity, and update/delete filter by both record ID and identity. The migration adds one table and enables RLS with no client policies: Prisma server access enforces account ownership, while browser Data API access is not granted. Job title/company are required (200 characters each), pasted description is required (30,000 characters), and the optional link is limited to 2,000 characters and HTTP(S) without embedded credentials. Links are not fetched and descriptions render as escaped text. Saving does not submit an application or perform AI analysis. Existing profile records are unchanged. Add experience uses native details/summary for keyboard-accessible collapse without a dependency.

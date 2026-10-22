@@ -35,6 +35,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
  for(const text of await page.locator('textarea:visible, input[type="number"]:visible').all())await readable(text);
  const placeholderColor=await page.getByLabel("Headline (optional)",{exact:true}).evaluate(el=>getComputedStyle(el,"::placeholder").color);
  expect(placeholderColor).toBe("rgb(179, 179, 179)");
+ await page.getByText("Add experience", {exact:true}).click();
  for(const name of ["Add education","Add professional experience"]){
   const form=page.getByRole("form",{name,exact:true});
   for(const label of ["Start month","End month"]){

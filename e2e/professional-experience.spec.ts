@@ -9,6 +9,12 @@ const row = (page: Page, name: string) => section(page).getByRole("listitem").fi
 async function save(page: Page, name: string) {
   await page.goto("/dashboard");
   const form = page.getByRole("form", { name: "Add professional experience", exact: true });
+  await expect(form).toBeHidden();
+  const toggle = section(page).getByText("Add experience", { exact: true });
+  await toggle.focus(); await page.keyboard.press("Enter");
+  await expect(form).toBeVisible();
+  await toggle.click(); await expect(form).toBeHidden();
+  await toggle.click();
   await form.getByLabel("Job title", { exact: true }).fill("Engineer");
   await form.getByLabel("Company", { exact: true }).fill(name);
   await form.getByLabel("Start month", { exact: true }).fill("2020-01");

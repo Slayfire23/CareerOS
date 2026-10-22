@@ -18,6 +18,20 @@ model User {
   createdAt      DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
   careerProfile  CareerProfile?
+  savedJobs SavedJob[]
+}
+
+model SavedJob {
+ id String @id @default(uuid()) @db.Uuid
+ userId String @db.Uuid
+ title String @db.VarChar(200)
+ company String @db.VarChar(200)
+ postingUrl String? @db.VarChar(2000)
+ description String @db.VarChar(30000)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ @@index([userId, createdAt])
 }
 
 model CareerProfile {

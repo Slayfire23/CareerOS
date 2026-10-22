@@ -297,3 +297,31 @@ it("rejects missing source and invalid sessions before importing",async()=>{
  const {applyResumeReview}=await import("@/app/dashboard/resume-review/actions");const f=reviewForm();f.set("useSkills","on");auth.download.mockResolvedValue({data:null,error:{message:"denied"}});expect((await applyResumeReview({},f)).error).toContain("no longer available");expect((await getCurrentProfile())!.technicalSkills).toHaveLength(0);
  auth.getUser.mockResolvedValue({data:{user:null},error:null});expect((await applyResumeReview({},f)).error).toContain("session");
 });
+
+
+import { saveJob, removeJob } from "@/app/jobs/actions";
+function jobForm(id = "") {
+ const data = new FormData();
+ for (const [key, value] of Object.entries({jobId:id, title:"Engineer",company:"Test company",postingUrl:"https://example.com/job",description:"Original requirements"})) data.set(key,value);
+ return data;
+}
+it("saved jobs are owner-scoped on create, update, delete, and lost session", async () => {
+ const data=jobForm();
+ data.set("userId", accountB);
+ expect(await saveJob({},data)).toEqual({message:"Job saved."});
+ const job=await prisma.savedJob.findFirstOrThrow({where:{user:{supabaseAuthId:accountA}}});
+ signIn(accountB);
+ expect(await saveJob({},jobForm(job.id))).toHaveProperty("error");
+ expect(await removeJob({},jobForm(job.id))).toHaveProperty("error");
+ expect(await prisma.savedJob.findUnique({where:{id:job.id}})).toMatchObject({description:"Original requirements"});
+ signIn(accountA);
+ const edit=jobForm(job.id);edit.set("description","Updated requirements");edit.set("postingUrl","");
+ expect(await saveJob({},edit)).toEqual({message:"Job saved."});
+ expect(await prisma.savedJob.findUnique({where:{id:job.id}})).toMatchObject({description:"Updated requirements",postingUrl:null});
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});
+ expect(await saveJob({},jobForm())).toHaveProperty("error");
+ expect(await removeJob({},jobForm(job.id))).toHaveProperty("error");
+ signIn(accountA);
+ expect(await removeJob({},jobForm(job.id))).toEqual({message:"Job removed."});
+ expect(await prisma.savedJob.findUnique({where:{id:job.id}})).toBeNull();
+});
