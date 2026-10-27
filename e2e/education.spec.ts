@@ -8,6 +8,7 @@ const row = (page: Page, name: string) => section(page).getByRole("listitem").fi
 
 async function save(page: Page, name: string) {
   await page.goto("/dashboard");
+  await page.getByText("Add education", {exact:true}).click();
   const form = page.getByRole("form", { name: "Add education", exact: true });
   await form.getByLabel("Qualification or program", { exact: true }).fill("Bachelor of Science");
   await form.getByLabel("Institution", { exact: true }).fill(name);

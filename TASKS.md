@@ -167,5 +167,20 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [x] Pass 213 unit tests, 22 database tests, TypeScript, lint, and targeted saved-jobs/experience/dark-mode browser checks.
 - [x] Complete production build (owner supplied successful output including /jobs).
 - [x] Complete the full browser suite: all 21 Chromium tests passed.
-- [ ] Apply the saved-jobs migration to Supabase after verification, deploy, and verify live save/refresh/edit/delete.
+- [x] Apply the saved-jobs migration to Supabase, deploy, and verify live save/refresh/edit/delete (owner confirmed everything working).
 - [ ] Next increment: explainable job-requirement analysis against confirmed profile information.
+
+
+## Job requirements review - October 26, 2026
+
+- [x] Collapse education/project add forms; existing targeted browser checks passed.
+- [x] Add source-backed, editable requirement suggestions and manual additions.
+- [x] Require explicit selection and confirmation; preserve the original job description.
+- [x] Save private reviewed requirements with description snapshots and optimistic review versions.
+- [x] Reject foreign records, stale descriptions, stale reviews, invalid excerpts, and lost sessions.
+- [x] Apply migration 20261026010000_job_requirements to local test PostgreSQL.
+- [x] Pass 224 unit tests, 24 database tests, TypeScript, and lint.
+- [x] Complete production build (owner supplied successful output with the requirements route).
+- [x] Complete browser verification: all 22 Chromium tests passed (October 26).
+- [ ] Apply hosted migration, deploy, and verify live review/selective save/edit/clear.
+- [ ] Later: compare confirmed requirements with profile evidence; no match scores yet.

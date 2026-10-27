@@ -1,0 +1,1 @@
+ALTER TABLE "SavedJob" ADD COLUMN "requirements" JSONB NOT NULL DEFAULT '[]', ADD COLUMN "reviewedDescription" VARCHAR(30000), ADD COLUMN "reviewVersion" INTEGER NOT NULL DEFAULT 0;

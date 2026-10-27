@@ -22,6 +22,9 @@ model User {
 }
 
 model SavedJob {
+ requirements Json @default("[]")
+ reviewedDescription String? @db.VarChar(30000)
+ reviewVersion Int @default(0)
  id String @id @default(uuid()) @db.Uuid
  userId String @db.Uuid
  title String @db.VarChar(200)

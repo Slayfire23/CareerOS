@@ -7,7 +7,7 @@ const section = (page: Page) => page.getByRole("region", { name: "Projects and a
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
 
 async function save(page: Page,name:string){
- await page.goto("/dashboard");const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
+ await page.goto("/dashboard");await page.getByText("Add project or accomplishment",{exact:true}).click();const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
  await form.getByLabel("Title",{exact:true}).fill(name);
  await form.getByLabel("Your contribution (optional)",{exact:true}).fill("Coordinated a team");
  await form.getByLabel("Supporting links (optional)",{exact:true}).fill("https://example.com");

@@ -141,3 +141,8 @@ Directly executed: 203 unit tests, 21 isolated PostgreSQL tests, all 20 Chromium
 ## Saved jobs and collapsible experience — October 21, 2026
 
 213 unit tests, 22 isolated PostgreSQL integration tests, TypeScript, and lint passed. Three targeted Chromium tests passed: saved-job create/refresh/edit/link clearing/delete and two-account listing isolation; professional-experience persistence and keyboard collapse/expand; dark-mode native controls. Database tests exercise crafted foreign-ID edits/deletes, ignored supplied ownership, session loss, and unchanged foreign records. Local migration 20261021010000_saved_jobs was applied successfully. The owner supplied a successful production build including /jobs. All 21 Chromium browser tests passed (1.9 minutes). Hosted migration/deployment remain pending.
+
+
+## Job requirements review - October 26, 2026
+
+224 unit tests and 24 isolated PostgreSQL integration tests passed. TypeScript and lint passed. Database coverage verifies owner-only review updates, rejected stale review versions and changed descriptions, explicit clearing, unchanged career profiles, lost sessions, invalid excerpts, and missing confirmation. The targeted requirements browser test passed after restarting the dev server with the regenerated Prisma client and local test database settings. It verifies selective save, manual additions, edited text, persistence, changed-description warnings, clearing, foreign-account denial, and signed-out redirects. All 22 Chromium browser tests passed in 2.2 minutes on October 26. Migration 20261026010000_job_requirements has been applied only to local test PostgreSQL. The owner supplied a successful production build including /jobs/[id]/requirements. Hosted rollout remains pending.

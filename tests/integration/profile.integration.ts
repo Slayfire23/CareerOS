@@ -325,3 +325,38 @@ it("saved jobs are owner-scoped on create, update, delete, and lost session", as
  expect(await removeJob({},jobForm(job.id))).toEqual({message:"Job removed."});
  expect(await prisma.savedJob.findUnique({where:{id:job.id}})).toBeNull();
 });
+
+
+import { saveRequirements } from "@/app/jobs/requirements-actions";
+function requirementForm(id: string, version = 0, description = "Original requirements") {
+ const f = new FormData();
+ f.set("jobId", id); f.set("reviewVersion", String(version)); f.set("baseDescription", description); f.set("confirmed", "on");
+ f.set("requirements", JSON.stringify([{text:"Reviewed requirement", category:"Other", priority:"Unspecified", source:description}]));
+ return f;
+}
+it("requirements reviews enforce ownership, explicit selection and optimistic concurrency", async () => {
+ await saveJob({}, jobForm());
+ const job = await prisma.savedJob.findFirstOrThrow({where:{user:{supabaseAuthId:accountA}}});
+ const profile = await getCurrentProfile();
+ signIn(accountB);
+ expect(await saveRequirements({},requirementForm(job.id))).toHaveProperty("error");
+ signIn(accountA);
+ expect(await saveRequirements({},requirementForm(job.id))).toHaveProperty("message");
+ expect(await saveRequirements({},requirementForm(job.id))).toHaveProperty("error");
+ expect(await prisma.savedJob.findUniqueOrThrow({where:{id:job.id}})).toMatchObject({reviewVersion:1, reviewedDescription:job.description});
+ const edit=jobForm(job.id);edit.set("description","Changed description");await saveJob({},edit);
+ expect(await saveRequirements({},requirementForm(job.id,1))).toHaveProperty("error");
+ const clear=requirementForm(job.id,1,"Changed description");clear.set("requirements","[]");
+ expect(await saveRequirements({},clear)).toHaveProperty("message");
+ expect(await prisma.savedJob.findUniqueOrThrow({where:{id:job.id}})).toMatchObject({requirements:[],reviewVersion:2,reviewedDescription:"Changed description"});
+ expect(await getCurrentProfile()).toEqual(profile);
+ auth.getUser.mockResolvedValue({data:{user:null},error:null});
+ expect(await saveRequirements({},requirementForm(job.id,2,"Changed description"))).toHaveProperty("error");
+});
+it("invalid source and unconfirmed reviews never write", async () => {
+ await saveJob({},jobForm());const job=await prisma.savedJob.findFirstOrThrow({where:{user:{supabaseAuthId:accountA}}});
+ const f=requirementForm(job.id);f.delete("confirmed");expect(await saveRequirements({},f)).toHaveProperty("error");
+ f.set("confirmed","on");f.set("requirements",JSON.stringify([{text:"Fake",category:"Other",priority:"Required",source:"not in description"}]));
+ expect(await saveRequirements({},f)).toHaveProperty("error");
+ expect(await prisma.savedJob.findUniqueOrThrow({where:{id:job.id}})).toMatchObject({requirements:[],reviewVersion:0,reviewedDescription:null});
+});

@@ -51,7 +51,7 @@ export function Education({ entries }: { entries: EducationEntry[] }) {
     <h2 id="education-heading" className="text-xl font-semibold">Education</h2>
     <p>Add education or training. Name the qualification or program; use Details to clarify completion or award status.</p>
     {entries.length ? <ul className="space-y-4">{entries.map(entry => <EducationRow key={entry.id} entry={entry} />)}</ul> : <p>No education added yet.</p>}
-    <h3 className="font-semibold">Add education</h3>
-    <EducationForm />
+    <details className="rounded border p-4"><summary className="cursor-pointer font-semibold">Add education</summary>
+    <div className="mt-4"><EducationForm /></div></details>
   </section>;
 }
