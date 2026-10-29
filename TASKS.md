@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 28, 2026 (see the audit section at the end and docs/FOUNDATION_COMPLETION_REPORT.md). Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
+Updated October 29, 2026. Milestones 1 and 2 (current scope) and the UI/UX redesign are complete, deployed, and verified in production. Milestone 3 (AI job analysis, the AI Engineering phase) and Milestone 4 (application tracking) are planned and not started; no AI features exist in the product yet. Earlier status follows. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
 
 ## Milestone 1 — Foundation completed
 
@@ -33,7 +33,7 @@ Updated October 28, 2026 (see the audit section at the end and docs/FOUNDATION_C
 - [x] Separate development/test data from the live Supabase project (October 28: local Supabase stack via the pinned CLI; see DEV_ENVIRONMENT_SETUP.md).
 - [x] Commit and push this documentation reconciliation.
 
-## Milestone 2 — Structured career profile and resumes (in progress)
+## Milestone 2 — Structured career profile and resumes (complete for current scope; unchecked items below are later enhancements or superseded checkpoints)
 
 First increment: target roles, industries, work arrangements, and employment types. Remaining field design stays open. See STRUCTURED_PROFILE_SETUP.md for verification and rollout.
 
@@ -149,12 +149,12 @@ Acceptance: each user can save, reopen, change, and clear their own structured f
 
 Acceptance: each user can manage multiple private resume versions and cannot access another user's files.
 
-Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a later milestone.
+Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a later milestone (Milestone 3, planned, not started).
 
 ## Later milestones
 
-- [ ] Milestone 3: explainable job-description analysis and resume selection.
-- [ ] Milestone 4: application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
+- [ ] Milestone 3 (AI Engineering phase, planned, not started): explainable job-description analysis and resume selection.
+- [ ] Milestone 4 (planned, not started): application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
 
 
@@ -210,5 +210,7 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] Phase 3: navigation, redirect, mobile-menu, and confirmation tests added.
 - [x] Phase 4: restyled all forms and key pages (Resumes, Saved Jobs, Job Analysis, requirement review), sign-out, auth pages, loading/empty states; responsive audit of 90 page views; owner approved the design.
 - [x] Final refinements: full values on the mobile dashboard, roomier mobile requirement controls, "Jun 2023 – Present" dates (storage unchanged), inline confirmation for every destructive action (Cancel/Escape covered by e2e/confirmation.spec.ts).
-- [ ] Phase 5: PR opened for owner review. No merge or deploy without approval; verify in production after merge.
+- [x] Phase 5: PR #2 merged October 29, 2026 (a3cb6fd); Vercel production deployment Ready.
+- [x] Production verification: signed-out checks (new home page and titles, /login redirects from all 11 section pages, 307 redirects from old addresses, 404 for unknown pages) and owner-confirmed signed-in checks (overview data, navigation highlighting, save/refresh, confirmation Cancel/remove, job analysis, friendly dates, mobile menu, dark mode).
+- [ ] Next: AI Engineering phase may begin. Still awaiting owner approval: production RLS migration 20261028010000_enable_row_level_security, and a check of production Storage for leftover test-fixture PDFs.
 - [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).
