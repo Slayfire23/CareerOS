@@ -26,5 +26,5 @@ async function ReviewContent({params}: {params: Promise<{id: string}>}) {
  </section>;
 }
 export default function RequirementsPage({params}: {params: Promise<{id: string}>}) {
- return <div className="space-y-6"><Link href={SECTIONS.analysis.href} className="text-sm font-medium text-accent-text hover:underline">← Back to job analysis</Link><Suspense fallback={<LoadingBlock label="Loading requirements…" />}><ReviewContent params={params} /></Suspense></div>;
+ return <div className="space-y-6"><Link href={SECTIONS.analysis.href} className="text-sm font-medium text-accent-text hover:underline">← Back to job analysis</Link><Suspense fallback={<LoadingBlock variant="form" label="Loading requirements…" />}><ReviewContent params={params} /></Suspense></div>;
 }

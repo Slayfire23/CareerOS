@@ -3,6 +3,7 @@ import {randomUUID} from "node:crypto";
 import {parse} from "dotenv";
 import {createClient} from "@supabase/supabase-js";
 import {test,expect} from "@playwright/test";
+import { openPage } from "./support";
 import {RESUME_BUCKET} from "../src/lib/resume-files";
 
 test("private resumes preserve uploads and deny cross-account storage/download access",async({page,browser,baseURL})=>{
@@ -21,7 +22,7 @@ test("private resumes preserve uploads and deny cross-account storage/download a
  const rows=()=>page.getByRole("region",{name:"Private resumes",exact:true}).getByRole("listitem").filter({hasText:name});
  const uploaded:string[]=[];
  try{
-  for(const [p,email,password] of [[page,credentials.E2E_TEST_EMAIL,credentials.E2E_TEST_PASSWORD],[pageB,credentials.E2E_TEST_EMAIL_B,credentials.E2E_TEST_PASSWORD_B]] as const){await p.goto("/login");await p.getByLabel("Email",{exact:true}).fill(email);await p.getByLabel("Password",{exact:true}).fill(password);await p.getByRole("button",{name:"Sign in",exact:true}).click();await expect(p).toHaveURL(/\/dashboard\/?$/); await p.goto("/dashboard/resumes"); await p.waitForLoadState("networkidle");}
+  for(const [p,email,password] of [[page,credentials.E2E_TEST_EMAIL,credentials.E2E_TEST_PASSWORD],[pageB,credentials.E2E_TEST_EMAIL_B,credentials.E2E_TEST_PASSWORD_B]] as const){await p.goto("/login");await p.getByLabel("Email",{exact:true}).fill(email);await p.getByLabel("Password",{exact:true}).fill(password);await p.getByRole("button",{name:"Sign in",exact:true}).click();await expect(p).toHaveURL(/\/dashboard\/?$/); await openPage(p, "/dashboard/resumes");}
   for(let i=0;i<2;i++){await page.getByLabel("PDF resume",{exact:true}).setInputFiles({name,mimeType:"application/pdf",buffer:pdf});await page.getByRole("button",{name:"Upload resume",exact:true}).click();await expect(page.getByRole("form",{name:"Upload resume",exact:true}).getByRole("status")).toHaveText("Resume uploaded as a new version.");await page.reload();await expect(rows()).toHaveCount(i+1);}
   for(const link of await rows().getByRole("link",{name:/^Download /}).all()){const href=(await link.getAttribute("href"))!;uploaded.push(decodeURIComponent(href.split("/").pop()!));const response=await page.request.get(href);expect(response.status()).toBe(200);expect(await response.body()).toEqual(pdf);expect(response.headers()["cache-control"]).toContain("no-store");expect((await pageB.request.get(href)).status()).toBe(404);}
   await pageB.reload();await expect(pageB.getByRole("region",{name:"Private resumes",exact:true}).getByText(name,{exact:true})).toHaveCount(0);

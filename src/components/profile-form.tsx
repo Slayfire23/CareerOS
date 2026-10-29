@@ -25,11 +25,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <h2 className="text-xl font-semibold">Your career profile</h2>
+      <h2 className="text-lg font-semibold">Your career profile</h2>
 
       <fieldset disabled={pending} className="space-y-5">
         <div>
-          <label htmlFor="displayName" className="mb-2 block">
+          <label htmlFor="displayName" className="label">
             Display name
           </label>
           <input
@@ -40,12 +40,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             autoComplete="name"
             required
             maxLength={100}
-            className="w-full rounded-lg border p-3"
+            className="field"
           />
         </div>
 
         <div>
-          <label htmlFor="headline" className="mb-2 block">
+          <label htmlFor="headline" className="label">
             Headline (optional)
           </label>
           <input
@@ -55,12 +55,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             onChange={(event) => setHeadline(event.target.value)}
             maxLength={200}
             placeholder="For example: Full-stack developer"
-            className="w-full rounded-lg border p-3"
+            className="field"
           />
         </div>
 
         <div>
-          <label htmlFor="careerGoals" className="mb-2 block">
+          <label htmlFor="careerGoals" className="label">
             Career goals (optional)
           </label>
           <textarea
@@ -71,26 +71,26 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             maxLength={5000}
             rows={5}
             placeholder="What kinds of roles and opportunities interest you?"
-            className="w-full rounded-lg border p-3"
+            className="field"
           />
         </div>
 
         <button
           type="submit"
-          className="rounded-lg bg-blue-700 px-5 py-3 font-semibold text-white disabled:opacity-50"
+          className="btn btn-primary"
         >
           {pending ? "Saving…" : "Save profile"}
         </button>
       </fieldset>
 
       {state.error && (
-        <p role="alert" className="text-red-600 dark:text-red-400">
+        <p role="alert">
           {state.error}
         </p>
       )}
 
       {state.message && (
-        <p role="status" className="text-green-700 dark:text-green-400">
+        <p role="status">
           {state.message}
         </p>
       )}

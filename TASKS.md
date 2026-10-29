@@ -210,4 +210,4 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [ ] Phase 3: further page-level tests where useful (old-address redirects and every-page sign-out redirects are already covered by e2e/navigation.spec.ts).
 - [ ] Phase 4: restyle the existing section forms (borders, spacing, buttons, sign-out button) to match the new design; accessibility and mobile pass; screenshots for owner review.
 - [ ] Phase 5: docs, PR, owner review. No merge or deploy without approval.
-- [ ] Known, pre-existing: input typed in the first instant after a page loads can be lost while the page finishes starting up. Tests now wait for pages to settle.
+- [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).

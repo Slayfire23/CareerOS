@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
+import { openPage } from "./support";
 
 async function signIn(page: Page) {
   const values = parse(readFileSync(resolve(process.cwd(), ".env.playwright.local")));
@@ -13,7 +14,7 @@ async function signIn(page: Page) {
   await page.getByLabel("Email", { exact: true }).fill(values.E2E_TEST_EMAIL.trim());
   await page.getByLabel("Password", { exact: true }).fill(values.E2E_TEST_PASSWORD);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard\/?$/); await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/dashboard\/?$/); await openPage(page, "/dashboard/profile");
   await expect(page.getByLabel("Display name", { exact: true })).toBeVisible();
 }
 

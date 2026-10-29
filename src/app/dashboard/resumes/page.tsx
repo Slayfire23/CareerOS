@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getResumes } from "@/lib/resumes";
 import { Resumes } from "@/components/resumes";
-import { Card, LoadingBlock, PageHeader } from "@/components/ui";
+import { LoadingBlock, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Resumes" };
 
@@ -14,12 +14,12 @@ async function ResumesContent() {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) redirect("/login");
-  return <Card><Resumes {...await getResumes()} /></Card>;
+  return <Resumes {...await getResumes()} />;
 }
 
 export default function ResumesPage() {
   return <div className="space-y-8">
     <PageHeader title="Resumes" description="Private PDF versions of your resume. Review suggestions from one before anything is saved to your profile." />
-    <Suspense fallback={<LoadingBlock label="Loading resumes…" />}><ResumesContent /></Suspense>
+    <Suspense fallback={<LoadingBlock variant="list" label="Loading resumes…" />}><ResumesContent /></Suspense>
   </div>;
 }

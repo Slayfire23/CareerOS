@@ -21,7 +21,7 @@ async function ProfileContent({ render }: { render: (profile: Profile) => ReactN
 export function ProfileSectionPage({ title, description, render }: { title: string; description: ReactNode; render: (profile: Profile) => ReactNode }) {
   return <div className="space-y-8">
     <PageHeader title={title} description={description} />
-    <Suspense fallback={<LoadingBlock label={`Loading ${title.toLowerCase()}…`} />}>
+    <Suspense fallback={<LoadingBlock variant="form" label={`Loading ${title.toLowerCase()}…`} />}>
       <ProfileContent render={render} />
     </Suspense>
   </div>;

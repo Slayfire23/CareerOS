@@ -138,7 +138,7 @@ function ProfileSummary({ profile, resumes }: { profile: Profile; resumes: Resum
         {missing.map(item => <li key={item.label}><Link href={item.href} className="inline-block rounded-full border border-dashed border-line px-2.5 py-0.5 text-xs text-muted hover:border-accent hover:text-accent-text">+ Add {item.label}</Link></li>)}
       </ul>}
     </div>
-    <ul className="grid gap-x-6 md:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-x-6 md:grid-cols-2">
       <Row href={SECTIONS.profile.href} label="Headline" value={profile.headline} />
       <Row href={SECTIONS.preferences.href} label="Target roles" value={profile.targetRoles.length ? profile.targetRoles.join(", ") : null} detail={profile.workArrangements.length || profile.employmentTypes.length ? `${plural(preferenceCount, "preference")} saved` : null} />
       <Row href={SECTIONS.skills.href} label="Skills" value={profile.technicalSkills.length ? plural(profile.technicalSkills.length, "skill") : null} detail={profile.technicalSkills.slice(0, 4).map(skill => skill.name).join(", ")} />

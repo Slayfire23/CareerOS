@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
+import { openPage } from "./support";
 
 test("saved jobs persist, edit, delete, and stay private between accounts", async ({page, browser, baseURL}) => {
  test.setTimeout(180000);
@@ -35,10 +36,10 @@ test("saved jobs persist, edit, delete, and stay private between accounts", asyn
   await page.reload();await row.getByText("View description",{exact:true}).click();await expect(row).toContainText("Updated requirements");
   await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);
   await page.reload();await expect(row).toHaveCount(0);
-  await page.context().clearCookies();await page.goto("/dashboard/jobs"); await page.waitForLoadState("networkidle");await expect(page).toHaveURL(/\/login\/?$/);
+  await page.context().clearCookies();await openPage(page, "/dashboard/jobs");await expect(page).toHaveURL(/\/login\/?$/);
  } finally {
   try {
-   await page.goto("/dashboard/jobs"); await page.waitForLoadState("networkidle");
+   await openPage(page, "/dashboard/jobs");
    if(await row.count()) {await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);}
   } finally {await contextB.close();}
  }

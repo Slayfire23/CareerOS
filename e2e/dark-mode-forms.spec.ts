@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { parse } from "dotenv";
 import { expect, test, type Locator } from "@playwright/test";
+import { openPage } from "./support";
 
 test.use({ colorScheme: "dark" });
 async function readable(control: Locator) {
@@ -25,7 +26,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
  await expect(page).toHaveURL(/\/dashboard\/?$/);
  // No saves: this check never changes account data. Each section now has its own page.
  for(const path of ["/dashboard/preferences","/dashboard/skills","/dashboard/profile"]){
-  await page.goto(path); await page.waitForLoadState("networkidle");
+  await openPage(page, path);
   for(const select of await page.locator("select:visible").all()){
     await readable(select);
     for(const option of await select.locator("option").all()) {
@@ -39,7 +40,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
  const placeholderColor=await page.getByLabel("Headline (optional)",{exact:true}).evaluate(el=>getComputedStyle(el,"::placeholder").color);
  expect(placeholderColor).toBe("rgb(179, 179, 179)");
  for (const [path, label, formName] of [["/dashboard/projects", "Add project or accomplishment", "Add project or accomplishment"], ["/dashboard/education", "Add education", "Add education"], ["/dashboard/experience", "Add experience", "Add professional experience"]]) {
-  await page.goto(path); await page.waitForLoadState("networkidle");
+  await openPage(page, path);
   const form = page.getByRole("form", {name: formName, exact: true});
   await expect(form).toBeHidden();
   const toggle = page.getByText(label, {exact: true});
@@ -69,7 +70,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
   await form.getByRole("checkbox").uncheck();await readable(end);
  }
  // Also exercise the pending fieldset state without sending a form.
- await page.goto("/dashboard/preferences"); await page.waitForLoadState("networkidle");
+ await openPage(page, "/dashboard/preferences");
  const fieldset=page.getByRole("form",{name:"Location and commute preferences",exact:true}).locator("fieldset");
  await fieldset.evaluate(el=>(el as HTMLFieldSetElement).disabled=true);
  const relocation=page.getByLabel("Willing to relocate",{exact:true});

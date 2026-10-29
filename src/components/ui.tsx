@@ -39,12 +39,23 @@ export function ButtonLink({ variant = "secondary", className = "", ...props }: 
   return <Link className={`inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors ${buttonStyles[variant]} ${className}`} {...props} />;
 }
 
-export function LoadingBlock({ label }: { label: string }) {
-  return <div role="status" className="space-y-3" aria-live="polite">
+// Placeholder shaped like the content it stands in for. aria-busy marks the region as loading.
+export function LoadingBlock({ label, variant = "cards" }: { label: string; variant?: "cards" | "form" | "list" }) {
+  const bar = "animate-pulse rounded bg-surface-muted";
+  return <div role="status" aria-busy="true" aria-live="polite" className="space-y-4">
     <span className="sr-only">{label}</span>
-    <div aria-hidden="true" className="h-8 w-1/3 animate-pulse rounded bg-surface-muted" />
-    <div aria-hidden="true" className="grid gap-4 sm:grid-cols-2">
-      {[0, 1, 2, 3].map(index => <div key={index} className="h-28 animate-pulse rounded-xl bg-surface-muted" />)}
-    </div>
+    {variant === "cards" && <div aria-hidden="true" className="space-y-4">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">{[0, 1, 2, 3].map(index => <div key={index} className={`h-14 ${bar} rounded-xl`} />)}</div>
+      <div className={`h-64 ${bar} rounded-xl`} />
+      <div className={`h-48 ${bar} rounded-xl`} />
+    </div>}
+    {variant === "form" && <div aria-hidden="true" className="space-y-5 rounded-xl border bg-surface p-6">
+      <div className={`h-5 w-48 ${bar}`} />
+      {[0, 1, 2].map(index => <div key={index} className="space-y-2"><div className={`h-3 w-24 ${bar}`} /><div className={`h-10 ${bar} rounded-lg`} /></div>)}
+      <div className={`h-9 w-32 ${bar} rounded-lg`} />
+    </div>}
+    {variant === "list" && <div aria-hidden="true" className="space-y-3">
+      {[0, 1, 2].map(index => <div key={index} className="flex items-center gap-3 rounded-xl border bg-surface p-4"><div className={`h-10 w-10 shrink-0 ${bar} rounded-lg`} /><div className="flex-1 space-y-2"><div className={`h-4 w-1/2 ${bar}`} /><div className={`h-3 w-1/3 ${bar}`} /></div></div>)}
+    </div>}
   </div>;
 }
