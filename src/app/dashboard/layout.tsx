@@ -45,7 +45,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
       <MobileNav />
     </header>
 
-    <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-8 sm:py-10">
+    <main id="main" className="mx-auto w-full min-w-0 max-w-5xl flex-1 px-4 py-8 sm:px-8 sm:py-10">
       {children}
       <div className="mt-10 md:hidden"><Suspense fallback={null}><AccountSummary /></Suspense></div>
     </main>

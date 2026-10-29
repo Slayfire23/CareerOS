@@ -374,7 +374,7 @@ it("dashboard overview counts only the owner's jobs and only up-to-date reviews"
  await prisma.savedJob.update({where:{id:ids.Foreign},data:{reviewedDescription:"Original requirements"}});
  const overview=await getSavedJobsOverview(accountA,10);
  expect(overview.total).toBe(3);
- expect(overview.reviewed).toBe(1);
+ expect(overview).toMatchObject({reviewed:1,notReviewed:1,outOfDate:1});
  expect(Object.fromEntries(overview.jobs.map(job=>[job.title,[job.reviewStatus,job.requirementCount]]))).toEqual({Current:["reviewed",1],Stale:["out-of-date",0],Unreviewed:["not-reviewed",0]});
  expect((await getSavedJobsOverview(accountB,10)).jobs.map(job=>job.title)).toEqual(["Foreign"]);
 });

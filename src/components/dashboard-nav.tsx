@@ -2,27 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SECTIONS, type SectionKey } from "@/lib/sections";
 
-// Section links point at anchors on /dashboard until each section moves to its own page.
-export const NAV_ITEMS = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard#profile", label: "Profile" },
-  { href: "/dashboard#preferences", label: "Preferences" },
-  { href: "/dashboard#skills", label: "Skills" },
-  { href: "/dashboard#experience", label: "Experience" },
-  { href: "/dashboard#education", label: "Education" },
-  { href: "/dashboard#projects", label: "Projects" },
-  { href: "/dashboard#resumes", label: "Resumes" },
-  { href: "/jobs", label: "Saved jobs" },
-  { href: "/jobs", label: "Job analysis" },
-] as const;
+const NAV_ORDER: SectionKey[] = ["overview", "profile", "preferences", "skills", "experience", "education", "projects", "resumes", "jobs", "analysis"];
+
+function isCurrent(key: SectionKey, pathname: string) {
+  const href = SECTIONS[key].href.split("#")[0];
+  if (key === "overview") return pathname === href && !SECTIONS.profile.href.startsWith(`${href}#`);
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   return <ul className="space-y-1">
-    {NAV_ITEMS.map(({ href, label }) => {
-      const current = href === pathname;
-      return <li key={label}>
+    {NAV_ORDER.map(key => {
+      const { href, label } = SECTIONS[key];
+      const current = isCurrent(key, pathname);
+      return <li key={key}>
         <Link
           href={href}
           onClick={onNavigate}

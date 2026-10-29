@@ -11,12 +11,13 @@ export function requirementReviewStatus(job: { description: string; reviewedDesc
 }
 
 // Read-only, owner-scoped summary of saved jobs for the dashboard overview.
-export async function getSavedJobsOverview(supabaseAuthId: string, take = 3) {
+export async function getSavedJobsOverview(supabaseAuthId: string, take = 5) {
   const where = { user: { supabaseAuthId } };
-  const [total, reviewed, recent] = await Promise.all([
+  const [total, reviewed, notReviewed, recent] = await Promise.all([
     prisma.savedJob.count({ where }),
     // Only reviews that still match the current description count as reviewed.
     prisma.savedJob.count({ where: { ...where, reviewedDescription: { equals: prisma.savedJob.fields.description } } }),
+    prisma.savedJob.count({ where: { ...where, reviewedDescription: null } }),
     prisma.savedJob.findMany({
       where,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -32,5 +33,5 @@ export async function getSavedJobsOverview(supabaseAuthId: string, take = 3) {
     reviewStatus: requirementReviewStatus(job),
     requirementCount: Array.isArray(job.requirements) ? job.requirements.length : 0,
   }));
-  return { total, reviewed, jobs };
+  return { total, reviewed, notReviewed, outOfDate: total - reviewed - notReviewed, jobs };
 }
