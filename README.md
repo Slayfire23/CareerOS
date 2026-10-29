@@ -33,10 +33,10 @@ Directly executed on branch `foundation-verification`:
 | TypeScript, ESLint | Passed |
 | Production build | Passed, including `/jobs/[id]/requirements` |
 | `npm audit` / `npm audit --omit=dev` | 0 vulnerabilities after a non-forced fast-uri lockfile patch |
-| Signed-out Playwright tests (6 of 22) | Passed against the production build with the local test database |
+| Playwright Chromium (all 22) | Passed against the production build with the local test database; sign-in uses the disposable accounts on hosted Supabase Auth (owner-approved run) |
 | Hosted `prisma migrate status` (read-only) | 10 of 10 migrations applied, including `20261026010000_job_requirements` |
 
-Not executed in this audit: the 16 signed-in Playwright tests (they sign in to, and the resume test uploads to, the hosted Supabase project). Their latest recorded result is 22/22 passed on October 26. See [TESTING.md](TESTING.md) for commands and coverage limits.
+The resume browser test uploads to and then deletes from the hosted Storage bucket. See [TESTING.md](TESTING.md) for commands and coverage limits.
 
 ## Stack
 

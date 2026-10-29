@@ -193,7 +193,7 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 
 - [x] 224 unit tests, 24 local PostgreSQL integration tests, TypeScript, lint, and production build passed.
 - [x] 6 signed-out Chromium tests passed against the production build using the local test database.
-- [ ] Run the 16 signed-in Chromium tests (need owner approval: they sign in to the hosted Supabase project and upload to its Storage).
+- [x] Run the 16 signed-in Chromium tests (owner approved October 28): all 16 passed in 1.6 minutes; the full suite is 22/22 on this branch.
 - [x] Fixed Windows-1252 em-dash bytes in TASKS.md, TESTING.md, ARCHITECTURE.md; untracked debug.log; patched fast-uri.
 - [ ] Separate development/test data from the live Supabase project (local .env DATABASE_URL and browser-test accounts currently target the live project). Blocks AI-phase schema work.
 - [ ] Owner live verification: job requirements (above) and education add/edit/remove.

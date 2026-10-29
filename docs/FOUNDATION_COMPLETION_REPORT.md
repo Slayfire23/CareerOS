@@ -23,7 +23,7 @@ No production data was modified. No migration was applied, nothing was deployed,
 | `npm run build` | Passed; includes `/jobs/[id]/requirements` |
 | `npm audit` and `npm audit --omit=dev` | 0 vulnerabilities after a non-forced fix (see §5) |
 | Playwright, signed-out specs (`signed-out`, `recovery-pages`) | 6/6 passed against `next start` with `DATABASE_URL` set to the local test database |
-| Playwright, the 16 signed-in specs | **Not run.** They sign in to the hosted Supabase project, and `resumes.spec.ts` uploads to its Storage. Latest recorded run: 22/22 on October 26 |
+| Playwright, the 16 signed-in specs | 16/16 passed (1.6 min), run after owner approval. Same server and database; sign-in uses the disposable accounts on hosted Supabase Auth, and `resumes.spec.ts` uploads to and then deletes from hosted Storage. **Full suite: 22/22** |
 | Hosted `prisma migrate status` (read-only) | 10/10 applied, including `20261026010000_job_requirements` |
 | Live site probe (read-only, signed out) | `/jobs/<uuid>/requirements` serves the route and redirects to `/login` |
 
@@ -41,13 +41,13 @@ I read [src/lib/job-requirements.ts](../src/lib/job-requirements.ts), [src/app/j
 
 | Behavior | Code | Automated evidence |
 |---|---|---|
-| Suggestions come from description lines only; nothing is saved until the user selects and confirms | Yes | Unit (executed), browser (recorded) |
-| Edit text/category/priority; add manual rows; remove rows | Yes | Browser (recorded) |
-| Save replaces the list with only the selected rows | Yes | Integration (executed), browser (recorded) |
-| Clearing (save with none selected) | Yes | Integration (executed), browser (recorded) |
-| Ownership: page uses `findFirst` scoped to the user; save uses `updateMany` scoped to the user | Yes | Integration: foreign-account save rejected (executed); browser 404 for account B (recorded) |
+| Suggestions come from description lines only; nothing is saved until the user selects and confirms | Yes | Unit (executed), browser (executed) |
+| Edit text/category/priority; add manual rows; remove rows | Yes | Browser (executed) |
+| Save replaces the list with only the selected rows | Yes | Integration (executed), browser (executed) |
+| Clearing (save with none selected) | Yes | Integration (executed), browser (executed) |
+| Ownership: page uses `findFirst` scoped to the user; save uses `updateMany` scoped to the user | Yes | Integration: foreign-account save rejected (executed); browser 404 for account B (executed) |
 | Optimistic concurrency (stale `reviewVersion` rejected) and stale description rejected | Yes | Integration (executed) |
-| Changed-description warning; saved rows start unselected | Yes | Browser (recorded) |
+| Changed-description warning; saved rows start unselected | Yes | Browser (executed) |
 | Source excerpts must still appear in the current description | Yes | Unit and integration (executed) |
 | Lost session and missing confirmation rejected | Yes | Unit and integration (executed) |
 | **Live** review/save/edit/clear | — | **Not confirmed by the owner** |
@@ -68,10 +68,10 @@ I probed the suggestion heuristics directly (CRLF input, numbered lists, `Must h
 | Technical skills, experience, location, salary | Yes | Unit + integration + browser | Yes | Owner-confirmed |
 | Education | Yes | Unit + integration + browser | Yes (hosted migration applied) | **Not explicitly confirmed** (TASKS.md open item) |
 | Projects/accomplishments | Yes | Unit + integration + browser | Yes | Owner-confirmed |
-| Private resumes (Storage + RLS) | Yes | Unit (Storage mocked) + browser two-account RLS (recorded) | Yes | Owner-confirmed |
+| Private resumes (Storage + RLS) | Yes | Unit (Storage mocked) + browser two-account RLS (executed) | Yes | Owner-confirmed |
 | Resume-assisted review | Yes | Unit + integration + browser | Yes | Owner-confirmed |
 | Saved jobs | Yes | Unit + integration + browser | Yes | Owner-confirmed |
-| Job-requirements review | Yes | Unit + integration (executed) + browser (recorded) | Yes (observed) | **Pending** |
+| Job-requirements review | Yes | Unit + integration + browser (executed) | Yes (observed) | **Pending** |
 
 ## 5. Defects fixed in this audit (commit `ddc7f5d`)
 
@@ -86,7 +86,7 @@ No application code needed changes.
 | # | Blocker | Why it blocks | Acceptance criteria |
 |---|---|---|---|
 | B1 | **Dev/test data is not separated from the live Supabase project.** The local `.env` `DATABASE_URL` points at the live database. Browser tests sign in to live Auth, and the resume test writes to live Storage. | AI work adds schema (for example embeddings) and fixtures. TASKS.md already requires separation "before risky schema or fixture work". | A separate development Supabase project (or an equivalent isolated Auth/Storage/Postgres) exists. `.env` points at it by default. Browser tests run there. Hosted production credentials are used only for reviewed migrations and deploys. |
-| B2 | **The full signed-in browser suite was not re-run in this audit.** | The suite is the regression gate for every profile feature that AI features will read. | All 22 Chromium tests pass on this branch against the isolated environment from B1 (or against the current setup, with your approval). |
+| B2 | ~~Full browser suite not re-run.~~ **Closed October 28:** 22/22 passed on this branch. | — | Re-run all 22 against the isolated environment once B1 is done. |
 | B3 | **Live job-requirements verification is pending.** | It is the newest deployed feature and the direct input to Milestone 3 analysis. | Owner confirms on the live site: review → select/edit → save → reload persists; manual add; edit the job description → stale warning; clear → empty list; another account gets a 404. |
 | B4 | **Live education verification is pending.** | It is the only deployed profile section without live confirmation. | Owner confirms live add/edit/remove and persistence after refresh. |
 
@@ -103,4 +103,4 @@ No application code needed changes.
 
 **NO-GO** for starting the AI Engineering phase today. The code itself is in good shape: every check that could run in this environment passed, and no application defects were found. The blockers are environment and verification gaps, not code quality.
 
-Once B1–B4 are closed, the foundation meets its acceptance criteria and it is **GO**. B3 and B4 take a few minutes of manual checking. B2 follows from B1. B1, the dev/prod separation, is the one with real setup effort.
+B2 is now closed (22/22 browser tests pass). Once B1, B3, and B4 are closed, the foundation meets its acceptance criteria and it is **GO**. B3 and B4 take a few minutes of manual checking. B1, the dev/prod separation, is the one with real setup effort.
