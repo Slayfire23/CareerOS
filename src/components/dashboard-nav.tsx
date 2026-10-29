@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import { SECTIONS, type SectionKey } from "@/lib/sections";
 
@@ -16,8 +17,7 @@ function isCurrent(key: SectionKey, pathname: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return <ul className="space-y-1">
     {NAV_ORDER.map(key => {
       const { href, label } = SECTIONS[key];
@@ -34,6 +34,18 @@ export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
       </li>;
     })}
   </ul>;
+}
+
+function CurrentNavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  return <NavLinks pathname={usePathname()} onNavigate={onNavigate} />;
+}
+
+// Dynamic routes read the pathname at request time, so it must sit inside Suspense.
+// The fallback is the same menu without the current-page highlight.
+export function DashboardNav({ onNavigate }: { onNavigate?: () => void }) {
+  return <Suspense fallback={<NavLinks pathname="" onNavigate={onNavigate} />}>
+    <CurrentNavLinks onNavigate={onNavigate} />
+  </Suspense>;
 }
 
 export function MobileNav() {
