@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
-import { openPage } from "./support";
+import { confirmAction, openPage } from "./support";
 
 const section = (page: Page) => page.getByRole("region", { name: "Projects and accomplishments", exact: true });
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
@@ -42,7 +42,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
     await edit.getByRole("button",{name:"Save project",exact:true}).click();
     await expect(row(page,name).getByRole("link")).toHaveCount(0);
     await page.reload();await expect(row(page,name)).not.toContainText("Coordinated a team");
-    await row(page,name).getByRole("button",{name:"Remove "+name,exact:true}).click();
+    await confirmAction(row(page,name).getByRole("button", { name: "Remove "+name,exact:true }));
     await expect(row(page,name)).toHaveCount(0);await page.reload();await expect(row(page,name)).toHaveCount(0);
     await pageB.reload();await expect(row(pageB,name)).toContainText("Coordinated a team");
     await expect(row(pageB,name).getByRole("link")).toHaveAttribute("href","https://example.com/");
@@ -52,7 +52,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
         const cleaned = await Promise.allSettled([page, pageB].map(async (p) => {
           await openPage(p, "/dashboard/projects"); await expect(section(p)).toBeVisible();
           if (await row(p, name).count()) {
-            await row(p, name).getByRole("button", { name: /^Remove / }).click();
+            await confirmAction(row(p, name).getByRole("button", { name: /^Remove / }));
             await expect(row(p, name)).toHaveCount(0);
           }
         }));

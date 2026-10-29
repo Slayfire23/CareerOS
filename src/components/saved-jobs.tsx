@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { ConfirmButton } from "@/components/confirm-button";
 import { useActionState, useId } from "react";
 import { requirementsHref } from "@/lib/sections";
 import { saveJob, removeJob, type JobState } from "@/app/jobs/actions";
@@ -60,7 +61,7 @@ function JobRow({ job }: { job: SavedJobListItem }) {
   <div className="flex flex-wrap items-center gap-2">
    <Link className="btn btn-primary btn-sm" href={requirementsHref(job.id)}>Review requirements</Link>
    {job.postingUrl && <a href={job.postingUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm">Open posting<span className="sr-only"> (opens in a new tab)</span></a>}
-   <form action={action} className="ml-auto"><input type="hidden" name="jobId" value={job.id} /><button className="btn btn-danger btn-sm" disabled={pending} aria-label={`Remove ${job.title} at ${job.company}`}>{pending ? "Removing…" : "Remove job"}</button></form>
+   <form action={action} className="ml-auto"><input type="hidden" name="jobId" value={job.id} /><ConfirmButton label="Remove job" ariaLabel={`Remove ${job.title} at ${job.company}`} confirmLabel="remove" pending={pending} pendingLabel="Removing…" /></form>
   </div>
   <details className="disclosure border-t pt-3"><summary className="text-sm">View description</summary><p className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-surface-muted p-3 text-sm">{job.description}</p></details>
   <details className="disclosure border-t pt-3"><summary className="text-sm">Edit job</summary><JobForm key={JSON.stringify(job)} job={job} /></details>

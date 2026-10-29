@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { ConfirmButton } from "@/components/confirm-button";
 import {useActionState,useState} from "react";
 import {resumeReviewHref} from "@/lib/sections";
 import {uploadResume,deleteResume,type ResumeState} from "@/app/dashboard/resume-actions";
@@ -19,7 +20,7 @@ function ResumeRow({file,latest}:{file:ResumeFile;latest:boolean}){
    <div className="flex flex-wrap items-center gap-2">
     <Link className="btn btn-primary btn-sm" href={resumeReviewHref(file.key)}>Review suggestions<span className="sr-only"> from {file.name}</span></Link>
     <a className="btn btn-secondary btn-sm" href={"/api/resumes/"+encodeURIComponent(file.key)}>Download<span className="sr-only"> {file.name}</span></a>
-    <form action={action}><input type="hidden" name="key" value={file.key}/><button className="btn btn-danger btn-sm" disabled={pending} aria-label={"Delete "+file.name}>{pending?"Deleting…":"Delete"}</button></form>
+    <form action={action}><input type="hidden" name="key" value={file.key}/><ConfirmButton label="Delete" ariaLabel={"Delete "+file.name} confirmLabel="delete" pending={pending} pendingLabel="Deleting…"/></form>
    </div>
   </div>
   {state.error&&<p role="alert" className="mt-3">{state.error}</p>}

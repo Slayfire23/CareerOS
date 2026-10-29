@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
-import { openPage } from "./support";
+import { confirmAction, openPage } from "./support";
 
 test("job requirements require review, persist corrections, flag changed descriptions and stay private", async ({page, browser, baseURL}) => {
  test.setTimeout(180000);
@@ -56,7 +56,7 @@ test("job requirements require review, persist corrections, flag changed descrip
   await page.reload();await expect(review.getByText("No requirements listed. Add one manually using the description above.")).toBeVisible();
   await pageB.context().clearCookies();await pageB.goto(url);await expect(pageB).toHaveURL(/\/login\/?$/);
  } finally {
-  try {if(saved){await openPage(page, "/dashboard/jobs");if(await row.count()){await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);}}}
+  try {if(saved){await openPage(page, "/dashboard/jobs");if(await row.count()){await confirmAction(row.getByRole("button", { name: /^Remove / }));await expect(row).toHaveCount(0);}}}
   finally {await contextB.close();}
  }
 });

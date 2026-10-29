@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
-import { openPage } from "./support";
+import { confirmAction, openPage } from "./support";
 
 const section = (page: Page) => page.getByRole("region", { name: "Professional experience", exact: true });
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
@@ -52,18 +52,18 @@ test("professional experience persists, edits dates, and stays private across ac
     await edit.getByRole("button",{name:"Save experience",exact:true}).click();
     await expect(row(page,name).getByRole("heading")).toHaveText("Senior Engineer at " + name);
     await page.reload(); await expect(row(page,name)).toContainText("Present");
-    await row(page,name).getByRole("button",{name:/^Remove /}).click();
+    await confirmAction(row(page,name).getByRole("button", { name: /^Remove / }));
     await expect(row(page,name)).toHaveCount(0);
     await page.reload(); await expect(row(page,name)).toHaveCount(0);
     await pageB.reload(); await expect(row(pageB,name).getByRole("heading")).toHaveText("Engineer at " + name);
-    await expect(row(pageB,name)).toContainText("2021-02");
+    await expect(row(pageB,name)).toContainText("Jan 2020 – Feb 2021");
   } finally {
     try {
       if (started) {
         const cleaned = await Promise.allSettled([page, pageB].map(async (p) => {
           await openPage(p, "/dashboard/experience"); await expect(section(p)).toBeVisible();
           if (await row(p, name).count()) {
-            await row(p, name).getByRole("button", { name: /^Remove / }).click();
+            await confirmAction(row(p, name).getByRole("button", { name: /^Remove / }));
             await expect(row(p, name)).toHaveCount(0);
           }
         }));

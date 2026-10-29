@@ -1,5 +1,6 @@
 "use client";
 import {useActionState,useId} from "react";
+import { ConfirmButton } from "@/components/confirm-button";
 import {saveProject,removeProject,type ProjectState} from "@/app/dashboard/project-actions";
 import type {Project} from "@/lib/projects";
 function ProjectForm({entry}:{entry?:Project}){
@@ -19,7 +20,7 @@ function ProjectRow({entry}:{entry:Project}){
  const [state,action,pending]=useActionState(removeProject,{} as ProjectState);
  return <li className="space-y-3 rounded-xl border p-4">
  <div className="flex flex-wrap items-start justify-between gap-3"><h3 className="min-w-0 font-semibold">{entry.title}</h3>
- <form action={action}><input type="hidden" name="projectId" value={entry.id}/><button disabled={pending} aria-label={"Remove "+entry.title} className="btn btn-danger btn-sm">{pending?"Removing…":"Remove project"}</button></form></div>
+ <form action={action}><input type="hidden" name="projectId" value={entry.id}/><ConfirmButton label="Remove project" ariaLabel={"Remove "+entry.title} confirmLabel="remove" pending={pending} pendingLabel="Removing…"/></form></div>
  <div className="space-y-2 text-sm">
  {entry.description&&<p className="whitespace-pre-wrap">{entry.description}</p>}
  {entry.contribution&&<p className="whitespace-pre-wrap"><strong>Your contribution: </strong>{entry.contribution}</p>}

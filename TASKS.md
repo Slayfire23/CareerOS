@@ -207,7 +207,8 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] Phase 1 refinements (owner-requested): compact overview, saved jobs first with real counts, single profile summary card with progress and missing-section chips, icon quick actions, distinctive landing page.
 - [x] Phase 2: dedicated pages for profile, preferences, skills, experience, education, projects, resumes, saved jobs, and job analysis; forms removed from the overview; 307 redirects from old addresses.
 - [x] 227 unit tests, 25 integration tests, 26 Chromium tests (4 new navigation tests), TypeScript, lint, and a clean no-env production build passed.
-- [ ] Phase 3: further page-level tests where useful (old-address redirects and every-page sign-out redirects are already covered by e2e/navigation.spec.ts).
-- [ ] Phase 4: restyle the existing section forms (borders, spacing, buttons, sign-out button) to match the new design; accessibility and mobile pass; screenshots for owner review.
-- [ ] Phase 5: docs, PR, owner review. No merge or deploy without approval.
+- [x] Phase 3: navigation, redirect, mobile-menu, and confirmation tests added.
+- [x] Phase 4: restyled all forms and key pages (Resumes, Saved Jobs, Job Analysis, requirement review), sign-out, auth pages, loading/empty states; responsive audit of 90 page views; owner approved the design.
+- [x] Final refinements: full values on the mobile dashboard, roomier mobile requirement controls, "Jun 2023 – Present" dates (storage unchanged), inline confirmation for every destructive action (Cancel/Escape covered by e2e/confirmation.spec.ts).
+- [ ] Phase 5: PR opened for owner review. No merge or deploy without approval; verify in production after merge.
 - [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).

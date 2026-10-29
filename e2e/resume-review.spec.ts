@@ -3,7 +3,7 @@ import {randomUUID} from "node:crypto";
 import {parse} from "dotenv";
 import {createClient} from "@supabase/supabase-js";
 import {expect,test,type Page} from "@playwright/test";
-import { openPage } from "./support";
+import { confirmAction, openPage } from "./support";
 import {resumePdf} from "../tests/support/resume-pdf";
 import {RESUME_BUCKET} from "../src/lib/resume-files";
 
@@ -31,7 +31,7 @@ test("resume suggestions require review, preserve existing fields and reject for
   await openPage(page, "/dashboard/skills");const skills=page.getByRole("region",{name:"Technical skills",exact:true});await expect(skills.getByRole("listitem").filter({hasText:skill})).toHaveCount(1);
   await openPage(pageB, "/dashboard/skills");await expect(pageB.getByRole("region",{name:"Technical skills",exact:true}).getByText(skill,{exact:true})).toHaveCount(0);
  }finally{
-  try{await openPage(page, "/dashboard/skills");const row=page.getByRole("region",{name:"Technical skills",exact:true}).getByRole("listitem").filter({hasText:skill});if(await row.count()){await row.getByRole("button",{name:"Remove "+skill,exact:true}).click();await expect(row).toHaveCount(0);}
+  try{await openPage(page, "/dashboard/skills");const row=page.getByRole("region",{name:"Technical skills",exact:true}).getByRole("listitem").filter({hasText:skill});if(await row.count()){await confirmAction(row.getByRole("button", { name: "Remove "+skill,exact:true }));await expect(row).toHaveCount(0);}
    if(key){const result=await storage.storage.from(RESUME_BUCKET).remove([auth.data.user.id+"/"+key]);if(result.error)throw new Error("Test resume cleanup failed.");}
    else{const listing=await storage.storage.from(RESUME_BUCKET).list(auth.data.user.id,{limit:1000});if(listing.error)throw new Error("Test resume cleanup listing failed.");const paths=(listing.data??[]).filter(f=>f.name.endsWith("_"+name)).map(f=>auth.data.user!.id+"/"+f.name);if(paths.length){const result=await storage.storage.from(RESUME_BUCKET).remove(paths);if(result.error)throw new Error("Test resume cleanup failed.");}}
   }finally{await contextB.close();await storage.auth.signOut({scope:"local"});}

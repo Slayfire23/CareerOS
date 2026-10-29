@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
-import { openPage } from "./support";
+import { confirmAction, openPage } from "./support";
 
 test("saved jobs persist, edit, delete, and stay private between accounts", async ({page, browser, baseURL}) => {
  test.setTimeout(180000);
@@ -34,13 +34,13 @@ test("saved jobs persist, edit, delete, and stay private between accounts", asyn
   await edit.getByRole("button",{name:"Save job",exact:true}).click();
   await expect(row.getByRole("link",{name:"Open posting"})).toHaveCount(0);
   await page.reload();await row.getByText("View description",{exact:true}).click();await expect(row).toContainText("Updated requirements");
-  await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);
+  await confirmAction(row.getByRole("button", { name: /^Remove / }));await expect(row).toHaveCount(0);
   await page.reload();await expect(row).toHaveCount(0);
   await page.context().clearCookies();await openPage(page, "/dashboard/jobs");await expect(page).toHaveURL(/\/login\/?$/);
  } finally {
   try {
    await openPage(page, "/dashboard/jobs");
-   if(await row.count()) {await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);}
+   if(await row.count()) {await confirmAction(row.getByRole("button", { name: /^Remove / }));await expect(row).toHaveCount(0);}
   } finally {await contextB.close();}
  }
 });

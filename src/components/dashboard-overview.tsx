@@ -73,8 +73,8 @@ function SavedJobsSummary({ total, reviewed, notReviewed, outOfDate, jobs }: Job
       <ul className="divide-y divide-line">
         {jobs.map(job => <li key={job.id} className="flex items-center gap-3 py-2.5">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold sm:text-base">{job.title}</p>
-            <p className="truncate text-xs text-muted sm:text-sm">{job.company} · Saved {dateFormat.format(job.createdAt)}{job.reviewStatus === "reviewed" && ` · ${plural(job.requirementCount, "requirement")}`}</p>
+            <p className="break-words text-sm font-semibold sm:truncate sm:text-base" title={job.title}>{job.title}</p>
+            <p className="break-words text-xs text-muted sm:truncate sm:text-sm">{job.company} · Saved {dateFormat.format(job.createdAt)}{job.reviewStatus === "reviewed" && ` · ${plural(job.requirementCount, "requirement")}`}</p>
           </div>
           <span className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${status[job.reviewStatus].className}`}>{status[job.reviewStatus].label}</span>
           <Link className="shrink-0 text-sm font-medium text-accent-text hover:underline" href={requirementsHref(job.id)}>
@@ -97,8 +97,8 @@ function Row({ href, label, value, detail, emptyText = "Not added" }: { href: st
     <Link href={href} className="group flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-surface-muted">
       <span className="w-20 shrink-0 text-xs font-medium text-muted sm:w-24">{label}</span>
       <span className="min-w-0 flex-1">
-        <span className={`block truncate text-sm ${empty ? "text-muted" : "font-semibold"}`}>{empty ? emptyText : value}</span>
-        {!empty && detail && <span className="block truncate text-xs text-muted">{detail}</span>}
+        <span className={`block break-words text-sm md:truncate ${empty ? "text-muted" : "font-semibold"}`} title={typeof value === "string" ? value : undefined}>{empty ? emptyText : value}</span>
+        {!empty && detail && <span className="block break-words text-xs text-muted md:truncate" title={detail}>{detail}</span>}
       </span>
       <Icon name="chevron" className="h-4 w-4 shrink-0 text-muted group-hover:text-accent-text" />
     </Link>

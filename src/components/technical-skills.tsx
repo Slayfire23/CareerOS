@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ConfirmButton } from "@/components/confirm-button";
 import { saveTechnicalSkill, removeTechnicalSkill, type SkillState } from "@/app/dashboard/skills-actions";
 import { SKILL_LEVELS, type Skill } from "@/lib/technical-skills";
 
@@ -12,7 +13,7 @@ function SkillRow({ skill }: { skill: Skill }) {
       <p><strong>{skill.name}</strong> — {level ? `${level} (self-assessed)` : "Proficiency not specified"}</p>
       <form action={action}>
         <input type="hidden" name="skillId" value={skill.id} />
-        <button type="submit" disabled={pending} aria-label={`Remove ${skill.name}`} className="btn btn-danger btn-sm">{pending ? "Removing…" : "Remove"}</button>
+        <ConfirmButton label="Remove" ariaLabel={`Remove ${skill.name}`} confirmLabel="remove" pending={pending} pendingLabel="Removing…" />
       </form>
     </div>
     {state.error && <p role="alert">{state.error}</p>}

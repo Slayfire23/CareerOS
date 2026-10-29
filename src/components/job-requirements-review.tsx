@@ -22,10 +22,10 @@ export function JobRequirementsReview({id, description, version, reviewed, stale
    <fieldset disabled={pending || !!state.message} className="space-y-4">
     {rows.length === 0 && <p className="rounded-lg border border-dashed bg-surface-muted p-4 text-sm text-muted">No requirements listed. Add one manually using the description above.</p>}
     <ol className="space-y-3">
-    {rows.map((row, index) => <li key={row.key} className={`space-y-3 rounded-xl border p-4 transition-colors ${row.selected ? "border-accent bg-accent-soft/40" : "bg-surface"}`}>
+    {rows.map((row, index) => <li key={row.key} className={`space-y-3 rounded-xl border p-3 transition-colors sm:p-4 ${row.selected ? "border-accent bg-accent-soft/40" : "bg-surface"}`}>
      <div className="flex items-center justify-between gap-3">
-      <label className="check font-medium"><input type="checkbox" checked={row.selected} onChange={event => update(row.key, {selected: event.target.checked})} /> Include requirement {index + 1}</label>
-      <button type="button" className="btn btn-danger btn-sm" onClick={() => setRows(current => current.filter(item => item.key !== row.key))}>Remove requirement {index + 1}</button>
+      <label className="check min-w-0 py-1 font-medium"><input type="checkbox" checked={row.selected} onChange={event => update(row.key, {selected: event.target.checked})} /> Include requirement {index + 1}</label>
+      <button type="button" className="btn btn-danger btn-sm shrink-0" onClick={() => setRows(current => current.filter(item => item.key !== row.key))}>Remove<span className="sr-only"> requirement {index + 1}</span></button>
      </div>
      <div>
       <label className="label" htmlFor={`${prefix}-${row.key}-text`}>Requirement {index + 1}</label>

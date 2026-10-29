@@ -1,5 +1,7 @@
 "use client";
 import { useActionState, useId, useState } from "react";
+import { formatMonthRange } from "@/lib/months";
+import { ConfirmButton } from "@/components/confirm-button";
 import { saveEducation, removeEducation, type EducationState } from "@/app/dashboard/education-actions";
 import type { Education as EducationEntry } from "@/lib/education";
 
@@ -53,11 +55,11 @@ function EducationRow({ entry }: { entry: EducationEntry }) {
       <div className="min-w-0">
         <h3 className="font-semibold">{entry.qualification} at {entry.institution}</h3>
         {entry.fieldOfStudy && <p className="text-sm">{entry.fieldOfStudy}</p>}
-        <p className="text-sm text-muted">{entry.startMonth} – {entry.endMonth ?? "Present"}</p>
+        <p className="text-sm text-muted">{formatMonthRange(entry.startMonth, entry.endMonth)}</p>
       </div>
       <form action={action}>
         <input type="hidden" name="educationId" value={entry.id} />
-        <button className="btn btn-danger btn-sm" disabled={pending} aria-label={`Remove ${entry.qualification} at ${entry.institution}`}>{pending ? "Removing…" : "Remove education"}</button>
+        <ConfirmButton label="Remove education" ariaLabel={`Remove ${entry.qualification} at ${entry.institution}`} confirmLabel="remove" pending={pending} pendingLabel="Removing…" />
       </form>
     </div>
     {entry.description && <p className="whitespace-pre-wrap text-sm">{entry.description}</p>}

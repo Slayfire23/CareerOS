@@ -1,5 +1,7 @@
 "use client";
 import { useActionState, useId, useState } from "react";
+import { formatMonthRange } from "@/lib/months";
+import { ConfirmButton } from "@/components/confirm-button";
 import { saveExperience, removeExperience, type ExperienceState } from "@/app/dashboard/experience-actions";
 import type { Experience } from "@/lib/professional-experience";
 
@@ -48,11 +50,11 @@ function ExperienceRow({ entry }: { entry: Experience }) {
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">
         <h3 className="font-semibold">{entry.jobTitle} at {entry.company}</h3>
-        <p className="text-sm text-muted">{entry.startMonth} – {entry.endMonth ?? "Present"}</p>
+        <p className="text-sm text-muted">{formatMonthRange(entry.startMonth, entry.endMonth)}</p>
       </div>
       <form action={action}>
         <input type="hidden" name="experienceId" value={entry.id} />
-        <button className="btn btn-danger btn-sm" disabled={pending} aria-label={`Remove ${entry.jobTitle} at ${entry.company}`}>{pending ? "Removing…" : "Remove experience"}</button>
+        <ConfirmButton label="Remove experience" ariaLabel={`Remove ${entry.jobTitle} at ${entry.company}`} confirmLabel="remove" pending={pending} pendingLabel="Removing…" />
       </form>
     </div>
     {entry.description && <p className="whitespace-pre-wrap text-sm">{entry.description}</p>}
