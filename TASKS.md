@@ -30,7 +30,7 @@ Updated October 28, 2026 (see the audit section at the end and docs/FOUNDATION_C
 - [ ] Verify real used/expired email-link rejection. Current automated callback tests cover absent/invalid mocked codes; live happy paths were manually tested.
 - [x] Recheck dependency audit (October 28): braces advisory no longer reported; one moderate fast-uri advisory fixed with non-forced `npm audit fix`; full and --omit=dev audits report 0. Previous note: Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
 - [ ] Confirm email delivery for the brother's actual address if it was not one of the live test recipients; reassess default SMTP before broader public use.
-- [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
+- [x] Separate development/test data from the live Supabase project (October 28: local Supabase stack via the pinned CLI; see DEV_ENVIRONMENT_SETUP.md).
 - [x] Commit and push this documentation reconciliation.
 
 ## Milestone 2 — Structured career profile and resumes (in progress)
@@ -195,5 +195,8 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] 6 signed-out Chromium tests passed against the production build using the local test database.
 - [x] Run the 16 signed-in Chromium tests (owner approved October 28): all 16 passed in 1.6 minutes; the full suite is 22/22 on this branch.
 - [x] Fixed Windows-1252 em-dash bytes in TASKS.md, TESTING.md, ARCHITECTURE.md; untracked debug.log; patched fast-uri.
-- [ ] Separate development/test data from the live Supabase project (local .env DATABASE_URL and browser-test accounts currently target the live project). Blocks AI-phase schema work.
+- [x] B1: development and all browser tests now use a local Supabase stack (Auth, Storage, PostgreSQL). Guard rejects hosted projects; migrations, RLS (anon and signed-in Data API reads/writes denied), storage policies, and 22/22 browser tests verified locally.
+- [x] Fixed browser-test resume cleanup: Storage search is a name-prefix match, so one fixture PDF leaked per resumes.spec run. Now lists the folder; verified 0 objects left.
+- [ ] Owner checks production Storage for leftover fixture PDFs (names ending _resume_test_<32 hex>.pdf in the old test account folder) from earlier hosted test runs; delete only with approval.
+- [ ] Apply migration 20261028010000_enable_row_level_security to production (idempotent; production already has RLS on; needs owner approval).
 - [ ] Owner live verification: job requirements (above) and education add/edit/remove.

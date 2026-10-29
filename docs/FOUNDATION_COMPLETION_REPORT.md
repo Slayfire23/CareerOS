@@ -85,8 +85,8 @@ No application code needed changes.
 
 | # | Blocker | Why it blocks | Acceptance criteria |
 |---|---|---|---|
-| B1 | **Dev/test data is not separated from the live Supabase project.** The local `.env` `DATABASE_URL` points at the live database. Browser tests sign in to live Auth, and the resume test writes to live Storage. | AI work adds schema (for example embeddings) and fixtures. TASKS.md already requires separation "before risky schema or fixture work". | A separate development Supabase project (or an equivalent isolated Auth/Storage/Postgres) exists. `.env` points at it by default. Browser tests run there. Hosted production credentials are used only for reviewed migrations and deploys. |
-| B2 | ~~Full browser suite not re-run.~~ **Closed October 28:** 22/22 passed on this branch. | — | Re-run all 22 against the isolated environment once B1 is done. |
+| B1 | ~~Dev/test data not separated from the live project.~~ **Closed October 28:** local Supabase stack (Docker, pinned CLI 2.121.0). `.env` targets it, the Playwright guard rejects hosted projects, migrations (11) and RLS are verified, storage policies are applied, and test accounts exist only locally. | — | Keep the guard in place. Production RLS migration awaits approval. |
+| B2 | ~~Full browser suite not re-run.~~ **Closed October 28:** 22/22 passed against hosted Auth, then 22/22 again against local Supabase. | — | — |
 | B3 | **Live job-requirements verification is pending.** | It is the newest deployed feature and the direct input to Milestone 3 analysis. | Owner confirms on the live site: review → select/edit → save → reload persists; manual add; edit the job description → stale warning; clear → empty list; another account gets a 404. |
 | B4 | **Live education verification is pending.** | It is the only deployed profile section without live confirmation. | Owner confirms live add/edit/remove and persistence after refresh. |
 
@@ -103,4 +103,4 @@ No application code needed changes.
 
 **NO-GO** for starting the AI Engineering phase today. The code itself is in good shape: every check that could run in this environment passed, and no application defects were found. The blockers are environment and verification gaps, not code quality.
 
-B2 is now closed (22/22 browser tests pass). Once B1, B3, and B4 are closed, the foundation meets its acceptance criteria and it is **GO**. B3 and B4 take a few minutes of manual checking. B1, the dev/prod separation, is the one with real setup effort.
+B1 and B2 are closed. Once B3 and B4 (owner live checks) are closed, the foundation meets its acceptance criteria and it is **GO**. Also pending your approval, but not blocking: applying the idempotent RLS migration to production, and checking production Storage for leftover test PDFs from the cleanup bug fixed on October 28.

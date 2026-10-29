@@ -33,10 +33,10 @@ Directly executed on branch `foundation-verification`:
 | TypeScript, ESLint | Passed |
 | Production build | Passed, including `/jobs/[id]/requirements` |
 | `npm audit` / `npm audit --omit=dev` | 0 vulnerabilities after a non-forced fast-uri lockfile patch |
-| Playwright Chromium (all 22) | Passed against the production build with the local test database; sign-in uses the disposable accounts on hosted Supabase Auth (owner-approved run) |
+| Playwright Chromium (all 22) | Passed against `npm run dev` on the local Supabase stack (Auth, Storage, PostgreSQL in Docker) |
 | Hosted `prisma migrate status` (read-only) | 10 of 10 migrations applied, including `20261026010000_job_requirements` |
 
-The resume browser test uploads to and then deletes from the hosted Storage bucket. See [TESTING.md](TESTING.md) for commands and coverage limits.
+Development and browser tests never touch hosted Supabase; see [DEV_ENVIRONMENT_SETUP.md](DEV_ENVIRONMENT_SETUP.md). See [TESTING.md](TESTING.md) for commands and coverage limits.
 
 ## Stack
 
@@ -61,7 +61,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 APP_URL=http://localhost:3000
 ```
 
-`.env` must point at the dedicated development Supabase project; see [DEV_ENVIRONMENT_SETUP.md](DEV_ENVIRONMENT_SETUP.md). Production migrations use `prisma.production.config.ts` with the ignored `.env.hosted-production`, and browser tests refuse to run against production. Obtain connection details from Supabase, URL-encode special characters in database passwords, and preserve the connection's required TLS settings. The publishable key is intended for browser use; DATABASE_URL is not. No service-role key is required by this app.
+`.env` must point at the local Supabase stack (`npm run supabase:start`, then `npm run db:local:setup`); see [DEV_ENVIRONMENT_SETUP.md](DEV_ENVIRONMENT_SETUP.md). Production migrations use `prisma.production.config.ts` with the ignored `.env.hosted-production`, and browser tests refuse to run against production. Obtain connection details from Supabase, URL-encode special characters in database passwords, and preserve the connection's required TLS settings. The publishable key is intended for browser use; DATABASE_URL is not. No service-role key is required by this app.
 
 ```powershell
 npx prisma generate --config prisma7.config.ts

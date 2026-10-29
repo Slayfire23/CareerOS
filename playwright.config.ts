@@ -6,24 +6,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // Refuse to run unless the app's env files (resolved exactly as `next dev` does) point Auth and the
-// database at the development Supabase project the test accounts belong to.
-function assertDevelopmentProject() {
-  const read = (file: string) => (existsSync(file) ? parse(readFileSync(file)) : {});
+// database at the local Supabase stack that the test accounts belong to. Hosted projects are never allowed.
+function assertLocalSupabase() {
   const app = loadEnvConfig(process.cwd(), true, { info: () => {}, error: console.error }).combinedEnv;
-  const expected = read(".env.playwright.local").E2E_SUPABASE_URL;
-  const production = read(".env.hosted-production");
-  const ref = (url?: string) => (url ? new URL(url).hostname.split(".")[0] : undefined);
-  const devRef = ref(app.NEXT_PUBLIC_SUPABASE_URL);
-  const prodRef = ref(production.NEXT_PUBLIC_SUPABASE_URL);
+  const tests = existsSync(".env.playwright.local") ? parse(readFileSync(".env.playwright.local")) : {};
+  const isLocal = (url?: string) => { try { return ["127.0.0.1", "localhost"].includes(new URL(url!).hostname); } catch { return false; } };
   const problems = [
-    !expected && "set E2E_SUPABASE_URL in .env.playwright.local to the development project URL",
-    expected && app.NEXT_PUBLIC_SUPABASE_URL !== expected && "NEXT_PUBLIC_SUPABASE_URL does not match E2E_SUPABASE_URL",
-    devRef && !app.DATABASE_URL?.includes(devRef) && "DATABASE_URL is not the development project's database",
-    prodRef && (devRef === prodRef || app.DATABASE_URL?.includes(prodRef)) && "the app is configured for the production project",
+    !isLocal(app.NEXT_PUBLIC_SUPABASE_URL) && "NEXT_PUBLIC_SUPABASE_URL is not the local Supabase API",
+    !isLocal(app.DATABASE_URL) && "DATABASE_URL is not the local Supabase database",
+    tests.E2E_SUPABASE_URL !== app.NEXT_PUBLIC_SUPABASE_URL && "E2E_SUPABASE_URL does not match the app (run npm run db:local:setup)",
   ].filter(Boolean);
   if (problems.length) throw new Error(`Browser tests blocked: ${problems.join("; ")}.`);
 }
-assertDevelopmentProject();
+assertLocalSupabase();
 
 export default defineConfig({
   testDir: "./e2e",
