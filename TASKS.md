@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
+Updated October 28, 2026 (see the audit section at the end and docs/FOUNDATION_COMPLETION_REPORT.md). Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
 
 ## Milestone 1 — Foundation completed
 
@@ -28,7 +28,7 @@ Updated October 17, 2026. Milestone 1 core functionality is complete and deploye
 - [ ] Exercise real access-token expiration, refresh success/failure, and revoked sessions. Clearing browser cookies is not equivalent.
 - [ ] Exercise crafted cross-account HTTP/server-action requests. Existing browser tests cover normal saves and account switching; forged ownership is covered at the database-function boundary.
 - [ ] Verify real used/expired email-link rejection. Current automated callback tests cover absent/invalid mocked codes; live happy paths were manually tested.
-- [ ] Recheck dependency audit and resolve the Next.js ESLint/braces advisory. Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
+- [x] Recheck dependency audit (October 28): braces advisory no longer reported; one moderate fast-uri advisory fixed with non-forced `npm audit fix`; full and --omit=dev audits report 0. Previous note: Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
 - [ ] Confirm email delivery for the brother's actual address if it was not one of the live test recipients; reassess default SMTP before broader public use.
 - [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
 - [x] Commit and push this documentation reconciliation.
@@ -182,5 +182,18 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [x] Pass 224 unit tests, 24 database tests, TypeScript, and lint.
 - [x] Complete production build (owner supplied successful output with the requirements route).
 - [x] Complete browser verification: all 22 Chromium tests passed (October 26).
-- [ ] Apply hosted migration, deploy, and verify live review/selective save/edit/clear.
+- [x] Apply hosted migration 20261026010000_job_requirements (read-only `prisma migrate status` on October 28 reports 10/10 applied).
+- [x] Deploy (October 28: live /jobs/[id]/requirements route serves and redirects signed-out users to /login).
+- [ ] Owner verifies live review/selective save/edit/clear, including the changed-description warning.
 - [ ] Later: compare confirmed requirements with profile evidence; no match scores yet.
+
+## Foundation audit - October 28, 2026
+
+Directly executed on branch foundation-verification; details in docs/FOUNDATION_COMPLETION_REPORT.md.
+
+- [x] 224 unit tests, 24 local PostgreSQL integration tests, TypeScript, lint, and production build passed.
+- [x] 6 signed-out Chromium tests passed against the production build using the local test database.
+- [ ] Run the 16 signed-in Chromium tests (need owner approval: they sign in to the hosted Supabase project and upload to its Storage).
+- [x] Fixed Windows-1252 em-dash bytes in TASKS.md, TESTING.md, ARCHITECTURE.md; untracked debug.log; patched fast-uri.
+- [ ] Separate development/test data from the live Supabase project (local .env DATABASE_URL and browser-test accounts currently target the live project). Blocks AI-phase schema work.
+- [ ] Owner live verification: job requirements (above) and education add/edit/remove.
