@@ -14,8 +14,8 @@ CareerOS is a private career organizer. You record what you have actually done, 
 | Private resume versions with reviewed suggestions | Live |
 | Saved jobs and manual requirement review | Live |
 | UI/UX redesign: dashboard overview and dedicated section pages | Live, verified in production |
-| AI Engineering phase (analysis, retrieval, agents) | **Planned, not implemented** |
-| Application tracking | Planned, not implemented |
+| AI Engineering phase: PRD Milestone 3 (analysis, retrieval, agents) | **Planned, not implemented** |
+| Application tracking: PRD Milestone 4 | Planned, not implemented |
 
 ## Features
 
@@ -137,7 +137,7 @@ Latest results (October 29, 2026): 229 unit, 25 integration, and 27 Chromium tes
 
   This reads credentials from the ignored `.env.hosted-production`.
 
-## Roadmap: AI Engineering phase (planned)
+## Roadmap: AI Engineering phase (PRD Milestone 3, planned)
 
 Nothing in this phase is implemented yet. The product rules in [PRD.md](PRD.md) apply:
 - never invent experience or qualifications
