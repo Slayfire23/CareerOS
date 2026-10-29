@@ -10,7 +10,14 @@ One Next.js 16.4.1 application uses React 19.3 and TypeScript, Supabase Auth, an
 src/app/auth/actions.ts           Signup, sign-in, sign-out server actions
 src/app/auth/recovery-actions.ts  Reset-email request and password update
 src/app/auth/callback/route.ts    PKCE code exchange and fixed destinations
-src/app/dashboard/               Protected page and profile save action
+src/app/dashboard/layout.tsx     Shared signed-in layout: sidebar, mobile menu, account box (presentation only)
+src/app/dashboard/page.tsx       Overview: summaries of the user's own data, no forms
+src/app/dashboard/<section>/     profile, preferences, skills, experience, education, projects, resumes,
+                                 jobs (+ [id]/requirements), analysis. Each page verifies the session itself
+src/app/dashboard/*-actions.ts   Profile section server actions
+src/app/jobs/*actions.ts         Saved-job and requirement-review server actions (no pages; /jobs redirects)
+src/lib/sections.ts              Section addresses used by navigation and links
+src/lib/overview.ts              Owner-scoped saved-job summary for the overview and Job analysis
 src/components/                  Authentication, recovery, and profile forms
 src/lib/supabase/                 Browser/server Auth client factories
 src/lib/db.ts                    Prisma client with PostgreSQL adapter
@@ -100,9 +107,13 @@ Uploads now precede profile fields. A dedicated dynamic review page reads the se
 
 ## Saved jobs — October 21, 2026
 
-SavedJob belongs directly to User, independently of career profile facts. The /jobs page authenticates before querying and selects only the verified user's records; create derives the internal user ID from the verified Supabase identity, and update/delete filter by both record ID and identity. The migration adds one table and enables RLS with no client policies: Prisma server access enforces account ownership, while browser Data API access is not granted. Job title/company are required (200 characters each), pasted description is required (30,000 characters), and the optional link is limited to 2,000 characters and HTTP(S) without embedded credentials. Links are not fetched and descriptions render as escaped text. Saving does not submit an application or perform AI analysis. Existing profile records are unchanged. Add experience uses native details/summary for keyboard-accessible collapse without a dependency.
+SavedJob belongs directly to User, independently of career profile facts. The /dashboard/jobs page authenticates before querying and selects only the verified user's records; create derives the internal user ID from the verified Supabase identity, and update/delete filter by both record ID and identity. The migration adds one table and enables RLS with no client policies: Prisma server access enforces account ownership, while browser Data API access is not granted. Job title/company are required (200 characters each), pasted description is required (30,000 characters), and the optional link is limited to 2,000 characters and HTTP(S) without embedded credentials. Links are not fetched and descriptions render as escaped text. Saving does not submit an application or perform AI analysis. Existing profile records are unchanged. Add experience uses native details/summary for keyboard-accessible collapse without a dependency.
 
 
 ## Job requirements review - October 26, 2026
 
 SavedJob now stores a bounded JSON requirements list, the reviewed description snapshot, and an integer review version. Suggestions are conservative line/heading rules, not AI or a complete parser. Users select and edit requirements, categories, and required/preferred/unspecified priorities; manual rows are identified by an empty source excerpt. Nonempty excerpts must be literal substrings of the current description. Original descriptions remain unchanged. An authenticated conditional update matches owner, job ID, description snapshot, and review version atomically before replacing the reviewed list and incrementing the version. An empty confirmed selection clears the list. Editing the description retains the old review but labels it stale and deselects all rows. No matching or external API calls are introduced. Existing SavedJob RLS applies to the new columns.
+
+## Signed-in layout and navigation - October 28, 2026
+
+All signed-in pages live under /dashboard and share src/app/dashboard/layout.tsx. The layout is presentation only and is not a security boundary: every page re-verifies the session with getUser (directly or through getCurrentProfile) inside a Suspense boundary, and every server action keeps its own authentication and ownership filter. The overview reads only the current user's profile, resume listing, and saved jobs. Its counts are derived from saved data (for example, a review counts as reviewed only while reviewedDescription equals the current description). Job analysis groups saved jobs by review status and counts reviewed requirements by priority. It does not score fit or call external services. Save actions revalidate the /dashboard layout so the overview and section pages stay consistent. next.config.ts issues temporary (307) redirects from /jobs, /jobs/:id/requirements, and /dashboard/resume-review/:key. The menu reads the current path inside Suspense so dynamic routes can prerender.
