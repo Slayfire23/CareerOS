@@ -11,7 +11,7 @@ Milestone 1 (accounts, recovery, protected dashboard, private profiles) and the 
 
 The foundation audit is **GO** (October 28). The next milestone is a UI/UX redesign; Python/AI work follows it. See [docs/FOUNDATION_COMPLETION_REPORT.md](docs/FOUNDATION_COMPLETION_REPORT.md).
 
-## Where things are (UI redesign branch)
+## Where things are
 
 After signing in you land on **/dashboard**, an overview of your saved jobs and profile. Each section has its own page: `/dashboard/profile`, `/preferences`, `/skills`, `/experience`, `/education`, `/projects`, `/resumes`, `/jobs`, and `/analysis` (job requirement review). Old `/jobs` addresses redirect.
 
