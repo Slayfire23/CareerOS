@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
+  devIndicators: { position: "bottom-right" },
   serverExternalPackages: ["unpdf"],
   experimental: { serverActions: { bodySizeLimit: "3mb" } },
   partialPrefetching: true,

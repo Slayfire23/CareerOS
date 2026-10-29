@@ -3,6 +3,8 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
 
+export const DEFAULT_DISPLAY_NAME = "My profile";
+
 export async function ensureCurrentUserProfile() {
   const supabase = await createClient();
   const {
@@ -29,7 +31,7 @@ export async function ensureCurrentUserProfile() {
       data: [
         {
           userId: careerUser.id,
-          displayName: "My profile",
+          displayName: DEFAULT_DISPLAY_NAME,
         },
       ],
       skipDuplicates: true,
