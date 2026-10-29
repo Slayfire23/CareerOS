@@ -8,11 +8,13 @@ CareerOS uses three separate environments:
 | Development | Dedicated dev Supabase project | `.env` | `npm run dev`, `prisma7.config.ts`, all Playwright tests |
 | Integration tests | Local Docker PostgreSQL (no Auth) | none (fixed in `tests/support/local-database.ts`) | `prisma.integration.config.ts`, `vitest.integration.config.mts` |
 
+Naming caution: the **production** Supabase project is named "CareerOS Dev" (ref `esgquaxaacksykxreuwd`) and serves the live Vercel app. The development project is "CareerOS Local Dev". Always confirm the project ref, not the name, before changing anything.
+
 All `.env*` files are ignored by Git. Never commit them, paste their values into chat or issues, or add them to Vercel.
 
 ## 1. Create the project (Supabase dashboard)
 
-1. New project, for example `careeros-dev`, in the same organization. A region near the production project (`us-east-2`) is fine.
+1. New project named `CareerOS Local Dev`, in the same organization. A region near the production project (`us-east-2`) is fine.
 2. Save the database password in your password manager.
 
 ## 2. Authentication (dev project → Authentication)
