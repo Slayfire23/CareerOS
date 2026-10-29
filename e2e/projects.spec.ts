@@ -7,7 +7,7 @@ const section = (page: Page) => page.getByRole("region", { name: "Projects and a
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
 
 async function save(page: Page,name:string){
- await page.goto("/dashboard");await page.getByText("Add project or accomplishment",{exact:true}).click();const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
+ await page.goto("/dashboard/projects"); await page.waitForLoadState("networkidle");await page.getByText("Add project or accomplishment",{exact:true}).click();const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
  await form.getByLabel("Title",{exact:true}).fill(name);
  await form.getByLabel("Your contribution (optional)",{exact:true}).fill("Coordinated a team");
  await form.getByLabel("Supporting links (optional)",{exact:true}).fill("https://example.com");
@@ -28,7 +28,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
       await p.goto("/login"); await p.getByLabel("Email", { exact: true }).fill(email);
       await p.getByLabel("Password", { exact: true }).fill(password);
       await p.getByRole("button", { name: "Sign in", exact: true }).click();
-      await expect(p).toHaveURL(/\/dashboard\/?$/); await expect(section(p)).toBeVisible();
+      await expect(p).toHaveURL(/\/dashboard\/?$/); await p.goto("/dashboard/projects"); await p.waitForLoadState("networkidle"); await expect(section(p)).toBeVisible();
     }
     started = true;
     await save(page, name);
@@ -49,7 +49,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
     try {
       if (started) {
         const cleaned = await Promise.allSettled([page, pageB].map(async (p) => {
-          await p.goto("/dashboard"); await expect(section(p)).toBeVisible();
+          await p.goto("/dashboard/projects"); await p.waitForLoadState("networkidle"); await expect(section(p)).toBeVisible();
           if (await row(p, name).count()) {
             await row(p, name).getByRole("button", { name: /^Remove / }).click();
             await expect(row(p, name)).toHaveCount(0);

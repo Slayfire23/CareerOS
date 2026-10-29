@@ -7,7 +7,7 @@ const section = (page: Page) => page.getByRole("region", { name: "Education", ex
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
 
 async function save(page: Page, name: string) {
-  await page.goto("/dashboard");
+  await page.goto("/dashboard/education"); await page.waitForLoadState("networkidle");
   await page.getByText("Add education", {exact:true}).click();
   const form = page.getByRole("form", { name: "Add education", exact: true });
   await form.getByLabel("Qualification or program", { exact: true }).fill("Bachelor of Science");
@@ -34,7 +34,7 @@ test("education persists, edits dates, and stays private across accounts", async
       await p.goto("/login"); await p.getByLabel("Email", { exact: true }).fill(email);
       await p.getByLabel("Password", { exact: true }).fill(password);
       await p.getByRole("button", { name: "Sign in", exact: true }).click();
-      await expect(p).toHaveURL(/\/dashboard\/?$/); await expect(section(p)).toBeVisible();
+      await expect(p).toHaveURL(/\/dashboard\/?$/); await p.goto("/dashboard/education"); await p.waitForLoadState("networkidle"); await expect(section(p)).toBeVisible();
     }
     started = true;
     await save(page, name);
@@ -59,7 +59,7 @@ test("education persists, edits dates, and stays private across accounts", async
     try {
       if (started) {
         const cleaned = await Promise.allSettled([page, pageB].map(async (p) => {
-          await p.goto("/dashboard"); await expect(section(p)).toBeVisible();
+          await p.goto("/dashboard/education"); await p.waitForLoadState("networkidle"); await expect(section(p)).toBeVisible();
           if (await row(p, name).count()) {
             await row(p, name).getByRole("button", { name: /^Remove / }).click();
             await expect(row(p, name)).toHaveCount(0);

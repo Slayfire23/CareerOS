@@ -23,19 +23,23 @@ test("dark forms retain readable native menus, months, focus and disabled states
  await page.getByLabel("Password",{exact:true}).fill(env.E2E_TEST_PASSWORD);
  await page.getByRole("button",{name:"Sign in",exact:true}).click();
  await expect(page).toHaveURL(/\/dashboard\/?$/);
- // No saves: this check never changes account data.
- for(const select of await page.locator("select:visible").all()){
-   await readable(select);
-   for(const option of await select.locator("option").all()) {
-     await expect(option).toHaveCSS("background-color","rgb(23, 23, 23)");
-     await expect(option).toHaveCSS("color","rgb(237, 237, 237)");
-   }
-   await select.selectOption({index:1});await readable(select);
+ // No saves: this check never changes account data. Each section now has its own page.
+ for(const path of ["/dashboard/preferences","/dashboard/skills","/dashboard/profile"]){
+  await page.goto(path); await page.waitForLoadState("networkidle");
+  for(const select of await page.locator("select:visible").all()){
+    await readable(select);
+    for(const option of await select.locator("option").all()) {
+      await expect(option).toHaveCSS("background-color","rgb(23, 23, 23)");
+      await expect(option).toHaveCSS("color","rgb(237, 237, 237)");
+    }
+    await select.selectOption({index:1});await readable(select);
+  }
+  for(const text of await page.locator('textarea:visible, input[type="number"]:visible').all())await readable(text);
  }
- for(const text of await page.locator('textarea:visible, input[type="number"]:visible').all())await readable(text);
  const placeholderColor=await page.getByLabel("Headline (optional)",{exact:true}).evaluate(el=>getComputedStyle(el,"::placeholder").color);
  expect(placeholderColor).toBe("rgb(179, 179, 179)");
- for (const [label, formName] of [["Add experience", "Add professional experience"], ["Add education", "Add education"], ["Add project or accomplishment", "Add project or accomplishment"]]) {
+ for (const [path, label, formName] of [["/dashboard/projects", "Add project or accomplishment", "Add project or accomplishment"], ["/dashboard/education", "Add education", "Add education"], ["/dashboard/experience", "Add experience", "Add professional experience"]]) {
+  await page.goto(path); await page.waitForLoadState("networkidle");
   const form = page.getByRole("form", {name: formName, exact: true});
   await expect(form).toBeHidden();
   const toggle = page.getByText(label, {exact: true});
@@ -43,9 +47,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
   await expect(form).toBeVisible();
   await toggle.click(); await expect(form).toBeHidden();
   await toggle.click();
- }
- for(const name of ["Add education","Add professional experience"]){
-  const form=page.getByRole("form",{name,exact:true});
+  if (formName === "Add project or accomplishment") continue;
   for(const label of ["Start month","End month"]){
    const month=form.getByLabel(label,{exact:true});
    await readable(month);await expect(month).toHaveValue("");
@@ -67,6 +69,7 @@ test("dark forms retain readable native menus, months, focus and disabled states
   await form.getByRole("checkbox").uncheck();await readable(end);
  }
  // Also exercise the pending fieldset state without sending a form.
+ await page.goto("/dashboard/preferences"); await page.waitForLoadState("networkidle");
  const fieldset=page.getByRole("form",{name:"Location and commute preferences",exact:true}).locator("fieldset");
  await fieldset.evaluate(el=>(el as HTMLFieldSetElement).disabled=true);
  const relocation=page.getByLabel("Willing to relocate",{exact:true});

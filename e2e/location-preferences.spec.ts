@@ -14,7 +14,7 @@ async function read(page: Page): Promise<Values> {
   };
 }
 async function save(page: Page, values: Values) {
-  await page.goto("/dashboard");
+  await page.goto("/dashboard/preferences"); await page.waitForLoadState("networkidle");
   const form = preferences(page);
   await form.getByLabel("Preferred cities or regions", { exact: true }).fill(values.locations);
   await form.getByLabel("Willing to relocate", { exact: true }).selectOption(values.relocation);
@@ -47,18 +47,23 @@ test("location preferences persist, clear, and remain separate between two accou
       await p.getByLabel("Email", { exact: true }).fill(email);
       await p.getByLabel("Password", { exact: true }).fill(password);
       await p.getByRole("button", { name: "Sign in", exact: true }).click();
-      await expect(p).toHaveURL(/\/dashboard\/?$/);
+      await expect(p).toHaveURL(/\/dashboard\/?$/); await p.goto("/dashboard/preferences"); await p.waitForLoadState("networkidle");
       await expect(preferences(p)).toBeVisible();
     }
     originalA = await read(page); originalB = await read(pageB);
+    // Career goals live on the profile page; preference saves must not change them.
+    await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
     const goals = await page.getByLabel("Career goals (optional)", { exact: true }).inputValue();
+    await page.goto("/dashboard/preferences"); await page.waitForLoadState("networkidle");
     const a = { locations: "Chicago, IL\nMilwaukee, WI", relocation: "undecided", commute: "45" };
     changed = true;
     await save(page, a);
     await pageB.reload(); expect(await read(pageB)).toEqual(originalB);
     await save(pageB, { locations: "Detroit, MI", relocation: "yes", commute: "0" });
     await page.reload(); expect(await read(page)).toEqual(a);
+    await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
     await expect(page.getByLabel("Career goals (optional)", { exact: true })).toHaveValue(goals);
+    await page.goto("/dashboard/preferences"); await page.waitForLoadState("networkidle");
     await save(page, { locations: "", relocation: "", commute: "" });
   } finally {
     try {

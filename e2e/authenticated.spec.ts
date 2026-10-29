@@ -27,7 +27,7 @@ async function signIn(page: Page) {
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
+  await expect(page).toHaveURL(/\/dashboard\/?$/); await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { name: "Your career profile", exact: true })).toBeVisible();
 }
 
@@ -39,7 +39,7 @@ async function assertProfile(page: Page, profile: Profile) {
 
 async function save(page: Page, profile: Profile) {
   // Reload removes any previous success message before testing the next submission.
-  await page.goto("/dashboard");
+  await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
   await page.getByLabel("Display name", { exact: true }).fill(profile.name);
   await page.getByLabel("Headline (optional)", { exact: true }).fill(profile.headline);
   await page.getByLabel("Career goals (optional)", { exact: true }).fill(profile.goals);
@@ -70,7 +70,7 @@ test("test account can sign in, persist a profile, and sign out", async ({ page 
     needsRestore = false;
     await page.getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(page).toHaveURL(/\/login\/?$/);
-    await page.goto("/dashboard");
+    await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/login\/?$/);
     await expect(page.getByLabel("Display name", { exact: true })).toHaveCount(0);
   } finally {

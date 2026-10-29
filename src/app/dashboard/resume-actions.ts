@@ -13,7 +13,7 @@ export async function uploadResume(_previous:ResumeState,form:FormData):Promise<
   const {error}=await client.storage.from(RESUME_BUCKET).upload(user.id+"/"+key,file.bytes,{contentType:"application/pdf",upsert:false,cacheControl:"0"});
   if(error)throw new Error();
  }catch{return {error:"Resume upload failed. Please try again. Existing files have not been replaced."};}
- revalidatePath("/dashboard");return {message:"Resume uploaded as a new version."};
+ revalidatePath("/dashboard", "layout");return {message:"Resume uploaded as a new version."};
 }
 export async function deleteResume(_previous:ResumeState,form:FormData):Promise<ResumeState>{
  const client=await createClient();const {data:{user},error}=await client.auth.getUser();
@@ -23,5 +23,5 @@ export async function deleteResume(_previous:ResumeState,form:FormData):Promise<
   const {data,error}=await client.storage.from(RESUME_BUCKET).remove([user.id+"/"+values[0]]);
   if(error||!data?.length)return {error:"Resume could not be deleted. Refresh and try again."};
  }catch{return {error:"Resume could not be deleted. Please try again."};}
- revalidatePath("/dashboard");return {message:"Resume deleted."};
+ revalidatePath("/dashboard", "layout");return {message:"Resume deleted."};
 }

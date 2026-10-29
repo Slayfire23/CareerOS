@@ -13,7 +13,7 @@ async function signIn(page: Page) {
   await page.getByLabel("Email", { exact: true }).fill(values.E2E_TEST_EMAIL.trim());
   await page.getByLabel("Password", { exact: true }).fill(values.E2E_TEST_PASSWORD);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
+  await expect(page).toHaveURL(/\/dashboard\/?$/); await page.goto("/dashboard/profile"); await page.waitForLoadState("networkidle");
   await expect(page.getByLabel("Display name", { exact: true })).toBeVisible();
 }
 

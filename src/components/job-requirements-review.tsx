@@ -1,5 +1,6 @@
 "use client";
 import { useActionState, useId, useState } from "react";
+import { requirementsHref } from "@/lib/sections";
 import { categories, priorities, type Requirement } from "@/lib/job-requirements";
 import { saveRequirements, type RequirementState } from "@/app/jobs/requirements-actions";
 
@@ -36,7 +37,7 @@ export function JobRequirementsReview({id, description, version, reviewed, stale
     <button className="rounded bg-blue-700 px-5 py-3 text-white" type="submit">{pending ? "Saving…" : "Save reviewed requirements"}</button>
    </fieldset>
    {state.error && <p role="alert">{state.error}</p>}
-   {state.message && <p role="status">{state.message} <a href={`/jobs/${id}/requirements`} className="underline">Reopen review</a></p>}
+   {state.message && <p role="status">{state.message} <a href={requirementsHref(id)} className="underline">Reopen review</a></p>}
   </form>
  </div>;
 }

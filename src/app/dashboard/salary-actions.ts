@@ -27,6 +27,6 @@ export async function saveSalaryExpectations(
   } catch {
     return { error: "Your preferences could not be saved. Please try again." };
   }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Salary expectations saved." };
 }

@@ -1,6 +1,7 @@
 "use client";
 import {useActionState} from "react";
 import Link from "next/link";
+import {SECTIONS} from "@/lib/sections";
 import {extractResume,applyResumeReview,type ExtractionState,type ReviewState} from "@/app/dashboard/resume-review/actions";
 import type {ResumeSuggestions} from "@/lib/resume-suggestions";
 type Existing={displayName:string;headline:string|null;skills:string[]};
@@ -11,7 +12,7 @@ function ReviewFields({resumeKey,profile,suggestions}:{resumeKey:string;profile:
  <div><p>Current name: {profile.displayName}</p><label className="block"><input type="checkbox" name="useName"/> Use reviewed name</label><label className="block" htmlFor="review-name">Suggested name</label><input className="w-full rounded border p-3" id="review-name" name="displayName" maxLength={100} defaultValue={suggestions.displayName}/></div>
  <div><p>Current headline: {profile.headline||"Not specified"}</p><label className="block"><input type="checkbox" name="useHeadline"/> Use reviewed headline</label><label className="block" htmlFor="review-headline">Suggested headline</label><input className="w-full rounded border p-3" id="review-headline" name="headline" maxLength={200} defaultValue={suggestions.headline}/></div>
  <div><p>Existing skills: {profile.skills.join(", ")||"None"}</p><label className="block"><input type="checkbox" name="useSkills"/> Add reviewed skills</label><label className="block" htmlFor="review-skills">Suggested skills</label><textarea className="w-full rounded border p-3" id="review-skills" name="skills" rows={6} maxLength={3100} defaultValue={suggestions.skills.join("\n")}/><p>One skill per line, up to 30. Remove anything incorrect. Existing skills and proficiency levels stay unchanged; duplicate names are skipped.</p></div>
- <button className="rounded bg-blue-700 px-5 py-3 text-white disabled:opacity-50" type="submit">{pending?"Saving…":"Save selected fields"}</button></fieldset>{state.error&&<p role="alert">{state.error}</p>}{state.message&&<p role="status">{state.message} <Link className="underline" href="/dashboard">View profile</Link></p>}</form>;
+ <button className="rounded bg-blue-700 px-5 py-3 text-white disabled:opacity-50" type="submit">{pending?"Saving…":"Save selected fields"}</button></fieldset>{state.error&&<p role="alert">{state.error}</p>}{state.message&&<p role="status">{state.message} <Link className="underline" href={SECTIONS.profile.href}>View profile</Link></p>}</form>;
 }
 export function ResumeReview({resumeKey,profile}:{resumeKey:string;profile:Existing}){
  const [state,action,pending]=useActionState(extractResume,{} as ExtractionState);

@@ -21,7 +21,6 @@ export async function saveRequirements(_previous: RequirementState, form: FormDa
   });
   if (result.count !== 1) return {error: "The job or review changed, or is unavailable. Reload and review again."};
  } catch { return {error: "Requirements could not be saved. Please try again."}; }
- revalidatePath(`/jobs/${id}/requirements`);
- revalidatePath("/jobs");
+ revalidatePath("/dashboard", "layout");
  return {message: "Reviewed requirements saved."};
 }

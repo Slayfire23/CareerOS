@@ -17,7 +17,7 @@ test("job requirements require review, persist corrections, flag changed descrip
    await p.goto("/login");await p.getByLabel("Email",{exact:true}).fill(email);await p.getByLabel("Password",{exact:true}).fill(password);
    await p.getByRole("button",{name:"Sign in",exact:true}).click();await expect(p).toHaveURL(/\/dashboard\/?$/);
   }
-  await page.goto("/jobs");
+  await page.goto("/dashboard/jobs"); await page.waitForLoadState("networkidle");
   const add=page.getByRole("form",{name:"Add job",exact:true});
   await add.getByLabel("Job title",{exact:true}).fill("Engineer");await add.getByLabel("Company",{exact:true}).fill(company);
   await add.getByLabel("Job description",{exact:true}).fill("Requirements:\n- 3 years experience\nPreferred:\n- Knowledge of CAD");
@@ -41,7 +41,7 @@ test("job requirements require review, persist corrections, flag changed descrip
   await expect(review.getByLabel("Requirement 1",{exact:true})).toHaveValue("Three years of relevant professional experience");
   await expect(review.getByLabel("Requirement 2",{exact:true})).toHaveValue("Discuss equivalent experience with employer");
   await expect(review.getByLabel("Requirement 3",{exact:true})).toHaveCount(0);
-  await page.goto("/jobs");await row.getByText("Edit job",{exact:true}).click();
+  await page.goto("/dashboard/jobs"); await page.waitForLoadState("networkidle");await row.getByText("Edit job",{exact:true}).click();
   const edit=row.getByRole("form",{name:`Edit job at ${company}`,exact:true});
   await edit.getByLabel("Job description",{exact:true}).fill("Requirements:\n- 5 years experience");
   await edit.getByRole("button",{name:"Save job",exact:true}).click();
@@ -55,7 +55,7 @@ test("job requirements require review, persist corrections, flag changed descrip
   await page.reload();await expect(review.getByText("No requirements listed. Add one manually using the description above.")).toBeVisible();
   await pageB.context().clearCookies();await pageB.goto(url);await expect(pageB).toHaveURL(/\/login\/?$/);
  } finally {
-  try {if(saved){await page.goto("/jobs");if(await row.count()){await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);}}}
+  try {if(saved){await page.goto("/dashboard/jobs"); await page.waitForLoadState("networkidle");if(await row.count()){await row.getByRole("button",{name:/^Remove /}).click();await expect(row).toHaveCount(0);}}}
   finally {await contextB.close();}
  }
 });

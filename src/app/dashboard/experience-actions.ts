@@ -22,7 +22,7 @@ export async function saveExperience(_previous: ExperienceState, form: FormData)
       await prisma.professionalExperience.create({ data: { profileId: profile.id, ...data } });
     }
   } catch { return { error: "Your experience could not be saved. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Experience saved." };
 }
 
@@ -37,6 +37,6 @@ export async function removeExperience(_previous: ExperienceState, form: FormDat
     const result = await prisma.professionalExperience.deleteMany({ where: { id, profile: { user: { supabaseAuthId: user.id } } } });
     if (result.count !== 1) return { error: "Experience not found. Reload and try again." };
   } catch { return { error: "Your experience could not be removed. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Experience removed." };
 }

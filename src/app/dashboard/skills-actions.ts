@@ -22,7 +22,7 @@ export async function saveTechnicalSkill(_previous: SkillState, form: FormData):
       create: { profileId: profile.id, ...data }, update: data,
     });
   } catch { return { error: "Your skill could not be saved. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Skill saved." };
 }
 
@@ -38,6 +38,6 @@ export async function removeTechnicalSkill(_previous: SkillState, form: FormData
     const result = await prisma.technicalSkill.deleteMany({ where: { id: ids[0], profile: { user: { supabaseAuthId: user.id } } } });
     if (result.count !== 1) return { error: "The skill could not be removed. Reload the page and try again." };
   } catch { return { error: "The skill could not be removed. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Skill removed." };
 }

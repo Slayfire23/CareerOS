@@ -65,7 +65,7 @@ it("scopes writes to the session and excludes forged ownership and basic-profile
   expect(mocks.updateMany).toHaveBeenCalledExactlyOnceWith({
     where: { user: { supabaseAuthId: "account-a" } }, data: parseCareerPreferences(data),
   });
-  expect(mocks.revalidatePath).toHaveBeenCalledExactlyOnceWith("/dashboard");
+  expect(mocks.revalidatePath).toHaveBeenCalledExactlyOnceWith("/dashboard", "layout");
 });
 it("rejects invalid data before a database write", async () => {
   const data = form(); data.set("employmentTypes", "invented");

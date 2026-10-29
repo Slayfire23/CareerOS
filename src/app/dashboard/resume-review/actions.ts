@@ -29,5 +29,5 @@ export async function applyResumeReview(_previous:ReviewState,form:FormData):Pro
    if(reviewed.skills.length)await tx.technicalSkill.createMany({data:reviewed.skills.map(name=>({profileId:profile.id,name,normalizedName:name.toLowerCase(),proficiency:null})),skipDuplicates:true});
   });
  }catch(e){return {error:e instanceof Error&&e.message==="conflict"?"Your profile changed since this review opened. Reload before applying suggestions.":"The reviewed fields could not be saved. Please try again."};}
- revalidatePath("/dashboard");return {message:"Selected fields saved. Existing skills and proficiency levels were preserved."};
+ revalidatePath("/dashboard", "layout");return {message:"Selected fields saved. Existing skills and proficiency levels were preserved."};
 }

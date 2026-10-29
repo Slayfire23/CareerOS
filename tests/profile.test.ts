@@ -129,7 +129,7 @@ describe("profile validation and persistence results", () => {
     form.set("headline", "h".repeat(200));
     form.set("careerGoals", "g".repeat(5000));
     expect((await saveProfile({}, form)).message).toBe("Profile saved.");
-    expect(mocks.revalidatePath).toHaveBeenCalledExactlyOnceWith("/dashboard");
+    expect(mocks.revalidatePath).toHaveBeenCalledExactlyOnceWith("/dashboard", "layout");
   });
 
   it("trims text and clears blank optional fields using null", async () => {

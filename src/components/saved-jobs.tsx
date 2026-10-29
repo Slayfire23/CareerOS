@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { requirementsHref } from "@/lib/sections";
 import { useActionState, useId } from "react";
 import { saveJob, removeJob, type JobState } from "@/app/jobs/actions";
 import type { SavedJobEntry } from "@/lib/saved-jobs";
@@ -28,7 +29,7 @@ function JobRow({ job }: { job: SavedJobEntry }) {
  const [state, action, pending] = useActionState(removeJob, {} as JobState);
  return <li className="space-y-3 rounded border p-4">
   <h3 className="font-semibold">{job.title} at {job.company}</h3>
-  <Link className="block underline" href={`/jobs/${job.id}/requirements`}>Review requirements</Link>
+  <Link className="block underline" href={requirementsHref(job.id)}>Review requirements</Link>
   {job.postingUrl && <a href={job.postingUrl} target="_blank" rel="noopener noreferrer" className="underline">Open posting</a>}
   <details><summary className="cursor-pointer">View description</summary><p className="whitespace-pre-wrap break-words">{job.description}</p></details>
   <details><summary className="cursor-pointer">Edit job</summary><JobForm key={JSON.stringify(job)} job={job} /></details>

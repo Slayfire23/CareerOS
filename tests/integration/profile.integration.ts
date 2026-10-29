@@ -376,5 +376,7 @@ it("dashboard overview counts only the owner's jobs and only up-to-date reviews"
  expect(overview.total).toBe(3);
  expect(overview).toMatchObject({reviewed:1,notReviewed:1,outOfDate:1});
  expect(Object.fromEntries(overview.jobs.map(job=>[job.title,[job.reviewStatus,job.requirementCount]]))).toEqual({Current:["reviewed",1],Stale:["out-of-date",0],Unreviewed:["not-reviewed",0]});
+ expect(overview.jobs.find(job=>job.title==="Current")?.priorityCounts).toEqual({Required:1,Preferred:0,Unspecified:0});
+ expect((await getSavedJobsOverview(accountA,1)).jobs).toHaveLength(1);
  expect((await getSavedJobsOverview(accountB,10)).jobs.map(job=>job.title)).toEqual(["Foreign"]);
 });
