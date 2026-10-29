@@ -158,7 +158,7 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
 
 
-## Saved jobs — October 21, 2026
+## Saved jobs â€” October 21, 2026
 
 - [x] Add private saved jobs with title, company, optional posting link, and pasted description.
 - [x] Add authenticated create/edit/delete actions and an ownership-scoped /jobs page linked from the dashboard.
