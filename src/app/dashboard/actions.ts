@@ -72,7 +72,7 @@ export async function saveProfile(
     return { error: "Your profile could not be saved. Please try again." };
   }
 
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
 
   return { message: "Profile saved." };
 }

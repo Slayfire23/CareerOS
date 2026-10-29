@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { RecoveryForm } from "@/components/recovery-form";
+import { AuthShell } from "@/components/auth-shell";
 
 async function UpdatePasswordContent() {
   await connection();
@@ -13,7 +14,7 @@ async function UpdatePasswordContent() {
 }
 
 export default function UpdatePasswordPage() {
-  return <main className="mx-auto w-full max-w-md px-6 py-16">
-    <Suspense fallback={<p role="status">Checking your session…</p>}><UpdatePasswordContent /></Suspense>
-  </main>;
+  return <AuthShell>
+    <Suspense fallback={<p role="status" aria-busy="true">Checking your session…</p>}><UpdatePasswordContent /></Suspense>
+  </AuthShell>;
 }

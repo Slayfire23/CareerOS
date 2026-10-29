@@ -22,7 +22,7 @@ export async function saveProject(_previous: ProjectState, form: FormData): Prom
       await prisma.projectAccomplishment.create({ data: { profileId: profile.id, ...data } });
     }
   } catch { return { error: "Your project could not be saved. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Project saved." };
 }
 
@@ -37,6 +37,6 @@ export async function removeProject(_previous: ProjectState, form: FormData): Pr
     const result = await prisma.projectAccomplishment.deleteMany({ where: { id, profile: { user: { supabaseAuthId: user.id } } } });
     if (result.count !== 1) return { error: "Project not found. Reload and try again." };
   } catch { return { error: "Your project could not be removed. Please try again." }; }
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { message: "Project removed." };
 }

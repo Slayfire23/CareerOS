@@ -200,3 +200,15 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [ ] Owner checks production Storage for leftover fixture PDFs (names ending _resume_test_<32 hex>.pdf in the old test account folder) from earlier hosted test runs; delete only with approval.
 - [ ] Apply migration 20261028010000_enable_row_level_security to production (idempotent; production already has RLS on; needs owner approval).
 - [x] B3/B4: owner confirmed live job-requirements review and education add/edit/remove (October 28). Foundation recommendation: GO.
+
+## UI/UX redesign - October 28, 2026 (branch ui-redesign)
+
+- [x] Phase 1: shared /dashboard layout (desktop sidebar, mobile menu, skip link), real home page, "CareerOS" titles, light/dark tokens with one blue accent.
+- [x] Phase 1 refinements (owner-requested): compact overview, saved jobs first with real counts, single profile summary card with progress and missing-section chips, icon quick actions, distinctive landing page.
+- [x] Phase 2: dedicated pages for profile, preferences, skills, experience, education, projects, resumes, saved jobs, and job analysis; forms removed from the overview; 307 redirects from old addresses.
+- [x] 227 unit tests, 25 integration tests, 26 Chromium tests (4 new navigation tests), TypeScript, lint, and a clean no-env production build passed.
+- [x] Phase 3: navigation, redirect, mobile-menu, and confirmation tests added.
+- [x] Phase 4: restyled all forms and key pages (Resumes, Saved Jobs, Job Analysis, requirement review), sign-out, auth pages, loading/empty states; responsive audit of 90 page views; owner approved the design.
+- [x] Final refinements: full values on the mobile dashboard, roomier mobile requirement controls, "Jun 2023 – Present" dates (storage unchanged), inline confirmation for every destructive action (Cancel/Escape covered by e2e/confirmation.spec.ts).
+- [ ] Phase 5: PR opened for owner review. No merge or deploy without approval; verify in production after merge.
+- [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).

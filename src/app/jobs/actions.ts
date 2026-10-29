@@ -22,7 +22,7 @@ export async function saveJob(_previous: JobState, form: FormData): Promise<JobS
       await prisma.savedJob.create({ data: { userId: account.id, ...data } });
     }
   } catch { return { error: "Your job could not be saved. Please try again." }; }
-  revalidatePath("/jobs");
+  revalidatePath("/dashboard", "layout");
   return { message: "Job saved." };
 }
 
@@ -37,6 +37,6 @@ export async function removeJob(_previous: JobState, form: FormData): Promise<Jo
     const result = await prisma.savedJob.deleteMany({ where: { id, user: { supabaseAuthId: user.id } } });
     if (result.count !== 1) return { error: "Job not found. Reload and try again." };
   } catch { return { error: "Your job could not be removed. Please try again." }; }
-  revalidatePath("/jobs");
+  revalidatePath("/dashboard", "layout");
   return { message: "Job removed." };
 }

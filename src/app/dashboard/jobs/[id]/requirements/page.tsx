@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -5,7 +6,10 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
 import { suggestRequirements, validateRequirements } from "@/lib/job-requirements";
+import { SECTIONS } from "@/lib/sections";
 import { JobRequirementsReview } from "@/components/job-requirements-review";
+import { Card, LoadingBlock, PageHeader } from "@/components/ui";
+export const metadata: Metadata = { title: "Review job requirements" };
 async function ReviewContent({params}: {params: Promise<{id: string}>}) {
  await connection();
  const supabase = await createClient();
@@ -17,10 +21,10 @@ async function ReviewContent({params}: {params: Promise<{id: string}>}) {
  if (!job) notFound();
  const reviewed = job.reviewedDescription !== null;
  const initial = reviewed ? validateRequirements(job.requirements) : suggestRequirements(job.description);
- return <section className="space-y-6"><h1 className="text-3xl font-bold">Review job requirements</h1><p>{job.title} at {job.company}</p>
-  <JobRequirementsReview key={job.id} id={job.id} description={job.description} version={job.reviewVersion} reviewed={reviewed} stale={reviewed && job.reviewedDescription !== job.description} initial={initial} />
+ return <section className="space-y-6"><PageHeader eyebrow={`${job.title} at ${job.company}`} title="Review job requirements" />
+  <Card><JobRequirementsReview key={job.id} id={job.id} description={job.description} version={job.reviewVersion} reviewed={reviewed} stale={reviewed && job.reviewedDescription !== job.description} initial={initial} /></Card>
  </section>;
 }
 export default function RequirementsPage({params}: {params: Promise<{id: string}>}) {
- return <main className="mx-auto w-full max-w-3xl space-y-6 px-6 py-16"><Link href="/jobs" className="underline">Back to saved jobs</Link><Suspense fallback={<p role="status">Loading requirements…</p>}><ReviewContent params={params} /></Suspense></main>;
+ return <div className="space-y-6"><Link href={SECTIONS.analysis.href} className="text-sm font-medium text-accent-text hover:underline">← Back to job analysis</Link><Suspense fallback={<LoadingBlock variant="form" label="Loading requirements…" />}><ReviewContent params={params} /></Suspense></div>;
 }

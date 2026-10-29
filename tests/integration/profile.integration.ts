@@ -360,3 +360,23 @@ it("invalid source and unconfirmed reviews never write", async () => {
  expect(await saveRequirements({},f)).toHaveProperty("error");
  expect(await prisma.savedJob.findUniqueOrThrow({where:{id:job.id}})).toMatchObject({requirements:[],reviewVersion:0,reviewedDescription:null});
 });
+
+
+import { getSavedJobsOverview } from "@/lib/overview";
+it("dashboard overview counts only the owner's jobs and only up-to-date reviews", async () => {
+ const ids: Record<string, string> = {};
+ for (const [owner, title] of [[accountA,"Current"],[accountA,"Stale"],[accountA,"Unreviewed"],[accountB,"Foreign"]] as const) {
+  signIn(owner);const data=jobForm();data.set("title",title);expect(await saveJob({},data)).toEqual({message:"Job saved."});
+  ids[title]=(await prisma.savedJob.findFirstOrThrow({where:{title,user:{supabaseAuthId:owner}}})).id;
+ }
+ await prisma.savedJob.update({where:{id:ids.Current},data:{reviewedDescription:"Original requirements",requirements:[{text:"A",category:"Other",priority:"Required",source:""}]}});
+ await prisma.savedJob.update({where:{id:ids.Stale},data:{reviewedDescription:"Earlier description"}});
+ await prisma.savedJob.update({where:{id:ids.Foreign},data:{reviewedDescription:"Original requirements"}});
+ const overview=await getSavedJobsOverview(accountA,10);
+ expect(overview.total).toBe(3);
+ expect(overview).toMatchObject({reviewed:1,notReviewed:1,outOfDate:1});
+ expect(Object.fromEntries(overview.jobs.map(job=>[job.title,[job.reviewStatus,job.requirementCount]]))).toEqual({Current:["reviewed",1],Stale:["out-of-date",0],Unreviewed:["not-reviewed",0]});
+ expect(overview.jobs.find(job=>job.title==="Current")?.priorityCounts).toEqual({Required:1,Preferred:0,Unspecified:0});
+ expect((await getSavedJobsOverview(accountA,1)).jobs).toHaveLength(1);
+ expect((await getSavedJobsOverview(accountB,10)).jobs.map(job=>job.title)).toEqual(["Foreign"]);
+});

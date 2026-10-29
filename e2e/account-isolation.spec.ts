@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
+import { openPage } from "./support";
 
 type Credentials = { email: string; password: string };
 type Profile = { name: string; headline: string; goals: string };
@@ -28,7 +29,7 @@ async function signIn(page: Page, account: Credentials) {
   await page.getByLabel("Email", { exact: true }).fill(account.email);
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard\/?$/);
+  await expect(page).toHaveURL(/\/dashboard\/?$/); await openPage(page, "/dashboard/profile");
   await expect(page.getByLabel("Display name", { exact: true })).toBeVisible();
 }
 
@@ -52,7 +53,7 @@ async function assertProfile(page: Page, profile: Profile) {
 }
 
 async function save(page: Page, profile: Profile) {
-  await page.goto("/dashboard");
+  await openPage(page, "/dashboard/profile");
   await page.getByLabel("Display name", { exact: true }).fill(profile.name);
   await page.getByLabel("Headline (optional)", { exact: true }).fill(profile.headline);
   await page.getByLabel("Career goals (optional)", { exact: true }).fill(profile.goals);

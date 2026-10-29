@@ -11,6 +11,10 @@ Milestone 1 (accounts, recovery, protected dashboard, private profiles) and the 
 
 The foundation audit is **GO** (October 28). The next milestone is a UI/UX redesign; Python/AI work follows it. See [docs/FOUNDATION_COMPLETION_REPORT.md](docs/FOUNDATION_COMPLETION_REPORT.md).
 
+## Where things are (UI redesign branch)
+
+After signing in you land on **/dashboard**, an overview of your saved jobs and profile. Each section has its own page: `/dashboard/profile`, `/preferences`, `/skills`, `/experience`, `/education`, `/projects`, `/resumes`, `/jobs`, and `/analysis` (job requirement review). Old `/jobs` addresses redirect.
+
 ## Available today
 
 - Create an account and confirm its email address; sign in, sign out, and recover a forgotten password.
@@ -31,7 +35,7 @@ Directly executed on branch `foundation-verification`:
 | Vitest unit tests | 224 passed, 15 files |
 | PostgreSQL integration tests (local Docker) | 24 passed |
 | TypeScript, ESLint | Passed |
-| Production build | Passed, including `/jobs/[id]/requirements` |
+| Production build | Passed, including `/dashboard/jobs/[id]/requirements` |
 | `npm audit` / `npm audit --omit=dev` | 0 vulnerabilities after a non-forced fast-uri lockfile patch |
 | Playwright Chromium (all 22) | Passed against `npm run dev` on the local Supabase stack (Auth, Storage, PostgreSQL in Docker) |
 | Hosted `prisma migrate status` (read-only) | 10 of 10 migrations applied, including `20261026010000_job_requirements` |

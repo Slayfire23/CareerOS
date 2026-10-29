@@ -2,12 +2,13 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
+import { confirmAction, openPage } from "./support";
 
 const section = (page: Page) => page.getByRole("region", { name: "Projects and accomplishments", exact: true });
 const row = (page: Page, name: string) => section(page).getByRole("listitem").filter({ hasText: name });
 
 async function save(page: Page,name:string){
- await page.goto("/dashboard");await page.getByText("Add project or accomplishment",{exact:true}).click();const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
+ await openPage(page, "/dashboard/projects");await page.getByText("Add project or accomplishment",{exact:true}).click();const form=page.getByRole("form",{name:"Add project or accomplishment",exact:true});
  await form.getByLabel("Title",{exact:true}).fill(name);
  await form.getByLabel("Your contribution (optional)",{exact:true}).fill("Coordinated a team");
  await form.getByLabel("Supporting links (optional)",{exact:true}).fill("https://example.com");
@@ -28,7 +29,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
       await p.goto("/login"); await p.getByLabel("Email", { exact: true }).fill(email);
       await p.getByLabel("Password", { exact: true }).fill(password);
       await p.getByRole("button", { name: "Sign in", exact: true }).click();
-      await expect(p).toHaveURL(/\/dashboard\/?$/); await expect(section(p)).toBeVisible();
+      await expect(p).toHaveURL(/\/dashboard\/?$/); await openPage(p, "/dashboard/projects"); await expect(section(p)).toBeVisible();
     }
     started = true;
     await save(page, name);
@@ -41,7 +42,7 @@ test("optional projects persist, edit, clear, and stay private across accounts",
     await edit.getByRole("button",{name:"Save project",exact:true}).click();
     await expect(row(page,name).getByRole("link")).toHaveCount(0);
     await page.reload();await expect(row(page,name)).not.toContainText("Coordinated a team");
-    await row(page,name).getByRole("button",{name:"Remove "+name,exact:true}).click();
+    await confirmAction(row(page,name).getByRole("button", { name: "Remove "+name,exact:true }));
     await expect(row(page,name)).toHaveCount(0);await page.reload();await expect(row(page,name)).toHaveCount(0);
     await pageB.reload();await expect(row(pageB,name)).toContainText("Coordinated a team");
     await expect(row(pageB,name).getByRole("link")).toHaveAttribute("href","https://example.com/");
@@ -49,9 +50,9 @@ test("optional projects persist, edit, clear, and stay private across accounts",
     try {
       if (started) {
         const cleaned = await Promise.allSettled([page, pageB].map(async (p) => {
-          await p.goto("/dashboard"); await expect(section(p)).toBeVisible();
+          await openPage(p, "/dashboard/projects"); await expect(section(p)).toBeVisible();
           if (await row(p, name).count()) {
-            await row(p, name).getByRole("button", { name: /^Remove / }).click();
+            await confirmAction(row(p, name).getByRole("button", { name: /^Remove / }));
             await expect(row(p, name)).toHaveCount(0);
           }
         }));

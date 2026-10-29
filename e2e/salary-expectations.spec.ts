@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { parse } from "dotenv";
 import { expect, test, type Page } from "@playwright/test";
+import { openPage } from "./support";
 
 type Values = { minimum: string; maximum: string; currency: string; period: string };
 const preferences = (page: Page) => page.getByRole("form", { name: "Salary expectations", exact: true });
@@ -15,7 +16,7 @@ async function read(page: Page): Promise<Values> {
   };
 }
 async function save(page: Page, values: Values) {
-  await page.goto("/dashboard");
+  await openPage(page, "/dashboard/preferences");
   const form = preferences(page);
   await form.getByLabel("Minimum pay",{exact:true}).fill(values.minimum);
   await form.getByLabel("Maximum pay",{exact:true}).fill(values.maximum);
@@ -49,18 +50,23 @@ test("salary expectations persist, clear, and remain separate between two accoun
       await p.getByLabel("Email", { exact: true }).fill(email);
       await p.getByLabel("Password", { exact: true }).fill(password);
       await p.getByRole("button", { name: "Sign in", exact: true }).click();
-      await expect(p).toHaveURL(/\/dashboard\/?$/);
+      await expect(p).toHaveURL(/\/dashboard\/?$/); await openPage(p, "/dashboard/preferences");
       await expect(preferences(p)).toBeVisible();
     }
     originalA = await read(page); originalB = await read(pageB);
+    // Career goals live on the profile page; preference saves must not change them.
+    await openPage(page, "/dashboard/profile");
     const goals = await page.getByLabel("Career goals (optional)", { exact: true }).inputValue();
+    await openPage(page, "/dashboard/preferences");
     const a = { minimum: "25.10", maximum: "40.99", currency: "USD", period: "hour" };
     changed = true;
     await save(page, a);
     await pageB.reload(); expect(await read(pageB)).toEqual(originalB);
     await save(pageB, { minimum: "0.00", maximum: "90000.00", currency: "CAD", period: "year" });
     await page.reload(); expect(await read(page)).toEqual(a);
+    await openPage(page, "/dashboard/profile");
     await expect(page.getByLabel("Career goals (optional)", { exact: true })).toHaveValue(goals);
+    await openPage(page, "/dashboard/preferences");
     await save(page, { minimum: "", maximum: "", currency: "", period: "" });
   } finally {
     try {
