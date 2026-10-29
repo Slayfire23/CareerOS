@@ -70,19 +70,19 @@ function JobRow({ job }: { job: SavedJobListItem }) {
 
 export function SavedJobs({ jobs }: { jobs: SavedJobListItem[] }) {
  return <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-  <section aria-labelledby="add-job-heading" className="space-y-4 rounded-xl border bg-surface p-5 lg:sticky lg:top-6 lg:order-2">
-   <div className="space-y-1">
-    <h2 id="add-job-heading" className="text-lg font-semibold">Add a job</h2>
-    <p className="text-sm text-muted">Saving a job does not apply or analyze your fit.</p>
-   </div>
-   <JobForm />
-  </section>
-  <section aria-labelledby="saved-jobs-heading" className="min-w-0 space-y-4 lg:order-1">
+  <section aria-labelledby="saved-jobs-heading" className="min-w-0 space-y-4">
    <h2 id="saved-jobs-heading" className="text-lg font-semibold">Your saved jobs ({jobs.length})</h2>
    {jobs.length ? <ul className="space-y-3">{jobs.map(job => <JobRow key={job.id} job={job} />)}</ul> : <div className="rounded-xl border border-dashed bg-surface-muted p-6 text-center">
     <p className="font-medium">No jobs saved yet.</p>
     <p className="mt-1 text-sm text-muted">Paste a posting in <strong>Add a job</strong>, then review its requirements.</p>
    </div>}
+  </section>
+  <section aria-labelledby="add-job-heading" className="space-y-4 rounded-xl border bg-surface p-5 lg:sticky lg:top-6">
+   <div className="space-y-1">
+    <h2 id="add-job-heading" className="text-lg font-semibold">Add a job</h2>
+    <p className="text-sm text-muted">Saving a job does not apply or analyze your fit.</p>
+   </div>
+   <JobForm />
   </section>
  </div>;
 }
