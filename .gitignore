@@ -44,3 +44,10 @@ next-env.d.ts
 
 # Chromium/Playwright crash logs
 debug.log
+
+# Python AI service
+ai-service/.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+!ai-service/.env.example
