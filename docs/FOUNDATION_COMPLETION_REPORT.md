@@ -50,7 +50,7 @@ I read [src/lib/job-requirements.ts](../src/lib/job-requirements.ts), [src/app/j
 | Changed-description warning; saved rows start unselected | Yes | Browser (executed) |
 | Source excerpts must still appear in the current description | Yes | Unit and integration (executed) |
 | Lost session and missing confirmation rejected | Yes | Unit and integration (executed) |
-| **Live** review/save/edit/clear | — | **Not confirmed by the owner** |
+| **Live** review/save/edit/clear | — | Owner-confirmed October 28 |
 
 I probed the suggestion heuristics directly (CRLF input, numbered lists, `Must have:` headings, inline headings, empty bullets, malformed rows). I found no correctness or security defect. These are known limitations, not blockers, and the UI already says suggestions may miss items:
 
@@ -66,12 +66,12 @@ I probed the suggestion heuristics directly (CRLF input, numbered lists, `Must h
 | Auth: signup, confirm, sign-in/out, recovery | Yes | Unit + browser | Yes | Owner-confirmed |
 | Profile basics and preferences | Yes | Unit + integration + browser | Yes | Owner-confirmed |
 | Technical skills, experience, location, salary | Yes | Unit + integration + browser | Yes | Owner-confirmed |
-| Education | Yes | Unit + integration + browser | Yes (hosted migration applied) | **Not explicitly confirmed** (TASKS.md open item) |
+| Education | Yes | Unit + integration + browser | Yes (hosted migration applied) | Owner-confirmed October 28 |
 | Projects/accomplishments | Yes | Unit + integration + browser | Yes | Owner-confirmed |
 | Private resumes (Storage + RLS) | Yes | Unit (Storage mocked) + browser two-account RLS (executed) | Yes | Owner-confirmed |
 | Resume-assisted review | Yes | Unit + integration + browser | Yes | Owner-confirmed |
 | Saved jobs | Yes | Unit + integration + browser | Yes | Owner-confirmed |
-| Job-requirements review | Yes | Unit + integration + browser (executed) | Yes (observed) | **Pending** |
+| Job-requirements review | Yes | Unit + integration + browser (executed) | Yes (observed) | Owner-confirmed October 28 |
 
 ## 5. Defects fixed in this audit (commit `ddc7f5d`)
 
@@ -87,8 +87,8 @@ No application code needed changes.
 |---|---|---|---|
 | B1 | ~~Dev/test data not separated from the live project.~~ **Closed October 28:** local Supabase stack (Docker, pinned CLI 2.121.0). `.env` targets it, the Playwright guard rejects hosted projects, migrations (11) and RLS are verified, storage policies are applied, and test accounts exist only locally. | — | Keep the guard in place. Production RLS migration awaits approval. |
 | B2 | ~~Full browser suite not re-run.~~ **Closed October 28:** 22/22 passed against hosted Auth, then 22/22 again against local Supabase. | — | — |
-| B3 | **Live job-requirements verification is pending.** | It is the newest deployed feature and the direct input to Milestone 3 analysis. | Owner confirms on the live site: review → select/edit → save → reload persists; manual add; edit the job description → stale warning; clear → empty list; another account gets a 404. |
-| B4 | **Live education verification is pending.** | It is the only deployed profile section without live confirmation. | Owner confirms live add/edit/remove and persistence after refresh. |
+| B3 | ~~Live job-requirements verification pending.~~ **Closed October 28:** owner confirmed live review, selective save/edit, persistence, changed-description warning, and clearing. | — | — |
+| B4 | ~~Live education verification pending.~~ **Closed October 28:** owner confirmed live add/edit/remove with persistence. | — | — |
 
 ## 7. Open security follow-ups (non-blocking for local AI prototyping; blocking for broader public use)
 
@@ -101,6 +101,6 @@ No application code needed changes.
 
 ## 8. Recommendation
 
-**NO-GO** for starting the AI Engineering phase today. The code itself is in good shape: every check that could run in this environment passed, and no application defects were found. The blockers are environment and verification gaps, not code quality.
+**GO** (updated October 28). All four blockers are closed: B1 local Supabase isolation, B2 22/22 browser tests, and the B3/B4 owner live checks. Original assessment, kept for history: **NO-GO** for starting
 
-B1 and B2 are closed. Once B3 and B4 (owner live checks) are closed, the foundation meets its acceptance criteria and it is **GO**. Also pending your approval, but not blocking: applying the idempotent RLS migration to production, and checking production Storage for leftover test PDFs from the cleanup bug fixed on October 28.
+Agreed sequence: the UI/UX redesign (clean dashboard and dedicated section pages, preserving all functionality) comes before Python/AI work. Not blocking, still awaiting owner approval: applying the idempotent RLS migration to production, checking production Storage for leftover test PDFs, and merging foundation-verification. Open security follow-ups in §7 still block broader public use.

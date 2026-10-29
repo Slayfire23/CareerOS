@@ -82,7 +82,7 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Implement account-scoped add/edit/remove and additive local migration.
 - [x] Complete education build and all 16 browser tests (owner confirmed).
 - [x] Apply hosted education migration (owner confirmed).
-- [ ] Explicitly verify live education add/edit/remove after deployment.
+- [x] Explicitly verify live education add/edit/remove after deployment (owner confirmed October 28).
 
 ### Projects and accomplishments increment
 
@@ -184,7 +184,7 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [x] Complete browser verification: all 22 Chromium tests passed (October 26).
 - [x] Apply hosted migration 20261026010000_job_requirements (read-only `prisma migrate status` on October 28 reports 10/10 applied).
 - [x] Deploy (October 28: live /jobs/[id]/requirements route serves and redirects signed-out users to /login).
-- [ ] Owner verifies live review/selective save/edit/clear, including the changed-description warning.
+- [x] Owner verifies live review/selective save/edit/clear, including the changed-description warning (owner confirmed October 28).
 - [ ] Later: compare confirmed requirements with profile evidence; no match scores yet.
 
 ## Foundation audit - October 28, 2026
@@ -199,4 +199,4 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] Fixed browser-test resume cleanup: Storage search is a name-prefix match, so one fixture PDF leaked per resumes.spec run. Now lists the folder; verified 0 objects left.
 - [ ] Owner checks production Storage for leftover fixture PDFs (names ending _resume_test_<32 hex>.pdf in the old test account folder) from earlier hosted test runs; delete only with approval.
 - [ ] Apply migration 20261028010000_enable_row_level_security to production (idempotent; production already has RLS on; needs owner approval).
-- [ ] Owner live verification: job requirements (above) and education add/edit/remove.
+- [x] B3/B4: owner confirmed live job-requirements review and education add/edit/remove (October 28). Foundation recommendation: GO.
