@@ -138,7 +138,7 @@ Directly executed: 170 unit tests, 18 isolated PostgreSQL integration tests, Typ
 Directly executed: 203 unit tests, 21 isolated PostgreSQL tests, all 20 Chromium browser tests, TypeScript, lint, and git diff whitespace checks passed. Real synthetic PDF extraction and two-account source access were exercised. Reviewed skill import leaves name/headline unchanged; database coverage verifies stale-snapshot rollback and duplicate/proficiency preservation. The browser test caught and prompted removal of a duplicate resume section after moving uploads to the top. The sandbox build was blocked by Turbopack junction permissions; the owner subsequently supplied successful production-build output on October 21, including the resume-review route. All predeployment checks passed. On October 21, the owner confirmed the changes were pushed and resume suggestions worked on the live site: only selected fields were saved, and all other profile information was preserved.
 
 
-## Saved jobs and collapsible experience — October 21, 2026
+## Saved jobs and collapsible experience â€” October 21, 2026
 
 213 unit tests, 22 isolated PostgreSQL integration tests, TypeScript, and lint passed. Three targeted Chromium tests passed: saved-job create/refresh/edit/link clearing/delete and two-account listing isolation; professional-experience persistence and keyboard collapse/expand; dark-mode native controls. Database tests exercise crafted foreign-ID edits/deletes, ignored supplied ownership, session loss, and unchanged foreign records. Local migration 20261021010000_saved_jobs was applied successfully. The owner supplied a successful production build including /jobs. All 21 Chromium browser tests passed (1.9 minutes). Hosted migration/deployment remain pending.
 
@@ -146,3 +146,18 @@ Directly executed: 203 unit tests, 21 isolated PostgreSQL tests, all 20 Chromium
 ## Job requirements review - October 26, 2026
 
 224 unit tests and 24 isolated PostgreSQL integration tests passed. TypeScript and lint passed. Database coverage verifies owner-only review updates, rejected stale review versions and changed descriptions, explicit clearing, unchanged career profiles, lost sessions, invalid excerpts, and missing confirmation. The targeted requirements browser test passed after restarting the dev server with the regenerated Prisma client and local test database settings. It verifies selective save, manual additions, edited text, persistence, changed-description warnings, clearing, foreign-account denial, and signed-out redirects. All 22 Chromium browser tests passed in 2.2 minutes on October 26. Migration 20261026010000_job_requirements has been applied only to local test PostgreSQL. The owner supplied a successful production build including /jobs/[id]/requirements. Hosted rollout remains pending.
+
+
+## Foundation audit - October 28, 2026
+
+Directly executed by the agent on branch foundation-verification: 224 unit tests (15 files), 24 local PostgreSQL integration tests, TypeScript, lint, and the production build passed. `npm audit` and `npm audit --omit=dev` reported 0 after a non-forced fast-uri 3.1.8 -> 3.1.9 lockfile patch; the braces advisory is no longer reported. The 6 signed-out Chromium tests (signed-out, recovery-pages) passed against `next start` with DATABASE_URL overridden to the local test database. After owner approval, the 16 signed-in browser tests also passed (1.6 minutes) against the same local-database server, signing in with the disposable accounts on hosted Supabase Auth; all 22 Chromium tests pass on this branch. Read-only `prisma migrate status` against the hosted database reported all 10 migrations applied. See docs/FOUNDATION_COMPLETION_REPORT.md.
+
+
+## Local Supabase environment - October 28, 2026
+
+Development and browser tests now run against a local Supabase stack (see DEV_ENVIRONMENT_SETUP.md). Directly executed: all 11 migrations applied locally; RLS enabled on all 8 public tables; anonymous and signed-in Data API reads returned no rows and a signed-in PATCH changed 0 rows; private bucket and 6 storage policies present; the Playwright guard rejected hosted Auth and hosted database URLs. All 22 Chromium tests passed (1.4 and 1.3 minutes). The app wrote only to the local database (2 local-only auth users and matching User rows). Fixed a resume fixture leak: Storage list search is a name-prefix match, so the cleanup never found UUID-prefixed fixtures. After the fix, 0 objects remain after a run. 224 unit tests, 24 integration tests, TypeScript, and lint passed. Production was checked only with read-only migrate status (10 applied, 1 pending: 20261028010000_enable_row_level_security).
+
+
+## Build-only Vercel Preview - October 28, 2026
+
+PR #1 Preview failed on Vercel. The excerpt the owner supplied showed only install warnings, so the cause is not confirmed from logs. Reproduced locally: a clean clone with no env variables failed with `DATABASE_URL is missing.` from src/lib/db.ts while collecting page data, and succeeded with the variables set. src/lib/db.ts now creates the Prisma client on first use instead of at import. There is no fallback URL; a query without DATABASE_URL still throws (new tests/db.test.ts). A clean-clone `prisma generate` + `next build` with no env variables now passes. 227 unit tests, 24 integration tests, TypeScript, lint, and 22/22 Chromium tests against local Supabase passed.

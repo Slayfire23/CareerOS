@@ -34,7 +34,7 @@ test("private resumes preserve uploads and deny cross-account storage/download a
   const publicUrl=clientA.storage.from(RESUME_BUCKET).getPublicUrl(objectPath).data.publicUrl;expect((await page.request.get(publicUrl)).ok()).toBe(false);
   const anon=await browser.newContext({baseURL});try{expect((await anon.request.get("/api/resumes/"+uploaded[0])).status()).toBe(401);}finally{await anon.close();}
   await rows().first().getByRole("button",{name:"Delete "+name,exact:true}).click();await expect(rows()).toHaveCount(1);await page.reload();await expect(rows()).toHaveCount(1);
- }finally{
-  try{const {data,error}=await clientA.storage.from(RESUME_BUCKET).list(owner,{limit:100,search:name});if(error)throw new Error("Resume fixture cleanup listing failed. Check storage setup.");const paths=(data??[]).filter(f=>f.name.endsWith("_"+name)).map(f=>owner+"/"+f.name);if(paths.length){const result=await clientA.storage.from(RESUME_BUCKET).remove(paths);if(result.error)throw new Error("Resume fixture cleanup failed.");}}finally{await contextB.close();await clientA.auth.signOut({scope:"local"});await clientB.auth.signOut({scope:"local"});}
+ }finally{ // Storage search is a name-prefix match and stored names start with a UUID, so list the folder and filter.
+  try{const {data,error}=await clientA.storage.from(RESUME_BUCKET).list(owner,{limit:1000});if(error)throw new Error("Resume fixture cleanup listing failed. Check storage setup.");const paths=(data??[]).filter(f=>f.name.endsWith("_"+name)).map(f=>owner+"/"+f.name);if(paths.length){const result=await clientA.storage.from(RESUME_BUCKET).remove(paths);if(result.error)throw new Error("Resume fixture cleanup failed.");}}finally{await contextB.close();await clientA.auth.signOut({scope:"local"});await clientB.auth.signOut({scope:"local"});}
  }
 });

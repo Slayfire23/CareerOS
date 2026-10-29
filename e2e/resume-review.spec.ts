@@ -32,7 +32,7 @@ test("resume suggestions require review, preserve existing fields and reject for
  }finally{
   try{await page.goto("/dashboard");const row=page.getByRole("region",{name:"Technical skills",exact:true}).getByRole("listitem").filter({hasText:skill});if(await row.count()){await row.getByRole("button",{name:"Remove "+skill,exact:true}).click();await expect(row).toHaveCount(0);}
    if(key){const result=await storage.storage.from(RESUME_BUCKET).remove([auth.data.user.id+"/"+key]);if(result.error)throw new Error("Test resume cleanup failed.");}
-   else{const listing=await storage.storage.from(RESUME_BUCKET).list(auth.data.user.id,{search:name,limit:100});if(listing.error)throw new Error("Test resume cleanup listing failed.");const paths=(listing.data??[]).filter(f=>f.name.endsWith("_"+name)).map(f=>auth.data.user!.id+"/"+f.name);if(paths.length){const result=await storage.storage.from(RESUME_BUCKET).remove(paths);if(result.error)throw new Error("Test resume cleanup failed.");}}
+   else{const listing=await storage.storage.from(RESUME_BUCKET).list(auth.data.user.id,{limit:1000});if(listing.error)throw new Error("Test resume cleanup listing failed.");const paths=(listing.data??[]).filter(f=>f.name.endsWith("_"+name)).map(f=>auth.data.user!.id+"/"+f.name);if(paths.length){const result=await storage.storage.from(RESUME_BUCKET).remove(paths);if(result.error)throw new Error("Test resume cleanup failed.");}}
   }finally{await contextB.close();await storage.auth.signOut({scope:"local"});}
  }
 });

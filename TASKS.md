@@ -1,6 +1,6 @@
 # CareerOS — Development Checklist
 
-Updated October 17, 2026. Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
+Updated October 28, 2026 (see the audit section at the end and docs/FOUNDATION_COMPLETION_REPORT.md). Milestone 1 core functionality is complete and deployed. The follow-ups below remain open; completion of the core does not imply every security scenario has been tested. Milestone 2 preferences are deployed and verified live; technical skills are deployed and verified live; professional experience is deployed and verified live; location preferences are deployed and verified live; salary expectations are deployed and verified live.
 
 ## Milestone 1 — Foundation completed
 
@@ -28,9 +28,9 @@ Updated October 17, 2026. Milestone 1 core functionality is complete and deploye
 - [ ] Exercise real access-token expiration, refresh success/failure, and revoked sessions. Clearing browser cookies is not equivalent.
 - [ ] Exercise crafted cross-account HTTP/server-action requests. Existing browser tests cover normal saves and account switching; forged ownership is covered at the database-function boundary.
 - [ ] Verify real used/expired email-link rejection. Current automated callback tests cover absent/invalid mocked codes; live happy paths were manually tested.
-- [ ] Recheck dependency audit and resolve the Next.js ESLint/braces advisory. Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
+- [x] Recheck dependency audit (October 28): braces advisory no longer reported; one moderate fast-uri advisory fixed with non-forced `npm audit fix`; full and --omit=dev audits report 0. Previous note: Last successful audit: 5 high affected-package entries, 0 with development dependencies omitted; see TESTING.md for dates and scope.
 - [ ] Confirm email delivery for the brother's actual address if it was not one of the live test recipients; reassess default SMTP before broader public use.
-- [ ] Separate development/preview data from the initial live Supabase project before risky schema or fixture work.
+- [x] Separate development/test data from the live Supabase project (October 28: local Supabase stack via the pinned CLI; see DEV_ENVIRONMENT_SETUP.md).
 - [x] Commit and push this documentation reconciliation.
 
 ## Milestone 2 — Structured career profile and resumes (in progress)
@@ -82,7 +82,7 @@ First increment: target roles, industries, work arrangements, and employment typ
 - [x] Implement account-scoped add/edit/remove and additive local migration.
 - [x] Complete education build and all 16 browser tests (owner confirmed).
 - [x] Apply hosted education migration (owner confirmed).
-- [ ] Explicitly verify live education add/edit/remove after deployment.
+- [x] Explicitly verify live education add/edit/remove after deployment (owner confirmed October 28).
 
 ### Projects and accomplishments increment
 
@@ -158,7 +158,7 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
 
 
-## Saved jobs � October 21, 2026
+## Saved jobs — October 21, 2026
 
 - [x] Add private saved jobs with title, company, optional posting link, and pasted description.
 - [x] Add authenticated create/edit/delete actions and an ownership-scoped /jobs page linked from the dashboard.
@@ -182,5 +182,21 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 - [x] Pass 224 unit tests, 24 database tests, TypeScript, and lint.
 - [x] Complete production build (owner supplied successful output with the requirements route).
 - [x] Complete browser verification: all 22 Chromium tests passed (October 26).
-- [ ] Apply hosted migration, deploy, and verify live review/selective save/edit/clear.
+- [x] Apply hosted migration 20261026010000_job_requirements (read-only `prisma migrate status` on October 28 reports 10/10 applied).
+- [x] Deploy (October 28: live /jobs/[id]/requirements route serves and redirects signed-out users to /login).
+- [x] Owner verifies live review/selective save/edit/clear, including the changed-description warning (owner confirmed October 28).
 - [ ] Later: compare confirmed requirements with profile evidence; no match scores yet.
+
+## Foundation audit - October 28, 2026
+
+Directly executed on branch foundation-verification; details in docs/FOUNDATION_COMPLETION_REPORT.md.
+
+- [x] 224 unit tests, 24 local PostgreSQL integration tests, TypeScript, lint, and production build passed.
+- [x] 6 signed-out Chromium tests passed against the production build using the local test database.
+- [x] Run the 16 signed-in Chromium tests (owner approved October 28): all 16 passed in 1.6 minutes; the full suite is 22/22 on this branch.
+- [x] Fixed Windows-1252 em-dash bytes in TASKS.md, TESTING.md, ARCHITECTURE.md; untracked debug.log; patched fast-uri.
+- [x] B1: development and all browser tests now use a local Supabase stack (Auth, Storage, PostgreSQL). Guard rejects hosted projects; migrations, RLS (anon and signed-in Data API reads/writes denied), storage policies, and 22/22 browser tests verified locally.
+- [x] Fixed browser-test resume cleanup: Storage search is a name-prefix match, so one fixture PDF leaked per resumes.spec run. Now lists the folder; verified 0 objects left.
+- [ ] Owner checks production Storage for leftover fixture PDFs (names ending _resume_test_<32 hex>.pdf in the old test account folder) from earlier hosted test runs; delete only with approval.
+- [ ] Apply migration 20261028010000_enable_row_level_security to production (idempotent; production already has RLS on; needs owner approval).
+- [x] B3/B4: owner confirmed live job-requirements review and education add/edit/remove (October 28). Foundation recommendation: GO.
