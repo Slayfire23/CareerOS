@@ -99,6 +99,7 @@ Stop the dev server before building; restart it before running `npx playwright t
 - APP_URL: `https://career-os-flax-chi.vercel.app`. Update Supabase URLs as documented in AUTH_EMAIL_SETUP.md; redeploy after changing Vercel variables.
 - This build does not apply migrations. Review and apply future schema changes separately before releasing code that requires them.
 - Do not add disposable account credentials to Vercel. Preview deployments need an intentionally separate environment before using private data.
+- Preview builds need no environment variables: the Prisma client is created on first query, not at import. Leave DATABASE_URL and Supabase variables unset for Preview. Never copy production values there. Previews are build checks only: pages that need Auth or the database return errors at runtime, by design. Functional testing uses the local Supabase stack.
 
 ## Documentation
 

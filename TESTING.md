@@ -156,3 +156,8 @@ Directly executed by the agent on branch foundation-verification: 224 unit tests
 ## Local Supabase environment - October 28, 2026
 
 Development and browser tests now run against a local Supabase stack (see DEV_ENVIRONMENT_SETUP.md). Directly executed: all 11 migrations applied locally; RLS enabled on all 8 public tables; anonymous and signed-in Data API reads returned no rows and a signed-in PATCH changed 0 rows; private bucket and 6 storage policies present; the Playwright guard rejected hosted Auth and hosted database URLs. All 22 Chromium tests passed (1.4 and 1.3 minutes). The app wrote only to the local database (2 local-only auth users and matching User rows). Fixed a resume fixture leak: Storage list search is a name-prefix match, so the cleanup never found UUID-prefixed fixtures. After the fix, 0 objects remain after a run. 224 unit tests, 24 integration tests, TypeScript, and lint passed. Production was checked only with read-only migrate status (10 applied, 1 pending: 20261028010000_enable_row_level_security).
+
+
+## Build-only Vercel Preview - October 28, 2026
+
+PR #1 Preview failed on Vercel. The excerpt the owner supplied showed only install warnings, so the cause is not confirmed from logs. Reproduced locally: a clean clone with no env variables failed with `DATABASE_URL is missing.` from src/lib/db.ts while collecting page data, and succeeded with the variables set. src/lib/db.ts now creates the Prisma client on first use instead of at import. There is no fallback URL; a query without DATABASE_URL still throws (new tests/db.test.ts). A clean-clone `prisma generate` + `next build` with no env variables now passes. 227 unit tests, 24 integration tests, TypeScript, lint, and 22/22 Chromium tests against local Supabase passed.
