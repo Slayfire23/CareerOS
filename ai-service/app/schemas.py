@@ -59,7 +59,6 @@ class ExperienceEvidence(_Evidence):
 
     kind: Literal["experience"]
     job_title: ShortText
-    company: ShortText | None = None
     start_month: Month
     end_month: Month | None = None  # None = current role
     description: LongText | None = None
@@ -68,7 +67,6 @@ class ExperienceEvidence(_Evidence):
 class EducationEvidence(_Evidence):
     kind: Literal["education"]
     qualification: ShortText
-    institution: ShortText | None = None
     field_of_study: ShortText | None = None
     start_month: Month
     end_month: Month | None = None
@@ -93,8 +91,19 @@ Evidence = Annotated[
 ]
 
 
+class TokenBudget(Strict):
+    """Upper bounds Next.js reserved budget for. Cloud providers must stay within them."""
+
+    max_input_tokens: int = Field(ge=1_000, le=200_000)
+    max_output_tokens: int = Field(ge=256, le=32_000)
+
+
 class MatchRequest(Strict):
     request_id: UUID
+    # Which enabled provider to use. The deterministic rules engine stays a separate user choice.
+    provider: Literal["rules", "fake", "anthropic"] = "rules"
+    # Required for cloud providers (checked by the service), ignored by local ones.
+    budget: TokenBudget | None = None
     # The month "current" roles run until; supplied by Next.js so results are reproducible.
     as_of_month: Month
     requirements: list[Requirement] = Field(min_length=1, max_length=50)
@@ -140,6 +149,15 @@ class Finding(Strict):
     )
 
 
+class Usage(Strict):
+    """Token counts reported by the provider (None for local providers)."""
+
+    input_tokens: int = Field(ge=0)
+    output_tokens: int = Field(ge=0)
+    cache_read_input_tokens: int = Field(default=0, ge=0)
+    cache_creation_input_tokens: int = Field(default=0, ge=0)
+
+
 class MatchResponse(Strict):
     request_id: UUID
     findings: list[Finding]
@@ -147,3 +165,5 @@ class MatchResponse(Strict):
     provider: str
     model: str | None
     method_version: str
+    usage: Usage | None = None
+    provider_request_id: str | None = None

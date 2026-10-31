@@ -89,5 +89,7 @@
   },
   "provider": "rules",
   "model": null,
-  "method_version": "rules-v1"
+  "method_version": "rules-v1",
+  "usage": null,
+  "provider_request_id": null
 }

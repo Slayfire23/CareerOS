@@ -25,6 +25,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      # Local replay store for the shared-store tests (Redis-compatible, BSD-licensed).
+      replay-store:
+        image: valkey/valkey:8
+        ports:
+          - 6379:6379
+    env:
+      AI_TEST_REPLAY_STORE_URL: redis://127.0.0.1:6379/0
     defaults:
       run:
         working-directory: ai-service

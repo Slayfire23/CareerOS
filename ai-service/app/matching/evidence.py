@@ -48,11 +48,11 @@ def citable_texts(item: Evidence) -> list[str]:
     if isinstance(item, SkillEvidence):
         fields: Iterable[str | None] = [item.name]
     elif isinstance(item, ExperienceEvidence):
-        fields = [item.job_title, item.company, item.description]
+        fields = [item.job_title, item.description]
     elif isinstance(item, ProjectEvidence):
         fields = [item.title, item.description, item.contribution, item.results, *item.skills]
     else:
-        fields = [item.qualification, item.institution, item.field_of_study, item.description]
+        fields = [item.qualification, item.field_of_study, item.description]
     return [f for f in fields if f]
 
 

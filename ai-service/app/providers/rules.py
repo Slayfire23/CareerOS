@@ -85,6 +85,7 @@ class RulesProvider:
     name = "rules"
     model = None
     method_version = "rules-v1"
+    local = True
 
     async def match(self, request: MatchRequest) -> list[Finding]:
         return [self._assess(request, requirement) for requirement in request.requirements]

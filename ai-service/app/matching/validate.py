@@ -12,6 +12,9 @@ Downgrade individual findings when they overreach:
 - any "N years" stated in an explanation must match the requirement text or the computed
   employment durations, otherwise the finding becomes "insufficient_information";
 - "gap" is not allowed when the relevant part of the profile is empty.
+
+In strict mode (every cloud provider), any finding that would be downgraded rejects the whole
+response instead: model output that overreaches is discarded, never repaired.
 """
 
 import re
@@ -84,7 +87,7 @@ def _area_is_empty(request: MatchRequest, requirement: Requirement) -> bool:
     return not any(isinstance(e, kinds) for e in request.evidence)
 
 
-def validate_findings(request: MatchRequest, findings: list[Finding]) -> list[Finding]:
+def validate_findings(request: MatchRequest, findings: list[Finding], strict: bool = False) -> list[Finding]:
     requirements = {r.index: r for r in request.requirements}
     evidence = {e.id: e for e in request.evidence}
 
@@ -97,6 +100,8 @@ def validate_findings(request: MatchRequest, findings: list[Finding]) -> list[Fi
                 raise InvalidProviderOutput("A finding cites evidence that was not supplied.")
 
     checked = [_check(request, requirements[f.requirement_index], f, evidence) for f in findings]
+    if strict and any(c is not f for c, f in zip(checked, findings, strict=True)):
+        raise InvalidProviderOutput("A finding overreached its evidence and the response was discarded.")
     return sorted(checked, key=lambda f: f.requirement_index)
 
 
@@ -125,8 +130,11 @@ def _check(request: MatchRequest, requirement: Requirement, finding: Finding, ev
     if verdict == "gap" and _area_is_empty(request, requirement):
         verdict = "insufficient_information"
 
-    if verdict == finding.verdict and citations == finding.citations and caveats == finding.caveats:
+    caveats = list(dict.fromkeys(caveats))[:5]
+    if (
+        verdict == finding.verdict
+        and citations == finding.citations
+        and caveats == list(dict.fromkeys(finding.caveats))
+    ):
         return finding
-    return finding.model_copy(
-        update={"verdict": verdict, "citations": citations, "caveats": list(dict.fromkeys(caveats))[:5]}
-    )
+    return finding.model_copy(update={"verdict": verdict, "citations": citations, "caveats": caveats})

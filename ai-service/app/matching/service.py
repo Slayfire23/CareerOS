@@ -5,7 +5,7 @@ import logging
 
 from app.errors import ServiceError
 from app.matching.validate import InvalidProviderOutput, validate_findings
-from app.providers.base import MatchProvider
+from app.providers.base import MatchProvider, ProviderOutput
 from app.schemas import VERDICTS, MatchRequest, MatchResponse
 
 log = logging.getLogger("careeros.match")
@@ -16,14 +16,27 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
         raw = await asyncio.wait_for(provider.match(request), timeout=timeout_seconds)
     except TimeoutError:
         log.warning("provider timeout", extra={"provider": provider.name})
-        raise ServiceError(504, "provider_timeout", "The analysis took too long. Please try again.") from None
+        # A cloud request may have been processed (and charged) even though no answer arrived.
+        raise ServiceError(
+            504,
+            "provider_timeout",
+            "The analysis took too long. Please try again.",
+            billed="no" if provider.local else "unknown",
+        ) from None
 
+    output = raw if isinstance(raw, ProviderOutput) else ProviderOutput(findings=raw)
+    usage = output.usage.model_dump() if output.usage else None
     try:
-        findings = validate_findings(request, raw)
+        findings = validate_findings(request, output.findings, strict=not provider.local)
     except InvalidProviderOutput as exc:
         log.error("provider output rejected: %s", exc, extra={"provider": provider.name})
         raise ServiceError(
-            502, "provider_output_rejected", "The analysis could not be verified and was discarded."
+            502,
+            "provider_output_rejected",
+            "The analysis could not be verified and was discarded.",
+            billed="no" if provider.local else "yes",
+            usage=usage,
+            provider_request_id=output.provider_request_id,
         ) from None
 
     counts = {verdict: 0 for verdict in VERDICTS}
@@ -36,4 +49,6 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
         provider=provider.name,
         model=provider.model,
         method_version=provider.method_version,
+        usage=output.usage,
+        provider_request_id=output.provider_request_id,
     )

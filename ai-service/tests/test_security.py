@@ -5,7 +5,7 @@ import uuid
 import pytest
 
 from app.errors import ServiceError
-from app.security import ReplayCache
+from app.security import MemoryReplayStore
 from tests.conftest import post_match, signed_headers
 
 
@@ -49,7 +49,7 @@ def test_expired_or_future_timestamps_are_rejected(client, example_request, offs
 
 
 def test_timestamp_inside_window_is_accepted(client, example_request):
-    assert post_match(client, example_request, timestamp=int(time.time()) - 200).status_code == 200
+    assert post_match(client, example_request, timestamp=int(time.time()) - 100).status_code == 200
 
 
 def test_replayed_request_is_rejected(client, example_request):
@@ -90,20 +90,26 @@ def test_oversized_body_is_rejected_before_parsing(client):
     assert response.status_code == 413
 
 
-def test_replay_cache_forgets_after_ttl():
-    cache = ReplayCache(ttl_seconds=600)
-    assert cache.check_and_remember("a", now=1000)
-    assert not cache.check_and_remember("a", now=1599)
-    assert cache.check_and_remember("a", now=1601)
+async def test_memory_store_forgets_after_ttl():
+    now = [1000.0]
+    store = MemoryReplayStore(clock=lambda: now[0])
+    assert await store.claim("a", 600)
+    now[0] = 1599
+    assert not await store.claim("a", 600)
+    now[0] = 1601
+    assert await store.claim("a", 600)
 
 
-def test_replay_cache_refuses_when_full_of_fresh_entries():
-    cache = ReplayCache(ttl_seconds=600, max_entries=2)
-    cache.check_and_remember("a", now=1000)
-    cache.check_and_remember("b", now=1000)
+async def test_memory_store_refuses_when_full_of_fresh_entries():
+    now = [1000.0]
+    store = MemoryReplayStore(max_entries=2, clock=lambda: now[0])
+    await store.claim("a", 600)
+    await store.claim("b", 600)
+    now[0] = 1001
     with pytest.raises(ServiceError):
-        cache.check_and_remember("c", now=1001)
-    assert cache.check_and_remember("c", now=1700)  # old entries are pruned once expired
+        await store.claim("c", 600)
+    now[0] = 1700
+    assert await store.claim("c", 600)  # old entries are pruned once expired
 
 
 @pytest.mark.parametrize(

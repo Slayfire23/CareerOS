@@ -8,17 +8,22 @@ Next.js signs every request with a shared secret it holds server-side only:
     X-CareerOS-Signature: v1=<hex HMAC-SHA256(secret, canonical)>
 
 Checks run cheapest-first: body size, header format, timestamp window (expiry), signature
-(constant time), then replay. A request id is remembered only after its signature verifies, so
-unauthenticated traffic cannot fill the replay cache.
+(constant time), then replay. A request id is claimed only after its signature verifies, so
+unauthenticated traffic cannot fill the replay store.
 
-The replay cache is per process. Run one worker per instance, or move the cache to shared storage
-before scaling out horizontally.
+Replay protection uses a shared store (Redis-compatible, ``SET NX EX``) so a request id is
+accepted once across every process and restart. If the store cannot be reached, requests are
+refused (fail closed) and no provider is called. The in-memory store is for local development
+with the deterministic provider only; it also refuses requests signed before the process started,
+because its memory does not survive a restart.
 """
 
+import asyncio
 import hashlib
 import hmac
 import threading
 import time
+from typing import Protocol
 from uuid import UUID
 
 from fastapi import Request
@@ -31,6 +36,9 @@ REQUEST_ID_HEADER = "x-careeros-request-id"
 SIGNATURE_HEADER = "x-careeros-signature"
 
 _UNAUTHORIZED = ServiceError(401, "unauthorized", "Request signature is missing, invalid, or expired.")
+_STORE_DOWN = ServiceError(
+    503, "replay_store_unavailable", "The service cannot verify requests right now. Try again shortly."
+)
 
 
 def canonical_string(timestamp: str, request_id: str, body: bytes) -> str:
@@ -42,42 +50,97 @@ def sign(secret: str, timestamp: str, request_id: str, body: bytes) -> str:
     return f"v1={digest.hexdigest()}"
 
 
-class ReplayCache:
-    """Remembers request ids until they could no longer pass the timestamp check."""
+class ReplayStoreUnavailable(Exception):
+    """The replay store could not be reached or did not answer in time."""
 
-    def __init__(self, ttl_seconds: int, max_entries: int = 50_000) -> None:
-        self._ttl, self._max = ttl_seconds, max_entries
+
+class ReplayStore(Protocol):
+    shared: bool  # True when the store survives restarts and is shared between processes
+
+    async def claim(self, request_id: str, ttl_seconds: int) -> bool:
+        """Record the id. Return False if it was already used; raise ReplayStoreUnavailable on failure."""
+        ...
+
+    async def ping(self) -> None:
+        """Raise ReplayStoreUnavailable if the store cannot be reached."""
+        ...
+
+
+class MemoryReplayStore:
+    """Per-process store for local development and tests. Not shared, not durable."""
+
+    shared = False
+
+    def __init__(self, max_entries: int = 50_000, clock=time.monotonic) -> None:
+        self._max, self._clock = max_entries, clock
         self._seen: dict[str, float] = {}
         self._lock = threading.Lock()
 
-    def check_and_remember(self, request_id: str, now: float) -> bool:
-        """Return False if the id was already used within the TTL; otherwise record it."""
+    async def claim(self, request_id: str, ttl_seconds: int) -> bool:
+        now = self._clock()
         with self._lock:
             if len(self._seen) >= self._max:
-                self._seen = {k: t for k, t in self._seen.items() if now - t < self._ttl}
+                self._seen = {k: t for k, t in self._seen.items() if now - t < ttl_seconds}
                 if len(self._seen) >= self._max:
                     raise ServiceError(503, "busy", "Too many recent requests. Try again shortly.")
             seen_at = self._seen.get(request_id)
-            if seen_at is not None and now - seen_at < self._ttl:
+            if seen_at is not None and now - seen_at < ttl_seconds:
                 return False
             self._seen[request_id] = now
             return True
 
+    async def ping(self) -> None:
+        return None
 
-async def read_limited_body(request: Request, limit: int) -> bytes:
-    declared = request.headers.get("content-length")
-    if declared is not None and (not declared.isdigit() or int(declared) > limit):
-        raise ServiceError(413, "too_large", "Request body is too large.")
-    body = bytearray()
-    async for chunk in request.stream():
-        body.extend(chunk)
-        if len(body) > limit:
-            raise ServiceError(413, "too_large", "Request body is too large.")
-    return bytes(body)
+
+class RedisReplayStore:
+    """Shared store on a Redis-compatible server (Redis, Valkey, Upstash). Fails closed."""
+
+    shared = True
+
+    def __init__(self, url: str, timeout_seconds: float = 0.5) -> None:
+        from redis.asyncio import Redis  # imported lazily so the rules-only service needs no store
+
+        self._timeout = timeout_seconds
+        self._client = Redis.from_url(
+            url,
+            socket_timeout=timeout_seconds,
+            socket_connect_timeout=timeout_seconds,
+            retry_on_timeout=False,
+        )
+
+    async def claim(self, request_id: str, ttl_seconds: int) -> bool:
+        try:
+            created = await asyncio.wait_for(
+                self._client.set(f"careeros:replay:{request_id}", "1", nx=True, ex=ttl_seconds),
+                timeout=self._timeout,
+            )
+        except Exception as exc:  # any client, network, or timeout error means "cannot verify"
+            raise ReplayStoreUnavailable(type(exc).__name__) from None
+        return bool(created)
+
+    async def ping(self) -> None:
+        try:
+            await asyncio.wait_for(self._client.ping(), timeout=self._timeout)
+        except Exception as exc:
+            raise ReplayStoreUnavailable(type(exc).__name__) from None
+
+    async def close(self) -> None:
+        await self._client.aclose()
+
+
+def build_replay_store(settings: Settings) -> ReplayStore:
+    if settings.replay_store_url is not None:
+        return RedisReplayStore(settings.replay_store_url.get_secret_value())
+    return MemoryReplayStore()
 
 
 async def verify_signed_request(
-    request: Request, settings: Settings, cache: ReplayCache, now: float | None = None
+    request: Request,
+    settings: Settings,
+    store: ReplayStore,
+    started_at: float = 0.0,
+    now: float | None = None,
 ) -> bytes:
     """Return the raw body if the request is authentic, fresh, and not a replay."""
     body = await read_limited_body(request, settings.max_body_bytes)
@@ -99,11 +162,31 @@ async def verify_signed_request(
     current = time.time() if now is None else now
     if abs(current - int(timestamp)) > settings.signature_max_age_seconds:
         raise _UNAUTHORIZED
+    # An in-memory store forgets ids on restart, so it cannot vouch for requests signed earlier.
+    if not store.shared and int(timestamp) < int(started_at):
+        raise _UNAUTHORIZED
 
     expected = sign(settings.service_secret.get_secret_value(), timestamp, request_id, body)
     if not hmac.compare_digest(expected.encode(), signature.encode()):
         raise _UNAUTHORIZED
 
-    if not cache.check_and_remember(request_id, current):
+    try:
+        # Remember ids for twice the signature window, so an id cannot be reused while valid.
+        claimed = await store.claim(request_id, 2 * settings.signature_max_age_seconds)
+    except ReplayStoreUnavailable:
+        raise _STORE_DOWN from None
+    if not claimed:
         raise ServiceError(409, "replayed", "This request id has already been used.")
     return body
+
+
+async def read_limited_body(request: Request, limit: int) -> bytes:
+    declared = request.headers.get("content-length")
+    if declared is not None and (not declared.isdigit() or int(declared) > limit):
+        raise ServiceError(413, "too_large", "Request body is too large.")
+    body = bytearray()
+    async for chunk in request.stream():
+        body.extend(chunk)
+        if len(body) > limit:
+            raise ServiceError(413, "too_large", "Request body is too large.")
+    return bytes(body)

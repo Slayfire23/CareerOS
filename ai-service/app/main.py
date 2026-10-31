@@ -2,8 +2,8 @@
 
 Endpoints:
 - GET  /health        liveness, no details
-- GET  /health/ready  readiness: configuration loaded and provider constructed
-- POST /v1/match      signed requests only; deterministic or (later) AI requirement matching
+- GET  /health/ready  readiness: configuration loaded, providers built, replay store reachable
+- POST /v1/match      signed requests only; each request names one enabled provider
 """
 
 import logging
@@ -18,29 +18,54 @@ from app.config import Settings, get_settings
 from app.errors import ServiceError, error_body, install_error_handlers
 from app.matching.service import run_match
 from app.providers.base import MatchProvider
-from app.providers.factory import build_provider
+from app.providers.factory import build_providers
 from app.schemas import MatchRequest, MatchResponse
-from app.security import REQUEST_ID_HEADER, ReplayCache, verify_signed_request
+from app.security import (
+    REQUEST_ID_HEADER,
+    ReplayStore,
+    ReplayStoreUnavailable,
+    build_replay_store,
+    verify_signed_request,
+)
 
 log = logging.getLogger("careeros")
 
 
-def create_app(settings: Settings | None = None, provider: MatchProvider | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    provider: MatchProvider | None = None,
+    providers: dict[str, MatchProvider] | None = None,
+    replay_store: ReplayStore | None = None,
+) -> FastAPI:
     settings = settings or get_settings()
     logging.basicConfig(level=settings.log_level, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+    # The Anthropic SDK logs whole request bodies (profile text) at DEBUG, and its HTTP client logs
+    # every URL at INFO. Keep both at WARNING whatever AI_LOG_LEVEL or ANTHROPIC_LOG say.
+    for noisy in ("anthropic", "httpx2", "httpx", "httpcore", "httpcore2"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
     # Built eagerly so a misconfigured provider fails at startup, not on the first request.
-    active_provider = provider or build_provider(settings)
-    replay_cache = ReplayCache(ttl_seconds=2 * settings.signature_max_age_seconds)
+    # Tests may pass one provider to serve every enabled name.
+    if providers is None:
+        providers = (
+            {name: provider for name in settings.enabled_providers} if provider else build_providers(settings)
+        )
+    store = replay_store or build_replay_store(settings)
+    started_at = time.time()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        log.info("starting: environment=%s provider=%s", settings.environment, active_provider.name)
+        log.info(
+            "starting: environment=%s providers=%s replay_store=%s",
+            settings.environment,
+            ",".join(sorted(providers)),
+            "shared" if store.shared else "memory",
+        )
         yield
 
     production = settings.environment == "production"
     app = FastAPI(
         title="CareerOS AI service",
-        version="0.1.0",
+        version="0.2.0",
         lifespan=lifespan,
         docs_url=None if production else "/docs",
         redoc_url=None,
@@ -69,12 +94,16 @@ def create_app(settings: Settings | None = None, provider: MatchProvider | None 
         return {"status": "ok"}
 
     @app.get("/health/ready")
-    async def ready() -> dict:
-        return {"status": "ready", "provider": active_provider.name}
+    async def ready() -> JSONResponse:
+        try:
+            await store.ping()
+        except ReplayStoreUnavailable:
+            return JSONResponse({"status": "unavailable"}, status_code=503)
+        return JSONResponse({"status": "ready", "providers": sorted(providers)})
 
     @app.post("/v1/match", response_model=MatchResponse)
     async def match(request: Request) -> MatchResponse:
-        body = await verify_signed_request(request, settings, replay_cache)
+        body = await verify_signed_request(request, settings, store, started_at)
         try:
             payload = MatchRequest.model_validate_json(body)
         except ValidationError as exc:
@@ -84,12 +113,17 @@ def create_app(settings: Settings | None = None, provider: MatchProvider | None 
             raise ServiceError(
                 400, "request_id_mismatch", "Body request_id must match the signed request id."
             )
-        return await run_match(payload, active_provider, settings.provider_timeout_seconds)
+        chosen = providers.get(payload.provider)
+        if chosen is None:
+            raise ServiceError(400, "provider_not_enabled", "That analysis provider is not enabled.")
+        return await run_match(payload, chosen, settings.provider_timeout_seconds)
 
     @app.exception_handler(Exception)
     async def unexpected(_: Request, exc: Exception) -> JSONResponse:
         log.exception("unhandled error", exc_info=exc)
-        return JSONResponse(error_body("internal_error", "Unexpected error."), status_code=500)
+        return JSONResponse(
+            error_body("internal_error", "Unexpected error.", billed="unknown"), status_code=500
+        )
 
     return app
 
