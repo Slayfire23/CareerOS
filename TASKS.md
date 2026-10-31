@@ -245,7 +245,7 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 - [x] Dedicated page /dashboard/jobs/[id]/match with verdict counts (no fit score), cited evidence, out-of-date notices, Agree/Disagree feedback with optional note, and recent-run history.
 - [x] Manual requirement review verified with the AI service stopped.
 - [x] 42 unit, 20 integration, and 1 browser test added; all suites pass (see TESTING.md).
-- [ ] Owner review of Phase 2. Production migration, merge, and deployment not done and need approval.
+- [x] Owner approval of Phase 2 (October 30, 2026), after the stabilization pass. Production migrations, merge, and deployment remain on hold and need separate approval.
 - [x] Fixed with owner approval (October 30, 2026): migration 20261028010000_enable_row_level_security now guards its _prisma_migrations statement with to_regclass, so `prisma migrate dev` shadow replay works again. Production has not applied this migration yet, so no applied history changed there; local databases had their recorded checksum updated. Applying it to production still needs separate approval.
 - [x] Stabilization: requirement reviews and job edits compare descriptions with line endings normalized and keep the stored text, so jobs with LF or CRLF descriptions can be re-reviewed; regression tests added.
 - [x] Stabilization: replay-cache limitation and production mitigations documented (ai-service/README.md).
@@ -254,7 +254,7 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 
 ### Later phases (not started)
 
-- [ ] Phase 3: Claude Sonnet provider behind the interface, with an approved evaluation run.
+- [ ] Phase 3: Claude Sonnet provider behind the interface, with an approved evaluation run. Plan proposed in docs/MILESTONE_3_PHASE_3_PLAN.md (app CI, failed-run limits, shared replay store, cost ledger and budgets, consent, mocked provider tests, fictional evaluation); awaiting owner approval. No paid API calls without separate authorization.
 - [ ] Phase 4: hosting comparison, deployment, and production migration (each step needs approval).
 - [ ] Phase 5: Ollama provider for local use.
 

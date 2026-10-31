@@ -195,7 +195,7 @@ Captured from the fictional local demo account. Saved outside the repository in 
 
 1. **Anthropic provider** in `ai-service/app/providers/`:
    - Claude Sonnet by default (`claude-sonnet-5-5`), never Opus by default.
-   - Tool-based structured output, a fixed prompt version, a temperature of 0 where supported, bounded tokens, and a timeout.
+   - Structured output, a fixed prompt version, bounded tokens, and a timeout. (Correction: Claude Sonnet 5.5 rejects sampling parameters such as temperature, so outputs aren't deterministic; see docs/MILESTONE_3_PHASE_3_PLAN.md.)
    - Its output goes through the same validators in both services; invalid output is rejected, not repaired.
 2. **Consent UI:**
    - A clear consent screen naming the provider and listing exactly the fields that will be sent, plus a way to withdraw consent at any time.
