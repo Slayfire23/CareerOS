@@ -160,3 +160,15 @@ Claude Sonnet 5.5 (`claude-sonnet-5-5`) is an optional provider beside the rules
   - The Anthropic SDK and HTTP client loggers are pinned to WARNING, because the SDK logs request bodies at DEBUG. In production, unexpected errors are logged by type only.
 - Replay protection uses a shared Redis-compatible store (`SET NX EX`) and fails closed. It's required for cloud providers and in production, with TLS when off this machine. See docs/REPLAY_STORE_OPTIONS.md.
 - The Anthropic key lives only in the AI service environment. Next.js, Vercel, the browser, CI, and the repository never hold it.
+
+## Local AI with Ollama (Milestone 3) - October 31, 2026
+
+The project now uses free local models instead of paid ones. Claude remains in the code, disabled.
+
+- **Provider:** the Ollama provider (ai-service/app/providers/ollama.py) talks to Ollama on 127.0.0.1 only.
+  - Settings: approved models, schema-constrained output, temperature 0, thinking off.
+  - It refuses requests that might not fit the 8K context window, rejects truncated output, runs one generation at a time, and is never billed.
+- **Validation:** providers declare `local` (free, on CareerOS hardware) and `generative` (a language model) separately. Every generative provider is strictly validated, and must cite evidence that mentions the requirement for any "supported" finding. Both services check this.
+- **Prompt v3:** shared by all language models. It supplies employment years, role years, and empty profile categories computed in code.
+- **Next.js:** "Local AI" is a third method, off unless `AI_LOCAL_LLM_ENABLED`, an approved model, and an allow-list are set. Runs are recorded with billing state NONE.
+- Evaluation results and the model choice are in docs/MILESTONE_3_OLLAMA_REPORT.md. The remote-access options are in docs/REMOTE_ACCESS_PLAN.md (not configured).

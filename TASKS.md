@@ -275,3 +275,12 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 - [ ] Phase 5: Ollama provider for local use.
 
 The open foundation security follow-ups near the top of this file remain open and still apply.
+
+### Local AI with Ollama (strategy change, October 31, 2026)
+
+- [x] Claude provider kept but disabled; the Anthropic live evaluation was cancelled and never run; no paid call made.
+- [x] Ollama 0.40.6 installed natively, bound to 127.0.0.1 only; qwen3:8b and qwen3.5:9b downloaded and evaluated.
+- [x] Ollama provider with strict validation, a relevance rule for all language models, prompt v3 with computed facts, and a "Local AI" method in Next.js (off unless enabled and allow-listed).
+- [x] Evaluation: qwen3:8b is best for this hardware (82% agreement, 0 false "supported", 25% of responses discarded). Not yet accurate enough to offer; see docs/MILESTONE_3_OLLAMA_REPORT.md.
+- [ ] Decide on the hybrid design (rules verdicts for experience and education; the model only for unmatched skills), short evidence aliases, and a larger independently labeled evaluation set.
+- [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

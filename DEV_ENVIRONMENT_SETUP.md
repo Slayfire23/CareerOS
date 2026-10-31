@@ -134,3 +134,20 @@ npx prisma migrate deploy --config prisma.production.config.ts
 ```
 
 Production Auth URLs, Storage, and Vercel variables are not changed by this setup.
+
+### Local AI with Ollama (free; nothing leaves the machine)
+
+Install Ollama for Windows (a pinned release that is at least two weeks old), keep its default `127.0.0.1:11434` binding, and pull the approved model: `ollama pull qwen3:8b`. Then:
+
+```dotenv
+# ai-service/.env
+AI_PROVIDERS=rules,ollama
+AI_OLLAMA_MODEL=qwen3:8b
+
+# .env
+AI_LOCAL_LLM_ENABLED=true
+AI_LOCAL_LLM_MODEL=qwen3:8b
+AI_LOCAL_LLM_ALLOWED_USERS=<internal User ids, comma-separated>
+```
+
+Never set `OLLAMA_HOST` to `0.0.0.0`. The AI service and the browser tests refuse a non-local Ollama URL. To evaluate a model for free: `uv run python -m evals.run_eval --mode ollama --model qwen3:8b --runs 3`.

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
@@ -8,6 +8,9 @@ import { confirmAction, openPage } from "./support";
 // against the local mock Anthropic API (playwright.config.ts refuses anything else), and
 // withdrawal. Requires e2e-a to be in AI_CLOUD_ALLOWED_USERS. Fictional data only.
 test("cloud analysis needs consent, runs through the mock provider, and can be withdrawn", async ({ page }) => {
+  // Claude is disabled by default; this runs only when cloud analysis is wired to the local mock.
+  const app = existsSync(".env") ? parse(readFileSync(".env")) : {};
+  test.skip(app.AI_CLOUD_ENABLED !== "true", "Cloud analysis is disabled (the default).");
   test.setTimeout(180000);
   const env = parse(readFileSync(".env.playwright.local"));
   const tag = randomUUID().slice(0, 8);

@@ -14,7 +14,8 @@ function assertLocalSupabase() {
   const isLocal = (url?: string) => { try { return ["127.0.0.1", "localhost"].includes(new URL(url!).hostname); } catch { return false; } };
   // Browser tests must never reach a paid AI provider: a cloud provider may only use the fictional
   // test key and the local mock API (ai-service/devtools/mock_anthropic.py).
-  const cloudInAiService = (ai.AI_PROVIDERS ?? "").split(",").map(p => p.trim()).some(p => p && p !== "rules" && p !== "fake");
+  // Local providers are allowed: rules, fake, and Ollama on this machine.
+  const cloudInAiService = (ai.AI_PROVIDERS ?? "").split(",").map(p => p.trim()).some(p => p && !["rules", "fake", "ollama"].includes(p));
   const unsafeCloud = (cloudInAiService || ai.ANTHROPIC_API_KEY) &&
     (!(ai.ANTHROPIC_API_KEY ?? "").startsWith("sk-ant-test.") || !isLocal(ai.AI_ANTHROPIC_BASE_URL));
   const problems = [
@@ -23,6 +24,7 @@ function assertLocalSupabase() {
     tests.E2E_SUPABASE_URL !== app.NEXT_PUBLIC_SUPABASE_URL && "E2E_SUPABASE_URL does not match the app (run npm run db:local:setup)",
     app.AI_SERVICE_URL && !isLocal(app.AI_SERVICE_URL) && "AI_SERVICE_URL is not a local AI service",
     unsafeCloud && "the AI service could reach a real AI provider (use the fictional test key and the local mock API)",
+    ai.AI_OLLAMA_URL && !isLocal(ai.AI_OLLAMA_URL) && "AI_OLLAMA_URL is not on this machine",
   ].filter(Boolean);
   if (problems.length) throw new Error(`Browser tests blocked: ${problems.join("; ")}.`);
 }
