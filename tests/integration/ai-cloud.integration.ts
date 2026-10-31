@@ -379,7 +379,7 @@ it("consent and cloud runs are scoped to the signed-in account", async () => {
   expect(await setCloudConsent({}, form({ choice: "grant", understood: "on" }))).toEqual({ message: "Consent saved." });
   const [a, b] = await Promise.all([accountA, accountB].map(id => prisma.user.findUniqueOrThrow({ where: { supabaseAuthId: id } })));
   expect(a.aiCloudConsentAt).toBeNull();
-  expect(b).toMatchObject({ aiCloudConsentVersion: 1, aiCloudConsentAt: expect.any(Date) });
+  expect(b).toMatchObject({ aiCloudConsentVersion: 2, aiCloudConsentAt: expect.any(Date) });
 
   const jobA = await createReviewedJob(accountA);
   expect((await runJobMatch({}, form({ jobId: jobA.id, provider: "gpt" }))).error).toBe("Choose an analysis method.");

@@ -3,7 +3,7 @@ import { useActionState, useId, useState } from "react";
 import {
   runJobMatch, saveMatchFeedback, setCloudConsent, type ConsentState, type FeedbackState, type MatchRunState,
 } from "@/app/jobs/match-actions";
-import { CLOUD_MODEL_LABEL, CLOUD_NOT_SENT, CLOUD_PROVIDER_NAME, CLOUD_SENT } from "@/lib/ai/consent";
+import { CLOUD_MODEL_LABEL, CLOUD_NOT_SENT, CLOUD_PROVIDER_NAME, CLOUD_SENT, CLOUD_TEXT_CLEANING, CLOUD_TEXT_LIMITS } from "@/lib/ai/consent";
 
 type CloudStatus = { available: boolean; consentCurrent: boolean };
 
@@ -47,9 +47,14 @@ export function CloudConsentForm({ consentCurrent }: { consentCurrent: boolean }
         <ul className="list-disc space-y-1 pl-5 text-muted">{CLOUD_SENT.map(item => <li key={item}>{item}</li>)}</ul>
       </div>
       <div className="space-y-1">
-        <p className="font-medium">Never sent</p>
+        <p className="font-medium">Not sent</p>
         <ul className="list-disc space-y-1 pl-5 text-muted">{CLOUD_NOT_SENT.map(item => <li key={item}>{item}</li>)}</ul>
       </div>
+    </div>
+    <div className="space-y-1 rounded-lg border border-l-4 border-l-foreground/40 p-3">
+      <p className="font-medium">Text cleaning and its limits</p>
+      <p className="text-muted">{CLOUD_TEXT_CLEANING}</p>
+      <p>{CLOUD_TEXT_LIMITS}</p>
     </div>
     {consentCurrent ? <>
       <p>You gave consent. You can withdraw it at any time; past results stay on this page.</p>
@@ -57,7 +62,7 @@ export function CloudConsentForm({ consentCurrent }: { consentCurrent: boolean }
     </> : <>
       <label className="flex items-start gap-2">
         <input type="checkbox" name="understood" className="mt-1" required />
-        <span>I understand that this information is sent to {CLOUD_PROVIDER_NAME} when I choose {CLOUD_MODEL_LABEL}, and that the rules engine never sends it anywhere.</span>
+        <span>I understand that this information is sent to {CLOUD_PROVIDER_NAME} when I choose {CLOUD_MODEL_LABEL}, that text cleaning may miss some names, and that the rules engine never sends it anywhere.</span>
       </label>
       <button type="submit" name="choice" value="grant" className="btn btn-secondary" disabled={pending}>Give consent</button>
     </>}

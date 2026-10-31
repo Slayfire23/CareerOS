@@ -60,8 +60,9 @@ test("cloud analysis needs consent, runs through the mock provider, and can be w
     await runForm.getByRole("radio", { name: /Claude Sonnet 5\.5/ }).check();
     await expect(runForm.getByText("Give consent below to use Claude Sonnet 5.5.")).toBeVisible();
     await expect(runForm.getByRole("button", { name: /^Run analysis/ })).toBeDisabled();
-    await expect(consent.getByText("Never sent")).toBeVisible();
-    await expect(consent.getByText(/Your name, email address, and account details/)).toBeVisible();
+    await expect(consent.getByText("Not sent", { exact: true })).toBeVisible();
+    await expect(consent.getByText(/This cleaning is not guaranteed to catch everything/)).toBeVisible();
+    await expect(consent.getByText(/Your name and email address as fields/)).toBeVisible();
 
     await consent.getByRole("checkbox").check();
     await consent.getByRole("button", { name: "Give consent" }).click();

@@ -182,3 +182,23 @@ describe("billing classification in the client", () => {
     expect(body).toMatchObject({ provider: "anthropic", budget: { max_input_tokens: 15000, max_output_tokens: 6000 } });
   });
 });
+
+describe("consent wording stays honest about redaction", () => {
+  it("states the cleaning limits and does not promise that all names are removed", async () => {
+    const consent = await import("@/lib/ai/consent");
+    const all = [...consent.CLOUD_SENT, ...consent.CLOUD_NOT_SENT, consent.CLOUD_TEXT_CLEANING, consent.CLOUD_TEXT_LIMITS].join(" ");
+    expect(all).not.toMatch(/also removed from descriptions|all names|every name|guaranteed to remove/i);
+    expect(consent.CLOUD_TEXT_LIMITS).toMatch(/not guaranteed/);
+    expect(consent.CLOUD_TEXT_LIMITS).toMatch(/colleagues, clients, products, or other organizations/);
+    expect(consent.CLOUD_CONSENT_VERSION).toBe(2); // consent text changed, so everyone consents again
+  });
+
+  it("documents the limit: names that aren't in the user's records are not removed", () => {
+    const evidence: Evidence[] = [{
+      id: "experience:00000000-0000-4000-8000-000000000009", kind: "experience", job_title: "Engineer", start_month: "2021-01", end_month: null,
+      description: "Worked with Morgan Fictitious on the Zephyrline account.",
+    }];
+    const result = redactForCloud(evidence, [], { names: ["Avery Quill"], companies: [], schools: [], employers: [], emails: [] });
+    expect((result.evidence[0] as { description: string }).description).toBe("Worked with Morgan Fictitious on the Zephyrline account.");
+  });
+});

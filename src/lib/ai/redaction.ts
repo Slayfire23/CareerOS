@@ -1,9 +1,11 @@
 import type { Evidence, MatchRequirement } from "@/lib/ai/evidence";
 
-// Removes personal and company details from text before it is sent to a cloud AI provider.
-// Structured fields already exclude names, companies, institutions, links, and contact details;
-// this also catches them inside free text (descriptions, requirement wording). Known values from
-// the user's own records are replaced first, then patterns (email addresses, phone numbers, links).
+// Replaces known personal and company details in text before it is sent to a cloud AI provider.
+// Structured fields already exclude names, companies, institutions, links, and contact details.
+// In free text (descriptions, requirement wording) this replaces values from the user's own records
+// (profile name, employers, schools, the job's company, account email) and patterns (email
+// addresses, phone numbers, links). It cannot recognize other names (colleagues, clients, products,
+// organizations not in the profile); the consent text says so.
 // Citations quote the redacted text that was sent, so evidence validation still applies unchanged.
 
 export type RedactionTerms = {

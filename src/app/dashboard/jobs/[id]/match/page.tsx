@@ -131,7 +131,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       </div>
       <details className="disclosure rounded-lg border p-3 text-sm">
         <summary>What is sent to the analysis service</summary>
-        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}, with names, company and school names, email addresses, phone numbers, and links removed from the text.`}</p>
+        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
       </details>
     </Card>
 
