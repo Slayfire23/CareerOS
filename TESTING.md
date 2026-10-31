@@ -169,3 +169,8 @@ Directly executed on branch ui-redesign against local Supabase: 227 unit tests, 
 ## UI redesign phase 4 and final refinements - October 29, 2026
 
 Directly executed against local Supabase: 229 unit tests (new: month formatting), 25 integration tests, all 27 Chromium tests (new: e2e/confirmation.spec.ts for Cancel, Escape, focus, and confirmed removal), TypeScript, lint, and a clean no-env production build. A scripted audit of 15 pages at 375/768/1280px in light and dark mode (90 views) found no horizontal overflow, missing h1, or incorrect navigation highlighting. Browser specs use e2e/support.ts: openPage() waits for loading placeholders (aria-busy) to clear, and confirmAction() completes inline destructive confirmations.
+
+
+## Milestone 3 Phase 1 - October 30, 2026 (branch milestone-3-ai-matching)
+
+AI service (ai-service/, Python): 93 pytest tests passed; ruff format and lint clean; uv sync --locked succeeds. Verified over real HTTP with uvicorn and inside the production-mode Docker image: health 200, signed match 200, replay 409, unsigned 401, docs disabled, non-root, healthy health check, no profile text in logs, rejected secrets not printed. The CI workflow parses locally and will run on GitHub after the branch is pushed. Next.js (unchanged by Phase 1): TypeScript and lint passed; 229 unit, 25 integration, and all 27 Chromium tests passed against local Supabase; a fresh clone built with no environment variables. No test touched production Supabase or any AI provider. Details: docs/MILESTONE_3_PHASE_1_REPORT.md.
