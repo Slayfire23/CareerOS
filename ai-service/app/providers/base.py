@@ -21,7 +21,8 @@ class MatchProvider(Protocol):
     name: str
     model: str | None  # model identifier for AI providers; None for deterministic ones
     method_version: str  # stored with every result so outputs can be traced and compared
-    local: bool  # True when the provider runs here and costs nothing (rules, fake)
+    local: bool  # True when it runs on CareerOS-controlled hardware and costs nothing (rules, fake, ollama)
+    generative: bool  # True for language models: their output is always strictly validated
 
     async def match(self, request: MatchRequest) -> list[Finding] | ProviderOutput:
         """Return one finding per requirement. Output is untrusted until validated.

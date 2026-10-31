@@ -15,7 +15,11 @@ def build_provider(settings: Settings, name: str) -> MatchProvider:
         from app.providers.anthropic import AnthropicProvider
 
         return AnthropicProvider(settings)
-    raise ProviderUnavailable("The Ollama provider is planned for Phase 5 and is not implemented yet.")
+    if name == "ollama":
+        from app.providers.ollama import OllamaProvider
+
+        return OllamaProvider(settings)
+    raise ProviderUnavailable(f"Unknown provider {name}.")
 
 
 def build_providers(settings: Settings) -> dict[str, MatchProvider]:

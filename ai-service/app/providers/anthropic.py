@@ -24,14 +24,14 @@ from pydantic import ValidationError
 
 from app.config import Settings
 from app.errors import ServiceError
-from app.providers.anthropic_prompt import (
+from app.providers.base import ProviderOutput
+from app.providers.prompt import (
     OUTPUT_SCHEMA,
     PROMPT_VERSION,
     SYSTEM_PROMPT,
     build_user_message,
     prompt_size_bound,
 )
-from app.providers.base import ProviderOutput
 from app.schemas import Finding, MatchRequest, Usage
 
 log = logging.getLogger("careeros.anthropic")
@@ -65,6 +65,7 @@ def _is_spend_cap(exc: APIStatusError) -> bool:
 class AnthropicProvider:
     name = "anthropic"
     local = False
+    generative = True
 
     def __init__(
         self,

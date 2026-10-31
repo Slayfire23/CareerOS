@@ -101,7 +101,7 @@ class TokenBudget(Strict):
 class MatchRequest(Strict):
     request_id: UUID
     # Which enabled provider to use. The deterministic rules engine stays a separate user choice.
-    provider: Literal["rules", "fake", "anthropic"] = "rules"
+    provider: Literal["rules", "fake", "anthropic", "ollama"] = "rules"
     # Required for cloud providers (checked by the service), ignored by local ones.
     budget: TokenBudget | None = None
     # The month "current" roles run until; supplied by Next.js so results are reproducible.

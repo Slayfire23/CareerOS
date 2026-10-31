@@ -27,7 +27,8 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
     output = raw if isinstance(raw, ProviderOutput) else ProviderOutput(findings=raw)
     usage = output.usage.model_dump() if output.usage else None
     try:
-        findings = validate_findings(request, output.findings, strict=not provider.local)
+        # Language-model output is never repaired, whether it costs money or not.
+        findings = validate_findings(request, output.findings, strict=getattr(provider, "generative", True))
     except InvalidProviderOutput as exc:
         log.error("provider output rejected: %s", exc, extra={"provider": provider.name})
         raise ServiceError(

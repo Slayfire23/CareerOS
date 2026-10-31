@@ -14,9 +14,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ProviderName = Literal["rules", "fake", "anthropic", "ollama"]
 PROVIDER_NAMES: tuple[str, ...] = ("rules", "fake", "anthropic", "ollama")
-LOCAL_PROVIDERS = frozenset({"rules", "fake"})
+LOCAL_PROVIDERS = frozenset({"rules", "fake", "ollama"})  # run on CareerOS-controlled hardware, free
 # Only this model is approved (decision D1). Changing it needs a reviewed code change.
 ApprovedAnthropicModel = Literal["claude-sonnet-5-5"]
+# Local models approved for this hardware (RTX 5060 Laptop, 8 GB). Adding one needs review.
+ApprovedOllamaModel = Literal["qwen3:8b", "qwen3.5:9b", "qwen3.5:4b"]
 
 
 class Settings(BaseSettings):
@@ -53,6 +55,15 @@ class Settings(BaseSettings):
     anthropic_max_input_tokens: int = Field(default=40_000, ge=1_000, le=200_000)
     anthropic_max_output_tokens: int = Field(default=6_000, ge=1_000, le=32_000)
 
+    # Ollama on this machine. Remote Ollama hosts are refused until a remote-access design is approved.
+    ollama_url: str = "http://127.0.0.1:11434"
+    ollama_model: ApprovedOllamaModel = "qwen3:8b"
+    # 8K keeps qwen3:8b fully on an 8 GB GPU (16K spilled about 20% to the CPU); larger requests are refused.
+    ollama_num_ctx: int = Field(default=8_192, ge=4_096, le=32_768)
+    ollama_num_predict: int = Field(default=3_072, ge=512, le=8_192)
+    ollama_keep_alive: str = Field(default="30m", pattern=r"^\d+[smh]$")
+    ollama_queue_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
+
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     @property
@@ -84,6 +95,13 @@ class Settings(BaseSettings):
             base = urlsplit(self.anthropic_base_url)
             if self.environment == "production" or base.hostname not in {"127.0.0.1", "localhost", "::1"}:
                 raise ValueError("AI_ANTHROPIC_BASE_URL is for a local mock API outside production only.")
+        ollama = urlsplit(self.ollama_url)
+        if (
+            ollama.scheme != "http"
+            or ollama.hostname not in {"127.0.0.1", "localhost", "::1"}
+            or ollama.path not in {"", "/"}
+        ):
+            raise ValueError("AI_OLLAMA_URL must be http://127.0.0.1:<port> (Ollama on this machine only).")
         if "anthropic" in enabled:
             key = self.anthropic_api_key.get_secret_value() if self.anthropic_api_key else ""
             if not key.startswith("sk-ant-") or len(key) < 40:

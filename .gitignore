@@ -54,3 +54,4 @@ __pycache__/
 
 # Live evaluation recordings (fictional data and model output): reviewed before any commit.
 ai-service/evals/recordings/
+ai-service/evals/reports/*.stderr.txt

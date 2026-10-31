@@ -16,7 +16,7 @@ export type ProjectEvidence = { id: string; kind: "project"; title: string; desc
 export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | ProjectEvidence;
 
 export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"] };
-export type AnalysisProvider = "rules" | "anthropic";
+export type AnalysisProvider = "rules" | "anthropic" | "ollama";
 export type TokenBudget = { max_input_tokens: number; max_output_tokens: number };
 export type MatchRequest = {
   request_id: string;
@@ -130,4 +130,42 @@ export function quoteIsVerbatim(item: Evidence, quote: string): boolean {
   const texts = citableTexts(item);
   if (quote.trim().length < MIN_QUOTE_CHARS) return texts.includes(quote);
   return texts.some(t => t.includes(quote));
+}
+
+// --- Relevance: a "supported" claim must cite something that mentions the requirement ----------
+// Mirrors ai-service/app/matching/evidence.py (shares_term). Applied to language-model results.
+
+const RELEVANCE_STOPWORDS = new Set(`a an and the or of in on to for with as at by from such like using use including plus etc via
+year years month months experience experienced professional work working ability able knowledge
+familiarity familiar proficiency proficient skill skills strong solid good excellent understanding
+tools tool required requirement preferred minimum must nice have having demonstrated proven related
+relevant equivalent field team level expert expert-level advanced senior junior degree degrees`.split(/\s+/));
+const DEGREE_WORDS: Record<string, string> = {
+  bs: "bachelor", ba: "bachelor", bsc: "bachelor", beng: "bachelor", bachelor: "bachelor",
+  ms: "master", ma: "master", msc: "master", meng: "master", mba: "master", master: "master",
+  phd: "doctorate", doctorate: "doctorate", doctoral: "doctorate",
+};
+
+function terms(text: string): Set<string> {
+  const found = new Set<string>();
+  for (const raw of text.toLowerCase().match(/[\p{L}\p{N}_+#.']+/gu) ?? []) {
+    let token = raw.replace(/^[.']+|[.']+$/g, "");
+    if (token.endsWith("'s")) token = token.slice(0, -2);
+    token = token.replaceAll(".", "");
+    token = DEGREE_WORDS[token] ?? token;
+    if (token && !RELEVANCE_STOPWORDS.has(token)) found.add(token);
+  }
+  return found;
+}
+
+/** True when the quote mentions something specific from the requirement (see the Python version). */
+export function sharesTerm(requirementText: string, quote: string): boolean {
+  const found = [...terms(quote)];
+  for (const a of terms(requirementText)) {
+    for (const b of found) {
+      const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+      if (a === b || (short.length >= 4 && long.startsWith(short))) return true;
+    }
+  }
+  return false;
 }

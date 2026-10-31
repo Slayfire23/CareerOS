@@ -17,7 +17,7 @@ import type { MatchRequest } from "@/lib/ai/evidence";
 import { getAnalysisPageData, runJobAnalysis, saveAnalysisFeedback } from "@/lib/ai/analysis";
 
 const CONFIG: AiConfig = {
-  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off",
+  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off", localAi: null,
 };
 let identities: string[] = [];
 let accountA: string;

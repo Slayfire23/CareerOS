@@ -13,8 +13,11 @@ Downgrade individual findings when they overreach:
   employment durations, otherwise the finding becomes "insufficient_information";
 - "gap" is not allowed when the relevant part of the profile is empty.
 
-In strict mode (every cloud provider), any finding that would be downgraded rejects the whole
-response instead: model output that overreaches is discarded, never repaired.
+In strict mode (every language-model provider), any finding that would be downgraded rejects the
+whole response instead: model output that overreaches is discarded, never repaired. Strict mode
+also requires a "supported" finding to cite at least one quote that mentions something specific
+from the requirement, so unrelated evidence cannot back a claim (for example, an injected
+instruction that marks an unknown skill "supported" by citing an unrelated one).
 """
 
 import re
@@ -25,6 +28,7 @@ from app.matching.evidence import (
     format_years,
     quote_is_verbatim,
     role_months,
+    shares_term,
 )
 from app.schemas import (
     EducationEvidence,
@@ -38,6 +42,7 @@ from app.schemas import (
 
 UNVERIFIED_EVIDENCE = "Some cited evidence could not be verified and was removed."
 UNVERIFIED_DURATION = "A stated duration could not be verified against your listed employment."
+UNRELATED_EVIDENCE = "The cited evidence does not mention this requirement."
 _NUMBER_WORDS = {
     word: str(number)
     for number, word in enumerate(
@@ -99,13 +104,15 @@ def validate_findings(request: MatchRequest, findings: list[Finding], strict: bo
             if citation.evidence_id not in evidence:
                 raise InvalidProviderOutput("A finding cites evidence that was not supplied.")
 
-    checked = [_check(request, requirements[f.requirement_index], f, evidence) for f in findings]
+    checked = [_check(request, requirements[f.requirement_index], f, evidence, strict) for f in findings]
     if strict and any(c is not f for c, f in zip(checked, findings, strict=True)):
         raise InvalidProviderOutput("A finding overreached its evidence and the response was discarded.")
     return sorted(checked, key=lambda f: f.requirement_index)
 
 
-def _check(request: MatchRequest, requirement: Requirement, finding: Finding, evidence: dict) -> Finding:
+def _check(
+    request: MatchRequest, requirement: Requirement, finding: Finding, evidence: dict, strict: bool = False
+) -> Finding:
     verdict = finding.verdict
     caveats = list(finding.caveats)
     citations = [c for c in finding.citations if quote_is_verbatim(evidence[c.evidence_id], c.quote)]
@@ -114,6 +121,14 @@ def _check(request: MatchRequest, requirement: Requirement, finding: Finding, ev
 
     if verdict in ("supported", "possible") and not citations:
         verdict = "insufficient_information"
+
+    if (
+        strict
+        and verdict == "supported"
+        and not any(shares_term(requirement.text, c.quote) for c in citations)
+    ):
+        verdict = "possible"
+        caveats.append(UNRELATED_EVIDENCE)
 
     if requirement.category == "Experience":
         cited = [evidence[c.evidence_id] for c in citations]

@@ -45,7 +45,8 @@ const RUN_ERRORS: Record<string, string> = {
   invalid_response: "Unreadable response",
   save_failed: "Could not be saved",
 };
-const methodLabel = (provider: string) => (provider === "anthropic" ? `${CLOUD_MODEL_LABEL} (${CLOUD_PROVIDER_NAME})` : "Rules engine");
+const methodLabel = (provider: string, model?: string | null) =>
+  provider === "anthropic" ? `${CLOUD_MODEL_LABEL} (${CLOUD_PROVIDER_NAME})` : provider === "ollama" ? `Local AI (${model ?? "Ollama"})` : "Rules engine";
 const dateTime = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
 
 function VerdictPill({ verdict }: { verdict: Verdict }) {
@@ -127,11 +128,11 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
             {data.configured ? `${data.remainingToday} of ${data.dailyLimit} analyses left in the last 24 hours.` : "Requirement analysis is not available right now."}
           </p>
         </div>
-        <RunAnalysisForm jobId={job.id} disabled={!ready || !data.configured || data.remainingToday === 0} hasAnalysis={!!latest} cloud={data.cloud} />
+        <RunAnalysisForm jobId={job.id} disabled={!ready || !data.configured || data.remainingToday === 0} hasAnalysis={!!latest} cloud={data.cloud} localAi={data.localAi} />
       </div>
       <details className="disclosure rounded-lg border p-3 text-sm">
         <summary>What is sent to the analysis service</summary>
-        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
+        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.localAi.available && ` Local AI sends the same information to CareerOS's own computer running ${data.localAi.model}; it does not go to an AI company.`}{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
       </details>
     </Card>
 
@@ -144,7 +145,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
     {latest ? <section aria-labelledby="latest-heading" className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="latest-heading" className="text-lg font-semibold">Latest analysis</h2>
-        <p className="text-sm text-muted">{dateTime.format(latest.createdAt)} · {methodLabel(latest.provider)} ({latest.methodVersion})</p>
+        <p className="text-sm text-muted">{dateTime.format(latest.createdAt)} · {methodLabel(latest.provider, latest.model)} ({latest.methodVersion})</p>
       </div>
       {(latest.outOfDate.requirements || latest.outOfDate.profile) && <p role="status" className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface p-3 text-sm">
         This analysis is out of date: {latest.outOfDate.requirements && latest.outOfDate.profile ? "the requirements and your profile have changed" : latest.outOfDate.requirements ? "the reviewed requirements have changed" : "your profile has changed"} since it ran. Run it again for current results.
@@ -167,7 +168,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
         {history.map(run => {
           const counts = run.analysis?.verdictCounts as Record<Verdict, number> | undefined;
           return <li key={run.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-            <span className="text-muted">{dateTime.format(run.startedAt)} · {methodLabel(run.provider)}</span>
+            <span className="text-muted">{dateTime.format(run.startedAt)} · {methodLabel(run.provider, run.model)}</span>
             <span>
               {run.status === "SUCCEEDED" && counts ? VERDICTS.filter(v => counts[v]).map(v => `${counts[v]} ${VERDICT_STYLE[v].label.toLowerCase()}`).join(" · ")
                 : run.status === "FAILED" ? (RUN_ERRORS[run.errorCode ?? ""] ?? "Failed")

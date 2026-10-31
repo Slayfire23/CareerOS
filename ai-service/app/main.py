@@ -99,7 +99,12 @@ def create_app(
             await store.ping()
         except ReplayStoreUnavailable:
             return JSONResponse({"status": "unavailable"}, status_code=503)
-        return JSONResponse({"status": "ready", "providers": sorted(providers)})
+        # Optional providers (such as a local model) may be down; the service stays ready for the rest.
+        details = {name: await p.status() for name, p in providers.items() if hasattr(p, "status")}
+        return JSONResponse(
+            {"status": "ready", "providers": sorted(providers)}
+            | ({"provider_status": details} if details else {})
+        )
 
     @app.post("/v1/match", response_model=MatchResponse)
     async def match(request: Request) -> MatchResponse:

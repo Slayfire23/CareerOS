@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { validateRequirements, type Requirement } from "@/lib/job-requirements";
-import { CLOUD_MAX_INPUT_TOKENS, CLOUD_MAX_OUTPUT_TOKENS, type AiConfig, type CloudConfig } from "@/lib/ai/config";
+import { CLOUD_MAX_INPUT_TOKENS, CLOUD_MAX_OUTPUT_TOKENS, LOCAL_AI_TIMEOUT_MS, type AiConfig, type CloudConfig } from "@/lib/ai/config";
 import { AiServiceError, callMatchService, type Billed } from "@/lib/ai/client";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { CLOUD_CONSENT_VERSION, hasCurrentCloudConsent } from "@/lib/ai/consent";
@@ -53,6 +53,7 @@ export type RunErrorCode =
   | "profile_too_large"
   | "too_large_for_cloud"
   | "cloud_unavailable"
+  | "local_ai_unavailable"
   | "consent_required"
   | "rate_limited"
   | "attempts_exceeded"
@@ -147,6 +148,7 @@ async function reserveRun(options: {
   userId: string;
   jobId: string;
   provider: AnalysisProvider;
+  model: string | null;
   cloud: CloudConfig | null;
   reservation: number;
   dailyLimit: number;
@@ -183,7 +185,7 @@ async function reserveRun(options: {
         userId,
         savedJobId: options.jobId,
         provider: options.provider,
-        model: cloud?.model ?? null,
+        model: options.model,
         startedAt: now,
         billingState: cloud ? "RESERVED" : "NONE",
         reservedMicroUsd: cloud ? options.reservation : 0,
@@ -257,6 +259,15 @@ export async function runJobAnalysis(options: {
     if (!cloud || !cloud.allowedUserIds.has(user.id)) return { ok: false, error: "cloud_unavailable" };
     if (!hasCurrentCloudConsent(user)) return { ok: false, error: "consent_required" };
   }
+  // Local AI (Ollama on CareerOS-controlled hardware) needs to be turned on for this account.
+  // Nothing goes to an AI company, so no cloud consent or redaction applies.
+  let localModel: string | null = null;
+  if (provider === "ollama") {
+    const localAi = config.localAi;
+    if (!localAi || !localAi.allowedUserIds.has(user.id)) return { ok: false, error: "local_ai_unavailable" };
+    localModel = localAi.model;
+  }
+  const expectedModel = cloud?.model ?? localModel;
 
   const profile = await ownedEvidenceProfile(user.id);
   if (!profile) return { ok: false, error: "profile_missing" };
@@ -287,6 +298,7 @@ export async function runJobAnalysis(options: {
     userId: user.id,
     jobId: job.id,
     provider,
+    model: expectedModel,
     cloud,
     reservation,
     dailyLimit: config.dailyLimit,
@@ -299,8 +311,8 @@ export async function runJobAnalysis(options: {
   let validated;
   let raw: unknown;
   try {
-    raw = await callMatchService(config, request, options.fetchImpl);
-    validated = validateMatchResponse(request, raw, { provider, model: cloud?.model ?? null });
+    raw = await callMatchService(config, request, options.fetchImpl, localModel ? LOCAL_AI_TIMEOUT_MS : undefined);
+    validated = validateMatchResponse(request, raw, { provider, model: expectedModel });
   } catch (error) {
     if (error instanceof AiServiceError) {
       await failRun(run, { code: error.code, billed: error.billed, usage: error.usage, providerRequestId: error.providerRequestId });
@@ -321,7 +333,11 @@ export async function runJobAnalysis(options: {
     throw error;
   }
 
-  const billing = cloud ? settledBilling(cloud.model, "yes", validated.usage) : {};
+  const billing = cloud
+    ? settledBilling(cloud.model, "yes", validated.usage)
+    : validated.usage // local model: free, but its token counts are useful for tuning
+      ? { inputTokens: validated.usage.input_tokens, outputTokens: validated.usage.output_tokens }
+      : {};
   const analysis = await prisma.$transaction(async tx => {
     // Both rows commit together or not at all; on failure the catch below records the run.
     const created = await tx.jobMatchAnalysis.create({
@@ -439,6 +455,7 @@ export type AnalysisView = {
 };
 
 export type CloudStatus = { available: boolean; consentCurrent: boolean };
+export type LocalAiStatus = { available: boolean; model: string | null };
 
 export async function getAnalysisPageData(supabaseAuthId: string, jobId: string, config: AiConfig, now = new Date()) {
   const user = await ownerOf(supabaseAuthId);
@@ -489,6 +506,10 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     available: Boolean(config.enabled && config.cloud?.allowedUserIds.has(user.id)),
     consentCurrent: hasCurrentCloudConsent(user),
   };
+  const localAi: LocalAiStatus = {
+    available: Boolean(config.enabled && config.localAi?.allowedUserIds.has(user.id)),
+    model: config.enabled ? config.localAi?.model ?? null : null,
+  };
 
   return {
     job: { id: job.id, title: job.title, company: job.company },
@@ -499,5 +520,6 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     dailyLimit: config.enabled ? config.dailyLimit : 0,
     configured: config.enabled,
     cloud,
+    localAi,
   };
 }

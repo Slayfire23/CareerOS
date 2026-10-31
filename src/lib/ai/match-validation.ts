@@ -4,6 +4,7 @@ import {
   formatYears,
   quoteIsVerbatim,
   roleMonths,
+  sharesTerm,
   type Evidence,
   type ExperienceEvidence,
   type MatchRequest,
@@ -114,6 +115,10 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     });
 
     if ((verdict === "supported" || verdict === "possible") && !citations.length) reject("verdict without evidence");
+    // Language-model results only: a supported claim must cite evidence that mentions the requirement.
+    if (expected.provider !== "rules" && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
+      reject("supported claim cites evidence unrelated to the requirement");
+    }
     if (requirement.category === "Experience") {
       const kinds = citations.map(c => evidence.get(c.evidenceId)!.kind);
       if (verdict === "supported" && !kinds.includes("experience")) reject("project or non-employment evidence used as employment");

@@ -13,8 +13,14 @@ export const CLOUD_MODEL = "claude-sonnet-5-5";
 /// Upper bounds for one cloud call; the reservation is computed from them.
 export const CLOUD_MAX_INPUT_TOKENS = 40_000;
 export const CLOUD_MAX_OUTPUT_TOKENS = 6_000;
-/// Providers that run inside our own service and send nothing to a third-party AI provider.
-export const LOCAL_PROVIDERS = new Set<string>(["rules"]);
+/// Providers that run on CareerOS-controlled hardware and send nothing to an AI company.
+export const LOCAL_PROVIDERS = new Set<string>(["rules", "ollama"]);
+/// Local models approved for the AI host (an RTX 5060 Laptop GPU with 8 GB). Must match the AI service.
+export const LOCAL_AI_MODELS = ["qwen3:8b", "qwen3.5:9b", "qwen3.5:4b"] as const;
+/// A local model on a laptop GPU can take longer than a cloud call.
+export const LOCAL_AI_TIMEOUT_MS = 120_000;
+
+export type LocalAiConfig = { model: (typeof LOCAL_AI_MODELS)[number]; allowedUserIds: ReadonlySet<string> };
 
 export type CloudConfig = {
   provider: "anthropic";
@@ -35,6 +41,8 @@ export type AiConfig =
       /** null unless the cloud provider is fully configured; reason says why. */
       cloud: CloudConfig | null;
       cloudReason: string | null;
+      /** null unless local AI (Ollama on the AI host) is turned on and configured. */
+      localAi: LocalAiConfig | null;
     }
   | { enabled: false; reason: string };
 
@@ -73,6 +81,16 @@ function readCloud(env: Record<string, string | undefined>): { cloud: CloudConfi
   };
 }
 
+/** Local AI is off unless turned on with an approved model and an allow-list (fail closed). */
+function readLocalAi(env: Record<string, string | undefined>): LocalAiConfig | null {
+  if (env.AI_LOCAL_LLM_ENABLED?.trim() !== "true") return null;
+  const model = env.AI_LOCAL_LLM_MODEL?.trim() ?? "";
+  if (!(LOCAL_AI_MODELS as readonly string[]).includes(model)) return null;
+  const allowed = (env.AI_LOCAL_LLM_ALLOWED_USERS ?? "").split(",").map(v => v.trim().toLowerCase()).filter(Boolean);
+  if (!allowed.length || allowed.some(id => !UUID.test(id))) return null;
+  return { model: model as LocalAiConfig["model"], allowedUserIds: new Set(allowed) };
+}
+
 export function readAiConfig(env: Record<string, string | undefined> = process.env): AiConfig {
   const serviceUrl = env.AI_SERVICE_URL?.trim();
   const secret = env.AI_SERVICE_SECRET ?? "";
@@ -108,5 +126,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER,
     cloud,
     cloudReason: reason,
+    localAi: readLocalAi(env),
   };
 }

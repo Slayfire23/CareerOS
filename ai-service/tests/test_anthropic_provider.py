@@ -108,7 +108,7 @@ def test_successful_analysis_returns_validated_findings_with_usage(example_reque
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["provider"] == "anthropic" and body["model"] == "claude-sonnet-5-5"
-    assert body["method_version"] == "claude-sonnet-5-5/prompt-v1"
+    assert body["method_version"] == "claude-sonnet-5-5/prompt-v3"
     assert body["usage"] == USAGE | {"cache_read_input_tokens": 0, "cache_creation_input_tokens": 0}
     assert body["provider_request_id"] == "req_test_ok"
 
@@ -130,7 +130,7 @@ def test_request_carries_only_minimized_data_inside_data_tags(example_request):
     content = mock.requests[0]["messages"][0]["content"]
     assert content.startswith("<data>\n") and content.endswith("\n</data>")
     data = json.loads(content.removeprefix("<data>\n").removesuffix("\n</data>"))
-    assert set(data) == {"as_of_month", "requirements", "evidence"}
+    assert set(data) == {"as_of_month", "requirements", "evidence", "computed"}
     sent = json.dumps(data)
     for never in ("request_id", "budget", "company", "institution", "email", "provider"):
         assert never not in sent

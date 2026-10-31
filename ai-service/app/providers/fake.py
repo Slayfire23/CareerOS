@@ -25,6 +25,7 @@ class FakeProvider:
     model = None
     method_version = "fake-v1"
     local = True
+    generative = False
 
     def __init__(self, script: Callable[[MatchRequest], list[Finding]] | None = None) -> None:
         self._script = script or _default_script

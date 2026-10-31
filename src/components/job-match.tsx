@@ -6,28 +6,34 @@ import {
 import { CLOUD_MODEL_LABEL, CLOUD_NOT_SENT, CLOUD_PROVIDER_NAME, CLOUD_SENT, CLOUD_TEXT_CLEANING, CLOUD_TEXT_LIMITS } from "@/lib/ai/consent";
 
 type CloudStatus = { available: boolean; consentCurrent: boolean };
+type LocalAiStatus = { available: boolean; model: string | null };
 
-export function RunAnalysisForm({ jobId, disabled, hasAnalysis, cloud }: {
+export function RunAnalysisForm({ jobId, disabled, hasAnalysis, cloud, localAi }: {
   jobId: string;
   disabled: boolean;
   hasAnalysis: boolean;
   cloud: CloudStatus;
+  localAi: LocalAiStatus;
 }) {
   const [state, action, pending] = useActionState(runJobMatch, {} as MatchRunState);
-  const [provider, setProvider] = useState<"rules" | "anthropic">("rules");
+  const [provider, setProvider] = useState<"rules" | "anthropic" | "ollama">("rules");
   const cloudBlocked = provider === "anthropic" && !cloud.consentCurrent;
   return <form action={action} aria-label="Run requirement analysis" className="space-y-3">
     <input type="hidden" name="jobId" value={jobId} />
-    {cloud.available ? <fieldset className="space-y-2">
+    {cloud.available || localAi.available ? <fieldset className="space-y-2">
       <legend className="text-sm font-medium">Analysis method</legend>
       <label className="flex items-start gap-2 text-sm">
         <input type="radio" name="provider" value="rules" checked={provider === "rules"} onChange={() => setProvider("rules")} className="mt-1" />
         <span><span className="font-medium">Rules engine</span> <span className="text-muted">— runs on CareerOS, free, keyword and date rules only.</span></span>
       </label>
-      <label className="flex items-start gap-2 text-sm">
+      {localAi.available && <label className="flex items-start gap-2 text-sm">
+        <input type="radio" name="provider" value="ollama" checked={provider === "ollama"} onChange={() => setProvider("ollama")} className="mt-1" />
+        <span><span className="font-medium">Local AI ({localAi.model})</span> <span className="text-muted">— runs on CareerOS&apos;s own computer, not an AI company; free; unavailable while that computer is off.</span></span>
+      </label>}
+      {cloud.available && <label className="flex items-start gap-2 text-sm">
         <input type="radio" name="provider" value="anthropic" checked={provider === "anthropic"} onChange={() => setProvider("anthropic")} className="mt-1" />
         <span><span className="font-medium">{CLOUD_MODEL_LABEL}</span> <span className="text-muted">— sent to {CLOUD_PROVIDER_NAME}; needs your consent.</span></span>
-      </label>
+      </label>}
       {cloudBlocked && <p className="hint">Give consent below to use {CLOUD_MODEL_LABEL}.</p>}
     </fieldset> : <input type="hidden" name="provider" value="rules" />}
     <button type="submit" className="btn btn-primary" disabled={disabled || pending || cloudBlocked}>

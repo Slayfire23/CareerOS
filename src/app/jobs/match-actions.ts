@@ -10,7 +10,7 @@ export type FeedbackState = { error?: string; message?: string; version?: number
 export type ConsentState = { error?: string; message?: string };
 
 const UNAVAILABLE = "The analysis service is unavailable. Your saved requirements are unaffected; try again later.";
-const PROVIDER_DOWN = "The AI provider is not available right now. The rules engine still works; try again later.";
+const PROVIDER_DOWN = "The AI model is not available right now (the computer that runs it may be off). The rules engine still works; try again later.";
 const DISCARDED = "The analysis could not be verified and was discarded.";
 
 const RUN_MESSAGES: Record<RunErrorCode, string> = {
@@ -23,6 +23,7 @@ const RUN_MESSAGES: Record<RunErrorCode, string> = {
   profile_too_large: "Your profile has too many entries to analyze at once (200 maximum).",
   too_large_for_cloud: "Your profile and requirements are too long for a cloud analysis. Use the rules engine instead.",
   cloud_unavailable: "Cloud analysis isn't available for your account. Use the rules engine instead.",
+  local_ai_unavailable: "Local AI isn't available for your account. Use the rules engine instead.",
   consent_required: "Give consent below before using cloud analysis.",
   rate_limited: "You've reached today's analysis limit. Try again later.",
   attempts_exceeded: "Too many analysis attempts today. Try again later.",
@@ -67,7 +68,7 @@ export async function runJobMatch(_previous: MatchRunState, form: FormData): Pro
     return { error: "Invalid job selection." };
   }
   const provider = one(form, "provider") ?? "rules";
-  if (provider !== "rules" && provider !== "anthropic") return { error: "Choose an analysis method." };
+  if (provider !== "rules" && provider !== "anthropic" && provider !== "ollama") return { error: "Choose an analysis method." };
   const result = await runJobAnalysis({ supabaseAuthId: user.id, jobId, provider, contactEmail: user.email ?? null, config: readAiConfig() });
   if (!result.ok) return { error: RUN_MESSAGES[result.error] };
   revalidatePath("/dashboard", "layout");

@@ -95,3 +95,57 @@ def find_verbatim(text: str, phrase: str) -> str | None:
     """Return the phrase exactly as it appears in ``text`` (original case), for use as a quote."""
     match = re.search(re.escape(phrase), text, flags=re.IGNORECASE)
     return match.group(0) if match else None
+
+
+# --- Relevance: a "supported" claim must cite something that mentions the requirement ----------
+
+# Words that say nothing about what a requirement is about.
+RELEVANCE_STOPWORDS = frozenset(
+    """a an and the or of in on to for with as at by from such like using use including plus etc via
+    year years month months experience experienced professional work working ability able knowledge
+    familiarity familiar proficiency proficient skill skills strong solid good excellent understanding
+    tools tool required requirement preferred minimum must nice have having demonstrated proven related
+    relevant equivalent field team level expert expert-level advanced senior junior degree degrees""".split()
+)
+# Degree abbreviations and their words, so "B.S." counts as mentioning "Bachelor's".
+_DEGREE_WORDS = {
+    "bs": "bachelor",
+    "ba": "bachelor",
+    "bsc": "bachelor",
+    "beng": "bachelor",
+    "bachelor": "bachelor",
+    "ms": "master",
+    "ma": "master",
+    "msc": "master",
+    "meng": "master",
+    "mba": "master",
+    "master": "master",
+    "phd": "doctorate",
+    "doctorate": "doctorate",
+    "doctoral": "doctorate",
+}
+
+
+def _terms(text: str) -> set[str]:
+    terms = set()
+    for raw in re.findall(r"[\w+#.']+", text.lower()):
+        token = raw.strip(".'").removesuffix("'s").replace(".", "")
+        token = _DEGREE_WORDS.get(token, token)
+        if token and token not in RELEVANCE_STOPWORDS:
+            terms.add(token)
+    return terms
+
+
+def shares_term(requirement_text: str, quote: str) -> bool:
+    """True when the quote mentions something specific from the requirement.
+
+    Words match exactly, or when one is a prefix of the other and the shorter has at least four
+    characters (so "Postgres" matches "PostgreSQL"). Generic words never count.
+    """
+    wanted, found = _terms(requirement_text), _terms(quote)
+    for a in wanted:
+        for b in found:
+            short, long_ = sorted((a, b), key=len)
+            if a == b or (len(short) >= 4 and long_.startswith(short)):
+                return True
+    return False

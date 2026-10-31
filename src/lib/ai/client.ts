@@ -66,6 +66,7 @@ export async function callMatchService(
   config: { serviceUrl: string; secret: string },
   request: MatchRequest,
   fetchImpl: Fetch = fetch,
+  timeoutMs: number = SERVICE_TIMEOUT_MS,
 ): Promise<unknown> {
   const body = JSON.stringify(request);
   let response: Response;
@@ -76,7 +77,7 @@ export async function callMatchService(
       body,
       cache: "no-store",
       redirect: "error",
-      signal: AbortSignal.timeout(SERVICE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
     // A refused connection never reached the service. Anything else (timeouts, resets) may have

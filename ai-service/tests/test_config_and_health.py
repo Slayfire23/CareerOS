@@ -68,12 +68,35 @@ def test_unknown_providers_and_other_models_are_refused():
         make_settings(anthropic_model="claude-opus-5-5")  # only the approved Sonnet model
 
 
-def test_ollama_is_not_available_yet():
-    settings = make_settings(providers="ollama", replay_store_url="redis://127.0.0.1:6379/0")
-    with pytest.raises(ProviderUnavailable, match="not implemented"):
-        build_provider(settings, "ollama")
-    with pytest.raises(ProviderUnavailable):
-        create_app(settings)  # fails at startup, not on the first request
+def test_unknown_provider_names_fail_at_startup():
+    with pytest.raises(ProviderUnavailable, match="Unknown provider"):
+        build_provider(make_settings(), "gpt")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://192.168.1.20:11434",
+        "https://ollama.example.test",
+        "http://0.0.0.0:11434",
+        "http://127.0.0.1:11434/api",
+    ],
+)
+def test_ollama_must_be_on_this_machine(url):
+    with pytest.raises(ValidationError, match="AI_OLLAMA_URL"):
+        make_settings(providers="rules,ollama", ollama_url=url)
+
+
+def test_ollama_needs_no_key_or_cloud_settings_and_only_approved_models():
+    settings = make_settings(providers="rules,ollama")
+    assert (settings.ollama_url, settings.ollama_model, settings.ollama_num_ctx) == (
+        "http://127.0.0.1:11434",
+        "qwen3:8b",
+        8_192,
+    )
+    assert make_settings(providers="ollama", ollama_model="qwen3.5:9b").ollama_model == "qwen3.5:9b"
+    with pytest.raises(ValidationError):
+        make_settings(providers="ollama", ollama_model="llama3:70b")
 
 
 def test_cloud_model_defaults_to_sonnet_with_low_effort():
