@@ -76,3 +76,17 @@ async def messages(request: Request) -> JSONResponse:
         "usage": {"input_tokens": max(1, len(content.encode()) // 4), "output_tokens": 180},
     }
     return JSONResponse(message, headers={"request-id": request_id})
+
+
+@app.get("/v1/models/{model_id}")
+async def model_info(model_id: str, request: Request) -> JSONResponse:
+    """Models API stand-in for the evaluation pre-flight check."""
+    if not request.headers.get("x-api-key", "").startswith(TEST_KEY_PREFIX):
+        return _error(401, "authentication_error")
+    info = {
+        "type": "model",
+        "id": model_id,
+        "display_name": "Mock model",
+        "created_at": "2026-09-01T00:00:00Z",
+    }
+    return JSONResponse(info, headers={"anthropic-workspace-id": "wrkspc_mock_evaluation"})

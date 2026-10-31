@@ -72,11 +72,13 @@ class AnthropicProvider:
         client: AsyncAnthropic | None = None,
         clock=time.monotonic,
         sleep=asyncio.sleep,
+        retry_rate_limits: bool = True,
     ) -> None:
         self.model = settings.anthropic_model
         self.method_version = f"{self.model}/{PROMPT_VERSION}"
         self._settings = settings
         self._clock, self._sleep = clock, sleep
+        self._retry_rate_limits = retry_rate_limits  # off for evaluations: one request per call
         self._failures: deque[float] = deque()
         self._open_until = 0.0
         if client is None:
@@ -158,7 +160,8 @@ class AnthropicProvider:
                     retry_after = _retry_after_seconds(exc)
                     remaining = self._settings.provider_timeout_seconds - (self._clock() - started)
                     if (
-                        attempt == 1
+                        self._retry_rate_limits
+                        and attempt == 1
                         and retry_after is not None
                         and remaining - retry_after >= RETRY_MIN_REMAINING_SECONDS
                     ):
