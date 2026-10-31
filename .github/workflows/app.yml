@@ -1,0 +1,138 @@
+# Next.js application checks. No repository secrets are used: databases, Supabase and the AI
+# service all run locally on the runner with throwaway values, and no AI provider is contacted.
+name: App
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "24"
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Actions are pinned to full commit SHAs (tag in the comment).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Secret check
+        run: npm run check:secrets
+      - run: npx prisma generate --config prisma7.config.ts
+      - run: npx prisma validate --config prisma7.config.ts
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Production build with no environment variables
+        run: npm run build
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: careeros_test
+          POSTGRES_PASSWORD: local_test_only
+          POSTGRES_DB: careeros_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U careeros_test" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate --config prisma7.config.ts
+      # Fresh database: proves every migration applies from scratch.
+      - name: Apply migrations
+        run: npx prisma migrate deploy --config prisma.integration.config.ts
+      - name: Migration replay and drift check (shadow database)
+        run: |
+          PGPASSWORD=local_test_only psql -h 127.0.0.1 -p 5433 -U careeros_test -d careeros_test -c "CREATE DATABASE careeros_shadow"
+          npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code --config prisma.shadow-check.config.ts
+      - name: Integration tests
+        run: npm run test:integration
+
+  e2e:
+    # Full browser suite against a local Supabase stack and the AI service (rules provider).
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+      - run: npm ci
+      - run: npx prisma generate --config prisma7.config.ts
+      - name: Start local Supabase
+        run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,supavisor
+      - name: Start the local replay store
+        run: docker run -d --name replay-store -p 127.0.0.1:6379:6379 valkey/valkey:8
+      - name: Write local-only environment files
+        run: |
+          eval "$(npx supabase status -o env | sed 's/^/export /')"
+          SECRET="$(openssl rand -hex 32)"
+          echo "::add-mask::$SECRET"
+          {
+            echo "DATABASE_URL=$DB_URL"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "APP_URL=http://localhost:3000"
+            echo "AI_SERVICE_URL=http://127.0.0.1:8010"
+            echo "AI_SERVICE_SECRET=$SECRET"
+          } > .env
+          {
+            echo "AI_SERVICE_SECRET=$SECRET"
+            echo "AI_ENVIRONMENT=development"
+            echo "AI_REPLAY_STORE_URL=redis://127.0.0.1:6379/0"
+          } > ai-service/.env
+      - run: npm run db:local:setup
+      - name: Start the AI service (rules provider only)
+        working-directory: ai-service
+        run: |
+          uv sync --locked
+          nohup uv run uvicorn app.main:app_factory --factory --host 127.0.0.1 --port 8010 > ../ai-service.log 2>&1 &
+      - name: Build and start CareerOS
+        run: |
+          npm run build
+          nohup npm run start > next.log 2>&1 &
+          for url in http://localhost:3000/login http://127.0.0.1:8010/health/ready; do
+            timeout 120 bash -c "until curl -sf -o /dev/null $url; do sleep 2; done"
+          done
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests
+        run: npx playwright test
+      - name: Service logs on failure (metadata only)
+        if: failure()
+        run: tail -n 100 ai-service.log next.log
