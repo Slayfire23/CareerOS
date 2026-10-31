@@ -10,7 +10,7 @@ import { MatchValidationError, PROJECT_NOT_EMPLOYMENT, statedYears, validateMatc
 import { canonicalString, sign } from "@/lib/ai/signing";
 
 const contract = (name: string) => JSON.parse(readFileSync(`contracts/match/${name}`, "utf8"));
-const exampleRequest = (): MatchRequest => contract("request.example.json");
+const exampleRequest = (): MatchRequest => ({ ...contract("request.example.json"), provider: "rules" });
 const exampleResponse = () => structuredClone(contract("response.rules.example.json"));
 const SECRET = "unit-test-secret-0123456789abcdefghijklmnop";
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -42,8 +42,6 @@ describe("AI configuration", () => {
     [{ AI_SERVICE_URL: "http://ai.example.com" }, "HTTPS"],
     [{ AI_SERVICE_URL: "https://user:pw@ai.example.com" }, "credentials"],
     [{ AI_SERVICE_URL: "not a url" }, "valid URL"],
-    [{ AI_ANALYSIS_PROVIDER: "anthropic" }, "not enabled"],
-    [{ AI_ANALYSIS_PROVIDER: "ollama" }, "not enabled"],
     [{ AI_ANALYSIS_DAILY_LIMIT: "0" }, "1 to 1000"],
     [{ AI_ANALYSIS_DAILY_LIMIT: "2.5" }, "1 to 1000"],
   ])("rejects unsafe settings %j", (override, reason) => {
@@ -51,8 +49,8 @@ describe("AI configuration", () => {
     expect(config.enabled).toBe(false);
     if (!config.enabled) expect(config.reason).toContain(reason);
   });
-  it("accepts localhost over HTTP, HTTPS elsewhere, and defaults to rules with 20 per day", () => {
-    expect(readAiConfig(ok)).toMatchObject({ enabled: true, provider: "rules", dailyLimit: 20, serviceUrl: "http://127.0.0.1:8000" });
+  it("accepts localhost over HTTP, HTTPS elsewhere, and defaults to 20 per day, 60 attempts, and no cloud", () => {
+    expect(readAiConfig(ok)).toMatchObject({ enabled: true, dailyLimit: 20, attemptLimit: 60, cloud: null, serviceUrl: "http://127.0.0.1:8000" });
     expect(readAiConfig({ ...ok, AI_SERVICE_URL: "https://ai.example.com/", AI_ANALYSIS_DAILY_LIMIT: "5" })).toMatchObject({
       enabled: true, serviceUrl: "https://ai.example.com", dailyLimit: 5,
     });
@@ -101,7 +99,7 @@ describe("evidence builder (data minimization)", () => {
 
 describe("response validation", () => {
   const request = exampleRequest();
-  const allowed = ["rules"];
+  const allowed = { provider: "rules", model: null };
 
   it("accepts the golden rules response from the Python service", () => {
     const result = validateMatchResponse(request, exampleResponse(), allowed);
@@ -125,7 +123,10 @@ describe("response validation", () => {
     ["missing finding", r => { r.findings.pop(); }],
     ["duplicate finding", r => { r.findings[5] = { ...r.findings[4] }; }],
     ["counts mismatch", r => { r.verdict_counts.supported = 9; }],
-    ["provider not allowed", r => { r.provider = "anthropic"; }],
+    ["provider not requested", r => { r.provider = "anthropic"; }],
+    ["model not requested", r => { r.model = "claude-opus-5-5"; }],
+    ["malformed usage", r => { r.usage = { input_tokens: -1, output_tokens: 2 }; }],
+    ["malformed provider request id", r => { r.provider_request_id = "req id with spaces"; }],
     ["request id mismatch", r => { r.request_id = uuid(77); }],
     ["supported without evidence", r => { r.findings[1].citations = []; }],
     ["invalid verdict", r => { r.findings[1].verdict = "excellent"; }],

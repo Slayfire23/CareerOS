@@ -16,7 +16,17 @@ export type ProjectEvidence = { id: string; kind: "project"; title: string; desc
 export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | ProjectEvidence;
 
 export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"] };
-export type MatchRequest = { request_id: string; as_of_month: string; requirements: MatchRequirement[]; evidence: Evidence[] };
+export type AnalysisProvider = "rules" | "anthropic";
+export type TokenBudget = { max_input_tokens: number; max_output_tokens: number };
+export type MatchRequest = {
+  request_id: string;
+  provider: AnalysisProvider;
+  /** Cloud providers only: the token bounds Next.js reserved budget for. */
+  budget?: TokenBudget;
+  as_of_month: string;
+  requirements: MatchRequirement[];
+  evidence: Evidence[];
+};
 
 export type EvidenceProfile = {
   technicalSkills: { id: string; name: string; proficiency: string | null }[];

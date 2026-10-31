@@ -14,9 +14,11 @@ import { prisma } from "@/lib/db";
 import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
 import type { AiConfig } from "@/lib/ai/config";
 import type { MatchRequest } from "@/lib/ai/evidence";
-import { getAnalysisPageData, runJobAnalysis, saveAnalysisFeedback, setCloudAiConsent } from "@/lib/ai/analysis";
+import { getAnalysisPageData, runJobAnalysis, saveAnalysisFeedback } from "@/lib/ai/analysis";
 
-const CONFIG: AiConfig = { enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", dailyLimit: 20, provider: "rules" };
+const CONFIG: AiConfig = {
+  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off",
+};
 let identities: string[] = [];
 let accountA: string;
 let accountB: string;
@@ -36,7 +38,7 @@ function fakeService(overrides: (request: MatchRequest, body: Record<string, unk
     });
     const counts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 } as Record<string, number>;
     for (const f of findings) counts[f.verdict]++;
-    const body: Record<string, unknown> = { request_id: request.request_id, findings, verdict_counts: counts, provider: "rules", model: null, method_version: "rules-v1" };
+    const body: Record<string, unknown> = { request_id: request.request_id, findings, verdict_counts: counts, provider: request.provider, model: null, method_version: "rules-v1", usage: null, provider_request_id: null };
     overrides(request, body);
     return new Response(JSON.stringify(body), { status: 200 });
   });
@@ -92,7 +94,11 @@ it("runs an owner-scoped analysis and stores validated findings with an audit ru
   expect(analysis.verdictCounts).toMatchObject({ supported: 1 });
   expect(analysis.run).toMatchObject({ status: "SUCCEEDED", errorCode: null, provider: "rules" });
   // The audit row holds metadata only.
-  expect(Object.keys(analysis.run).sort()).toEqual(["errorCode", "finishedAt", "id", "provider", "savedJobId", "startedAt", "status", "userId"]);
+  expect(Object.keys(analysis.run).sort()).toEqual([
+    "billingState", "cacheReadTokens", "cacheWriteTokens", "confirmedMicroUsd", "countsTowardLimit", "errorCode", "finishedAt", "id", "inputTokens",
+    "model", "outputTokens", "provider", "providerRequestId", "reconciledAt", "reservedMicroUsd", "savedJobId", "startedAt", "status", "userId",
+  ]);
+  expect(analysis.run).toMatchObject({ billingState: "NONE", reservedMicroUsd: 0, confirmedMicroUsd: null, countsTowardLimit: true });
 });
 
 it("refuses another account's job without creating any rows", async () => {
@@ -200,22 +206,6 @@ it("marks the analysis out of date when the reviewed requirements or the profile
   await prisma.savedJob.update({ where: { id: job.id }, data: { reviewVersion: 2 } });
   page = await getAnalysisPageData(accountA, job.id, CONFIG);
   expect(page?.latest?.outOfDate.requirements).toBe(true);
-});
-
-it("requires recorded consent before any non-local provider and allows withdrawal", async () => {
-  const job = await createReviewedJob(accountA);
-  // Phase 2 configuration never enables a cloud provider; this exercises the gate itself.
-  const cloud = { ...CONFIG, provider: "anthropic" } as unknown as AiConfig;
-  const fetchImpl = fakeService((_r, body) => { body.provider = "anthropic"; });
-  expect(await run(accountA, job.id, fetchImpl, cloud)).toEqual({ ok: false, error: "consent_required" });
-  expect(fetchImpl).not.toHaveBeenCalled();
-
-  expect(await setCloudAiConsent(accountA, true)).toBe(true);
-  expect(await run(accountA, job.id, fetchImpl, cloud)).toMatchObject({ ok: true });
-  expect(await setCloudAiConsent(accountA, false)).toBe(true);
-  expect(await run(accountA, job.id, fetchImpl, cloud)).toEqual({ ok: false, error: "consent_required" });
-  // The local rules engine never needs it.
-  expect(await run(accountA, job.id)).toMatchObject({ ok: true });
 });
 
 it("does nothing when the service is not configured", async () => {

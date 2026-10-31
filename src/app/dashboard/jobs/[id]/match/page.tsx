@@ -8,7 +8,8 @@ import { readAiConfig } from "@/lib/ai/config";
 import { getAnalysisPageData, type AnalysisView } from "@/lib/ai/analysis";
 import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
-import { FeedbackForm, RunAnalysisForm } from "@/components/job-match";
+import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
+import { CLOUD_MODEL_LABEL, CLOUD_PROVIDER_NAME } from "@/lib/ai/consent";
 import { ButtonLink, Card, EmptyState, LoadingBlock, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Requirement analysis" };
@@ -27,6 +28,15 @@ const EVIDENCE_SOURCE: Record<EvidenceKind, { label: string; href: string }> = {
 };
 const RUN_ERRORS: Record<string, string> = {
   service_unavailable: "Service unavailable",
+  replay_store_unavailable: "Service unavailable",
+  provider_busy: "Provider busy",
+  provider_unavailable: "Provider unavailable",
+  provider_request_rejected: "Provider unavailable",
+  provider_error: "Provider error",
+  provider_refused: "Declined by the provider",
+  provider_output_truncated: "Result discarded (incomplete)",
+  over_budget: "Too large for its budget",
+  abandoned: "Interrupted",
   service_timeout: "Timed out",
   provider_timeout: "Timed out",
   provider_output_rejected: "Result discarded (failed verification)",
@@ -35,6 +45,7 @@ const RUN_ERRORS: Record<string, string> = {
   invalid_response: "Unreadable response",
   save_failed: "Could not be saved",
 };
+const methodLabel = (provider: string) => (provider === "anthropic" ? `${CLOUD_MODEL_LABEL} (${CLOUD_PROVIDER_NAME})` : "Rules engine");
 const dateTime = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
 
 function VerdictPill({ verdict }: { verdict: Verdict }) {
@@ -95,7 +106,9 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
     <PageHeader
       eyebrow={`${job.title} at ${job.company}`}
       title="Requirement analysis"
-      description="Compares this job's reviewed requirements with your confirmed profile using deterministic rules. No AI provider is used and nothing is inferred. It can be wrong, so record whether you agree with each finding."
+      description={data.cloud.available
+        ? `Compares this job's reviewed requirements with your confirmed profile, using the rules engine on CareerOS or, with your consent, ${CLOUD_MODEL_LABEL}. Every result is checked against your profile before it is saved. It can still be wrong, so record whether you agree with each finding.`
+        : "Compares this job's reviewed requirements with your confirmed profile using deterministic rules. No AI provider is used and nothing is inferred. It can be wrong, so record whether you agree with each finding."}
       actions={<ButtonLink href={requirementsHref(job.id)}>Review requirements</ButtonLink>}
     />
 
@@ -114,18 +127,24 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
             {data.configured ? `${data.remainingToday} of ${data.dailyLimit} analyses left in the last 24 hours.` : "Requirement analysis is not available right now."}
           </p>
         </div>
-        <RunAnalysisForm jobId={job.id} disabled={!ready || !data.configured || data.remainingToday === 0} hasAnalysis={!!latest} />
+        <RunAnalysisForm jobId={job.id} disabled={!ready || !data.configured || data.remainingToday === 0} hasAnalysis={!!latest} cloud={data.cloud} />
       </div>
       <details className="disclosure rounded-lg border p-3 text-sm">
         <summary>What is sent to the analysis service</summary>
-        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.</p>
+        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}, with names, company and school names, email addresses, phone numbers, and links removed from the text.`}</p>
       </details>
     </Card>
+
+    {data.cloud.available && <Card className="space-y-3">
+      <h2 className="text-lg font-semibold">Cloud analysis consent</h2>
+      <p className="text-sm text-muted">{CLOUD_MODEL_LABEL} is optional and off until you agree. The rules engine stays available either way.</p>
+      <CloudConsentForm consentCurrent={data.cloud.consentCurrent} />
+    </Card>}
 
     {latest ? <section aria-labelledby="latest-heading" className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="latest-heading" className="text-lg font-semibold">Latest analysis</h2>
-        <p className="text-sm text-muted">{dateTime.format(latest.createdAt)} · Deterministic rules ({latest.methodVersion})</p>
+        <p className="text-sm text-muted">{dateTime.format(latest.createdAt)} · {methodLabel(latest.provider)} ({latest.methodVersion})</p>
       </div>
       {(latest.outOfDate.requirements || latest.outOfDate.profile) && <p role="status" className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface p-3 text-sm">
         This analysis is out of date: {latest.outOfDate.requirements && latest.outOfDate.profile ? "the requirements and your profile have changed" : latest.outOfDate.requirements ? "the reviewed requirements have changed" : "your profile has changed"} since it ran. Run it again for current results.
@@ -148,7 +167,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
         {history.map(run => {
           const counts = run.analysis?.verdictCounts as Record<Verdict, number> | undefined;
           return <li key={run.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-            <span className="text-muted">{dateTime.format(run.startedAt)}</span>
+            <span className="text-muted">{dateTime.format(run.startedAt)} · {methodLabel(run.provider)}</span>
             <span>
               {run.status === "SUCCEEDED" && counts ? VERDICTS.filter(v => counts[v]).map(v => `${counts[v]} ${VERDICT_STYLE[v].label.toLowerCase()}`).join(" · ")
                 : run.status === "FAILED" ? (RUN_ERRORS[run.errorCode ?? ""] ?? "Failed")

@@ -9,6 +9,8 @@ import {
   type MatchRequest,
   type Verdict,
 } from "@/lib/ai/evidence";
+import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
+import type { TokenUsage } from "@/lib/ai/pricing";
 
 // Independent re-validation of the AI service's response. The service already enforces these
 // rules, so any violation here means the response cannot be trusted: the whole result is rejected
@@ -18,7 +20,17 @@ export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional 
 
 export type Citation = { evidenceId: string; quote: string };
 export type Finding = { requirementIndex: number; verdict: Verdict; explanation: string; citations: Citation[]; caveats: string[] };
-export type ValidatedMatch = { findings: Finding[]; verdictCounts: Record<Verdict, number>; provider: string; model: string | null; methodVersion: string };
+export type ValidatedMatch = {
+  findings: Finding[];
+  verdictCounts: Record<Verdict, number>;
+  provider: string;
+  model: string | null;
+  methodVersion: string;
+  usage: TokenUsage | null;
+  providerRequestId: string | null;
+};
+/** The provider and model this request asked for; anything else is rejected. */
+export type ExpectedSource = { provider: string; model: string | null };
 
 export class MatchValidationError extends Error {
   constructor(reason: string) {
@@ -49,14 +61,22 @@ function areaIsEmpty(request: MatchRequest, category: string): boolean {
   return !request.evidence.some(e => kinds.includes(e.kind));
 }
 
-export function validateMatchResponse(request: MatchRequest, raw: unknown, allowedProviders: readonly string[]): ValidatedMatch {
+export function validateMatchResponse(request: MatchRequest, raw: unknown, expected: ExpectedSource): ValidatedMatch {
   if (!isObject(raw)) reject("not an object");
   const body = raw as Record<string, unknown>;
   if (body.request_id !== request.request_id) reject("request id mismatch");
   const provider = str(body.provider, 40, "provider");
-  if (!allowedProviders.includes(provider)) reject(`provider ${provider} is not allowed`);
+  if (provider !== expected.provider) reject(`provider ${provider} was not requested`);
   const model = body.model === null ? null : str(body.model, 100, "model");
-  const methodVersion = str(body.method_version, 40, "method_version");
+  if (model !== expected.model) reject("model was not requested");
+  const methodVersion = str(body.method_version, 60, "method_version");
+  const usage = body.usage === null || body.usage === undefined ? null : parseUsage(body.usage) ?? reject("invalid usage");
+  // A cloud result must report usage, or its cost could not be confirmed.
+  if (expected.model !== null && !usage) reject("usage missing");
+  const providerRequestId =
+    body.provider_request_id === null || body.provider_request_id === undefined
+      ? null
+      : parseProviderRequestId(body.provider_request_id) ?? reject("invalid provider_request_id");
   if (!Array.isArray(body.findings)) reject("findings missing");
 
   const requirements = new Map(request.requirements.map(r => [r.index, r]));
@@ -115,5 +135,13 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, allow
   const reported = body.verdict_counts;
   if (!isObject(reported) || VERDICTS.some(v => reported[v] !== verdictCounts[v])) reject("verdict counts do not match findings");
 
-  return { findings: findings.sort((a, b) => a.requirementIndex - b.requirementIndex), verdictCounts, provider, model, methodVersion };
+  return {
+    findings: findings.sort((a, b) => a.requirementIndex - b.requirementIndex),
+    verdictCounts,
+    provider,
+    model,
+    methodVersion,
+    usage,
+    providerRequestId,
+  };
 }

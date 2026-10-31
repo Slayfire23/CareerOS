@@ -22,6 +22,8 @@ model User {
   /// Explicit consent to send job or profile text to a cloud AI provider. Null means no consent.
   /// Not needed for the local deterministic rules engine; enforced before any cloud provider.
   aiCloudConsentAt DateTime? @db.Timestamptz(3)
+  /// Which consent text the user accepted; a new provider, model family, or field list bumps it.
+  aiCloudConsentVersion Int?
   aiAnalysisRuns   AiAnalysisRun[]
   jobMatchAnalyses JobMatchAnalysis[]
 }
@@ -134,6 +136,17 @@ enum AiAnalysisStatus {
   FAILED
 }
 
+/// NONE: local provider, no cost. RESERVED: call in flight, worst case held. CONFIRMED: charge
+/// computed from provider-reported usage. UNRESOLVED: may have been billed, worst case held until
+/// reconciled. RELEASED: the provider did not process the request, nothing held.
+enum AiBillingState {
+  NONE
+  RESERVED
+  CONFIRMED
+  UNRESOLVED
+  RELEASED
+}
+
 /// One row per analysis attempt, used for the daily limit, history, and audit.
 /// Metadata only: no job, profile, or finding text.
 model AiAnalysisRun {
@@ -147,12 +160,29 @@ model AiAnalysisRun {
   errorCode  String?          @db.VarChar(60)
   startedAt  DateTime         @default(now()) @db.Timestamptz(3)
   finishedAt DateTime?        @db.Timestamptz(3)
+  /// False only for failures that never reached an analysis (service down, provider busy).
+  countsTowardLimit Boolean @default(true)
+  model             String?  @db.VarChar(60)
+  /// Cost ledger (cloud providers). Amounts are micro-USD. A reservation is the worst case for
+  /// one call; it is held until the charge is confirmed from provider-reported usage, released
+  /// (not billed), or reconciled by hand. Estimates are never recorded as confirmed charges.
+  billingState      AiBillingState @default(NONE)
+  reservedMicroUsd  Int            @default(0)
+  confirmedMicroUsd Int?
+  inputTokens       Int?
+  outputTokens      Int?
+  cacheReadTokens   Int?
+  cacheWriteTokens  Int?
+  providerRequestId String?  @db.VarChar(100)
+  reconciledAt      DateTime? @db.Timestamptz(3)
   user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedJob   SavedJob?        @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
   analysis   JobMatchAnalysis?
 
   @@index([userId, startedAt])
   @@index([savedJobId, startedAt])
+  /// Global budget sums across all users.
+  @@index([startedAt, billingState])
   @@unique([id, userId])
 }
 
