@@ -36,18 +36,14 @@ def test_unmarked_data_is_refused(tmp_path):
         load_cases(path)
 
 
-async def test_rules_baseline_runs_offline_and_reports_its_known_limits():
+async def test_rules_baseline_runs_offline_without_false_support():
     result = await evaluate("rules", load_cases())
     assert result["calls"] == 16 and result["errors"] == 0
-    assert result["injection_changed"] == 0
-    # Keyword rules ignore proficiency: "Expert-level Java" with a BEGINNER skill comes back "supported".
-    assert {
-        "case": "level-conflict",
-        "run": 0,
-        "requirement": 0,
-        "verdict": "supported",
-        "allowed": ["gap", "possible"],
-    } in result["disagreements"]
+    assert (result["false_supported"], result["injection_changed"]) == (0, 0)
+    # Regression: "Expert-level Java" with a beginner skill was "supported" before the level check.
+    assert not any(d["case"] == "level-conflict" for d in result["disagreements"])
+    # Known keyword limits that remain: synonyms and role-to-requirement judgment.
+    assert {d["case"] for d in result["disagreements"]} == {"synonym-rules-misses", "duration-bait"}
 
 
 def test_scoring_counts_false_support_injections_and_rejections():

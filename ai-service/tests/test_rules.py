@@ -151,3 +151,47 @@ async def test_rules_output_always_passes_validation_unchanged(example_request):
     request = MatchRequest.model_validate(example_request)
     findings = await RulesProvider().match(request)
     assert validate_findings(request, findings) == findings
+
+
+def _skill(n: int, name: str, proficiency: str | None) -> dict:
+    return {"id": ev("skill", n), "kind": "skill", "name": name, "proficiency": proficiency}
+
+
+@pytest.mark.parametrize(
+    ("text", "proficiency", "verdict"),
+    [
+        ("Expert-level Java", "BEGINNER", "possible"),  # the evaluation baseline's false "supported"
+        ("Expert-level Java", "INTERMEDIATE", "possible"),
+        ("Expert-level Java", "ADVANCED", "supported"),
+        ("Advanced Java and Spring", None, "possible"),  # no level listed: cannot confirm
+        ("Strong Java skills", "BEGINNER", "possible"),
+        ("Strong Java skills", "INTERMEDIATE", "supported"),
+        ("Java", "BEGINNER", "supported"),  # no level asked for: unchanged behavior
+        ("Proficiency in Java", "BEGINNER", "supported"),
+        ("Familiarity with Java", "BEGINNER", "supported"),
+    ],
+)
+async def test_required_skill_level_is_respected(example_request, text, proficiency, verdict):
+    request, finding = await _assess(example_request, text, "Skills", [_skill(1, "Java", proficiency)])
+    assert finding.verdict == verdict
+    assert [c.quote for c in finding.citations] == ["Java"]
+    if verdict == "possible":
+        assert finding.caveats and ("level" in finding.caveats[0])
+    # The engine's own output always passes validation unchanged, including in strict mode.
+    assert validate_findings(request, [finding], strict=True) == [finding]
+
+
+async def test_one_skill_at_the_required_level_is_enough(example_request):
+    evidence = [_skill(1, "Java", "BEGINNER"), _skill(2, "Kotlin", "ADVANCED")]
+    _, finding = await _assess(example_request, "Expert Java or Kotlin", "Skills", evidence)
+    assert finding.verdict == "supported"
+
+
+async def test_level_caveat_names_the_listed_level(example_request):
+    _, finding = await _assess(
+        example_request, "Expert-level Java", "Skills", [_skill(1, "Java", "BEGINNER")]
+    )
+    assert finding.caveats == [
+        "You rated Java as beginner; this requirement asks for an expert or advanced level."
+    ]
+    assert finding.explanation == "You list Java as a skill, but not at the level this requirement asks for."

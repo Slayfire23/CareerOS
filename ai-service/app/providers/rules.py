@@ -34,6 +34,27 @@ GENERIC_WORDS = frozenset(
     understanding tools tool required preferred minimum must nice have having demonstrated proven
     related relevant equivalent field degree team""".split()
 )
+# Skill level a requirement asks for, and the user's self-assessed level, on one scale.
+_REQUIRED_LEVELS = [
+    (
+        3,
+        "an expert or advanced",
+        re.compile(r"\b(expert|advanced|in-depth|extensive|deep|senior|mastery)\b", re.I),
+    ),
+    (2, "an intermediate", re.compile(r"\b(intermediate|working knowledge|solid|strong)\b", re.I)),
+]
+_PROFICIENCY_RANK = {"BEGINNER": 1, "INTERMEDIATE": 2, "ADVANCED": 3}
+_PROFICIENCY_LABEL = {"BEGINNER": "beginner", "INTERMEDIATE": "intermediate", "ADVANCED": "advanced"}
+
+
+def required_skill_level(text: str) -> tuple[int, str] | None:
+    """The minimum level a requirement asks for, or None when it names no level."""
+    for rank, label, pattern in _REQUIRED_LEVELS:
+        if pattern.search(text):
+            return rank, label
+    return None
+
+
 _YEARS = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:or more\s+)?years?", re.IGNORECASE)
 _LEVELS = [  # (rank, label, patterns), ordered most to least specific per rank
     (4, "doctorate", [r"\bph\.?\s?d\b", r"\bdoctorate\b", r"\bdoctoral\b"]),
@@ -208,13 +229,27 @@ class RulesProvider:
         )
 
     def _skills(self, request: MatchRequest, requirement: Requirement) -> Finding:
-        skills = [
-            Citation(evidence_id=s.id, quote=s.name)
+        matched = [
+            s
             for s in request.evidence
             if isinstance(s, SkillEvidence) and contains_phrase(requirement.text, s.name)
         ]
-        if skills:
+        if matched:
+            skills = [Citation(evidence_id=s.id, quote=s.name) for s in matched]
             names = ", ".join(c.quote for c in skills)
+            required = required_skill_level(requirement.text)
+            if required and not any(
+                _PROFICIENCY_RANK.get(s.proficiency or "", 0) >= required[0] for s in matched
+            ):
+                # The skill is listed, but not at the level asked for (or no level was given).
+                rated = [s for s in matched if s.proficiency]
+                if rated:
+                    levels = ", ".join(f"{s.name} as {_PROFICIENCY_LABEL[s.proficiency]}" for s in rated)  # type: ignore[index]
+                    caveat = f"You rated {levels}; this requirement asks for {required[1]} level."
+                else:
+                    caveat = f"No skill level is listed, so keyword rules cannot confirm {required[1]} level."
+                explanation = f"You list {names} as a skill, but not at the level this requirement asks for."
+                return _finding(requirement, "possible", explanation, skills, [caveat])
             return _finding(requirement, "supported", f"You list {names} as a skill.", skills)
 
         related: list[Citation] = []
