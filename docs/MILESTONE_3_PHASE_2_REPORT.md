@@ -85,7 +85,7 @@ Fixed or enforced in Phase 2:
 - **Playwright refuses to run against a non-local `AI_SERVICE_URL`.**
 
 Remaining risks and items that need your decision:
-1. **Pre-existing migration issue (approval needed).** Migration `20261028010000_enable_row_level_security` enables RLS on `_prisma_migrations`. That table doesn't exist when Prisma replays migrations into its temporary shadow database, so `prisma migrate dev` fails. Production `migrate deploy` is not affected. I generated Phase 2's migration with `prisma migrate diff` instead. A fix (for example, guarding that statement with `IF EXISTS`) would change a merged migration that hasn't yet been applied to production.
+1. **Fixed with your approval:** the `prisma migrate dev` shadow-replay failure caused by migration `20261028010000_enable_row_level_security`. See "RLS migration fix" below.
 2. **Fixed in the stabilization pass:** jobs whose description has LF line endings couldn't be re-reviewed. See below.
 3. **The AI service's replay cache is in-process.** Production must run one worker and one instance until the cache is shared; see below.
 4. **Failed runs count toward the daily limit.** A change is recommended below; it hasn't been made.
@@ -94,7 +94,7 @@ Remaining risks and items that need your decision:
 
 ## Stabilization pass - October 30, 2026
 
-### 1. RLS migration replay failure (investigated; no change made)
+### 1. RLS migration replay failure (investigated; fixed after approval, see "RLS migration fix")
 
 - **Cause:** I reproduced it by replaying every migration into an empty throwaway database on the local test server. Only one statement fails: `ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY` in `20261028010000_enable_row_level_security`, with `relation "_prisma_migrations" does not exist`.
   - Prisma's shadow database replays migration files without its bookkeeping table, so `prisma migrate dev` can't create new migrations.
@@ -170,6 +170,17 @@ About the one Chromium failure:
 - The failing test was `e2e/location-preferences.spec.ts`. It passed on its own and failed 1 of 5 repeats.
 - Clearing the locations field occasionally leaves text behind, because `fill("")` races the client form.
 - It's a pre-existing flaky test, not a product bug: nothing it touches changed on this branch. It's listed in TASKS.md for a separate fix.
+
+## RLS migration fix - October 30, 2026 (approved)
+
+- **Change:** the one statement affecting `_prisma_migrations` now runs only when that table exists (`to_regclass` inside a `DO` block). The other seven statements are unchanged.
+- **Verification** (throwaway databases on the local test container, all dropped afterwards):
+  - **Raw replay:** all 12 migrations applied with no `_prisma_migrations` table present (as in a shadow database). All 9 app tables have RLS enabled.
+  - **`prisma migrate deploy` into a fresh database:** all 12 applied, and RLS is enabled on `_prisma_migrations`.
+  - **`prisma migrate dev --create-only` with a shadow database:** succeeds and produces an empty migration, meaning no drift. The original file fails with P3006. The probe migrations were deleted.
+  - **`prisma migrate diff --from-migrations`** against the schema: no difference.
+- **Local databases:** local Supabase and the test database are up to date and already had RLS on `_prisma_migrations`. I updated their recorded checksum for this migration to the new file's (`567a7c6c…`, previously `41455d3c…`), so `migrate dev` doesn't report a modified migration or offer a reset. No other local data changed.
+- **Production:** it hasn't applied this migration, so no applied history changed. Applying it is still pending your separate approval. Production already has RLS on these tables, and the migration is idempotent.
 
 ## Screenshots
 
