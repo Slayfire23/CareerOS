@@ -232,11 +232,25 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 - [x] Security review fixes: secrets no longer printed on startup errors; strict UUIDv4 check; minimum quote length; spelled-out and hyphenated durations detected; bounded request-id logging.
 - [x] GitHub Actions workflow for the Python service (runs after the branch is pushed).
 - [x] Existing Next.js suites re-run on this branch (see TESTING.md).
-- [ ] Owner approval of Phase 1.
+- [x] Owner approval of Phase 1 (October 30, 2026); branch pushed and the Python workflow passed on GitHub Actions.
+
+### Phase 2: Next.js integration with the rules engine
+
+- [x] Evidence builder: loads only the signed-in user's confirmed profile and reviewed requirements; sends no names, companies, institutions, links, contact details, salary, location, or resume text.
+- [x] Signed client: HMAC-SHA256 with timestamp and request id, 45-second timeout, no redirects; shared signature vector checked by both TypeScript and Python tests.
+- [x] Next.js re-validates every response (supplied, verbatim citations; projects never employment; verified durations; recomputed counts; provider allow-list) and rejects the whole response on any violation.
+- [x] AiAnalysisRun (audit and rate limit) and JobMatchAnalysis (results and feedback) tables; ownership enforced by composite foreign keys, RLS enabled with no policies, CHECK constraints. Migration 20261030010000_ai_analysis applied to local databases only.
+- [x] 20 analyses per user per rolling 24 hours (AI_ANALYSIS_DAILY_LIMIT), serialized with a per-user advisory lock; failed runs count.
+- [x] Consent tracking prepared (User.aiCloudConsentAt); enforced for any non-local provider. The rules engine needs none; only the rules provider can be enabled.
+- [x] Dedicated page /dashboard/jobs/[id]/match with verdict counts (no fit score), cited evidence, out-of-date notices, Agree/Disagree feedback with optional note, and recent-run history.
+- [x] Manual requirement review verified with the AI service stopped.
+- [x] 42 unit, 20 integration, and 1 browser test added; all suites pass (see TESTING.md).
+- [ ] Owner review of Phase 2. Production migration, merge, and deployment not done and need approval.
+- [ ] Pre-existing, needs approval: migration 20261028010000_enable_row_level_security breaks `prisma migrate dev` shadow-database replay (it alters _prisma_migrations, which does not exist there). Phase 2 used `prisma migrate diff` instead.
+- [ ] Pre-existing: a saved job whose description has bare LF line endings (created outside the browser form) cannot be re-reviewed, because browsers submit CRLF and the review compares descriptions exactly. Jobs created in the app are unaffected.
 
 ### Later phases (not started)
 
-- [ ] Phase 2: Next.js integration with the rules engine (evidence builder, signed client, JobMatchAnalysis table on local database only, consent, analysis page, corrections, rate limit).
 - [ ] Phase 3: Claude Sonnet provider behind the interface, with an approved evaluation run.
 - [ ] Phase 4: hosting comparison, deployment, and production migration (each step needs approval).
 - [ ] Phase 5: Ollama provider for local use.

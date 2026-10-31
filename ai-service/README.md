@@ -169,7 +169,9 @@ app/
 tests/               pytest suite
 ```
 
-## Known limitations (Phase 1)
+Since Phase 2 the Next.js app calls this service from the requirement analysis page and re-validates every response itself (src/lib/ai/). contracts/match/signature.example.json is a shared signing vector checked by both test suites.
+
+## Known limitations
 
 - **The replay cache is per process.** Run one worker per instance, or move the cache to shared
   storage (for example Redis) before scaling out.

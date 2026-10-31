@@ -59,10 +59,30 @@ APP_URL=http://localhost:3000
 
 Keep using `localhost:3000` in the browser. Auth redirect URLs in [supabase/config.toml](supabase/config.toml) are configured for it.
 
+## Requirement analysis (optional)
+
+The analysis page needs the local AI service. Without it, everything else works and the page says the service is unavailable. Generate one random secret (at least 32 characters) and put it in both files; never commit it.
+
+```dotenv
+# .env
+AI_SERVICE_URL=http://127.0.0.1:8010
+AI_SERVICE_SECRET=<random secret>
+AI_ANALYSIS_PROVIDER=rules
+AI_ANALYSIS_DAILY_LIMIT=20
+
+# ai-service/.env
+AI_SERVICE_SECRET=<same secret>
+AI_ENVIRONMENT=development
+AI_PROVIDER=rules
+```
+
+Then, from ai-service/: `uv run uvicorn app.main:app_factory --factory --host 127.0.0.1 --port 8010`. Apply the analysis tables with `npm run db:local:setup`.
+
 ## Safety guards
 
 - `playwright.config.ts` resolves the app's env exactly as `next dev` does. It refuses to run unless the Supabase API and the database are on `127.0.0.1`/`localhost` and `.env.playwright.local` names the same API URL. Hosted projects are always rejected.
 - Unit tests mock Supabase and Prisma. Integration tests use only the fixed `careeros-test-db` address.
+- Playwright also refuses an `AI_SERVICE_URL` that is not local.
 - Only `prisma.production.config.ts` can reach production, and only through `.env.hosted-production`.
 - One gap remains: a dev server started with production env variables in the shell would not be detected. Start it with plain `npm run dev`.
 

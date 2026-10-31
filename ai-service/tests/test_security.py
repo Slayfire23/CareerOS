@@ -119,3 +119,14 @@ def test_request_id_must_be_canonical_uuid4(client, example_request, request_id)
     body = json.dumps({**example_request, "request_id": request_id}).encode()
     headers = signed_headers(body, request_id=request_id)
     assert client.post("/v1/match", content=body, headers=headers).status_code == 401
+
+
+def test_shared_signature_vector_matches():
+    """The same vector is checked by the Next.js Vitest suite, so both sides sign identically."""
+    from app.security import canonical_string, sign
+    from tests.conftest import CONTRACTS
+
+    vector = json.loads((CONTRACTS / "signature.example.json").read_text(encoding="utf-8"))
+    body = vector["body"].encode("utf-8")
+    assert canonical_string(vector["timestamp"], vector["request_id"], body) == vector["canonical"]
+    assert sign(vector["secret"], vector["timestamp"], vector["request_id"], body) == vector["signature"]

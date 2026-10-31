@@ -15,6 +15,7 @@ function assertLocalSupabase() {
     !isLocal(app.NEXT_PUBLIC_SUPABASE_URL) && "NEXT_PUBLIC_SUPABASE_URL is not the local Supabase API",
     !isLocal(app.DATABASE_URL) && "DATABASE_URL is not the local Supabase database",
     tests.E2E_SUPABASE_URL !== app.NEXT_PUBLIC_SUPABASE_URL && "E2E_SUPABASE_URL does not match the app (run npm run db:local:setup)",
+    app.AI_SERVICE_URL && !isLocal(app.AI_SERVICE_URL) && "AI_SERVICE_URL is not a local AI service",
   ].filter(Boolean);
   if (problems.length) throw new Error(`Browser tests blocked: ${problems.join("; ")}.`);
 }

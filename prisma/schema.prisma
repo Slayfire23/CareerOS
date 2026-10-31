@@ -19,6 +19,11 @@ model User {
   updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
   careerProfile  CareerProfile?
   savedJobs SavedJob[]
+  /// Explicit consent to send job or profile text to a cloud AI provider. Null means no consent.
+  /// Not needed for the local deterministic rules engine; enforced before any cloud provider.
+  aiCloudConsentAt DateTime? @db.Timestamptz(3)
+  aiAnalysisRuns   AiAnalysisRun[]
+  jobMatchAnalyses JobMatchAnalysis[]
 }
 
 model SavedJob {
@@ -34,7 +39,11 @@ model SavedJob {
  createdAt DateTime @default(now()) @db.Timestamptz(3)
  updatedAt DateTime @updatedAt @db.Timestamptz(3)
  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ aiAnalysisRuns AiAnalysisRun[]
+ jobMatchAnalyses JobMatchAnalysis[]
  @@index([userId, createdAt])
+ // Lets JobMatchAnalysis reference (job, owner) so the database rejects cross-account links.
+ @@unique([id, userId])
 }
 
 model CareerProfile {
@@ -117,4 +126,64 @@ model ProjectAccomplishment {
  links String[] @default([])
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
  @@index([profileId])
+}
+
+enum AiAnalysisStatus {
+  STARTED
+  SUCCEEDED
+  FAILED
+}
+
+/// One row per analysis attempt, used for the daily limit, history, and audit.
+/// Metadata only: no job, profile, or finding text.
+model AiAnalysisRun {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @db.Uuid
+  /// Becomes null if the job is deleted, so the daily limit and audit trail survive.
+  savedJobId String?          @db.Uuid
+  status     AiAnalysisStatus @default(STARTED)
+  provider   String           @db.VarChar(40)
+  /// Machine-readable code only (e.g. "service_unavailable"), never message text.
+  errorCode  String?          @db.VarChar(60)
+  startedAt  DateTime         @default(now()) @db.Timestamptz(3)
+  finishedAt DateTime?        @db.Timestamptz(3)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedJob   SavedJob?        @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
+  analysis   JobMatchAnalysis?
+
+  @@index([userId, startedAt])
+  @@index([savedJobId, startedAt])
+  @@unique([id, userId])
+}
+
+/// A validated analysis of one saved job's reviewed requirements against the owner's profile.
+model JobMatchAnalysis {
+  id                  String        @id @default(uuid()) @db.Uuid
+  userId              String        @db.Uuid
+  savedJobId          String        @db.Uuid
+  runId               String        @unique @db.Uuid
+  /// The SavedJob.reviewVersion analysed. A later review makes this analysis out of date.
+  requirementsVersion Int
+  /// SHA-256 of the evidence sent. A changed profile makes this analysis out of date.
+  profileFingerprint  String        @db.Char(64)
+  provider            String        @db.VarChar(40)
+  model               String?       @db.VarChar(100)
+  methodVersion       String        @db.VarChar(40)
+  /// Snapshot of the reviewed requirements that were analysed (the owner's own job data).
+  requirements        Json
+  findings            Json
+  verdictCounts       Json
+  /// The owner's Agree/Disagree feedback, keyed by requirement index.
+  feedback            Json          @default("{}")
+  feedbackVersion     Int           @default(0)
+  createdAt           DateTime      @default(now()) @db.Timestamptz(3)
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Composite reference: the analysed job must belong to the same user.
+  savedJob            SavedJob      @relation(fields: [savedJobId, userId], references: [id, userId], onDelete: Cascade)
+  /// Composite reference: the run must belong to the same user.
+  run                 AiAnalysisRun @relation(fields: [runId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@index([savedJobId, createdAt])
+  @@index([userId, createdAt])
+  @@unique([runId, userId])
 }
