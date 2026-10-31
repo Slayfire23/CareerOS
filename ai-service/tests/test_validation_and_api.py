@@ -156,3 +156,46 @@ def test_slow_provider_times_out(example_request):
     response = post_match(client, example_request)
     assert response.status_code == 504
     assert response.json()["error"]["code"] == "provider_timeout"
+
+
+def test_single_letter_quotes_are_not_evidence(request_model):
+    findings = _all_insufficient(request_model)
+    findings[1] = _f(1, "supported", "Listed.", [(ev("skill", 1), "S")])
+    result = validate_findings(request_model, findings)[1]
+    assert result.verdict == "insufficient_information"
+    assert UNVERIFIED_EVIDENCE in result.caveats
+
+
+def test_short_whole_field_quotes_are_allowed(example_request):
+    data = dict(example_request, evidence=[{"id": ev("skill", 1), "kind": "skill", "name": "C"}])
+    request = MatchRequest.model_validate(data)
+    findings = _all_insufficient(request)
+    findings[1] = _f(1, "supported", "You list C.", [(ev("skill", 1), "C")])
+    assert validate_findings(request, findings)[1].verdict == "supported"
+
+
+@pytest.mark.parametrize(
+    "explanation",
+    ["You have seven years of experience.", "A 7-year track record.", "Over 9.5 years in design."],
+)
+def test_invented_durations_in_any_format_are_caught(request_model, explanation):
+    findings = _all_insufficient(request_model)
+    findings[0] = _f(0, "possible", explanation, [(ev("experience", 3), "Mechanical Engineer")])
+    result = validate_findings(request_model, findings)[0]
+    assert result.verdict == "insufficient_information"
+    assert UNVERIFIED_DURATION in result.caveats
+
+
+def test_spelled_out_requirement_durations_are_allowed(example_request):
+    data = dict(example_request)
+    data["requirements"] = [{**example_request["requirements"][0], "text": "Three years of design work"}]
+    request = MatchRequest.model_validate(data)
+    findings = [
+        _f(
+            0,
+            "possible",
+            "The posting asks for 3 years; you list 3.8 years.",
+            [(ev("experience", 3), "Mechanical Engineer")],
+        )
+    ]
+    assert validate_findings(request, findings)[0].verdict == "possible"

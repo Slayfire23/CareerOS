@@ -14,7 +14,10 @@ ProviderName = Literal["rules", "fake", "anthropic", "ollama"]
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="AI_", env_file=".env", extra="ignore")
+    # hide_input_in_errors: a rejected value (such as a short secret) must never appear in error output.
+    model_config = SettingsConfigDict(
+        env_prefix="AI_", env_file=".env", extra="ignore", hide_input_in_errors=True
+    )
 
     environment: Literal["development", "test", "production"] = "development"
 

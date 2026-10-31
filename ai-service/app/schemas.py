@@ -27,7 +27,8 @@ VERDICTS: tuple[Verdict, ...] = ("supported", "possible", "gap", "insufficient_i
 
 
 class Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # Validation errors never echo submitted values (profile or job text).
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
 
 class Requirement(Strict):

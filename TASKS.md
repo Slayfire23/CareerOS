@@ -153,7 +153,7 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 
 ## Later milestones
 
-- [ ] Milestone 3 (AI Engineering phase, planned, not started): explainable job-description analysis and resume selection.
+- [ ] Milestone 3 (AI Engineering phase, in progress; see the Milestone 3 section at the end): explainable job-description analysis and resume selection.
 - [ ] Milestone 4 (planned, not started): application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
 
@@ -214,3 +214,31 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] Production verification: signed-out checks (new home page and titles, /login redirects from all 11 section pages, 307 redirects from old addresses, 404 for unknown pages) and owner-confirmed signed-in checks (overview data, navigation highlighting, save/refresh, confirmation Cancel/remove, job analysis, friendly dates, mobile menu, dark mode).
 - [ ] Next: AI Engineering phase may begin. Still awaiting owner approval: production RLS migration 20261028010000_enable_row_level_security, and a check of production Storage for leftover test-fixture PDFs.
 - [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).
+
+## Milestone 3: AI Engineering - started October 29, 2026 (branch milestone-3-ai-matching)
+
+Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine first, then Claude Sonnet as the first cloud provider; explicit consent before any cloud AI use; no numeric fit score; raw resume text excluded; separate analysis page; 20 analyses per user per day (configurable); manual requirement review stays independent of AI. Development and tests never use production data.
+
+### Phase 1: AI service foundation
+
+- [x] ai-service/ with Python 3.13 and uv 0.13.1; dependencies resolved only from releases at least two weeks old (exclude-newer).
+- [x] Settings with startup validation (secret length and strength, production guards); rejected values never appear in errors.
+- [x] Strict request/response contract; example request and golden rules response in contracts/match/.
+- [x] Signed internal requests: HMAC-SHA256, 5-minute expiry, canonical UUIDv4 request ids, replay rejection, body size limit.
+- [x] Provider interface with deterministic rules and test-only fake providers; Anthropic and Ollama refused until their phases.
+- [x] Code-enforced validation: supplied, verbatim citations; projects never count as employment; verified durations; no gap for empty areas.
+- [x] Health and readiness endpoints; metadata-only logging; docs disabled in production.
+- [x] 93 pytest tests, ruff format and lint clean; verified over real HTTP with uvicorn and inside the Docker image (healthy, non-root, no content in logs).
+- [x] Security review fixes: secrets no longer printed on startup errors; strict UUIDv4 check; minimum quote length; spelled-out and hyphenated durations detected; bounded request-id logging.
+- [x] GitHub Actions workflow for the Python service (runs after the branch is pushed).
+- [x] Existing Next.js suites re-run on this branch (see TESTING.md).
+- [ ] Owner approval of Phase 1.
+
+### Later phases (not started)
+
+- [ ] Phase 2: Next.js integration with the rules engine (evidence builder, signed client, JobMatchAnalysis table on local database only, consent, analysis page, corrections, rate limit).
+- [ ] Phase 3: Claude Sonnet provider behind the interface, with an approved evaluation run.
+- [ ] Phase 4: hosting comparison, deployment, and production migration (each step needs approval).
+- [ ] Phase 5: Ollama provider for local use.
+
+The open foundation security follow-ups near the top of this file remain open and still apply.

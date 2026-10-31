@@ -87,10 +87,14 @@ async def verify_signed_request(
 
     if not timestamp.isdigit() or not signature.startswith("v1="):
         raise _UNAUTHORIZED
+    # Must be a canonical, lowercase UUIDv4. (UUID(value, version=4) would silently rewrite the
+    # version bits instead of checking them, so the version is checked explicitly.)
     try:
-        UUID(request_id, version=4)
+        parsed = UUID(request_id)
     except ValueError:
         raise _UNAUTHORIZED from None
+    if parsed.version != 4 or str(parsed) != request_id:
+        raise _UNAUTHORIZED
 
     current = time.time() if now is None else now
     if abs(current - int(timestamp)) > settings.signature_max_age_seconds:

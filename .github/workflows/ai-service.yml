@@ -1,0 +1,56 @@
+# Python AI service checks. No secrets are used: tests run with a test-only key and the
+# deterministic rules provider, and never contact Supabase or any AI provider.
+name: AI service
+
+on:
+  push:
+    paths:
+      - "ai-service/**"
+      - "contracts/**"
+      - ".github/workflows/ai-service.yml"
+  pull_request:
+    paths:
+      - "ai-service/**"
+      - "contracts/**"
+      - ".github/workflows/ai-service.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-service-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ai-service
+    steps:
+      # Actions are pinned to full commit SHAs (tag in the comment) so a moved tag cannot
+      # change what runs here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1" # same uv as local development
+
+      # --locked fails if uv.lock is out of date with pyproject.toml. Python 3.13 comes from .python-version.
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Format check
+        run: uv run ruff format --check .
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Tests
+        run: uv run pytest -q
+
+      - name: Docker image builds
+        run: docker build --tag careeros-ai-service:ci .

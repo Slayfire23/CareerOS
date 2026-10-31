@@ -35,7 +35,27 @@ from app.schemas import (
 
 UNVERIFIED_EVIDENCE = "Some cited evidence could not be verified and was removed."
 UNVERIFIED_DURATION = "A stated duration could not be verified against your listed employment."
-_YEARS = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:or more\s+)?years?", re.IGNORECASE)
+_NUMBER_WORDS = {
+    word: str(number)
+    for number, word in enumerate(
+        "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen "
+        "sixteen seventeen eighteen nineteen twenty".split()
+    )
+}
+# Matches "5 years", "5+ years", "5 or more years", "5-year", and "five years".
+_YEARS = re.compile(
+    r"\b(\d+(?:\.\d+)?|" + "|".join(_NUMBER_WORDS) + r")\s*\+?\s*(?:or more\s+)?-?\s*years?\b",
+    re.IGNORECASE,
+)
+
+
+def stated_years(text: str) -> set[str]:
+    """Every number of years mentioned, normalized ("five" and "5.0" both become "5")."""
+    values = set()
+    for match in _YEARS.finditer(text):
+        raw = match.group(1).casefold()
+        values.add(f"{float(_NUMBER_WORDS.get(raw, raw)):g}")
+    return values
 
 
 class InvalidProviderOutput(Exception):
@@ -43,7 +63,7 @@ class InvalidProviderOutput(Exception):
 
 
 def _allowed_year_values(request: MatchRequest, requirement: Requirement) -> set[str]:
-    values = {m.group(1) for m in _YEARS.finditer(requirement.text)}
+    values = stated_years(requirement.text)
     values.add(format_years(employment_months(request)))
     values.update(
         format_years(role_months(e, request.as_of_month))
@@ -98,8 +118,7 @@ def _check(request: MatchRequest, requirement: Requirement, finding: Finding, ev
             verdict = "possible" if verdict == "supported" else verdict
             caveats.append(PROJECT_NOT_EMPLOYMENT)
 
-    stated = {f"{float(m.group(1)):g}" for m in _YEARS.finditer(finding.explanation)}
-    if stated - _allowed_year_values(request, requirement):
+    if stated_years(finding.explanation) - _allowed_year_values(request, requirement):
         verdict = "insufficient_information"
         caveats.append(UNVERIFIED_DURATION)
 

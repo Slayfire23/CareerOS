@@ -59,7 +59,8 @@ def create_app(settings: Settings | None = None, provider: MatchProvider | None 
             request.url.path,
             response.status_code,
             (time.perf_counter() - started) * 1000,
-            request.headers.get(REQUEST_ID_HEADER, "-"),
+            # Caller-supplied and possibly unauthenticated: bounded to the length of a UUID.
+            request.headers.get(REQUEST_ID_HEADER, "-")[:36],
         )
         return response
 

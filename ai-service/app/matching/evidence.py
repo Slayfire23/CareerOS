@@ -56,8 +56,19 @@ def citable_texts(item: Evidence) -> list[str]:
     return [f for f in fields if f]
 
 
+MIN_QUOTE_CHARS = 3
+
+
 def quote_is_verbatim(item: Evidence, quote: str) -> bool:
-    return any(quote in text for text in citable_texts(item))
+    """True if the quote appears exactly in the item's text and is meaningful.
+
+    A fragment shorter than three characters only counts when it is a whole field, such as a
+    skill named "C" or "R". This stops a single letter from passing as evidence.
+    """
+    texts = citable_texts(item)
+    if len(quote.strip()) < MIN_QUOTE_CHARS:
+        return quote in texts
+    return any(quote in text for text in texts)
 
 
 _TOKEN = re.compile(r"[a-z0-9][a-z0-9+#&/.-]*")

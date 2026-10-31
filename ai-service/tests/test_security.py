@@ -104,3 +104,18 @@ def test_replay_cache_refuses_when_full_of_fresh_entries():
     with pytest.raises(ServiceError):
         cache.check_and_remember("c", now=1001)
     assert cache.check_and_remember("c", now=1700)  # old entries are pruned once expired
+
+
+@pytest.mark.parametrize(
+    "request_id",
+    [
+        "11111111-1111-1111-8111-111111111111",  # version 1, not 4
+        "11111111-1111-4111-8111-11111111111A".upper(),  # not canonical lowercase
+        "{11111111-1111-4111-8111-111111111111}",  # braces
+        "11111111111141118111111111111111",  # no hyphens
+    ],
+)
+def test_request_id_must_be_canonical_uuid4(client, example_request, request_id):
+    body = json.dumps({**example_request, "request_id": request_id}).encode()
+    headers = signed_headers(body, request_id=request_id)
+    assert client.post("/v1/match", content=body, headers=headers).status_code == 401

@@ -49,3 +49,25 @@ def test_docs_disabled_in_production():
     assert client.get("/docs").status_code == 404
     assert client.get("/openapi.json").status_code == 404
     assert client.get("/health").status_code == 200
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"service_secret": "tooshort-SECRETVALUE"},
+        {"environment": "development", "service_secret": "SECRETVALUE" + "a" * 30},
+    ],
+)
+def test_rejected_secrets_never_appear_in_error_messages(overrides):
+    with pytest.raises(ValidationError) as caught:
+        make_settings(**overrides)
+    assert "SECRETVALUE" not in str(caught.value)
+
+
+def test_request_validation_errors_never_echo_values(example_request):
+    from app.schemas import MatchRequest
+
+    bad = {**example_request, "as_of_month": "PRIVATE-TEXT"}
+    with pytest.raises(ValidationError) as caught:
+        MatchRequest.model_validate(bad)
+    assert "PRIVATE-TEXT" not in str(caught.value)
