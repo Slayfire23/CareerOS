@@ -164,7 +164,7 @@ All against local resources only.
 | Unit | 272 passed |
 | Integration | 51 passed (6 new) |
 | Chromium | 27 of 28 in the full run |
-| Fresh-clone production build | See TESTING.md and the handoff message |
+| Fresh-clone production build | Passed on `d9dbd68` (no environment variables) |
 
 About the one Chromium failure:
 - The failing test was `e2e/location-preferences.spec.ts`. It passed on its own and failed 1 of 5 repeats.
