@@ -40,7 +40,9 @@ async def messages(request: Request) -> JSONResponse:
     for requirement in data["requirements"]:
         # Skills are not employment, so only skill or other requirements can be supported by one.
         matches = requirement["category"] in ("Skills", "Other")
-        skill = next((s for s in skills if matches and s["name"].lower() in requirement["text"].lower()), None)
+        skill = next(
+            (s for s in skills if matches and s["name"].lower() in requirement["text"].lower()), None
+        )
         if skill:
             findings.append(
                 {
