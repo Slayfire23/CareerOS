@@ -86,11 +86,90 @@ Fixed or enforced in Phase 2:
 
 Remaining risks and items that need your decision:
 1. **Pre-existing migration issue (approval needed).** Migration `20261028010000_enable_row_level_security` enables RLS on `_prisma_migrations`. That table doesn't exist when Prisma replays migrations into its temporary shadow database, so `prisma migrate dev` fails. Production `migrate deploy` is not affected. I generated Phase 2's migration with `prisma migrate diff` instead. A fix (for example, guarding that statement with `IF EXISTS`) would change a merged migration that hasn't yet been applied to production.
-2. **Pre-existing edge case in requirement review.** Browsers submit form text with CRLF line endings, and the review compares the job description exactly. A job whose description has bare LF endings, which only happens when it's created outside the app's form (for example, my earlier demo seed), can't be re-reviewed. All jobs created in the app store CRLF and are unaffected. A fix would normalize line endings on both sides.
-3. **The AI service's replay cache is in-process.** It needs one worker per instance, or shared storage, before scaling.
-4. **Failed runs count toward the daily limit.** This is deliberate (it limits abuse), but a long service outage could use up a user's daily runs.
+2. **Fixed in the stabilization pass:** jobs whose description has LF line endings couldn't be re-reviewed. See below.
+3. **The AI service's replay cache is in-process.** Production must run one worker and one instance until the cache is shared; see below.
+4. **Failed runs count toward the daily limit.** A change is recommended below; it hasn't been made.
 5. **The rules engine is keyword-based.** It can't recognize synonyms and never reports a skills gap. The UI says so.
 6. **The open foundation security follow-ups in TASKS.md still apply.** Also still pending your approval: the production RLS migration, and a check of production Storage for leftover test fixtures.
+
+## Stabilization pass - October 30, 2026
+
+### 1. RLS migration replay failure (investigated; no change made)
+
+- **Cause:** I reproduced it by replaying every migration into an empty throwaway database on the local test server. Only one statement fails: `ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY` in `20261028010000_enable_row_level_security`, with `relation "_prisma_migrations" does not exist`.
+  - Prisma's shadow database replays migration files without its bookkeeping table, so `prisma migrate dev` can't create new migrations.
+  - `prisma migrate deploy` is not affected, because it creates that table first. Production, local Supabase, and the test database are all fine.
+- **Recommended fix (needs your approval):** in that one migration file, replace the single statement with a guarded block:
+  ```sql
+  DO $ BEGIN
+    IF to_regclass('"_prisma_migrations"') IS NOT NULL THEN
+      ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;
+    END IF;
+  END $;
+  ```
+  - I tested it in the throwaway database: it replays cleanly when the table is absent, and still enables RLS when the table exists. Every later migration, including `20261030010000_ai_analysis`, then applies.
+  - **Why now is the safest time:** production hasn't applied this migration yet, so editing it changes no applied history there.
+  - **Side effect on local machines:** local databases that already applied the original would show it as "modified" in `prisma migrate dev`. The fix there is to reset local data, or to update that row's checksum, which is local only.
+  - **Alternative that leaves history untouched:** leave the file as it is and keep creating migrations with `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script`, as Phase 2 did. That works but stays fragile for anyone using `migrate dev`.
+- I haven't modified the merged migration.
+
+### 2. Job-description line endings (fixed)
+
+- **Cause:** browsers submit form text with CRLF line endings. The requirement review required the submitted description to equal the stored one exactly, so a job stored with LF endings could never be reviewed again.
+- **Change:**
+  - `sameDescription()` in `src/lib/saved-jobs.ts` compares two descriptions with CR, LF, and CRLF treated alike.
+  - `saveRequirements` (`src/app/jobs/requirements-actions.ts`) loads the owner's job, compares descriptions with `sameDescription`, and records the **stored** text exactly as `reviewedDescription`. The update still requires the exact stored description and review version, so concurrent edits are still refused.
+  - `saveJob` (`src/app/jobs/actions.ts`) leaves the stored description untouched when an edit changes only line endings. Saving a job without changes no longer marks its review out of date.
+- No stored data is rewritten, and no migration is needed. Every other comparison remains exact and correct, including the overview's SQL count.
+- **Regression tests:**
+  - `tests/integration/job-review.integration.ts` (6 tests) and one unit test for `sameDescription`.
+  - The three line-ending tests fail with the fix reverted and pass with it.
+  - A real browser re-reviewed an LF-only demo job and ran its analysis.
+
+### 3. Daily limit and failed runs (recommendation; behavior unchanged)
+
+Current behavior:
+- **No run is used** when a request fails a local check first: not found, not reviewed, out of date, no requirements, no profile, profile too large, or consent missing.
+- **A run is used** once it is reserved, whatever happens next. That includes runs that fail because the service is down.
+- **Unfinished runs:** a run that never finishes (for example, a server crash) stays STARTED and stops counting after 24 hours.
+
+This is safe, because nothing can exceed the limit. But a service outage can use up a user's daily runs without giving them anything.
+
+Recommended (needs approval; small change):
+- **Free runs that never reached the AI service.** `service_unavailable` failures (connection refused or HTTP 503) would no longer count toward the daily limit, because no provider work or cost occurred.
+- **Keep counting everything that might have reached a provider:** timeouts, rejected or invalid output, and save failures. These can incur cost with a cloud provider.
+- **Add a separate cap on all attempts**, for example 3× the daily limit in 24 hours. Retrying during an outage then can't fill the audit table or hammer the service.
+- **Keep the per-user advisory lock and counting inside the transaction**, so the limit stays exact under concurrency, with tests like the existing 25-concurrent-request test.
+
+### 4. Replay-cache limitation (documented)
+
+The new section "Replay protection in production" in `ai-service/README.md` covers:
+- **Why the protection is incomplete:** with several workers or instances, and for 5 minutes after a restart.
+- **What a replay can do:** repeat the same stateless analysis for someone already holding a complete signed request. With a cloud provider, that means repeated spend.
+- **Required production mitigations:**
+  - one worker (already set in the Dockerfile) and one instance
+  - a shared store, such as Redis `SET NX EX 600` failing closed, before scaling out or adding a cloud provider
+  - rejecting timestamps earlier than the process start time
+
+ARCHITECTURE.md references it.
+
+### Stabilization test results
+
+All against local resources only.
+
+| Check | Result |
+| --- | --- |
+| Python | 94 passed; ruff clean |
+| TypeScript, lint | Clean |
+| Unit | 272 passed |
+| Integration | 51 passed (6 new) |
+| Chromium | 27 of 28 in the full run |
+| Fresh-clone production build | See TESTING.md and the handoff message |
+
+About the one Chromium failure:
+- The failing test was `e2e/location-preferences.spec.ts`. It passed on its own and failed 1 of 5 repeats.
+- Clearing the locations field occasionally leaves text behind, because `fill("")` races the client form.
+- It's a pre-existing flaky test, not a product bug: nothing it touches changed on this branch. It's listed in TASKS.md for a separate fix.
 
 ## Screenshots
 

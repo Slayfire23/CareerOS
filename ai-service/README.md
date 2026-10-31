@@ -173,10 +173,35 @@ Since Phase 2 the Next.js app calls this service from the requirement analysis p
 
 ## Known limitations
 
-- **The replay cache is per process.** Run one worker per instance, or move the cache to shared
-  storage (for example Redis) before scaling out.
+- **The replay cache is per process.** See "Replay protection in production" below.
 - **The rules engine is keyword-based.**
   - It can't recognize synonyms.
   - It never reports a skills "gap", because keywords can't prove something is absent.
   - It caps a met years-of-experience requirement at "possible", because it can't judge relevance.
 - **Raw resume text isn't used** (decision D5). Only confirmed profile entries count as evidence.
+
+## Replay protection in production
+
+Request ids are remembered in memory, in the process that verified them, for 10 minutes (twice the
+5-minute signature window). That is complete protection only while exactly one process serves
+requests and keeps running. It does not hold:
+
+- **with several workers or instances**: a replay sent to a different process is not recognized;
+- **after a restart**: the memory is empty, so a request captured in the 5 minutes before the
+  restart could be accepted once more.
+
+What a replay can do is limited. The attacker must already hold a complete signed request (the
+secret is never sent, bodies are never logged, and traffic must use HTTPS). The service is
+stateless and writes nothing, so a replay only repeats the same analysis and returns it to the
+replayer. Next.js accepts a response only for the request id it is waiting for. With a cloud
+provider, the real cost is repeated provider spend within the 5-minute window.
+
+Required before production (Phase 4, needs approval):
+
+1. **Now:** keep `--workers 1` (set in the Dockerfile) and run a single instance. Don't enable
+   autoscaling or multiple replicas.
+2. **Before scaling out or adding a cloud provider:** move the cache to a shared store, for
+   example Redis with `SET careeros:replay:<id> 1 NX EX 600`, and fail closed (refuse requests)
+   if the store is unavailable.
+3. **Cheap extra guard:** reject requests whose timestamp is earlier than the process start time.
+   That closes the restart gap at the cost of one retry for requests in flight during a restart.

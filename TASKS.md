@@ -246,8 +246,11 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 - [x] Manual requirement review verified with the AI service stopped.
 - [x] 42 unit, 20 integration, and 1 browser test added; all suites pass (see TESTING.md).
 - [ ] Owner review of Phase 2. Production migration, merge, and deployment not done and need approval.
-- [ ] Pre-existing, needs approval: migration 20261028010000_enable_row_level_security breaks `prisma migrate dev` shadow-database replay (it alters _prisma_migrations, which does not exist there). Phase 2 used `prisma migrate diff` instead.
-- [ ] Pre-existing: a saved job whose description has bare LF line endings (created outside the browser form) cannot be re-reviewed, because browsers submit CRLF and the review compares descriptions exactly. Jobs created in the app are unaffected.
+- [ ] Pre-existing, needs approval: migration 20261028010000_enable_row_level_security breaks `prisma migrate dev` shadow-database replay (it alters _prisma_migrations, which does not exist there). Reproduced; the recommended fix guards that one statement with to_regclass before production applies the migration (see docs/MILESTONE_3_PHASE_2_REPORT.md). Until approved, author migrations with `prisma migrate diff`.
+- [x] Stabilization: requirement reviews and job edits compare descriptions with line endings normalized and keep the stored text, so jobs with LF or CRLF descriptions can be re-reviewed; regression tests added.
+- [x] Stabilization: replay-cache limitation and production mitigations documented (ai-service/README.md).
+- [ ] Recommended, needs approval: stop counting runs that never reached the AI service (service_unavailable) toward the daily limit, with a separate cap on total attempts.
+- [ ] Pre-existing flaky browser test: e2e/location-preferences.spec.ts fails about 1 run in 6 when clearing the locations field leaves text behind (fill races the client form). Not caused by Milestone 3.
 
 ### Later phases (not started)
 

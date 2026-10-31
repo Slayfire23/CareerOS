@@ -2,7 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
-import { savedJobId, parseSavedJob } from "@/lib/saved-jobs";
+import { savedJobId, parseSavedJob, sameDescription } from "@/lib/saved-jobs";
 export type JobState = { error?: string; message?: string };
 
 export async function saveJob(_previous: JobState, form: FormData): Promise<JobState> {
@@ -14,7 +14,12 @@ export async function saveJob(_previous: JobState, form: FormData): Promise<JobS
   catch (error) { return { error: error instanceof Error ? error.message : "Invalid job." }; }
   try {
     if (id) {
-      const result = await prisma.savedJob.updateMany({ where: { id, user: { supabaseAuthId: user.id } }, data });
+      // A save that changes only line endings keeps the stored description, so a current review stays current.
+      const current = await prisma.savedJob.findFirst({ where: { id, user: { supabaseAuthId: user.id } }, select: { description: true } });
+      if (!current) return { error: "Job not found. Reload and try again." };
+      const { description, ...rest } = data;
+      const changes = sameDescription(current.description, description) ? rest : data;
+      const result = await prisma.savedJob.updateMany({ where: { id, user: { supabaseAuthId: user.id } }, data: changes });
       if (result.count !== 1) return { error: "Job not found. Reload and try again." };
     } else {
       const account = await prisma.user.findUnique({ where: { supabaseAuthId: user.id }, select: { id: true } });
