@@ -120,7 +120,11 @@ def create_app(
 
     @app.exception_handler(Exception)
     async def unexpected(_: Request, exc: Exception) -> JSONResponse:
-        log.exception("unhandled error", exc_info=exc)
+        if production:
+            # Tracebacks can quote values from the failing frame; production logs the type only.
+            log.error("unhandled error type=%s", type(exc).__name__)
+        else:
+            log.exception("unhandled error", exc_info=exc)
         return JSONResponse(
             error_body("internal_error", "Unexpected error.", billed="unknown"), status_code=500
         )

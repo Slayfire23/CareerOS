@@ -143,3 +143,20 @@ Next.js now calls the AI service, still using only the deterministic rules provi
 - Replay protection: the AI service remembers request ids per process, which is complete only for one long-running process. Production must run one worker and one instance until the cache moves to a shared store (see ai-service/README.md, "Replay protection in production").
 - Line endings: browsers submit form text with CRLF. Job saves and requirement reviews compare descriptions with line endings normalized (sameDescription in src/lib/saved-jobs.ts) and never rewrite the stored text, so review status comparisons stay exact.
 - Independence: requirement review never calls the AI service. If the service is down, only the analysis run fails, with a friendly message, and the failure is recorded.
+
+## Anthropic provider and cost controls (Milestone 3, Phase 3) - October 31, 2026
+
+Claude Sonnet 5.5 (`claude-sonnet-5-5`) is an optional provider beside the rules engine, which stays the default and a separate user choice. Cloud analysis is off unless `AI_CLOUD_ENABLED=true`, all cost caps are set, and the account is in `AI_CLOUD_ALLOWED_USERS`. It also needs the user's current, versioned consent. No paid call has been made; every cloud test uses mocked responses.
+
+- Request path: the server action passes the chosen method. Next.js checks consent and the allow-list, builds evidence, and redacts it for the cloud (src/lib/ai/redaction.ts: the profile name, employers, schools, the saved job's company, the account email, and any email address, phone number, or link). It sizes a token budget from the request bytes plus a fixed prompt allowance, and reserves the worst-case cost before calling the AI service.
+- Cost ledger (AiAnalysisRun): `reservedMicroUsd` is held while a call is in flight (RESERVED) and while its billing is uncertain (UNRESOLVED: timeouts, failures after the request may have been processed, crashes). `confirmedMicroUsd` is set only from provider-reported usage at verified prices (src/lib/ai/pricing.ts). Charges the provider didn't process are RELEASED. CHECK constraints stop a held state from carrying a confirmed amount. Unresolved charges count toward every cap until reconciled (`reconcileUnresolvedRun`, operator only).
+- Caps: the per-user daily count and attempt cap (3x), per-user daily cost, global daily cost, and global calendar-month cost are checked in one transaction, under a per-user advisory lock plus a global lock for cloud runs. An Anthropic Console workspace spend limit is the independent backstop.
+- AI service: each request names its provider. Cloud requests must carry a budget, and the prompt is refused if its byte bound exceeds it.
+  - One billable call per request. The only retry follows a 429 whose retry-after fits the deadline.
+  - `stop_reason` is checked before parsing. Output is structured; no sampling parameters or forced tools are sent.
+  - A circuit breaker stops calls after repeated failures.
+  - Strict validation: any finding that would be downgraded discards the whole response.
+  - Every error reports `billed` (no, yes, or unknown) and usage when known.
+  - The Anthropic SDK and HTTP client loggers are pinned to WARNING, because the SDK logs request bodies at DEBUG. In production, unexpected errors are logged by type only.
+- Replay protection uses a shared Redis-compatible store (`SET NX EX`) and fails closed. It's required for cloud providers and in production, with TLS when off this machine. See docs/REPLAY_STORE_OPTIONS.md.
+- The Anthropic key lives only in the AI service environment. Next.js, Vercel, the browser, CI, and the repository never hold it.

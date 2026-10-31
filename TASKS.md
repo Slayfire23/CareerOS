@@ -249,12 +249,28 @@ Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine fir
 - [x] Fixed with owner approval (October 30, 2026): migration 20261028010000_enable_row_level_security now guards its _prisma_migrations statement with to_regclass, so `prisma migrate dev` shadow replay works again. Production has not applied this migration yet, so no applied history changed there; local databases had their recorded checksum updated. Applying it to production still needs separate approval.
 - [x] Stabilization: requirement reviews and job edits compare descriptions with line endings normalized and keep the stored text, so jobs with LF or CRLF descriptions can be re-reviewed; regression tests added.
 - [x] Stabilization: replay-cache limitation and production mitigations documented (ai-service/README.md).
-- [ ] Recommended, needs approval: stop counting runs that never reached the AI service (service_unavailable) toward the daily limit, with a separate cap on total attempts.
-- [ ] Pre-existing flaky browser test: e2e/location-preferences.spec.ts fails about 1 run in 6 when clearing the locations field leaves text behind (fill races the client form). Not caused by Milestone 3.
+- [x] Done in Phase 3: failures that never reached an analysis don't count toward the daily limit; an attempt cap (3x) applies to every run.
+- [x] Fixed in Phase 3: the flaky e2e/location-preferences.spec.ts (openPage now waits for forms to hydrate; 10 of 10 repeats pass).
+
+### Phase 3: Anthropic provider (plan approved October 30, 2026; docs/MILESTONE_3_PHASE_3_PLAN.md)
+
+- [x] Anthropic model, structured outputs, errors, pricing, and spend limits verified against official documentation (docs/ANTHROPIC_VERIFIED_FACTS.md).
+- [x] Replay-store options and costs evaluated (docs/REPLAY_STORE_OPTIONS.md); local development uses a free Valkey container.
+- [x] App-level CI (.github/workflows/app.yml), a secret check, and a migration replay check; Valkey added to the AI service workflow. Not yet run on GitHub (branch not pushed).
+- [x] Failed-run limits and attempt cap, safe under concurrency.
+- [x] Shared, fail-closed replay store (Redis-compatible), 120-second signature window.
+- [x] Contract v2: per-request provider, token budget, usage, billed = no | yes | unknown.
+- [x] Cost ledger with reserved, confirmed, and unresolved charges; per-user daily, global daily, and global monthly caps under advisory locks. Migration 20261031010000_ai_cost_ledger applied to local databases only.
+- [x] Cloud redaction of names, employers, schools, emails, phone numbers, and links.
+- [x] Claude Sonnet 5.5 provider tested only against mocked responses; strict validation; no fallback model.
+- [x] Versioned consent, allow-list, and method choice (the rules engine stays a separate option); cloud off by default.
+- [x] Offline evaluation harness with 16 fictional cases (rules baseline, mock, replay).
+- [ ] Live evaluation: needs separate owner approval (proposal in docs/MILESTONE_3_PHASE_3_REPORT.md). No paid call has been made.
+- [ ] Operator procedure for reconciling unresolved charges in production (the function exists; tooling belongs to Phase 4).
+- [ ] Rules engine ignores proficiency ("Expert-level Java" with a beginner skill is "supported"); found by the evaluation baseline.
 
 ### Later phases (not started)
 
-- [ ] Phase 3: Claude Sonnet provider behind the interface, with an approved evaluation run. Plan proposed in docs/MILESTONE_3_PHASE_3_PLAN.md (app CI, failed-run limits, shared replay store, cost ledger and budgets, consent, mocked provider tests, fictional evaluation); awaiting owner approval. No paid API calls without separate authorization.
 - [ ] Phase 4: hosting comparison, deployment, and production migration (each step needs approval).
 - [ ] Phase 5: Ollama provider for local use.
 

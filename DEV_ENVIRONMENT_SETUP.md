@@ -67,22 +67,49 @@ The analysis page needs the local AI service. Without it, everything else works 
 # .env
 AI_SERVICE_URL=http://127.0.0.1:8010
 AI_SERVICE_SECRET=<random secret>
-AI_ANALYSIS_PROVIDER=rules
 AI_ANALYSIS_DAILY_LIMIT=20
 
 # ai-service/.env
 AI_SERVICE_SECRET=<same secret>
 AI_ENVIRONMENT=development
-AI_PROVIDER=rules
+AI_PROVIDERS=rules
+AI_REPLAY_STORE_URL=redis://127.0.0.1:6379/0
+```
+
+Start the local replay store once (free, Redis-compatible, reachable from this machine only):
+
+```bash
+docker run -d --name careeros-replay-store -p 127.0.0.1:6379:6379 valkey/valkey:8
 ```
 
 Then, from ai-service/: `uv run uvicorn app.main:app_factory --factory --host 127.0.0.1 --port 8010`. Apply the analysis tables with `npm run db:local:setup`.
+
+### Cloud analysis against the local mock (no cost)
+
+To exercise consent and the cloud path without any paid call, run the mock Anthropic API and point the AI service at it. It accepts only the fictional test key below. Never put a real key in these files.
+
+```dotenv
+# ai-service/.env (in addition to the above)
+AI_PROVIDERS=rules,anthropic
+ANTHROPIC_API_KEY=sk-ant-test.not.a.real.key.000000000000000000
+AI_ANTHROPIC_BASE_URL=http://127.0.0.1:8020
+
+# .env (in addition to the above)
+AI_CLOUD_ENABLED=true
+AI_COST_USER_DAILY_USD=1
+AI_COST_GLOBAL_DAILY_USD=3
+AI_COST_GLOBAL_MONTHLY_USD=25
+AI_CLOUD_ALLOWED_USERS=<internal User ids, comma-separated>
+```
+
+From ai-service/: `uv run uvicorn devtools.mock_anthropic:app --host 127.0.0.1 --port 8020`. The AI service refuses `AI_ANTHROPIC_BASE_URL` in production or for a non-local host.
 
 ## Safety guards
 
 - `playwright.config.ts` resolves the app's env exactly as `next dev` does. It refuses to run unless the Supabase API and the database are on `127.0.0.1`/`localhost` and `.env.playwright.local` names the same API URL. Hosted projects are always rejected.
 - Unit tests mock Supabase and Prisma. Integration tests use only the fixed `careeros-test-db` address.
-- Playwright also refuses an `AI_SERVICE_URL` that is not local.
+- Playwright also refuses an `AI_SERVICE_URL` that is not local, and refuses to run if `ai-service/.env` could reach a real AI provider (any key other than the fictional test key, or a non-local `AI_ANTHROPIC_BASE_URL`).
+- AI service tests unset Anthropic credentials and fail if any test resolves or connects to a non-local host.
 - Only `prisma.production.config.ts` can reach production, and only through `.env.hosted-production`.
 - One gap remains: a dev server started with production env variables in the shell would not be detected. Start it with plain `npm run dev`.
 

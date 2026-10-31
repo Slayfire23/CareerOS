@@ -173,7 +173,7 @@ Since Phase 2 the Next.js app calls this service from the requirement analysis p
 
 ## Known limitations
 
-- **The replay cache is per process.** See "Replay protection in production" below.
+- **Replay protection** uses a shared Redis-compatible store and fails closed (Phase 3). The in-memory store is for local rules-only use; the caveats below apply only to it.
 - **The rules engine is keyword-based.**
   - It can't recognize synonyms.
   - It never reports a skills "gap", because keywords can't prove something is absent.
@@ -205,3 +205,13 @@ Required before production (Phase 4, needs approval):
    if the store is unavailable.
 3. **Cheap extra guard:** reject requests whose timestamp is earlier than the process start time.
    That closes the restart gap at the cost of one retry for requests in flight during a restart.
+
+## Phase 3: Anthropic provider, mock API, and evaluations
+
+- `AI_PROVIDERS` lists the providers this instance serves (`rules`, `anthropic`), and each signed request names one. `anthropic` requires `ANTHROPIC_API_KEY` and `AI_REPLAY_STORE_URL`. The model is fixed to `claude-sonnet-5-5`; `AI_ANTHROPIC_EFFORT` defaults to `low`.
+- Shared replay store: `AI_REPLAY_STORE_URL=redis://127.0.0.1:6379/0` locally (Valkey container), `rediss://` elsewhere.
+- `devtools/mock_anthropic.py` is a local stand-in for the Messages API, for development and browser tests (`AI_ANTHROPIC_BASE_URL=http://127.0.0.1:8020`, refused in production). It isn't in the Docker image.
+- `evals/` holds the fictional evaluation cases and harness:
+  - `uv run python -m evals.run_eval --mode rules` (baseline), `--mode mock`, and `--mode replay <dir>` are offline and free.
+  - `--mode live` makes paid calls and must not be run without owner approval. It requires `EVAL_ANTHROPIC_API_KEY`, `--approve-spend-usd`, and `--confirm-live`, and stops before any call whose worst case would exceed the approved amount.
+- Verified API facts and prices: docs/ANTHROPIC_VERIFIED_FACTS.md.

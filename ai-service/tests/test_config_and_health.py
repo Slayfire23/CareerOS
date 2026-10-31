@@ -131,3 +131,23 @@ def test_request_validation_errors_never_echo_values(example_request):
     with pytest.raises(ValidationError) as caught:
         MatchRequest.model_validate(bad)
     assert "PRIVATE-TEXT" not in str(caught.value)
+
+
+def test_production_logs_only_the_type_of_unexpected_errors(example_request, caplog):
+    from tests.conftest import post_match
+
+    class Exploding:
+        name, model, method_version, local = "rules", None, "boom-v1", True
+
+        async def match(self, request):
+            raise RuntimeError("PRIVATE-PROFILE-TEXT")
+
+    settings = make_settings(environment="production", service_secret=STRONG, replay_store_url=REMOTE_STORE)
+    client = TestClient(
+        create_app(settings, provider=Exploding(), replay_store=MemoryReplayStore()),
+        raise_server_exceptions=False,
+    )
+    response = post_match(client, example_request, secret=STRONG)
+    assert response.status_code == 500
+    assert response.json()["error"]["billed"] == "unknown"
+    assert "RuntimeError" in caplog.text and "PRIVATE-PROFILE-TEXT" not in caplog.text

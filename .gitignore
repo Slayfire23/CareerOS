@@ -51,3 +51,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 !ai-service/.env.example
+
+# Live evaluation recordings (fictional data and model output): reviewed before any commit.
+ai-service/evals/recordings/
