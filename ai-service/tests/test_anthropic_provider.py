@@ -301,3 +301,44 @@ def test_rules_stays_available_beside_the_cloud_provider(example_request):
     response = post_match(client, {**example_request, "provider": "rules"})
     assert response.status_code == 200 and response.json()["provider"] == "rules"
     assert mock.requests == []
+
+
+def test_full_sdk_round_trip_against_the_local_mock_api(example_request):
+    from devtools.mock_anthropic import app as mock_api
+
+    settings = cloud_settings()
+    client = AsyncAnthropic(
+        api_key=FAKE_ANTHROPIC_KEY,
+        max_retries=0,
+        http_client=httpx2.AsyncClient(
+            transport=httpx2.ASGITransport(app=mock_api), base_url="http://mock.local"
+        ),
+        base_url="http://mock.local",
+    )
+    provider = AnthropicProvider(settings, client=client)
+    app = create_app(
+        settings,
+        providers={"rules": RulesProvider(), "anthropic": provider},
+        replay_store=SharedMemoryStore(),
+    )
+    response = ask(TestClient(app), example_request)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["provider_request_id"].startswith("req_mock_")
+    assert {f["verdict"] for f in body["findings"]} <= {"supported", "insufficient_information"}
+
+
+def test_mock_base_url_is_local_and_never_in_production():
+    with pytest.raises(Exception, match="AI_ANTHROPIC_BASE_URL"):
+        cloud_settings(anthropic_base_url="https://api.example.test")
+    with pytest.raises(Exception, match="AI_ANTHROPIC_BASE_URL"):
+        cloud_settings(
+            anthropic_base_url="http://127.0.0.1:8020",
+            environment="production",
+            service_secret="Zq8#xT2!pL9@vB4$nM6^kD1&hF3*wR7(",
+            replay_store_url="rediss://replay.example.test:6380/0",
+        )
+    assert (
+        cloud_settings(anthropic_base_url="http://127.0.0.1:8020").anthropic_base_url
+        == "http://127.0.0.1:8020"
+    )

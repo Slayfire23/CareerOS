@@ -47,6 +47,8 @@ class Settings(BaseSettings):
     )
     anthropic_model: ApprovedAnthropicModel = "claude-sonnet-5-5"
     anthropic_effort: Literal["low", "medium", "high"] = "low"
+    # Development and tests only: send Anthropic requests to a local mock API instead (no cost).
+    anthropic_base_url: str | None = None
     # Hard ceilings; each request also carries its own (lower or equal) budget from Next.js.
     anthropic_max_input_tokens: int = Field(default=40_000, ge=1_000, le=200_000)
     anthropic_max_output_tokens: int = Field(default=6_000, ge=1_000, le=32_000)
@@ -78,6 +80,10 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "AI_REPLAY_STORE_URL must be redis:// on this machine or rediss:// (TLS) elsewhere."
                 )
+        if self.anthropic_base_url is not None:
+            base = urlsplit(self.anthropic_base_url)
+            if self.environment == "production" or base.hostname not in {"127.0.0.1", "localhost", "::1"}:
+                raise ValueError("AI_ANTHROPIC_BASE_URL is for a local mock API outside production only.")
         if "anthropic" in enabled:
             key = self.anthropic_api_key.get_secret_value() if self.anthropic_api_key else ""
             if not key.startswith("sk-ant-") or len(key) < 40:

@@ -83,6 +83,7 @@ class AnthropicProvider:
             key = settings.anthropic_api_key.get_secret_value() if settings.anthropic_api_key else ""
             client = AsyncAnthropic(
                 api_key=key,
+                base_url=settings.anthropic_base_url,  # None means the real API
                 max_retries=0,  # retries are decided here, so a possibly billed call is never repeated
                 timeout=httpx2.Timeout(settings.provider_timeout_seconds - 5, connect=5.0),
             )
