@@ -34,7 +34,7 @@ Date: October 31, 2026. Branch: `milestone-3-ai-matching`, local commits only.
 | Migrations | All 13 replay into a fresh shadow database with no drift; local databases up to date |
 | Secret check | Passed on all tracked files; it catches planted keys, database passwords, and env files |
 | Docker image | Builds; contains `app/` only (no mock, no evals); non-root user |
-| Clean clone build | See the final message for this commit |
+| Clean clone build | Passed on `bea27cc` with no environment variables (`prisma generate` + `next build`) |
 
 Key concurrency results:
 - **Global cap:** 25 simultaneous cloud requests from five users, with every call ending "billed: unknown". Exactly ⌊cap ÷ reservation⌋ runs were reserved, the total held never exceeded the cap, and the API was called only for reserved runs.
