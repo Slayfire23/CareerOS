@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { readAiConfig } from "@/lib/ai/config";
 import { getAnalysisPageData, type AnalysisView } from "@/lib/ai/analysis";
 import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
+import type { AiStatus } from "@/lib/ai/match-validation";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
 import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
 import { CLOUD_MODEL_LABEL, CLOUD_PROVIDER_NAME } from "@/lib/ai/consent";
@@ -46,8 +47,32 @@ const RUN_ERRORS: Record<string, string> = {
   save_failed: "Could not be saved",
 };
 const methodLabel = (provider: string, model?: string | null) =>
-  provider === "anthropic" ? `${CLOUD_MODEL_LABEL} (${CLOUD_PROVIDER_NAME})` : provider === "ollama" ? `Local AI (${model ?? "Ollama"})` : "Rules engine";
+  provider === "anthropic" ? `${CLOUD_MODEL_LABEL} (${CLOUD_PROVIDER_NAME})`
+  : provider === "ollama" ? `Local AI (${model ?? "Ollama"})`
+  : provider === "hybrid" ? `Rules + local AI (${model ?? "Ollama"})`
+  : "Rules engine";
+/** Hybrid results: who decided each finding, and why local AI did not when it didn't. */
+const FINDING_SOURCE: Record<AiStatus, string> = {
+  accepted: "Local AI match, checked by code",
+  not_eligible: "Rules engine (experience, education, durations, and credentials are never sent to local AI)",
+  not_needed: "Rules engine (exact match)",
+  no_match: "Rules engine (local AI found no other match)",
+  rejected: "Rules engine (local AI's answer failed verification and was discarded)",
+  unavailable: "Rules engine (local AI was unavailable)",
+};
 const dateTime = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "UTC", timeZoneName: "short" });
+
+function HybridSummary({ analysis }: { analysis: AnalysisView }) {
+  const count = (status: AiStatus) => analysis.findings.filter(f => f.aiStatus === status).length;
+  const matched = count("accepted");
+  const unavailable = count("unavailable");
+  const discarded = count("rejected");
+  return <div role="status" className="space-y-1 rounded-lg border border-l-4 border-l-accent/60 bg-surface p-3 text-sm">
+    <p>The rules engine decided every requirement. Local AI added {matched === 1 ? "1 match" : `${matched} matches`} for skills listed under other names{matched ? ", each checked by code against your profile" : ""}.</p>
+    {unavailable > 0 && <p>Local AI was unavailable for {unavailable === 1 ? "1 requirement" : `${unavailable} requirements`}, so {unavailable === 1 ? "it shows" : "they show"} rules-engine results only. Run the analysis again later to include local AI.</p>}
+    {discarded > 0 && <p className="text-muted">{discarded === 1 ? "1 local AI answer" : `${discarded} local AI answers`} failed verification and {discarded === 1 ? "was" : "were"} discarded; the rules-engine result is shown instead.</p>}
+  </div>;
+}
 
 function VerdictPill({ verdict }: { verdict: Verdict }) {
   const style = VERDICT_STYLE[verdict];
@@ -68,6 +93,9 @@ function Findings({ analysis }: { analysis: AnalysisView }) {
           </div>
           <VerdictPill verdict={finding.verdict} />
         </div>
+        {finding.aiStatus && <p className={`text-xs font-medium ${finding.method === "local_ai" ? "text-accent-text" : "text-muted"}`}>
+          {FINDING_SOURCE[finding.aiStatus]}
+        </p>}
         <p className="text-sm">{finding.explanation}</p>
         {finding.citations.length > 0 && <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted">Evidence from your profile</p>
@@ -109,7 +137,9 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       title="Requirement analysis"
       description={data.cloud.available
         ? `Compares this job's reviewed requirements with your confirmed profile, using the rules engine on CareerOS or, with your consent, ${CLOUD_MODEL_LABEL}. Every result is checked against your profile before it is saved. It can still be wrong, so record whether you agree with each finding.`
-        : "Compares this job's reviewed requirements with your confirmed profile using deterministic rules. No AI provider is used and nothing is inferred. It can be wrong, so record whether you agree with each finding."}
+        : data.localAi.available
+          ? `Compares this job's reviewed requirements with your confirmed profile using the rules engine, optionally with local AI (${data.localAi.model}) on CareerOS's own computer to find skills listed under other names. Every result is checked against your profile before it is saved. It can still be wrong, so record whether you agree with each finding.`
+          : "Compares this job's reviewed requirements with your confirmed profile using deterministic rules. No AI provider is used and nothing is inferred. It can be wrong, so record whether you agree with each finding."}
       actions={<ButtonLink href={requirementsHref(job.id)}>Review requirements</ButtonLink>}
     />
 
@@ -132,7 +162,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       </div>
       <details className="disclosure rounded-lg border p-3 text-sm">
         <summary>What is sent to the analysis service</summary>
-        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.localAi.available && ` Local AI sends the same information to CareerOS's own computer running ${data.localAi.model}; it does not go to an AI company.`}{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
+        <p className="text-muted">Your reviewed requirements, and your skills, role titles, dates, and descriptions, education (qualification, field, dates, details), and projects. Not sent: your email, name, headline, goals, salary, location, company or school names, links, or resume files. Results are checked again before they are saved, and the service keeps no copy.{data.localAi.available && ` With local AI, skill requirements the rules engine could not match are also sent, with your skill names, role titles and descriptions, and projects (no dates or education), to CareerOS's own computer running ${data.localAi.model}. It does not go to an AI company.`}{data.cloud.available && ` The rules engine runs on CareerOS and sends nothing to an AI provider. ${CLOUD_MODEL_LABEL} sends this information to ${CLOUD_PROVIDER_NAME}. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
       </details>
     </Card>
 
@@ -157,6 +187,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
         </li>)}
       </ul>
       <p className="text-xs text-muted">Counts describe the findings below. They are not a fit score.</p>
+      {latest.provider === "hybrid" && <HybridSummary analysis={latest} />}
       <Findings analysis={latest} />
     </section> : <EmptyState title="No analysis yet">
       {ready ? "Run an analysis to compare these requirements with your profile." : "Once the requirements are reviewed, you can run an analysis here."}

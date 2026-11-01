@@ -1,0 +1,110 @@
+{
+  "_comment": "Curated technology names, read by both the AI service (relations.py) and Next.js (skill-relations.ts). Keys and variants are written as the shared tokenizer produces them: lower case, dots removed, words separated by single spaces. A canonical name is one token. Changing this file changes what local AI may claim, so it needs review.",
+  "generic": ["programming", "development", "developer", "developing", "develop", "administration", "administrator", "design", "designing", "engineering", "engineer", "management", "managing", "manager", "system", "systems", "software", "data", "application", "applications", "app", "apps", "service", "services", "web", "framework", "frameworks", "language", "languages", "platform", "platforms", "technology", "technologies", "environment", "environments", "practices", "practice", "concepts", "principles", "methods", "solutions", "basic", "basics", "fundamentals", "hands-on", "hands", "on", "good", "best", "modern", "building", "build", "built", "writing", "maintaining", "operations", "support", "analysis", "tooling", "stack", "projects", "project", "e", "g", "eg", "ie", "is", "are", "be", "this", "that", "you", "your", "our", "we", "will", "can", "should", "who", "into", "across", "within", "over", "least", "one", "more", "other", "any", "all", "some", "both", "either", "not", "no", "new"],
+  "aliases": {
+    "postgresql": ["postgres", "postgre", "psql"],
+    "javascript": ["js", "ecmascript", "es6"],
+    "typescript": ["ts"],
+    "kubernetes": ["k8s", "kube"],
+    "go": ["golang"],
+    "python": ["python3", "python 3"],
+    "nodejs": ["node", "node js"],
+    "react": ["reactjs", "react js"],
+    "reactnative": ["react native"],
+    "vue": ["vuejs", "vue js"],
+    "nextjs": ["next js"],
+    "aws": ["amazon web services"],
+    "gcp": ["google cloud", "google cloud platform"],
+    "azure": ["microsoft azure"],
+    "c#": ["csharp", "c sharp"],
+    "c++": ["cpp"],
+    "objectivec": ["objective c"],
+    "sqlserver": ["sql server", "microsoft sql server", "mssql", "ms sql"],
+    "mongodb": ["mongo"],
+    "ml": ["machine learning"],
+    "ai": ["artificial intelligence"],
+    "cicd": ["ci cd", "continuous integration", "continuous delivery", "continuous deployment"],
+    "rest": ["restful", "rest api", "rest apis"],
+    "sklearn": ["scikit learn", "scikit"],
+    "excel": ["microsoft excel", "ms excel"],
+    "photoshop": ["adobe photoshop"],
+    "solidworks": ["solid works"],
+    "springboot": ["spring boot"],
+    "githubactions": ["github actions"],
+    "gitlabci": ["gitlab ci"],
+    "powerbi": ["power bi"],
+    "googlesheets": ["google sheets"],
+    "fusion360": ["fusion 360"],
+    "dotnet": ["net framework", "net core"],
+    "tensorflow": ["tensor flow"],
+    "pytorch": ["torch"]
+  },
+  "concepts": [
+    {
+      "name": "relational databases",
+      "terms": ["sql", "relational database", "relational databases", "rdbms", "sql database", "sql databases"],
+      "members": ["postgresql", "mysql", "sqlite", "sqlserver", "oracle", "mariadb"]
+    },
+    {
+      "name": "NoSQL databases",
+      "terms": ["nosql", "document database", "document databases"],
+      "members": ["mongodb", "dynamodb", "cassandra", "redis", "couchdb", "firestore"]
+    },
+    {
+      "name": "cloud platforms",
+      "terms": ["cloud", "cloud platform", "cloud platforms", "cloud computing"],
+      "members": ["aws", "azure", "gcp"]
+    },
+    {
+      "name": "containers",
+      "terms": ["container", "containers", "containerization", "containerisation", "container orchestration"],
+      "members": ["docker", "kubernetes", "podman", "openshift"]
+    },
+    {
+      "name": "front-end frameworks",
+      "terms": ["frontend framework", "frontend frameworks", "front end framework", "front end frameworks", "javascript framework", "javascript frameworks", "spa"],
+      "members": ["react", "vue", "angular", "angularjs", "svelte", "nextjs"]
+    },
+    {
+      "name": "version control",
+      "terms": ["version control", "source control", "vcs"],
+      "members": ["git", "github", "gitlab", "bitbucket", "svn", "mercurial"]
+    },
+    {
+      "name": "CI/CD tools",
+      "terms": ["cicd", "build pipelines", "deployment pipelines"],
+      "members": ["jenkins", "githubactions", "gitlabci", "circleci", "travisci"]
+    },
+    {
+      "name": "infrastructure as code",
+      "terms": ["infrastructure as code", "iac"],
+      "members": ["terraform", "cloudformation", "pulumi", "ansible"]
+    },
+    {
+      "name": "machine learning frameworks",
+      "terms": ["ml", "deep learning", "neural networks", "neural network"],
+      "members": ["tensorflow", "pytorch", "keras", "sklearn"]
+    },
+    {
+      "name": "business intelligence",
+      "terms": ["data visualization", "data visualisation", "business intelligence", "bi", "dashboards", "dashboarding"],
+      "members": ["tableau", "powerbi", "looker"]
+    },
+    {
+      "name": "spreadsheets",
+      "terms": ["spreadsheet", "spreadsheets"],
+      "members": ["excel", "googlesheets"]
+    },
+    {
+      "name": "CAD",
+      "terms": ["cad", "3d modeling", "3d modelling", "3d cad", "computer aided design"],
+      "members": ["solidworks", "autocad", "fusion360", "catia", "inventor"]
+    }
+  ],
+  "distinct": [
+    ["java", "javascript"],
+    ["script", "javascript"],
+    ["type", "typescript"],
+    ["react", "reactive"]
+  ]
+}

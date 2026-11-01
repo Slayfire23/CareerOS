@@ -68,7 +68,8 @@ export async function runJobMatch(_previous: MatchRunState, form: FormData): Pro
     return { error: "Invalid job selection." };
   }
   const provider = one(form, "provider") ?? "rules";
-  if (provider !== "rules" && provider !== "anthropic" && provider !== "ollama") return { error: "Choose an analysis method." };
+  // Local AI is offered as "hybrid": the rules engine plus local AI for skills it missed.
+  if (provider !== "rules" && provider !== "anthropic" && provider !== "hybrid") return { error: "Choose an analysis method." };
   const result = await runJobAnalysis({ supabaseAuthId: user.id, jobId, provider, contactEmail: user.email ?? null, config: readAiConfig() });
   if (!result.ok) return { error: RUN_MESSAGES[result.error] };
   revalidatePath("/dashboard", "layout");

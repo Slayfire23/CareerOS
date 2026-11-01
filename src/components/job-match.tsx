@@ -16,7 +16,7 @@ export function RunAnalysisForm({ jobId, disabled, hasAnalysis, cloud, localAi }
   localAi: LocalAiStatus;
 }) {
   const [state, action, pending] = useActionState(runJobMatch, {} as MatchRunState);
-  const [provider, setProvider] = useState<"rules" | "anthropic" | "ollama">("rules");
+  const [provider, setProvider] = useState<"rules" | "anthropic" | "hybrid">("rules");
   const cloudBlocked = provider === "anthropic" && !cloud.consentCurrent;
   return <form action={action} aria-label="Run requirement analysis" className="space-y-3">
     <input type="hidden" name="jobId" value={jobId} />
@@ -27,8 +27,8 @@ export function RunAnalysisForm({ jobId, disabled, hasAnalysis, cloud, localAi }
         <span><span className="font-medium">Rules engine</span> <span className="text-muted">— runs on CareerOS, free, keyword and date rules only.</span></span>
       </label>
       {localAi.available && <label className="flex items-start gap-2 text-sm">
-        <input type="radio" name="provider" value="ollama" checked={provider === "ollama"} onChange={() => setProvider("ollama")} className="mt-1" />
-        <span><span className="font-medium">Local AI ({localAi.model})</span> <span className="text-muted">— runs on CareerOS&apos;s own computer, not an AI company; free; unavailable while that computer is off.</span></span>
+        <input type="radio" name="provider" value="hybrid" checked={provider === "hybrid"} onChange={() => setProvider("hybrid")} className="mt-1" />
+        <span><span className="font-medium">Rules + local AI ({localAi.model})</span> <span className="text-muted">— the rules engine decides; local AI on CareerOS&apos;s own computer looks for skills listed under other names. Free; if that computer is off, you get rules results only.</span></span>
       </label>}
       {cloud.available && <label className="flex items-start gap-2 text-sm">
         <input type="radio" name="provider" value="anthropic" checked={provider === "anthropic"} onChange={() => setProvider("anthropic")} className="mt-1" />

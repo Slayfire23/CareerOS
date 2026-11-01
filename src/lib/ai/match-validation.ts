@@ -11,6 +11,8 @@ import {
   type Verdict,
 } from "@/lib/ai/evidence";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
+import { LOCAL_PROVIDERS } from "@/lib/ai/config";
+import { PROFICIENCY_RANK, hasQualificationWords, looksLikeInstructions, relation, requiredSkillLevel } from "@/lib/ai/skill-relations";
 import type { TokenUsage } from "@/lib/ai/pricing";
 
 // Independent re-validation of the AI service's response. The service already enforces these
@@ -20,7 +22,19 @@ import type { TokenUsage } from "@/lib/ai/pricing";
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 
 export type Citation = { evidenceId: string; quote: string };
-export type Finding = { requirementIndex: number; verdict: Verdict; explanation: string; citations: Citation[]; caveats: string[] };
+/** Hybrid analysis only: which method produced a finding, and what happened to local AI for it. */
+export type FindingMethod = "rules" | "local_ai";
+export type AiStatus = "accepted" | "not_eligible" | "not_needed" | "no_match" | "rejected" | "unavailable";
+export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "not_needed", "no_match", "rejected", "unavailable"];
+export type Finding = {
+  requirementIndex: number;
+  verdict: Verdict;
+  explanation: string;
+  citations: Citation[];
+  caveats: string[];
+  method?: FindingMethod;
+  aiStatus?: AiStatus;
+};
 export type ValidatedMatch = {
   findings: Finding[];
   verdictCounts: Record<Verdict, number>;
@@ -57,6 +71,31 @@ export function statedYears(text: string): number[] {
   });
 }
 
+/** Local AI may only look at skill requirements, never hard qualifications (hybrid_checks.py). */
+export function semanticEligible(requirement: MatchRequest["requirements"][number]): boolean {
+  return (requirement.category === "Skills" || requirement.category === "Other")
+    && statedYears(requirement.text).length === 0
+    && !hasQualificationWords(requirement.text)
+    && !looksLikeInstructions(requirement.text);
+}
+
+/** Re-check a local-AI finding from a hybrid analysis: how far its citations allow it to go. */
+function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], verdict: Verdict, citations: Citation[], evidence: Map<string, Evidence>) {
+  if (!semanticEligible(requirement)) reject("local AI judged a requirement it may not judge");
+  if (verdict !== "supported" && verdict !== "possible") reject("local AI may only add a match");
+  const strengths = citations.map(c => {
+    const item = evidence.get(c.evidenceId)!;
+    if (item.kind === "education") reject("local AI cited education");
+    return { item, quote: c.quote, strength: relation(requirement.text, c.quote) ?? reject("local AI cited unrelated evidence") };
+  });
+  if (verdict === "supported") {
+    const needed = requiredSkillLevel(requirement.text);
+    const proven = strengths.some(({ item, quote, strength }) =>
+      item.kind === "skill" && quote === item.name && strength === "same" && (!needed || (PROFICIENCY_RANK[item.proficiency ?? ""] ?? 0) >= needed));
+    if (!proven) reject("local AI supported claim is not a listed skill at the level asked for");
+  }
+}
+
 function areaIsEmpty(request: MatchRequest, category: string): boolean {
   const kinds = category === "Experience" ? ["experience"] : category === "Education" ? ["education"] : ["skill", "experience", "project"];
   return !request.evidence.some(e => kinds.includes(e.kind));
@@ -72,8 +111,9 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
   if (model !== expected.model) reject("model was not requested");
   const methodVersion = str(body.method_version, 60, "method_version");
   const usage = body.usage === null || body.usage === undefined ? null : parseUsage(body.usage) ?? reject("invalid usage");
-  // A cloud result must report usage, or its cost could not be confirmed.
-  if (expected.model !== null && !usage) reject("usage missing");
+  // A cloud result must report usage, or its cost could not be confirmed. Local results are free;
+  // a hybrid result has none when local AI was never reached.
+  if (!LOCAL_PROVIDERS.has(expected.provider) && !usage) reject("usage missing");
   const providerRequestId =
     body.provider_request_id === null || body.provider_request_id === undefined
       ? null
@@ -115,8 +155,19 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     });
 
     if ((verdict === "supported" || verdict === "possible") && !citations.length) reject("verdict without evidence");
+    // Hybrid results say which method produced each finding; no other provider may.
+    let method: FindingMethod | undefined;
+    let aiStatus: AiStatus | undefined;
+    if (expected.provider === "hybrid") {
+      method = f.method === "rules" || f.method === "local_ai" ? f.method : reject("hybrid finding without a method");
+      aiStatus = AI_STATUSES.includes(f.ai_status as AiStatus) ? (f.ai_status as AiStatus) : reject("hybrid finding without a local AI status");
+      if ((method === "local_ai") !== (aiStatus === "accepted")) reject("method and local AI status disagree");
+      if (method === "local_ai") checkLocalAiFinding(requirement, verdict, citations, evidence);
+    } else if (f.method !== undefined || f.ai_status !== undefined) {
+      reject("method labels from a provider that may not set them");
+    }
     // Language-model results only: a supported claim must cite evidence that mentions the requirement.
-    if (expected.provider !== "rules" && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
+    if (!["rules", "hybrid"].includes(expected.provider) && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
       reject("supported claim cites evidence unrelated to the requirement");
     }
     if (requirement.category === "Experience") {
@@ -132,7 +183,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    return { requirementIndex: index as number, verdict, explanation, citations, caveats };
+    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method, aiStatus }) };
   });
   if (seen.size !== requirements.size) reject("a requirement has no finding");
 

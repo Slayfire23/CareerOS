@@ -1,4 +1,4 @@
-"""Build the enabled providers from configuration. Ollama arrives in a later phase."""
+"""Build the enabled providers from configuration."""
 
 from app.config import Settings
 from app.providers.base import MatchProvider, ProviderUnavailable
@@ -19,6 +19,10 @@ def build_provider(settings: Settings, name: str) -> MatchProvider:
         from app.providers.ollama import OllamaProvider
 
         return OllamaProvider(settings)
+    if name == "hybrid":
+        from app.providers.hybrid import HybridProvider
+
+        return HybridProvider(settings)
     raise ProviderUnavailable(f"Unknown provider {name}.")
 
 

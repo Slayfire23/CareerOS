@@ -35,8 +35,11 @@ SCHEMA_TEXT = json.dumps(OUTPUT_SCHEMA, separators=(",", ":"))
 SYSTEM_WITH_SCHEMA = f"{SYSTEM_PROMPT}\n\nRespond only with JSON that matches this schema:\n{SCHEMA_TEXT}"
 
 
-def estimated_prompt_tokens(user_message: str) -> int:
-    return int((len(SYSTEM_WITH_SCHEMA) + len(user_message)) / CHARS_PER_TOKEN_FLOOR) + 64
+_FINDING_KEYS = frozenset({"requirement_index", "verdict", "explanation", "citations", "caveats"})
+
+
+def estimated_prompt_tokens(user_message: str, system: str = SYSTEM_WITH_SCHEMA) -> int:
+    return int((len(system) + len(user_message)) / CHARS_PER_TOKEN_FLOOR) + 64
 
 
 class OllamaProvider:
@@ -65,9 +68,41 @@ class OllamaProvider:
         return "ok" if self.model in names else "model_missing"
 
     async def match(self, request: MatchRequest) -> ProviderOutput:
+        content, usage = await self.generate(SYSTEM_WITH_SCHEMA, build_user_message(request), OUTPUT_SCHEMA)
+        try:
+            raw = json.loads(content)
+            items = raw["findings"]
+            if not isinstance(items, list):
+                raise TypeError("findings is not a list")
+            for item in items:
+                if not isinstance(item, dict) or set(item) - _FINDING_KEYS:
+                    # Method labels and anything else outside the schema are set by code, never the model.
+                    raise TypeError("unexpected finding fields")
+                if isinstance(item.get("verdict"), str):
+                    item["verdict"] = item["verdict"].lower()
+            findings = [Finding.model_validate(item) for item in items]
+        except (json.JSONDecodeError, KeyError, TypeError, ValidationError):
+            raise ServiceError(
+                502,
+                "provider_output_rejected",
+                "The analysis could not be verified and was discarded.",
+                "no",
+                usage.model_dump(),
+            ) from None
+        return ProviderOutput(findings=findings, usage=usage)
+
+    async def generate(
+        self, system: str, user_message: str, schema: dict, num_predict: int | None = None
+    ) -> tuple[str, Usage]:
+        """One schema-constrained generation. Returns the raw JSON text (untrusted) and token usage.
+
+        Raises ``ServiceError`` when the prompt might not fit, the GPU is busy, Ollama is down or
+        slow, or the answer was cut off.
+        """
         settings = self._settings
-        user_message = build_user_message(request)
-        if estimated_prompt_tokens(user_message) + settings.ollama_num_predict > settings.ollama_num_ctx:
+        num_predict = min(num_predict or settings.ollama_num_predict, settings.ollama_num_predict)
+        estimate = estimated_prompt_tokens(user_message, system)
+        if estimate + num_predict > settings.ollama_num_ctx:
             raise ServiceError(
                 413, "over_budget", "This analysis is too large for the local model's context window."
             )
@@ -87,16 +122,16 @@ class OllamaProvider:
                     "stream": False,
                     "think": False,
                     "keep_alive": settings.ollama_keep_alive,
-                    "format": OUTPUT_SCHEMA,
+                    "format": schema,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_WITH_SCHEMA},
+                        {"role": "system", "content": system},
                         {"role": "user", "content": user_message},
                     ],
                     "options": {
                         "temperature": 0,
                         "seed": 42,
                         "num_ctx": settings.ollama_num_ctx,
-                        "num_predict": settings.ollama_num_predict,
+                        "num_predict": num_predict,
                     },
                 },
             )
@@ -123,6 +158,8 @@ class OllamaProvider:
         try:
             body = response.json()
             content = body["message"]["content"]
+            if not isinstance(content, str):
+                raise TypeError("content is not text")
             prompt_tokens, output_tokens = (
                 int(body.get("prompt_eval_count", 0)),
                 int(body.get("eval_count", 0)),
@@ -132,7 +169,6 @@ class OllamaProvider:
                 502, "provider_output_rejected", "The analysis could not be verified and was discarded."
             ) from None
         usage = Usage(input_tokens=prompt_tokens, output_tokens=output_tokens)
-        usage_dict = usage.model_dump()
         log.info(
             "ollama ok model=%s done=%s prompt=%s output=%s seconds=%.1f",
             self.model,
@@ -147,24 +183,6 @@ class OllamaProvider:
                 "provider_output_truncated",
                 "The analysis could not be verified and was discarded.",
                 "no",
-                usage_dict,
+                usage.model_dump(),
             )
-
-        try:
-            raw = json.loads(content)
-            items = raw["findings"]
-            if not isinstance(items, list):
-                raise TypeError("findings is not a list")
-            for item in items:
-                if isinstance(item, dict) and isinstance(item.get("verdict"), str):
-                    item["verdict"] = item["verdict"].lower()
-            findings = [Finding.model_validate(item) for item in items]
-        except (json.JSONDecodeError, KeyError, TypeError, ValidationError):
-            raise ServiceError(
-                502,
-                "provider_output_rejected",
-                "The analysis could not be verified and was discarded.",
-                "no",
-                usage_dict,
-            ) from None
-        return ProviderOutput(findings=findings, usage=usage)
+        return content, usage

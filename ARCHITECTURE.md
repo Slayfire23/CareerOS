@@ -172,3 +172,19 @@ The project now uses free local models instead of paid ones. Claude remains in t
 - **Prompt v3:** shared by all language models. It supplies employment years, role years, and empty profile categories computed in code.
 - **Next.js:** "Local AI" is a third method, off unless `AI_LOCAL_LLM_ENABLED`, an approved model, and an allow-list are set. Runs are recorded with billing state NONE.
 - Evaluation results and the model choice are in docs/MILESTONE_3_OLLAMA_REPORT.md. The remote-access options are in docs/REMOTE_ACCESS_PLAN.md (not configured).
+
+## Hybrid analysis: rules engine plus local AI (Milestone 3) - October 31, 2026
+
+The method the app offers as "Rules + local AI" (provider `hybrid`, ai-service/app/providers/hybrid.py). Local AI alone stays in the service for evaluation only; the app no longer offers it.
+
+- **Rules first.** The rules engine assesses every requirement. Its verdict is final for hard qualifications: experience, durations, education, credentials, and any requirement whose text reads like instructions to an AI (app/matching/requirement_text.py). Those are never sent to local AI.
+- **Local AI only for unmatched skills.** Skill and "other" requirements the rules engine did not already support go to qwen3:8b in as few calls as fit the 8K context. Only skills, role titles and descriptions, and projects are sent, under short ids (s1, x1, p1). The output schema lists the only ids and requirement indexes that exist, and code maps short ids back to the real evidence ids.
+- **Code decides, per requirement** (app/matching/hybrid_checks.py). The model returns citations and a verdict only, never shown text. A curated relation table (app/matching/skill_relations.json) tells code whether a quote names the same technology (including known alternate names), a related one, or neither:
+  - "supported" needs a cited listed skill that is the same technology, at the level the requirement asks for;
+  - otherwise a confirmed link is at most "possible", with a code-written explanation and caveat;
+  - any unverifiable or unrelated citation rejects that answer, and the rules verdict stands.
+  - Local AI may only add a stronger match; it never lowers or replaces a rules verdict.
+- **Labels.** Every hybrid finding carries `method` (`rules` or `local_ai`) and `ai_status` (`accepted`, `not_eligible`, `not_needed`, `no_match`, `rejected`, `unavailable`). The page shows them on each finding. Other providers may not set them.
+- **When local AI is off, slow, or busy**, the analysis still completes with rules results, each labeled "local AI was unavailable". It never fails because of local AI.
+- **Next.js re-checks all of this** (src/lib/ai/match-validation.ts with src/lib/ai/skill-relations.ts, which reads the same relation table). A shared fixture (ai-service/tests/fixtures/relation_cases.json) keeps the Python and TypeScript rules identical.
+- Findings are stored as JSON, so the new fields needed no database migration.

@@ -3,6 +3,8 @@
 Deliberately conservative. Keyword rules cannot prove that a skill is absent, so this provider
 never returns a skills "gap". It also cannot judge whether experience is relevant, so a
 years-of-experience requirement that is met is reported as "possible" rather than "supported".
+A listed skill is "supported" only when the requirement names exactly that skill, asks for no
+number of years with it, and asks for no credential (see _skill_caveats).
 """
 
 import re
@@ -14,6 +16,9 @@ from app.matching.evidence import (
     find_verbatim,
     format_years,
 )
+from app.matching.relations import canonical_terms
+from app.matching.requirement_text import INSTRUCTION_TEXT, QUALIFICATION_WORDS, looks_like_instructions
+from app.matching.validate import stated_years
 from app.schemas import (
     Citation,
     EducationEvidence,
@@ -26,6 +31,11 @@ from app.schemas import (
 )
 
 PROJECT_MENTION = "Mentioned in a project, not listed as a skill."
+PART_OF_LONGER_NAME = (
+    "Your listed skill appears inside a longer name here, which may be a different technology."
+)
+YEARS_PER_SKILL = "This asks for years with the skill; your profile does not record years per skill."
+CREDENTIAL_NOT_SHOWN = "Listing a skill does not show the certification or license this asks for."
 # Words too generic to count as a match on their own.
 GENERIC_WORDS = frozenset(
     """a an and the or of in on to for with as such like using use including plus etc
@@ -113,6 +123,9 @@ class RulesProvider:
         return [self._assess(request, requirement) for requirement in request.requirements]
 
     def _assess(self, request: MatchRequest, requirement: Requirement) -> Finding:
+        if requirement.category in ("Skills", "Other") and looks_like_instructions(requirement.text):
+            # Keyword matching would pick up a skill an injected instruction names.
+            return _finding(requirement, "insufficient_information", INSTRUCTION_TEXT)
         if requirement.category == "Experience":
             return self._experience(request, requirement)
         if requirement.category == "Education":
@@ -251,6 +264,14 @@ class RulesProvider:
                     caveat = f"No skill level is listed, so keyword rules cannot confirm {required[1]} level."
                 explanation = f"You list {names} as a skill, but not at the level this requirement asks for."
                 return _finding(requirement, "possible", explanation, skills, [caveat])
+            if caveats := self._skill_caveats(requirement.text, matched):
+                return _finding(
+                    requirement,
+                    "possible",
+                    f"You list {names} as a skill, but that alone may not meet this requirement.",
+                    skills,
+                    caveats,
+                )
             return _finding(requirement, "supported", f"You list {names} as a skill.", skills)
 
         related: list[Citation] = []
@@ -283,6 +304,20 @@ class RulesProvider:
             "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell "
             "whether you have it under a different name.",
         )
+
+    @staticmethod
+    def _skill_caveats(requirement_text: str, matched: list[SkillEvidence]) -> list[str]:
+        """Why a listed skill named in the requirement does not fully meet it (empty if it does)."""
+        caveats = []
+        wanted = canonical_terms(requirement_text)
+        # "React" inside "React Native": the words match, but the requirement names another technology.
+        if not any(canonical_terms(s.name) <= wanted for s in matched):
+            caveats.append(PART_OF_LONGER_NAME)
+        if stated_years(requirement_text):
+            caveats.append(YEARS_PER_SKILL)
+        if QUALIFICATION_WORDS.search(requirement_text):
+            caveats.append(CREDENTIAL_NOT_SHOWN)
+        return caveats
 
     @staticmethod
     def _shared_term(requirement_text: str, evidence_text: str) -> str | None:

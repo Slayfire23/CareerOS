@@ -282,5 +282,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Ollama 0.40.6 installed natively, bound to 127.0.0.1 only; qwen3:8b and qwen3.5:9b downloaded and evaluated.
 - [x] Ollama provider with strict validation, a relevance rule for all language models, prompt v3 with computed facts, and a "Local AI" method in Next.js (off unless enabled and allow-listed).
 - [x] Evaluation: qwen3:8b is best for this hardware (82% agreement, 0 false "supported", 25% of responses discarded). Not yet accurate enough to offer; see docs/MILESTONE_3_OLLAMA_REPORT.md.
-- [ ] Decide on the hybrid design (rules verdicts for experience and education; the model only for unmatched skills), short evidence aliases, and a larger independently labeled evaluation set.
+- [x] Hybrid design approved and built: rules engine decides, qwen3:8b only proposes skill matches it missed, code decides each finding, every finding labeled; short evidence ids; "Rules + local AI" in the app.
+- [x] Held-out evaluation sets A (48 cases) and B (27 cases, untouched). Hybrid on B: 94.2% vs rules 84.9%, never worse than rules on any requirement. See docs/MILESTONE_3_HYBRID_REPORT.md.
+- [ ] Not ready to offer: one injection wording on B gets past the rules engine (1 false "supported"). Proposed fixes (first-clause keyword matching, education abbreviations, relation-table additions, category check) need a new untouched set C.
+- [ ] One cloud integration test failed once in 33 runs; not reproduced, cause unknown.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

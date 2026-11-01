@@ -259,10 +259,11 @@ export async function runJobAnalysis(options: {
     if (!cloud || !cloud.allowedUserIds.has(user.id)) return { ok: false, error: "cloud_unavailable" };
     if (!hasCurrentCloudConsent(user)) return { ok: false, error: "consent_required" };
   }
-  // Local AI (Ollama on CareerOS-controlled hardware) needs to be turned on for this account.
-  // Nothing goes to an AI company, so no cloud consent or redaction applies.
+  // Local AI (Ollama on CareerOS-controlled hardware, alone or with the rules engine in "hybrid")
+  // needs to be turned on for this account. Nothing goes to an AI company, so no cloud consent or
+  // redaction applies.
   let localModel: string | null = null;
-  if (provider === "ollama") {
+  if (provider === "ollama" || provider === "hybrid") {
     const localAi = config.localAi;
     if (!localAi || !localAi.allowedUserIds.has(user.id)) return { ok: false, error: "local_ai_unavailable" };
     localModel = localAi.model;

@@ -27,6 +27,15 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
     output = raw if isinstance(raw, ProviderOutput) else ProviderOutput(findings=raw)
     usage = output.usage.model_dump() if output.usage else None
     try:
+        # Only the hybrid provider labels which method produced each finding; nobody else may.
+        if not getattr(provider, "labels_methods", False) and any(
+            f.method or f.ai_status for f in output.findings
+        ):
+            raise InvalidProviderOutput("Findings carry method labels this provider may not set.")
+        if getattr(provider, "labels_methods", False) and not all(
+            f.method and f.ai_status for f in output.findings
+        ):
+            raise InvalidProviderOutput("Every hybrid finding must say which method produced it.")
         # Language-model output is never repaired, whether it costs money or not.
         findings = validate_findings(request, output.findings, strict=getattr(provider, "generative", True))
     except InvalidProviderOutput as exc:

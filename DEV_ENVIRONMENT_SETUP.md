@@ -140,8 +140,8 @@ Production Auth URLs, Storage, and Vercel variables are not changed by this setu
 Install Ollama for Windows (a pinned release that is at least two weeks old), keep its default `127.0.0.1:11434` binding, and pull the approved model: `ollama pull qwen3:8b`. Then:
 
 ```dotenv
-# ai-service/.env
-AI_PROVIDERS=rules,ollama
+# ai-service/.env ("hybrid" is the rules engine plus local AI; the app offers it as "Rules + local AI")
+AI_PROVIDERS=rules,hybrid
 AI_OLLAMA_MODEL=qwen3:8b
 
 # .env
@@ -150,4 +150,10 @@ AI_LOCAL_LLM_MODEL=qwen3:8b
 AI_LOCAL_LLM_ALLOWED_USERS=<internal User ids, comma-separated>
 ```
 
-Never set `OLLAMA_HOST` to `0.0.0.0`. The AI service and the browser tests refuse a non-local Ollama URL. To evaluate a model for free: `uv run python -m evals.run_eval --mode ollama --model qwen3:8b --runs 3`.
+Never set `OLLAMA_HOST` to `0.0.0.0`. The AI service and the browser tests refuse a non-local Ollama URL. To evaluate for free, on the development cases or a held-out set:
+
+```bash
+uv run python -m evals.run_eval --mode hybrid --cases evals/holdout_cases.json --runs 3
+```
+
+`--mode` is `rules`, `ollama` (local AI alone), or `hybrid`. The held-out sets (`evals/holdout_cases.json`, `evals/holdout_b_cases.json`) were labeled before any run; never edit their labels to match results.

@@ -12,9 +12,10 @@ from urllib.parse import urlsplit
 from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ProviderName = Literal["rules", "fake", "anthropic", "ollama"]
-PROVIDER_NAMES: tuple[str, ...] = ("rules", "fake", "anthropic", "ollama")
-LOCAL_PROVIDERS = frozenset({"rules", "fake", "ollama"})  # run on CareerOS-controlled hardware, free
+ProviderName = Literal["rules", "fake", "anthropic", "ollama", "hybrid"]
+PROVIDER_NAMES: tuple[str, ...] = ("rules", "fake", "anthropic", "ollama", "hybrid")
+# Run on CareerOS-controlled hardware and cost nothing. "hybrid" is the rules engine plus Ollama.
+LOCAL_PROVIDERS = frozenset({"rules", "fake", "ollama", "hybrid"})
 # Only this model is approved (decision D1). Changing it needs a reviewed code change.
 ApprovedAnthropicModel = Literal["claude-sonnet-5-5"]
 # Local models approved for this hardware (RTX 5060 Laptop, 8 GB). Adding one needs review.
@@ -74,7 +75,7 @@ class Settings(BaseSettings):
     def _guard(self) -> "Settings":
         enabled = self.enabled_providers
         if not enabled or not enabled <= set(PROVIDER_NAMES):
-            raise ValueError("AI_PROVIDERS must list one or more of: rules, fake, anthropic, ollama.")
+            raise ValueError("AI_PROVIDERS must list one or more of: rules, fake, anthropic, ollama, hybrid.")
         if self.environment == "production" and "fake" in enabled:
             raise ValueError("The fake provider is for tests only and cannot run in production.")
         secret = self.service_secret.get_secret_value()

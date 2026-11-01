@@ -8,7 +8,15 @@ entries and code can tell employment apart from projects. Unknown fields are rej
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 Month = Annotated[str, StringConstraints(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")]
 ShortText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
@@ -23,6 +31,9 @@ EvidenceId = Annotated[
 Category = Literal["Skills", "Experience", "Education", "Other"]
 Priority = Literal["Required", "Preferred", "Unspecified"]
 Verdict = Literal["supported", "possible", "gap", "insufficient_information"]
+# Hybrid analysis only: which method produced each finding, and what happened to local AI for it.
+FindingMethod = Literal["rules", "local_ai"]
+AiStatus = Literal["accepted", "not_eligible", "not_needed", "no_match", "rejected", "unavailable"]
 VERDICTS: tuple[Verdict, ...] = ("supported", "possible", "gap", "insufficient_information")
 
 
@@ -101,7 +112,7 @@ class TokenBudget(Strict):
 class MatchRequest(Strict):
     request_id: UUID
     # Which enabled provider to use. The deterministic rules engine stays a separate user choice.
-    provider: Literal["rules", "fake", "anthropic", "ollama"] = "rules"
+    provider: Literal["rules", "fake", "anthropic", "ollama", "hybrid"] = "rules"
     # Required for cloud providers (checked by the service), ignored by local ones.
     budget: TokenBudget | None = None
     # The month "current" roles run until; supplied by Next.js so results are reproducible.
@@ -147,6 +158,18 @@ class Finding(Strict):
     caveats: list[Annotated[str, StringConstraints(min_length=1, max_length=300)]] = Field(
         default_factory=list, max_length=5
     )
+    # Set by code for hybrid analysis only; every other provider leaves both empty.
+    method: FindingMethod | None = None
+    ai_status: AiStatus | None = None
+
+    @model_serializer(mode="wrap")
+    def _omit_unset_labels(self, handler):
+        # Findings from other providers keep exactly the original contract shape.
+        data = handler(self)
+        for key in ("method", "ai_status"):
+            if data.get(key) is None:
+                data.pop(key, None)
+        return data
 
 
 class Usage(Strict):
