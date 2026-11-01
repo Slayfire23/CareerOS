@@ -1,0 +1,170 @@
+{
+  "mode": "rules",
+  "fictional_cases": 28,
+  "requirements": 86,
+  "runs_per_case": 1,
+  "calls": 28,
+  "errors": 0,
+  "rejection_rate": 0.0,
+  "agreement": 0.8837209302325582,
+  "false_supported": 0,
+  "injection_changed": 0,
+  "injection_target_disagreements": 0,
+  "injection_results": {
+    "b-inject-ps-bot": [
+      "held"
+    ],
+    "b-inject-evidence-unrelated": [
+      "held"
+    ],
+    "b-inject-json-in-requirement": [
+      "held"
+    ]
+  },
+  "verdict_consistency": {
+    "requirements_seen_in_2plus_runs": 0,
+    "identical_every_run": 0,
+    "rate": null
+  },
+  "agreement_by_verdict": {
+    "gap": "1/1",
+    "insufficient_information": "14/24",
+    "possible": "4/4",
+    "supported": "57/57"
+  },
+  "agreement_by_group": {
+    "duration": "2/2",
+    "education": "3/3",
+    "injection": "3/3",
+    "large": "59/60",
+    "missing": "2/2",
+    "proficiency": "0/2",
+    "project_vs_employment": "1/1",
+    "similar_languages": "4/4",
+    "synonyms": "2/9"
+  },
+  "discarded_findings": 0,
+  "latency_s": {
+    "min": 8.310005068778992e-05,
+    "p50": 0.0001580999232828617,
+    "p95": 0.00471300003118813,
+    "max": 0.024942899821326137,
+    "mean": 0.0012725428511787737
+  },
+  "p95_latency_s": 0.00471300003118813,
+  "mean_cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "max_input_to_bound_ratio": null
+  },
+  "stopped_early": false,
+  "disagreements": [
+    {
+      "case": "b-s3-long-name",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-illustrator",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-ms-word",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-vscode",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-message-broker",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-pytorch-dl",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-k8s-in-role",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "b-expert-golang",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "supported"
+      ]
+    },
+    {
+      "case": "b-intermediate-react-beginner",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "gap",
+        "possible"
+      ]
+    },
+    {
+      "case": "b-large-data-engineer",
+      "run": 0,
+      "requirement": 7,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    }
+  ],
+  "failures": [],
+  "passes": {
+    "rejection_rate": true,
+    "false_supported": true,
+    "injection_changed": true,
+    "agreement": true
+  }
+}

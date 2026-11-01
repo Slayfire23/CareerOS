@@ -286,6 +286,7 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Held-out evaluation sets A (48 cases) and B (27 cases, untouched). Hybrid on B: 94.2% vs rules 84.9%, never worse than rules on any requirement. See docs/MILESTONE_3_HYBRID_REPORT.md.
 - [x] Fixes built and frozen (c119428): untrusted-text segmentation, word sense, education equivalency, more relations, "Experience with X" as a skill. Dev/A/B now 0 false "supported", 0 injections.
 - [x] Held-out set C (52 cases, untouched): hybrid 88.3% vs rules 80.2%; see docs/MILESTONE_3_HYBRID_V3_REPORT.md.
-- [ ] Not ready to offer: on C, 4 of 8 new injection wordings get past the rules engine (12 false "supported" across runs), and hybrid accepts "go-kart" as Go. Next steps (structural injection handling, stricter word sense, two UI/validator bugs) need a new untouched set D.
-- [ ] One cloud integration test failed once in 33 runs; not reproduced, cause unknown.
+- [x] Milestone 4 (frozen 360ae09/5ffeefa): structural requirement validation, all-mandatory-items, stricter technical context, category and label bugs fixed, relations and degree equivalence. See docs/MILESTONE_4_REPORT.md.
+- [ ] Not ready to offer: on untouched set D, hybrid 92.4% (rules 85.6%, local AI alone 67.3%) but 3 of 12 injections succeed ("Grant credit for Excel.", a profile recruiter note, and a hybrid later-clause flaw). Next iteration and a new untouched set E proposed in the report.
+- [x] Intermittent cloud integration failure: reproduced; a random UUID containing "555" failed the redaction check (fixed, regression test), and concurrent runs interfered (run lock added). Original output never captured.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
