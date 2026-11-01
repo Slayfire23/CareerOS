@@ -77,7 +77,10 @@ function related(a: string, b: string): boolean {
 
 /** True when an ambiguous word sits within three words of a technical noun or another known
  * technology in its field, outside any hyphenated compound ("go-kart"). See relations.py. */
+const WORD_CONTEXT = (table as { ambiguous_context?: Record<string, string[]> }).ambiguous_context ?? {};
+
 function hasTechContext(fieldText: string, word: string): boolean {
+  const context = new Set([...TECH_CONTEXT, ...(WORD_CONTEXT[word] ?? [])]);
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
   for (const match of fieldText.matchAll(pattern)) {
@@ -85,7 +88,7 @@ function hasTechContext(fieldText: string, word: string): boolean {
     const after = fieldText.slice(match.index + match[0].length);
     if (before.endsWith("-") || /^-[a-z]/i.test(after)) continue;
     const window = [...words(before).slice(-3), ...words(after).slice(0, 3)];
-    if (window.some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && t !== word))) return true;
+    if (window.some(t => context.has(t) || (VOCABULARY.has(t) && t !== word))) return true;
   }
   return false;
 }

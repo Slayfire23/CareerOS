@@ -55,7 +55,7 @@ const methodLabel = (provider: string, model?: string | null) =>
 const FINDING_SOURCE: Record<AiStatus, string> = {
   accepted: "Local AI match, checked by code",
   not_eligible: "Rules engine (experience, education, durations, and credentials are never sent to local AI)",
-  contains_instructions: "Rules engine (part of this requirement reads like instructions or a claim about how to judge it, so local AI was not used)",
+  contains_instructions: "Rules engine (this requirement needs your confirmation, so local AI was not used)",
   not_needed: "Rules engine (exact match)",
   no_match: "Rules engine (local AI found no other match)",
   rejected: "Rules engine (local AI's answer failed verification and was discarded)",
@@ -80,7 +80,7 @@ function VerdictPill({ verdict }: { verdict: Verdict }) {
   return <span className={`inline-block shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${style.className}`}>{style.label}</span>;
 }
 
-function Findings({ analysis }: { analysis: AnalysisView }) {
+function Findings({ analysis, jobId }: { analysis: AnalysisView; jobId: string }) {
   const requirements = new Map(analysis.requirements.map(r => [r.index, r]));
   return <ol className="space-y-3">
     {analysis.findings.map(finding => {
@@ -98,6 +98,9 @@ function Findings({ analysis }: { analysis: AnalysisView }) {
           {FINDING_SOURCE[finding.aiStatus]}
         </p>}
         <p className="text-sm">{finding.explanation}</p>
+        {finding.review && <p className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface-muted p-3 text-sm">
+          Needs your confirmation. <Link href={requirementsHref(jobId)} className="font-medium text-accent-text underline">Check this requirement in the job review</Link>, confirm it if it is a real requirement, then run the analysis again.
+        </p>}
         {finding.citations.length > 0 && <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted">Evidence from your profile</p>
           <ul className="space-y-1.5">
@@ -189,7 +192,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       </ul>
       <p className="text-xs text-muted">Counts describe the findings below. They are not a fit score.</p>
       {latest.provider === "hybrid" && <HybridSummary analysis={latest} />}
-      <Findings analysis={latest} />
+      <Findings analysis={latest} jobId={job.id} />
     </section> : <EmptyState title="No analysis yet">
       {ready ? "Run an analysis to compare these requirements with your profile." : "Once the requirements are reviewed, you can run an analysis here."}
     </EmptyState>}

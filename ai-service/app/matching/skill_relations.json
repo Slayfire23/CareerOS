@@ -773,6 +773,7 @@
     "go",
     "hack",
     "hive",
+    "java",
     "jenkins",
     "jest",
     "julia",
@@ -1115,5 +1116,184 @@
     "the",
     "university",
     "with"
-  ]
+  ],
+  "ambiguous_context": {
+    "excel": [
+      "model",
+      "models",
+      "modeling",
+      "modelling",
+      "budget",
+      "budgets",
+      "budgeting",
+      "forecast",
+      "forecasts",
+      "forecasting",
+      "report",
+      "reports",
+      "reporting",
+      "sheets",
+      "pivot",
+      "vlookup",
+      "xlookup",
+      "macros",
+      "workbooks",
+      "formulas",
+      "financial",
+      "tables",
+      "charts"
+    ],
+    "java": [
+      "jvm",
+      "maven",
+      "gradle",
+      "spring",
+      "jdk",
+      "jre",
+      "kotlin",
+      "android",
+      "backend",
+      "enterprise",
+      "microservices"
+    ],
+    "go": [
+      "goroutines",
+      "gin",
+      "grpc",
+      "microservices",
+      "backend",
+      "concurrency"
+    ],
+    "swift": [
+      "ios",
+      "xcode",
+      "swiftui",
+      "iphone",
+      "ipad",
+      "macos",
+      "cocoa"
+    ],
+    "rust": [
+      "cargo",
+      "crates",
+      "tokio",
+      "wasm",
+      "webassembly",
+      "systems",
+      "embedded",
+      "memory-safe"
+    ],
+    "ruby": [
+      "rails",
+      "gems",
+      "rspec",
+      "sinatra"
+    ],
+    "spark": [
+      "pyspark",
+      "rdd",
+      "rdds",
+      "dataframes",
+      "cluster",
+      "clusters",
+      "jobs",
+      "streaming",
+      "etl",
+      "databricks",
+      "hadoop"
+    ],
+    "r": [
+      "rstudio",
+      "ggplot2",
+      "tidyverse",
+      "cran",
+      "shiny",
+      "statistical",
+      "statistics",
+      "regression"
+    ],
+    "c": [
+      "embedded",
+      "firmware",
+      "pointers",
+      "kernel",
+      "microcontrollers",
+      "systems",
+      "posix"
+    ]
+  },
+  "degree_implied": {
+    "mba": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "emba": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "bba": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bsba": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bcom": {
+      "level": 2,
+      "field": "Commerce"
+    },
+    "bsn": {
+      "level": 2,
+      "field": "Nursing"
+    },
+    "msn": {
+      "level": 3,
+      "field": "Nursing"
+    },
+    "bfa": {
+      "level": 2,
+      "field": "Fine Arts"
+    },
+    "mfa": {
+      "level": 3,
+      "field": "Fine Arts"
+    },
+    "mph": {
+      "level": 3,
+      "field": "Public Health"
+    },
+    "msw": {
+      "level": 3,
+      "field": "Social Work"
+    },
+    "llb": {
+      "level": 2,
+      "field": "Law"
+    },
+    "llm": {
+      "level": 3,
+      "field": "Law"
+    },
+    "jd": {
+      "level": 4,
+      "field": "Law"
+    },
+    "md": {
+      "level": 4,
+      "field": "Medicine"
+    },
+    "beng": {
+      "level": 2,
+      "field": "Engineering"
+    },
+    "meng": {
+      "level": 3,
+      "field": "Engineering"
+    },
+    "march": {
+      "level": 3,
+      "field": "Architecture"
+    }
+  }
 }

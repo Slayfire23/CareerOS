@@ -75,12 +75,14 @@ def structure_of(requirement: Requirement, evidence: dict[str, Evidence]) -> Str
     """The requirement's structure (requirement_structure.py), given the skills the profile lists."""
     names = [e.name for e in evidence.values() if isinstance(e, SkillEvidence)]
     names += [n for e in evidence.values() if isinstance(e, ProjectEvidence) for n in e.skills]
-    return parse(requirement.text, listed_terms(names))
+    return parse(requirement.text, listed_terms(names), requirement.confirmed)
 
 
 def contains_instructions(requirement: Requirement, evidence: dict[str, Evidence]) -> bool:
-    """Text aimed at the evaluator, or a claim about how it should be judged: rules only."""
-    return has_directed_text(requirement.text) or structure_of(requirement, evidence).ignored
+    """Instructions, claims, or evaluation language in the requirement: rules only, and the
+    person is asked to confirm it."""
+    structure = structure_of(requirement, evidence)
+    return has_directed_text(requirement.text) or structure.ignored or structure.needs_review
 
 
 def quote_source(item: Evidence, quote: str) -> tuple[bool, str | None]:
@@ -122,9 +124,11 @@ def check_local_finding(
     if not isinstance(raw_citations, list) or not 1 <= len(raw_citations) <= 10:
         return "no_citation"
 
-    # Citations are judged only against the requirement's head and later required clauses.
+    # Citations are judged only against what the requirement actually requests: its head and listed
+    # alternatives. Later required clauses only add mandatory groups (checked below); they never
+    # make a citation relevant, so text outside the head can't earn credit.
     structure = structure_of(requirement, evidence)
-    target = structure.matchable or requirement.text
+    target = structure.credit_text or requirement.text
     citations: list[Citation] = []
     strengths: list[tuple[Evidence, str, str]] = []
     for raw in raw_citations:

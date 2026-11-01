@@ -15,7 +15,7 @@ from app.matching.requirement_structure import listed_terms, parse, untrusted_ev
 from app.matching.untrusted_text import masked
 from app.schemas import Evidence, ExperienceEvidence, ProjectEvidence, Requirement, SkillEvidence
 
-HYBRID_PROMPT_VERSION = "hybrid-v4"
+HYBRID_PROMPT_VERSION = "hybrid-v5"
 LOCAL_AI_VERDICTS = ("supported", "possible", "insufficient_information")
 
 HYBRID_SYSTEM_PROMPT = """You find skills that a keyword search missed. For each requirement, \
@@ -82,10 +82,11 @@ def build_hybrid_message(requirements: Sequence[Requirement], evidence: dict[str
     names = [e.name for e in evidence.values() if isinstance(e, SkillEvidence)]
     names += [n for e in evidence.values() if isinstance(e, ProjectEvidence) for n in e.skills]
     listed = listed_terms(names)
-    # Only the requirement's head and later required clauses are sent (requirement_structure.py).
+    # Only what the requirement requests is sent: its head and listed alternatives (requirement_structure.py).
     data = {
         "requirements": [
-            {"index": r.index, "text": parse(r.text, listed).matchable or r.text} for r in requirements
+            {"index": r.index, "text": parse(r.text, listed, r.confirmed).credit_text or r.text}
+            for r in requirements
         ],
         "evidence": [
             {k: v for k, v in _evidence_view(sid, item).items() if v is not None}

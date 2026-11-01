@@ -110,6 +110,8 @@ def validate_findings(request: MatchRequest, findings: list[Finding], strict: bo
         for citation in finding.citations:
             if citation.evidence_id not in evidence:
                 raise InvalidProviderOutput("A finding cites evidence that was not supplied.")
+        if finding.review and (finding.verdict != "insufficient_information" or finding.citations):
+            raise InvalidProviderOutput("A requirement that needs confirmation was judged.")
 
     checked = [_check(request, requirements[f.requirement_index], f, evidence, strict) for f in findings]
     if strict and any(c is not f for c, f in zip(checked, findings, strict=True)):

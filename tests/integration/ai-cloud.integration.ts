@@ -75,7 +75,7 @@ function fakeCloud(overrides: (request: MatchRequest, body: Record<string, unkno
     const isCloud = request.provider === "anthropic";
     const body: Record<string, unknown> = {
       request_id: request.request_id, findings, verdict_counts: counts, provider: request.provider,
-      model: isCloud ? MODEL : null, method_version: isCloud ? `${MODEL}/prompt-v1` : "rules-v3",
+      model: isCloud ? MODEL : null, method_version: isCloud ? `${MODEL}/prompt-v1` : "rules-v4",
       usage: isCloud ? USAGE : null, provider_request_id: isCloud ? "req_fictional_ok" : null,
     };
     overrides(request, body);

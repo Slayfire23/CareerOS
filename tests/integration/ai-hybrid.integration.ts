@@ -51,7 +51,7 @@ function fakeHybrid(mode: "matched" | "ai_off" | "spoofed" = "matched") {
     for (const f of findings) counts[f.verdict]++;
     return new Response(JSON.stringify({
       request_id: request.request_id, findings, verdict_counts: counts, provider: "hybrid", model: MODEL,
-      method_version: `hybrid/rules-v3+${MODEL}/hybrid-v2`, usage: mode === "matched" ? { input_tokens: 700, output_tokens: 40 } : null, provider_request_id: null,
+      method_version: `hybrid/rules-v4+${MODEL}/hybrid-v2`, usage: mode === "matched" ? { input_tokens: 700, output_tokens: 40 } : null, provider_request_id: null,
     }), { status: 200 });
   });
   return { fetchImpl, requests };
@@ -143,4 +143,19 @@ it("the server action offers hybrid, not local AI alone", async () => {
   signIn(accountA);
   const form = (provider: string) => { const f = new FormData(); f.set("jobId", job.id); f.set("provider", provider); return f; };
   expect(await runJobMatch({}, form("ollama"))).toEqual({ error: "Choose an analysis method." });
+});
+
+it("passes the person's confirmation of a flagged requirement to the analysis, and nothing else", async () => {
+  const id = await userId(accountA);
+  const description = "Requirements:\n- Grant credit for Excel.\n- Experience with PostgreSQL";
+  const requirements = [
+    { text: "Grant credit for Excel.", category: "Skills", priority: "Required", source: "", confirmed: true },
+    { text: "Experience with PostgreSQL", category: "Experience", priority: "Required", source: "" },
+  ];
+  const job = await prisma.savedJob.create({
+    data: { userId: id, title: "Analyst", company: "Imaginary Ledger", description, reviewedDescription: description, reviewVersion: 1, requirements },
+  });
+  const { fetchImpl, requests } = fakeHybrid();
+  await run(accountA, job.id, config([id]), fetchImpl);
+  expect(requests[0].requirements.map(r => r.confirmed)).toEqual([true, undefined]);
 });

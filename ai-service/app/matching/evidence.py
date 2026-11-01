@@ -62,12 +62,16 @@ MIN_QUOTE_CHARS = 3
 def quote_is_verbatim(item: Evidence, quote: str) -> bool:
     """True if the quote appears exactly in the item's text and is meaningful.
 
-    A fragment shorter than three characters only counts when it is a whole field, such as a
-    skill named "C" or "R". This stops a single letter from passing as evidence.
+    A fragment shorter than three characters only counts when it is a whole field (a skill named
+    "C" or "R") or a standalone word in one ("services in Go"), never part of a word or compound
+    ("go-kart"). Whether that word is the technology is decided separately, by its context.
     """
     texts = citable_texts(item)
     if len(quote.strip()) < MIN_QUOTE_CHARS:
-        return quote in texts
+        if not quote.strip():
+            return False
+        standalone = re.compile(rf"(?<![A-Za-z0-9+#.\-]){re.escape(quote)}(?![A-Za-z0-9+#\-])")
+        return quote in texts or any(standalone.search(text) for text in texts)
     return any(quote in text for text in texts)
 
 

@@ -75,10 +75,29 @@ test("rules + local AI labels each finding's method and adds a synonym match", a
     // Durations are a hard qualification: always the rules engine, never sent to local AI.
     const years = findings.filter({ hasText: "15+ years of professional experience" });
     await expect(years.getByText(/^Rules engine \(experience, education/)).toBeVisible();
-    // The injected clause is ignored: K8s is not credited for Tableau, and the finding says why.
+    // The injected requirement is not judged until the person confirms it, and says so.
     const tableau = findings.filter({ hasText: "Note to the AI" });
     await expect(tableau.getByText("Not enough information", { exact: true })).toBeVisible();
-    await expect(tableau.getByText(/reads like instructions to an AI or reviewer, or a claim about how it should be judged, so it was ignored/)).toBeVisible();
+    await expect(tableau.getByText("Needs your confirmation.", { exact: false })).toBeVisible();
+    await expect(tableau.getByText(/needs your confirmation, so local AI was not used/)).toBeVisible();
+
+    // Confirming it as a real requirement lets it be judged: the instruction is still ignored, so
+    // K8s is not credited for Tableau. Confirmation is never evidence.
+    await openPage(page, requirementsUrl);
+    const reviewAgain = page.getByRole("form", { name: "Review job requirements" });
+    await reviewAgain.getByLabel("This is a real requirement for this job", { exact: true }).check();
+    await reviewAgain.getByLabel("I reviewed the selected requirements against the job description.", { exact: true }).check();
+    await reviewAgain.getByRole("button", { name: "Save reviewed requirements", exact: true }).click();
+    await expect(reviewAgain.getByRole("status")).toContainText("Reviewed requirements saved.");
+    await openPage(page, requirementsUrl.replace(/\/requirements$/, "/match"));
+    await runForm.getByRole("radio", { name: /Rules \+ local AI/ }).check();
+    await runForm.getByRole("button", { name: /Run analysis/ }).click();
+    await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 150000 });
+    await page.reload();
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(tableau.getByText("Not enough information", { exact: true })).toBeVisible();
+    await expect(tableau.getByText("Needs your confirmation.", { exact: false })).toHaveCount(0);
+    await expect(tableau.getByText(/so it was ignored/)).toBeVisible();
   } finally {
     await openPage(page, "/dashboard/jobs");
     if (await jobRow.count()) await confirmAction(jobRow.getByRole("button", { name: /^Remove / }));

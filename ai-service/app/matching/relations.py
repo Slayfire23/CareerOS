@@ -129,6 +129,7 @@ def has_tech_context(field_text: str, quote: str, word: str) -> bool:
     """True when an ambiguous word sits within three words of a technical noun or another known
     technology in its field, outside any hyphenated compound ("go-kart", "go-live")."""
     _, context, _ = _word_lists()
+    context = context | frozenset(_raw().get("ambiguous_context", {}).get(word, []))
     known = vocabulary()
     pattern = re.compile(rf"(?<![\w.]){re.escape(word)}(?![\w])", re.IGNORECASE)
     for match in pattern.finditer(field_text):

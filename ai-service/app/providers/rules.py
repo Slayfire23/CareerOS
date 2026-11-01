@@ -19,13 +19,20 @@ from app.matching.evidence import (
     employment_months,
     format_years,
 )
-from app.matching.relations import asks_for_field, canonical_terms, field_matches, generic_terms, quote_terms
+from app.matching.relations import _raw as _relations_raw
+from app.matching.relations import (
+    asks_for_field,
+    canonical_terms,
+    field_matches,
+    generic_terms,
+    quote_terms,
+    vocabulary,
+)
 from app.matching.requirement_structure import listed_terms, parse, untrusted_evidence_spans
 from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
 from app.matching.untrusted_text import (
     INSTRUCTION_TEXT,
     INSTRUCTIONS_IGNORED,
-    has_directed_text,
     qualification_text,
 )
 from app.matching.validate import stated_years
@@ -47,6 +54,11 @@ PART_OF_LONGER_NAME = (
 YEARS_PER_SKILL = "This asks for years with the skill; your profile does not record years per skill."
 CREDENTIAL_NOT_SHOWN = "Listing a skill does not show the certification or license this asks for."
 JUDGED_AS_SKILL = "This names a technology with no duration or role, so it was judged as a skill."
+NEEDS_CONFIRMATION = (
+    "This requirement's wording reads partly like instructions or a judgment about how to evaluate it, "
+    "so it was not assessed. Check it in the job review and confirm it if it is a real requirement; "
+    "confirming it does not count as evidence that you meet it."
+)
 
 
 def NOT_ALL_ITEMS(missing: list[str]) -> str:
@@ -128,13 +140,36 @@ _NO_FIELD_WORDS = frozenset(
 )
 
 
+_LEVEL_LABELS = {4: "doctorate", 3: "master's", 2: "bachelor's", 1: "associate", 0: "high school"}
+
+
+def _implied(text: str) -> list[tuple[int, str, str]]:
+    """(level, label, field) for degree names that imply both, such as "MBA" or "BSN"."""
+    implied = _relations_raw().get("degree_implied", {})
+    found = []
+    for token in re.findall(r"[A-Za-z.]+", text):
+        key = token.replace(".", "").lower()
+        if key in implied:
+            found.append((implied[key]["level"], _LEVEL_LABELS[implied[key]["level"]], implied[key]["field"]))
+    return found
+
+
+def implied_field(qualification: str) -> str | None:
+    found = _implied(qualification)
+    return found[0][2] if found else None
+
+
 def required_degree_rank(text: str) -> tuple[int, str] | None:
-    """The lowest degree level a requirement accepts ("Master's or PhD" -> master's)."""
+    """The lowest degree level a requirement accepts ("Master's or PhD" -> master's). A degree
+    with no level named ("Degree in Mathematics") accepts any degree."""
     found = [
         (rank, label)
         for rank, label, patterns in _LEVELS
         if any(re.search(p, text, re.IGNORECASE) for p in patterns)
     ]
+    found += [(rank, label) for rank, label, _ in _implied(text)]
+    if not found and re.search(r"\bdegree\b", text, re.IGNORECASE):
+        return 1, "a degree"
     return min(found) if found else None
 
 
@@ -142,23 +177,34 @@ def degree_rank(text: str) -> tuple[int, str] | None:
     for rank, label, patterns in _LEVELS:
         if any(re.search(p, text, re.IGNORECASE) for p in patterns):
             return rank, label
-    return None
+    implied = _implied(text)
+    return (max(implied)[0], max(implied)[1]) if implied else None
 
 
-def _finding(requirement: Requirement, verdict, explanation: str, citations=(), caveats=()) -> Finding:
+def _finding(
+    requirement: Requirement, verdict, explanation: str, citations=(), caveats=(), review=None
+) -> Finding:
     return Finding(
         requirement_index=requirement.index,
         verdict=verdict,
         explanation=explanation,
         citations=list(citations)[:10],
         caveats=list(dict.fromkeys(caveats))[:5],
+        review=review,
     )
+
+
+def _listed(request: MatchRequest) -> frozenset[str]:
+    """Canonical terms of every skill the profile lists, including project skills."""
+    names = [e.name for e in request.evidence if isinstance(e, SkillEvidence)]
+    names += [n for e in request.evidence if isinstance(e, ProjectEvidence) for n in e.skills]
+    return listed_terms(names)
 
 
 class RulesProvider:
     name = "rules"
     model = None
-    method_version = "rules-v3"
+    method_version = "rules-v4"
     local = True
     generative = False
 
@@ -166,9 +212,15 @@ class RulesProvider:
         return [self._assess(request, requirement) for requirement in request.requirements]
 
     def _assess(self, request: MatchRequest, requirement: Requirement) -> Finding:
-        # Only the qualification itself is judged; text aimed at an AI or reviewer is set aside.
+        # A requirement that contains instructions or evaluation language is not judged until the
+        # person confirms it (requirement_structure.py). Otherwise only its qualification is judged.
+        structure = parse(requirement.text, _listed(request), requirement.confirmed)
+        if structure.needs_review:
+            return _finding(
+                requirement, "insufficient_information", NEEDS_CONFIRMATION, review="needs_confirmation"
+            )
         notes: list[str] = []
-        if has_directed_text(requirement.text):
+        if structure.instructions:
             text = qualification_text(requirement.text)
             if not text:
                 return _finding(requirement, "insufficient_information", INSTRUCTION_TEXT)
@@ -193,7 +245,8 @@ class RulesProvider:
         has_projects = any(isinstance(e, ProjectEvidence) for e in request.evidence)
         caveats = [PROJECT_NOT_EMPLOYMENT] if has_projects else []
         role_citations = [Citation(evidence_id=r.id, quote=r.job_title) for r in roles]
-        years = _YEARS.search(requirement.text)
+        stated = stated_years(requirement.text)  # "3+ years", "two years"
+        needed = min(float(v) for v in stated) if stated else None
 
         if not roles:
             return _finding(
@@ -202,8 +255,8 @@ class RulesProvider:
                 "No professional employment is listed in your profile, so this cannot be assessed.",
                 caveats=caveats,
             )
-        if years:
-            needed = float(years.group(1))
+        if needed is not None:
+            amount = format_years(round(needed * 12))
             months = employment_months(request)
             listed = format_years(months)
             if months >= needed * 12:
@@ -211,7 +264,7 @@ class RulesProvider:
                     requirement,
                     "possible",
                     f"Your listed employment totals {listed} years, "
-                    f"which meets the {years.group(1)}-year amount. "
+                    f"which meets the {amount}-year amount. "
                     "Keyword rules cannot judge whether that experience is in the field "
                     "this requirement means.",
                     role_citations,
@@ -220,7 +273,7 @@ class RulesProvider:
             return _finding(
                 requirement,
                 "gap",
-                f"Your listed employment totals {listed} years, less than the {years.group(1)} years stated.",
+                f"Your listed employment totals {listed} years, less than the {amount} years stated.",
                 role_citations,
                 caveats,
             )
@@ -261,8 +314,16 @@ class RulesProvider:
             level = degree_rank(entry.qualification)
             ranks.append(level[0] if level else None)
             if wanted and level and level[0] >= wanted[0]:
+                # A degree name can imply its field: an MBA is in business administration, on either side.
+                field = entry.field_of_study or implied_field(entry.qualification)
+                required = [f for _, _, f in _implied(requirement.text)]
                 field_match = bool(
-                    entry.field_of_study and field_matches(requirement.text, entry.field_of_study)
+                    field
+                    and (
+                        any(field_matches(f, field) for f in required)
+                        if required
+                        else field_matches(requirement.text, field)
+                    )
                 )
                 if best is None or (field_match and not best[1]):
                     best = (entry, field_match)
@@ -270,15 +331,17 @@ class RulesProvider:
         if best:
             entry, field_match = best
             citations = [Citation(evidence_id=entry.id, quote=entry.qualification)]
-            if field_match and entry.field_of_study:
-                citations.append(Citation(evidence_id=entry.id, quote=entry.field_of_study))
+            if field_match:
+                field = entry.field_of_study or implied_field(entry.qualification)
+                if entry.field_of_study:
+                    citations.append(Citation(evidence_id=entry.id, quote=entry.field_of_study))
                 return _finding(
                     requirement,
                     "supported",
-                    f"You list a {wanted[1]} level qualification in {entry.field_of_study}.",
+                    f"You list a {wanted[1]} level qualification in {field}.",
                     citations,
                 )
-            if not asks_for_field(requirement.text):
+            if not asks_for_field(requirement.text) and not _implied(requirement.text):
                 # Any field will do, and a higher degree meets a lower minimum.
                 return _finding(
                     requirement,
@@ -311,8 +374,8 @@ class RulesProvider:
         # requirement_structure.py. Later text can add mandatory items, never substitute for them.
         listed = [s for s in request.evidence if isinstance(s, SkillEvidence)]
         project_skills = [n for e in request.evidence if isinstance(e, ProjectEvidence) for n in e.skills]
-        structure = parse(requirement.text, listed_terms([s.name for s in listed] + project_skills))
-        head = structure.head or structure.matchable
+        structure = parse(requirement.text, listed_terms([s.name for s in listed] + project_skills), True)
+        head = structure.credit_text
         notes = [INSTRUCTIONS_IGNORED] if structure.ignored else []
         matched = [s for s in listed if contains_phrase(head, s.name)]
         if matched:
@@ -419,8 +482,11 @@ class RulesProvider:
         for size in (2, 1):
             for i in range(len(words) - size + 1):
                 window = words[i : i + size]
-                if any(w.casefold() in generic or len(w) < 3 for w in window):
-                    continue
+                if any(
+                    w.casefold() in generic or (len(w) < 3 and w.casefold() not in vocabulary())
+                    for w in window
+                ):
+                    continue  # two-letter words only when they name a known technology ("Go")
                 phrase = " ".join(window)
                 if not contains_phrase(evidence_text, phrase):
                     continue

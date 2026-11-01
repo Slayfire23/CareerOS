@@ -14,6 +14,7 @@ import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
 import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
 import { hasDirectedText, qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
+import { namesOfListedSkills } from "@/lib/ai/listed-skills";
 import { listedTerms, parseRequirement, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import type { TokenUsage } from "@/lib/ai/pricing";
 
@@ -36,6 +37,8 @@ export type Finding = {
   caveats: string[];
   method?: FindingMethod;
   aiStatus?: AiStatus;
+  /** The requirement needs the person's confirmation in the job review before it is judged. */
+  review?: "needs_confirmation";
 };
 export type ValidatedMatch = {
   findings: Finding[];
@@ -106,10 +109,10 @@ function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], 
   if (verdict !== "supported" && verdict !== "possible") reject("local AI may only add a match");
   // Judged only against the requirement's head and later required clauses (requirement_structure.py).
   const skills = [...evidence.values()].filter(e => e.kind === "skill");
-  const names = [...evidence.values()].flatMap(e => e.kind === "skill" ? [e.name] : e.kind === "project" ? e.skills : []);
-  const structure = parseRequirement(requirement.text, listedTerms(names));
-  if (structure.ignored) reject("local AI judged a requirement containing instructions or claims");
-  const target = structure.matchable || requirement.text;
+  const structure = parseRequirement(requirement.text, listedTerms(namesOfListedSkills([...evidence.values()])), requirement.confirmed === true);
+  if (structure.instructions.length || structure.needsReview) reject("local AI judged a requirement containing instructions or claims");
+  // Only what the requirement requests (its head and listed alternatives) can make a citation relevant.
+  const target = structure.creditText || requirement.text;
   const strengths = citations.map(c => {
     const item = evidence.get(c.evidenceId)!;
     if (item.kind === "education") reject("local AI cited education");
@@ -165,6 +168,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       .map(e => Number(formatYears(roleMonths(e, request.as_of_month)))),
   ]);
 
+  const listed = listedTerms(namesOfListedSkills(request.evidence));
   const seen = new Set<number>();
   const findings = (body.findings as unknown[]).map((item): Finding => {
     if (!isObject(item)) reject("finding is not an object");
@@ -213,13 +217,21 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     }
     if (verdict === "gap" && areaIsEmpty(request, requirement)) reject("gap claimed for an empty profile area");
 
+    // A requirement that needs confirmation is never judged automatically, whatever produced it.
+    const review = f.review === undefined || f.review === null ? undefined : f.review === "needs_confirmation" ? "needs_confirmation" as const : reject("invalid review flag");
+    const needsReview = parseRequirement(requirement.text, listed, requirement.confirmed === true).needsReview;
+    if (review && (verdict !== "insufficient_information" || citations.length)) reject("a requirement that needs confirmation was judged");
+    if (needsReview && verdict === "supported") reject("supported verdict for a requirement that needs confirmation");
+    if (needsReview && ["rules", "hybrid"].includes(expected.provider) && !review) reject("a requirement that needs confirmation was not flagged");
+    if (review && !needsReview) reject("review flag on a requirement that does not need confirmation");
+
     const requirementYears = new Set(statedYears(requirement.text));
     for (const years of statedYears(explanation)) {
       // 0.05 tolerance absorbs rounding differences between Python and JavaScript.
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method, aiStatus }) };
+    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method, aiStatus }), ...(review && { review }) };
   });
   if (seen.size !== requirements.size) reject("a requirement has no finding");
 

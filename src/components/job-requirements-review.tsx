@@ -3,7 +3,9 @@ import { useActionState, useId, useState } from "react";
 import { requirementsHref } from "@/lib/sections";
 import { categories, priorities, type Requirement } from "@/lib/job-requirements";
 import { saveRequirements, type RequirementState } from "@/app/jobs/requirements-actions";
-import { hasDirectedText } from "@/lib/ai/untrusted-text";
+import { mayNeedConfirmation } from "@/lib/ai/requirement-structure";
+
+const flagged = mayNeedConfirmation;
 
 export function JobRequirementsReview({id, description, version, reviewed, stale, initial}: {id: string; description: string; version: number; reviewed: boolean; stale: boolean; initial: Requirement[]}) {
  const prefix = useId();
@@ -19,7 +21,7 @@ export function JobRequirementsReview({id, description, version, reviewed, stale
    <input type="hidden" name="jobId" value={id} />
    <input type="hidden" name="baseDescription" value={description} />
    <input type="hidden" name="reviewVersion" value={version} />
-   <input type="hidden" name="requirements" value={JSON.stringify(rows.filter(row => row.selected).map(({text, category, priority, source}) => ({text, category, priority, source})))} />
+   <input type="hidden" name="requirements" value={JSON.stringify(rows.filter(row => row.selected).map(({text, category, priority, source, confirmed}) => ({text, category, priority, source, ...(confirmed && flagged(text) ? {confirmed: true} : {})})))} />
    <fieldset disabled={pending || !!state.message} className="space-y-4">
     {rows.length === 0 && <p className="rounded-lg border border-dashed bg-surface-muted p-4 text-sm text-muted">No requirements listed. Add one manually using the description above.</p>}
     <ol className="space-y-3">
@@ -30,8 +32,12 @@ export function JobRequirementsReview({id, description, version, reviewed, stale
      </div>
      <div>
       <label className="label" htmlFor={`${prefix}-${row.key}-text`}>Requirement {index + 1}</label>
-      <textarea id={`${prefix}-${row.key}-text`} className="field" rows={2} maxLength={1000} required={row.selected} value={row.text} onChange={event => update(row.key, {text: event.target.value})} />
-      {hasDirectedText(row.text) && <p className="alert mt-2">Part of this text reads like instructions to an AI or reviewer, not a qualification. Analysis ignores that part; remove it unless it states a real requirement.</p>}
+      <textarea id={`${prefix}-${row.key}-text`} className="field" rows={2} maxLength={1000} required={row.selected} value={row.text} onChange={event => update(row.key, {text: event.target.value, confirmed: false})} />
+      {flagged(row.text) && <div className="alert mt-2 space-y-2">
+       <p>Part of this text reads like instructions to an AI or reviewer, or a judgment about how to evaluate it. It won&apos;t be analyzed until you confirm it. Edit or remove it if it isn&apos;t a real requirement.</p>
+       <label className="check"><input type="checkbox" checked={!!row.confirmed} onChange={event => update(row.key, {confirmed: event.target.checked})} /> This is a real requirement for this job</label>
+       <p className="text-xs">Confirming only tells CareerOS the requirement is real. It doesn&apos;t count as evidence that you meet it, and instruction-like text is still ignored.</p>
+      </div>}
      </div>
      <div className="grid gap-3 sm:grid-cols-2">
       <div>

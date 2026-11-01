@@ -15,7 +15,8 @@ export type EducationEvidence = { id: string; kind: "education"; qualification: 
 export type ProjectEvidence = { id: string; kind: "project"; title: string; description: string | null; contribution: string | null; results: string | null; skills: string[] };
 export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | ProjectEvidence;
 
-export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"] };
+/** `confirmed`: the person confirmed in the job review that a flagged requirement is real (never evidence). */
+export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"]; confirmed?: true };
 /** "hybrid" is the rules engine plus local AI for skills it missed (the local-AI method in the app). */
 export type AnalysisProvider = "rules" | "anthropic" | "ollama" | "hybrid";
 export type TokenBudget = { max_input_tokens: number; max_output_tokens: number };
@@ -76,7 +77,9 @@ export function evidenceFingerprint(evidence: Evidence[]): string {
 
 export function buildRequirements(requirements: Requirement[]): MatchRequirement[] {
   if (!requirements.length) throw new EvidenceError("no_requirements");
-  return requirements.slice(0, MAX_REQUIREMENTS).map((r, index) => ({ index, text: r.text, category: r.category, priority: r.priority }));
+  return requirements.slice(0, MAX_REQUIREMENTS).map((r, index) => ({
+    index, text: r.text, category: r.category, priority: r.priority, ...(r.confirmed ? { confirmed: true as const } : {}),
+  }));
 }
 
 export function currentMonth(now = new Date()): string {
@@ -127,9 +130,16 @@ export function citableTexts(item: Evidence): string[] {
 
 export const MIN_QUOTE_CHARS = 3;
 
+/** A short quote (under three characters) counts only as a whole field or a standalone word in one
+ * ("services in Go"), never inside a word or compound ("go-kart"). Mirrors evidence.py. */
 export function quoteIsVerbatim(item: Evidence, quote: string): boolean {
   const texts = citableTexts(item);
-  if (quote.trim().length < MIN_QUOTE_CHARS) return texts.includes(quote);
+  if (quote.trim().length < MIN_QUOTE_CHARS) {
+    if (!quote.trim()) return false;
+    const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const standalone = new RegExp(`(?<![A-Za-z0-9+#.\\-])${escaped}(?![A-Za-z0-9+#\\-])`);
+    return texts.includes(quote) || texts.some(t => standalone.test(t));
+  }
   return texts.some(t => t.includes(quote));
 }
 

@@ -1,5 +1,5 @@
 {
-  "_comment": "Read by app/matching/requirement_structure.py and src/lib/ai/requirement-structure.ts. Patterns are compiled case-insensitively in both languages and must use shared syntax. Word lists are lower case. Changing this file changes which parts of a requirement can earn credit, so it needs review, and tests/fixtures/relation_cases.json must still pass.",
+  "_comment": "Read by app/matching/requirement_structure.py and src/lib/ai/requirement-structure.ts. Patterns are compiled case-insensitively in both languages and must use shared syntax. 'evaluation_language' marks text that talks about how a requirement should be judged; a requirement containing it is never evaluated automatically and needs the person's confirmation in the job review. 'profile_meta' marks profile sentences about the evaluation or written about the person in the third person; they are never evidence. Changing this file needs review, and tests/fixtures/relation_cases.json must still pass.",
   "need_markers": "\\b(experience|experienced|knowledge|proficiency|proficient|familiarity|familiar|ability|able|skills?|expertise|expert|understanding|background|required|requires?|must|should|need|needs|competen(t|cy|ce)|fluen(t|cy)|hands-on|comfortable|working with|use of|using|mastery|demonstrated|proven)\\b",
   "optional_markers": "\\b(a\\s+plus|is\\s+a\\s+plus|preferred|nice\\s+to\\s+have|bonus|ideally|desirable|an?\\s+advantage|advantageous|optional|welcome|beneficial|helpful)\\b",
   "relation_claim": "\\b(equivalent\\s+to|is\\s+equivalent|are\\s+equivalent|as\\s+equivalent|counts?\\s+as|counted\\s+as|same\\s+as|the\\s+same\\s+(thing|skill|technology)|interchangeable|in\\s+place\\s+of|substitutes?\\s+for|stands?\\s+in\\s+for|satisf(y|ies|ied)|fulfil(l|ls|led)?|qualif(y|ies)\\s+as|treated\\s+as|accepted\\s+as|full\\s+match|full\\s+credit)\\b|\\s=\\s",
@@ -107,5 +107,23 @@
     "etc"
   ],
   "or_marker": "\\b(or|either)\\b",
-  "and_marker": "\\band\\b|&|\\bas\\s+well\\s+as\\b"
+  "and_marker": "\\band\\b|&|\\bas\\s+well\\s+as\\b",
+  "evaluation_language": [
+    "\\b(grant|give|giving|award|assign|allow|add)\\b[^.]{0,30}\\bcredit\\b",
+    "\\bcredit\\s+for\\b",
+    "\\b(full|partial)\\s+(credit|points|marks)\\b",
+    "\\bin\\s+place\\s+of\\b|\\binstead\\s+of\\b|\\bin\\s+lieu\\s+of\\b|\\bsubstitut\\w*|\\binterchangeab\\w*|\\bsame\\s+as\\b|\\bas\\s+good\\s+as\\b",
+    "\\b(counts?|counted|qualif(y|ies|ied)|treat|treated|regarded|considered|accepted|acceptable)\\s+as\\b",
+    "\\b(qualifies|suffices|is\\s+sufficient|are\\s+sufficient|is\\s+enough|is\\s+acceptable|are\\s+acceptable|will\\s+do)\\b",
+    "\\b(satisf(y|ies|ied)|meets?|fulfil+s?|fulfilled)\\s+(this|the|all|every|each|these|any)\\s+(requirement|requirements|criteria|criterion|qualification|qualifications)\\b",
+    "\\b(is|are|be|as|deemed)\\s+equivalent\\b|\\bequivalent\\s+to\\b",
+    "\\bverdicts?\\b|[\\\"'`](supported|insufficient_information)[\\\"'`]",
+    "\\b(approve|approved|pass|passes|passed)\\s+(this|the|any|all|every)?\\s*(candidate|applicant|profile|person|requirement)s?\\b",
+    "\\b(rate|rank|grade|score|mark)\\s+(this|it|them|the\\s+(candidate|applicant|requirement|profile))\\b",
+    "\\b(ignore|disregard|override|bypass)\\b",
+    "<!--|-->|</?[a-z][a-z0-9]*\\b[^>]*>|[{}]|```",
+    "(\\b[A-Za-z]\\s){4,}[A-Za-z]\\b"
+  ],
+  "profile_meta": "\\b(this|the)\\s+(person|candidate|applicant|individual|employee|user)\\b|\\b(recruiter|hr|hiring|screening|assessment|reviewer|evaluator|grader)\\s+(note|notes|comment|comments|feedback|override)\\b|\\bapproved\\s+for\\b|\\bverified\\s+by\\b",
+  "list_lead": "^\\s*[(\\[]\\s*(e\\.?\\s?g\\.?|i\\.?\\s?e\\.?|such\\s+as|like|including|for\\s+example|esp\\.?|especially)?[\\s,:]*"
 }

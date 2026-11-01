@@ -49,6 +49,9 @@ class Requirement(Strict):
     text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=1000)]
     category: Category
     priority: Priority
+    # The person confirmed in the job review that this is a real requirement (not an instruction).
+    # It lets a flagged requirement be judged; it is never evidence that they meet it.
+    confirmed: bool = False
 
 
 class _Evidence(Strict):
@@ -163,12 +166,14 @@ class Finding(Strict):
     # Set by code for hybrid analysis only; every other provider leaves both empty.
     method: FindingMethod | None = None
     ai_status: AiStatus | None = None
+    # Set when the requirement needs the person's confirmation before it can be judged.
+    review: Literal["needs_confirmation"] | None = None
 
     @model_serializer(mode="wrap")
     def _omit_unset_labels(self, handler):
         # Findings from other providers keep exactly the original contract shape.
         data = handler(self)
-        for key in ("method", "ai_status"):
+        for key in ("method", "ai_status", "review"):
             if data.get(key) is None:
                 data.pop(key, None)
         return data
