@@ -1,16 +1,18 @@
 """Code rules for hybrid analysis: which requirements local AI may look at, and how far its answer
 for one requirement may go.
 
-Hard qualifications stay with the rules engine: experience, education, durations, credentials, and
-requirements whose text reads like instructions are never sent to local AI. Local AI only proposes
-which profile entries match; code decides the verdict and writes the explanation:
+Hard qualifications stay with the rules engine: employment, education, durations, credentials, and
+requirements containing text directed at an AI or reviewer are never sent to local AI. "Experience
+with <technology>" (no duration, role, or domain) is a skill requirement and may be sent.
+Local AI only proposes which profile entries match; code decides the verdict and writes the explanation:
 - "supported" only when it cites a listed skill whose name code recognizes as the same technology
   (word for word or a known alternate name) at the level the requirement asks for;
 - "possible" when a citation is code-recognized as related, or names the skill in a role or
   project, or the skill is listed below the level asked for. A model claim of "supported" that
   code can only confirm this far is lowered to "possible", never kept;
 - rejected (the rules verdict stands) when any citation is not verbatim, not from this request,
-  or unrelated to the requirement.
+  unrelated to the requirement, or taken from profile text directed at an AI or reviewer. In free
+  text, a word that is also ordinary English ("rust") counts only next to a technical word.
 Local AI may only add a match the rules engine missed; it never lowers or replaces a rules
 verdict. Nothing the model writes is shown: explanations come from code and the verified quotes.
 
@@ -21,10 +23,19 @@ from typing import Literal
 
 from app.matching.evidence import quote_is_verbatim
 from app.matching.relations import relation
-from app.matching.requirement_text import QUALIFICATION_WORDS, looks_like_instructions
+from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
+from app.matching.untrusted_text import has_directed_text, quote_in_trusted_text
 from app.matching.validate import stated_years
 from app.providers.rules import _PROFICIENCY_LABEL, _PROFICIENCY_RANK, required_skill_level
-from app.schemas import Citation, Evidence, Finding, ProjectEvidence, Requirement, SkillEvidence
+from app.schemas import (
+    Citation,
+    Evidence,
+    ExperienceEvidence,
+    Finding,
+    ProjectEvidence,
+    Requirement,
+    SkillEvidence,
+)
 
 VERDICT_RANK = {"insufficient_information": 0, "gap": 0, "possible": 1, "supported": 2}
 
@@ -38,6 +49,7 @@ Rejection = Literal[
     "no_citation",
     "unknown_evidence",
     "quote_not_verbatim",
+    "untrusted_text",
     "unrelated_citation",
 ]
 # Why a model's "supported" was lowered to "possible" (reported by the evaluation).
@@ -47,12 +59,35 @@ Lowered = Literal["related_only", "not_a_listed_skill", "level_not_met"]
 def semantic_eligible(requirement: Requirement) -> bool:
     """True when local AI may look for this requirement (a skill, not a hard qualification)."""
     text = requirement.text
+    skill = requirement.category in ("Skills", "Other") or (
+        requirement.category == "Experience" and skill_like_experience(text)
+    )
     return (
-        requirement.category in ("Skills", "Other")
+        skill
         and not stated_years(text)
         and not QUALIFICATION_WORDS.search(text)
-        and not looks_like_instructions(text)
+        and not has_directed_text(text)
     )
+
+
+def quote_source(item: Evidence, quote: str) -> tuple[bool, str | None]:
+    """Where a verbatim quote may come from: (allowed, free_text_field). Names, titles, and listed
+    skills are structured; descriptions are free text, where only trusted parts may be quoted and
+    the field is returned so ambiguous words can be checked for technical context."""
+    if isinstance(item, SkillEvidence):
+        return quote in item.name, None
+    if isinstance(item, ExperienceEvidence):
+        structured, free = [item.job_title], [item.description]
+    elif isinstance(item, ProjectEvidence):
+        structured, free = [item.title, *item.skills], [item.description, item.contribution, item.results]
+    else:
+        return False, None  # education is never sent to local AI
+    if any(quote in field for field in structured):
+        return True, None
+    for field in free:
+        if field and quote in field and quote_in_trusted_text(field, quote):
+            return True, field
+    return False, None
 
 
 def _quoted(quotes: list[str]) -> str:
@@ -85,7 +120,10 @@ def check_local_finding(
         quote = raw["quote"]
         if not 1 <= len(quote) <= 300 or not quote_is_verbatim(cited, quote):
             return "quote_not_verbatim"
-        strength = relation(requirement.text, quote)
+        allowed, free_text = quote_source(cited, quote)
+        if not allowed:
+            return "untrusted_text"
+        strength = relation(requirement.text, quote, free_text)
         if strength is None:  # every citation must be about this requirement
             return "unrelated_citation"
         citations.append(Citation(evidence_id=cited.id, quote=quote))

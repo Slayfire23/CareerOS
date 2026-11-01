@@ -11,9 +11,10 @@ Changing any text here needs a new HYBRID_PROMPT_VERSION.
 import json
 from collections.abc import Sequence
 
+from app.matching.untrusted_text import masked
 from app.schemas import Evidence, ExperienceEvidence, ProjectEvidence, Requirement, SkillEvidence
 
-HYBRID_PROMPT_VERSION = "hybrid-v2"
+HYBRID_PROMPT_VERSION = "hybrid-v3"
 LOCAL_AI_VERDICTS = ("supported", "possible", "insufficient_information")
 
 HYBRID_SYSTEM_PROMPT = """You find skills that a keyword search missed. For each requirement, \
@@ -55,18 +56,23 @@ def short_ids(evidence: Sequence[Evidence]) -> dict[str, Evidence]:
     return mapping
 
 
+def _free(text: str | None) -> str | None:
+    """Free text with any part directed at an AI or reviewer replaced by a marker."""
+    return masked(text) if text else None
+
+
 def _evidence_view(short_id: str, item: Evidence) -> dict:
     if isinstance(item, SkillEvidence):
         return {"id": short_id, "skill": item.name}
     if isinstance(item, ExperienceEvidence):
-        return {"id": short_id, "job_title": item.job_title, "description": item.description}
+        return {"id": short_id, "job_title": item.job_title, "description": _free(item.description)}
     assert isinstance(item, ProjectEvidence)
     return {
         "id": short_id,
         "title": item.title,
-        "description": item.description,
-        "contribution": item.contribution,
-        "results": item.results,
+        "description": _free(item.description),
+        "contribution": _free(item.contribution),
+        "results": _free(item.results),
         "skills": item.skills or None,
     }
 

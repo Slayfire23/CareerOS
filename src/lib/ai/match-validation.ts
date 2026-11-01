@@ -12,7 +12,8 @@ import {
 } from "@/lib/ai/evidence";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
-import { PROFICIENCY_RANK, hasQualificationWords, looksLikeInstructions, relation, requiredSkillLevel } from "@/lib/ai/skill-relations";
+import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
+import { hasDirectedText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 import type { TokenUsage } from "@/lib/ai/pricing";
 
 // Independent re-validation of the AI service's response. The service already enforces these
@@ -71,12 +72,31 @@ export function statedYears(text: string): number[] {
   });
 }
 
+/** "Experience with <technology>", with no duration, role, domain, or credential (requirement_text.py). */
+export function skillLikeExperience(text: string): boolean {
+  return statedYears(text).length === 0 && !hasQualificationWords(text) && !namesEmployment(text) && technologyTerms(text).size > 0;
+}
+
 /** Local AI may only look at skill requirements, never hard qualifications (hybrid_checks.py). */
 export function semanticEligible(requirement: MatchRequest["requirements"][number]): boolean {
-  return (requirement.category === "Skills" || requirement.category === "Other")
+  const skill = requirement.category === "Skills" || requirement.category === "Other"
+    || (requirement.category === "Experience" && skillLikeExperience(requirement.text));
+  return skill
     && statedYears(requirement.text).length === 0
     && !hasQualificationWords(requirement.text)
-    && !looksLikeInstructions(requirement.text);
+    && !hasDirectedText(requirement.text);
+}
+
+/** Where a quote may come from: structured fields, or trusted parts of free text (returned). */
+function quoteSource(item: Evidence, quote: string): { allowed: boolean; freeText: string | null } {
+  if (item.kind === "skill") return { allowed: item.name.includes(quote), freeText: null };
+  if (item.kind === "education") return { allowed: false, freeText: null };
+  const [structured, free] = item.kind === "experience"
+    ? [[item.job_title], [item.description]]
+    : [[item.title, ...item.skills], [item.description, item.contribution, item.results]];
+  if (structured.some(f => f.includes(quote))) return { allowed: true, freeText: null };
+  const field = free.find(f => f && f.includes(quote) && quoteInTrustedText(f, quote));
+  return field ? { allowed: true, freeText: field } : { allowed: false, freeText: null };
 }
 
 /** Re-check a local-AI finding from a hybrid analysis: how far its citations allow it to go. */
@@ -86,7 +106,9 @@ function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], 
   const strengths = citations.map(c => {
     const item = evidence.get(c.evidenceId)!;
     if (item.kind === "education") reject("local AI cited education");
-    return { item, quote: c.quote, strength: relation(requirement.text, c.quote) ?? reject("local AI cited unrelated evidence") };
+    const source = quoteSource(item, c.quote);
+    if (!source.allowed) reject("local AI cited text directed at an AI or reviewer");
+    return { item, quote: c.quote, strength: relation(requirement.text, c.quote, source.freeText) ?? reject("local AI cited unrelated evidence") };
   });
   if (verdict === "supported") {
     const needed = requiredSkillLevel(requirement.text);

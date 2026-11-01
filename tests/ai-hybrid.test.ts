@@ -4,25 +4,31 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import type { MatchRequest } from "@/lib/ai/evidence";
-import { semanticEligible, validateMatchResponse } from "@/lib/ai/match-validation";
-import { hasQualificationWords, looksLikeInstructions, relation, requiredSkillLevel } from "@/lib/ai/skill-relations";
+import { semanticEligible, skillLikeExperience, validateMatchResponse } from "@/lib/ai/match-validation";
+import { hasQualificationWords, relation, requiredSkillLevel } from "@/lib/ai/skill-relations";
+import { hasDirectedText, qualificationText } from "@/lib/ai/untrusted-text";
 
 // Hybrid analysis (rules engine plus local AI): the TypeScript re-check must agree with the AI
 // service. Fictional data only.
 
 const fixture = JSON.parse(readFileSync("ai-service/tests/fixtures/relation_cases.json", "utf8")) as {
-  relations: { requirement: string; quote: string; relation: string | null }[];
-  texts: { text: string; instructions: boolean; qualification: boolean; level: number | null }[];
+  relations: { requirement: string; quote: string; field: string | null; relation: string | null }[];
+  texts: { text: string; directed: boolean; qualification_text: string; qualification: boolean; level: number | null; skill_like_experience: boolean }[];
 };
 
-describe("skill relations match the Python implementation", () => {
-  it.each(fixture.relations)("$requirement / $quote", ({ requirement, quote, relation: expected }) => {
-    expect(relation(requirement, quote)).toBe(expected);
+describe("skill relations and untrusted text match the Python implementation", () => {
+  it.each(fixture.relations)("$requirement / $quote", ({ requirement, quote, field, relation: expected }) => {
+    expect(relation(requirement, quote, field)).toBe(expected);
   });
 
-  it.each(fixture.texts)("requirement wording: $text", ({ text, instructions, qualification, level }) => {
-    expect({ instructions: looksLikeInstructions(text), qualification: hasQualificationWords(text), level: requiredSkillLevel(text) })
-      .toEqual({ instructions, qualification, level });
+  it.each(fixture.texts)("requirement wording: $text", ({ text, ...expected }) => {
+    expect({
+      directed: hasDirectedText(text),
+      qualification_text: qualificationText(text),
+      qualification: hasQualificationWords(text),
+      level: requiredSkillLevel(text),
+      skill_like_experience: skillLikeExperience(text),
+    }).toEqual(expected);
   });
 });
 
@@ -58,7 +64,7 @@ function response(overrides: Record<number, Partial<RawFinding>> = {}) {
   for (const f of findings) counts[f.verdict as string]++;
   return {
     request_id: REQUEST.request_id, findings, verdict_counts: counts, provider: "hybrid", model: "qwen3:8b",
-    method_version: "hybrid/rules-v1+qwen3:8b/hybrid-v2", usage: { input_tokens: 900, output_tokens: 80 }, provider_request_id: null,
+    method_version: "hybrid/rules-v2+qwen3:8b/hybrid-v2", usage: { input_tokens: 900, output_tokens: 80 }, provider_request_id: null,
   };
 }
 
@@ -98,7 +104,7 @@ describe("hybrid response validation", () => {
 
   it("rejects method labels from any other provider", () => {
     const rules = response({ 0: { method: "rules", ai_status: "not_needed", verdict: "insufficient_information", citations: [] }, 3: { method: "rules", ai_status: "not_needed" } });
-    const body = { ...rules, provider: "rules", model: null, method_version: "rules-v1", usage: null };
+    const body = { ...rules, provider: "rules", model: null, method_version: "rules-v2", usage: null };
     expect(() => validateMatchResponse({ ...REQUEST, provider: "rules" }, body, { provider: "rules", model: null })).toThrow("may not set");
   });
 

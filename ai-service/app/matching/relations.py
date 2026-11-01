@@ -4,9 +4,12 @@ Local AI proposes matches; this decides how far a proposal may go:
 - "same": the quote names the same thing as the requirement, word for word or by a known
   alternate name ("Postgres" for "PostgreSQL", "K8s" for "Kubernetes").
 - "related": a different but related technology (MySQL for "relational databases", React for
-  "React Native"), or a word that shares a 4+ character stem.
+  "React Native"), or the same word with a short ending ("database" and "databases").
 - None: unrelated. Known look-alikes that are different technologies ("Java" and "JavaScript")
   are never related.
+
+Words that are also ordinary English ("Rust", "Go", "Excel") count in free text (role and project
+descriptions) only next to a technical word, so "rust prevention coatings" is not Rust.
 
 Next.js applies the same table with the same rules (src/lib/ai/skill-relations.ts), and both test
 suites check the shared examples in tests/fixtures/relation_cases.json.
@@ -45,6 +48,22 @@ def _raw() -> dict:
 def generic_terms() -> frozenset[str]:
     """Words that never establish a match on their own ("administration", "programming")."""
     return RELEVANCE_STOPWORDS | frozenset(_raw()["generic"])
+
+
+@lru_cache(maxsize=1)
+def _word_lists() -> tuple[frozenset[str], frozenset[str], frozenset[str]]:
+    raw = _raw()
+    return frozenset(raw["ambiguous"]), frozenset(raw["tech_context"]), frozenset(raw["employment_words"])
+
+
+@lru_cache(maxsize=1)
+def vocabulary() -> frozenset[str]:
+    """Every technology and concept term the table knows, in canonical form."""
+    phrases, _, families, _ = _table()
+    known = set(phrases.values())
+    for terms, members in families:
+        known |= terms | members
+    return frozenset(known)
 
 
 @lru_cache(maxsize=1)
@@ -95,7 +114,10 @@ def _related(a: str, b: str) -> bool:
     if frozenset((a, b)) in distinct:
         return False
     short, long_ = sorted((a, b), key=len)
-    if len(short) >= 4 and long_.startswith(short):
+    # A shared stem counts only for a short ending ("database"/"databases") or two known names
+    # ("react"/"reactnative"), not for unrelated words ("scala"/"scalability").
+    known = vocabulary()
+    if len(short) >= 4 and long_.startswith(short) and (len(long_) - len(short) <= 3 or {a, b} <= known):
         return True
     return any(
         a in terms | members and b in terms | members and (a in members or b in members)
@@ -103,8 +125,44 @@ def _related(a: str, b: str) -> bool:
     )
 
 
-def relation(requirement_text: str, quote: str) -> Relation | None:
-    wanted, found = canonical_terms(requirement_text), canonical_terms(quote)
+def has_tech_context(field_text: str, quote: str, word: str) -> bool:
+    """True when an ambiguous word in the quote sits near a technical word in its field."""
+    _, context, _ = _word_lists()
+    tokens = words(field_text)
+    known = vocabulary()
+    for i, token in enumerate(tokens):
+        if token != word:
+            continue
+        window = tokens[max(0, i - 6) : i] + tokens[i + 1 : i + 7]
+        if any(t in context or (t in known and t != word) for t in window):
+            return True
+    return word not in words(field_text)  # the word only appears inside a longer token
+
+
+def quote_terms(quote: str, field_text: str | None = None) -> set[str]:
+    """Terms in a quote. For free text, ambiguous words without technical context are dropped."""
+    terms = canonical_terms(quote)
+    if field_text is None:
+        return terms
+    ambiguous, _, _ = _word_lists()
+    return {t for t in terms if t not in ambiguous or has_tech_context(field_text, quote, t)}
+
+
+def technology_terms(text: str) -> set[str]:
+    """Known technology names in the text (for deciding whether a requirement names one)."""
+    return canonical_terms(text) & vocabulary()
+
+
+def names_employment(text: str) -> bool:
+    """True when the text speaks of employment, roles, duration, or a domain, not just a tool."""
+    _, _, employment = _word_lists()
+    return any(w in employment for w in words(text))
+
+
+def relation(requirement_text: str, quote: str, field_text: str | None = None) -> Relation | None:
+    """How a quote relates to a requirement. Pass ``field_text`` (the profile field the quote came
+    from) when the quote is from free text, so ambiguous words need technical context."""
+    wanted, found = canonical_terms(requirement_text), quote_terms(quote, field_text)
     if wanted & found:
         return "same"
     if any(_related(a, b) for a in wanted for b in found):

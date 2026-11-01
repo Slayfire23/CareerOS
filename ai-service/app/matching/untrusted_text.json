@@ -1,0 +1,22 @@
+{
+  "_comment": "Read by app/matching/untrusted_text.py and src/lib/ai/untrusted-text.ts. Each pattern is compiled case-insensitively in both languages, so it must use only syntax Python and JavaScript share. Changing this file changes what job and profile text is ignored, so it needs review and the shared fixture (tests/fixtures/untrusted_text_cases.json) must still pass.",
+  "enclosed": "\\([^()]*\\)|\\[[^\\[\\]]*\\]|\\{[\\s\\S]*\\}",
+  "boundary": "(?<=[.!?])\\s+(?=[A-Z0-9(\\[\"'{¿¡])|\\n+|;\\s*|\\s+[—–]\\s+|\\s+--\\s+",
+  "evaluator_directed": [
+    "^\\W*(system|assistant|developer)\\s*:",
+    "\\b(ignore|disregard|forget)\\b[^.]{0,40}\\b(instructions?|rules?|prompts?|previous|above|earlier|guidelines?|polic(y|ies)|constraints?)\\b",
+    "\\b(override|bypass)\\b[^.]{0,30}\\b(instructions?|prompts?|(your|the|these|those|all|any|previous|earlier|grading|scoring|evaluation)\\s+(rules|guidelines|criteria|policy|policies))\\b",
+    "\\b(note|message|instructions?|reminder|hint)\\s+(to|for)\\s+(the\\s+|any\\s+|all\\s+)?(reviewer\\s+|screening\\s+|automated\\s+|hiring\\s+)?(ai|a\\.i\\.|assistant|chat\\s?bot|bot|model|llm|gpt|chatgpt|claude|gemini|grader|evaluator|screener|algorithm|parser|ats)\\b",
+    "\\b(dear|hey|hello|attention)\\s*,?\\s+(the\\s+)?(reviewer\\s+|screening\\s+|automated\\s+|hiring\\s+)?(ai|a\\.i\\.|assistant|chat\\s?bot|bot|model|llm|gpt|chatgpt|claude|gemini|grader|evaluator|screener|algorithm|parser|ats)\\b\\s*[:,]",
+    "\\bif\\s+you\\s+are\\s+(an?\\s+)?(ai|assistant|bot|model|llm|language model|grader|screener|automated)\\b",
+    "\\b(mark|rate|score|grade|label|treat|count|answer|respond|reply|output|return|say|give|award|assign|classify|flag|approve)\\b[^.]{0,60}\\b(supported|verdicts?|requirements?\\s+(is|are)\\s+met|as\\s+met|as\\s+satisfied|as\\s+equivalent|as\\s+the\\s+same|full\\s+credit|partial\\s+credit|credit|points|a\\s+match|as\\s+matched|as\\s+qualified|insufficient_information)\\b",
+    "^\\W*(p\\.?\\s?s\\.?\\W*|note\\W*|also\\W*|please\\W*|btw\\W*)*(treat|mark|rate|score|grade|give|award|assume|pretend|ignore|disregard|override|count)\\s+(this|it|that|them|all|every|any|everything|the\\s+candidate|the\\s+applicant|the\\s+requirement|[A-Za-z0-9+#.]+\\s+as)\\b",
+    "\\b(this|the)\\s+(candidate|applicant|person|user|profile|resume|cv)\\s+(already|actually|definitely|clearly)\\s+(has|have|is|knows|meets|satisfies|qualifies)\\b",
+    "\\b(this|the)\\s+(candidate|applicant|person|requirement|profile)\\s+(should|must)\\s+be\\s+(marked|rated|scored|treated|considered|counted|graded)\\b",
+    "[\"'`](supported|insufficient_information|requirement_index)[\"'`]",
+    "\\b(instrucci[oó]n(es)?|ign[oó]ra(r|lo)?|marque|marcar|consigne|ignorez|anweisung(en)?|ignoriere|instru[cç][aã]o|ignore\\s+as\\s+regras)\\b",
+    "^\\W*(the\\s+)?(reviewer\\s+|screening\\s+|automated\\s+|hiring\\s+)?(assistant|chat\\s?bot|bot|llm|gpt|chatgpt|claude|gemini|grader|evaluator|screener|ats|ai\\s+(note|override|instructions?|message))(\\s+[a-z]+)?\\s*:",
+    "\\b(cite|quote|use)\\s+(this|these|the\\s+following)\\s+(sentence|text|line|statement|entry|project|role)s?\\s+(as|for)\\s+(proof|evidence)\\b",
+    "\\b(all|every)\\s+(listed\\s+|of\\s+the\\s+|the\\s+|job\\s+)?requirements?\\b[^.]{0,30}\\b(is|are|were|have\\s+been)\\s+(already\\s+)?(met|satisfied|fulfilled)\\b[^.]{0,30}\\b((by|for)\\s+(this|the)\\s+(candidate|applicant|person|profile|project|role|entry)|in\\s+this\\s+(job|posting))\\b"
+  ]
+}

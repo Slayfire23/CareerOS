@@ -140,7 +140,7 @@ it("when the AI computer is off, the run fails cleanly, uses no daily allowance,
   expect((await getAnalysisPageData(accountA, job.id, cfg))?.remainingToday).toBe(20);
 
   const rules = await runJobAnalysis({ supabaseAuthId: accountA, jobId: job.id, provider: "rules", config: cfg, fetchImpl: fakeService((r, body) => {
-    body.provider = "rules"; body.model = null; body.method_version = "rules-v1"; body.usage = null;
+    body.provider = "rules"; body.model = null; body.method_version = "rules-v2"; body.usage = null;
   }).fetchImpl as unknown as typeof fetch });
   expect(rules).toMatchObject({ ok: true });
 });

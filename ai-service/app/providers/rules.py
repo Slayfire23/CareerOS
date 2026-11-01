@@ -5,6 +5,10 @@ never returns a skills "gap". It also cannot judge whether experience is relevan
 years-of-experience requirement that is met is reported as "possible" rather than "supported".
 A listed skill is "supported" only when the requirement names exactly that skill, asks for no
 number of years with it, and asks for no credential (see _skill_caveats).
+
+Job and profile text is untrusted: parts directed at an AI or reviewer are removed before any
+matching (untrusted_text.py). "Experience with <technology>", with no duration or role, is judged
+as a skill requirement (requirement_text.skill_like_experience).
 """
 
 import re
@@ -13,11 +17,17 @@ from app.matching.evidence import (
     PROJECT_NOT_EMPLOYMENT,
     contains_phrase,
     employment_months,
-    find_verbatim,
     format_years,
 )
-from app.matching.relations import canonical_terms
-from app.matching.requirement_text import INSTRUCTION_TEXT, QUALIFICATION_WORDS, looks_like_instructions
+from app.matching.relations import canonical_terms, generic_terms, quote_terms
+from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
+from app.matching.untrusted_text import (
+    INSTRUCTION_TEXT,
+    INSTRUCTIONS_IGNORED,
+    directed_spans,
+    has_directed_text,
+    qualification_text,
+)
 from app.matching.validate import stated_years
 from app.schemas import (
     Citation,
@@ -36,6 +46,7 @@ PART_OF_LONGER_NAME = (
 )
 YEARS_PER_SKILL = "This asks for years with the skill; your profile does not record years per skill."
 CREDENTIAL_NOT_SHOWN = "Listing a skill does not show the certification or license this asks for."
+JUDGED_AS_SKILL = "This names a technology with no duration or role, so it was judged as a skill."
 # Words too generic to count as a match on their own.
 GENERIC_WORDS = frozenset(
     """a an and the or of in on to for with as such like using use including plus etc
@@ -67,7 +78,11 @@ def required_skill_level(text: str) -> tuple[int, str] | None:
 
 _YEARS = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:or more\s+)?years?", re.IGNORECASE)
 _LEVELS = [  # (rank, label, patterns), ordered most to least specific per rank
-    (4, "doctorate", [r"\bph\.?\s?d\b", r"\bdoctorate\b", r"\bdoctoral\b"]),
+    (
+        4,
+        "doctorate",
+        [r"\bph\.?\s?d\b", r"\bd\.?\s?phil\b", r"\bdoctorate\b", r"\bdoctoral\b", r"\bed\.?\s?d\b"],
+    ),
     (
         3,
         "master's",
@@ -75,6 +90,10 @@ _LEVELS = [  # (rank, label, patterns), ordered most to least specific per rank
             r"\bmaster'?s?\b",
             r"\bm\.?\s?s\.?(?=\s|$|,)",
             r"\bm\.?\s?eng\b",
+            r"\bm\.?\s?sc\b",
+            r"\bm\.?\s?phil\b",
+            r"\bm\.?\s?res\b",
+            r"\bm\.?\s?ed\b",
             r"\bmba\b",
             r"\bm\.?\s?a\.?(?=\s|$|,)",
         ],
@@ -92,7 +111,14 @@ _LEVELS = [  # (rank, label, patterns), ordered most to least specific per rank
         ],
     ),
     (1, "associate", [r"\bassociate'?s? degree\b", r"\ba\.?\s?a\.?s\.?(?=\s|$|,)"]),
+    (0, "high school", [r"\bhigh[\s-]school\b", r"\bsecondary school\b", r"\bged\b", r"\bhs diploma\b"]),
 ]
+# Words in an education requirement that don't name a field of study.
+_NO_FIELD_WORDS = frozenset(
+    """or and a an the in of any equivalent equivalents equivalency related field fields degree degrees
+    diploma required preferred minimum plus higher level from accredited institution university college
+    school high secondary ged completed completion qualification qualifications""".split()
+)
 
 
 def degree_rank(text: str) -> tuple[int, str] | None:
@@ -115,7 +141,7 @@ def _finding(requirement: Requirement, verdict, explanation: str, citations=(), 
 class RulesProvider:
     name = "rules"
     model = None
-    method_version = "rules-v1"
+    method_version = "rules-v2"
     local = True
     generative = False
 
@@ -123,14 +149,27 @@ class RulesProvider:
         return [self._assess(request, requirement) for requirement in request.requirements]
 
     def _assess(self, request: MatchRequest, requirement: Requirement) -> Finding:
-        if requirement.category in ("Skills", "Other") and looks_like_instructions(requirement.text):
-            # Keyword matching would pick up a skill an injected instruction names.
-            return _finding(requirement, "insufficient_information", INSTRUCTION_TEXT)
-        if requirement.category == "Experience":
-            return self._experience(request, requirement)
-        if requirement.category == "Education":
-            return self._education(request, requirement)
-        return self._skills(request, requirement)
+        # Only the qualification itself is judged; text aimed at an AI or reviewer is set aside.
+        notes: list[str] = []
+        if has_directed_text(requirement.text):
+            text = qualification_text(requirement.text)
+            if not text:
+                return _finding(requirement, "insufficient_information", INSTRUCTION_TEXT)
+            requirement = requirement.model_copy(update={"text": text})
+            notes.append(INSTRUCTIONS_IGNORED)
+        if requirement.category == "Experience" and skill_like_experience(requirement.text):
+            finding = self._skills(request, requirement)
+            notes.append(JUDGED_AS_SKILL)
+        elif requirement.category == "Experience":
+            finding = self._experience(request, requirement)
+        elif requirement.category == "Education":
+            finding = self._education(request, requirement)
+        else:
+            finding = self._skills(request, requirement)
+        if not notes:
+            return finding
+        caveats = list(dict.fromkeys([*finding.caveats, *notes]))[:5]
+        return finding.model_copy(update={"caveats": caveats})
 
     def _experience(self, request: MatchRequest, requirement: Requirement) -> Finding:
         roles = [e for e in request.evidence if isinstance(e, ExperienceEvidence)]
@@ -222,6 +261,14 @@ class RulesProvider:
                     f"You list a {wanted[1]} level qualification in {entry.field_of_study}.",
                     citations,
                 )
+            if not self._asks_for_field(requirement.text):
+                # Any field will do, and a higher degree meets a lower minimum.
+                return _finding(
+                    requirement,
+                    "supported",
+                    f"You list a qualification at or above the {wanted[1]} level this asks for.",
+                    citations,
+                )
             return _finding(
                 requirement,
                 "possible",
@@ -306,6 +353,17 @@ class RulesProvider:
         )
 
     @staticmethod
+    def _asks_for_field(requirement_text: str) -> bool:
+        """True when an education requirement names a field of study (not just a level)."""
+        level_words = {"bachelor", "master", "doctorate", "associate", "phd", "bs", "ba", "ms", "ma", "mba"}
+        remaining = [
+            t
+            for t in canonical_terms(requirement_text)
+            if t not in _NO_FIELD_WORDS and t not in level_words and degree_rank(t) is None
+        ]
+        return bool(remaining)
+
+    @staticmethod
     def _skill_caveats(requirement_text: str, matched: list[SkillEvidence]) -> list[str]:
         """Why a listed skill named in the requirement does not fully meet it (empty if it does)."""
         caveats = []
@@ -323,16 +381,27 @@ class RulesProvider:
     def _shared_term(requirement_text: str, evidence_text: str) -> str | None:
         """A specific word or two-word phrase found in both texts, quoted exactly as in the evidence.
 
-        Generic requirement words ("knowledge", "tools", "strong") are ignored so they cannot
-        produce matches on their own. Two-word phrases are tried first.
+        Generic words ("knowledge", "tools", "administration") are ignored so they cannot produce
+        matches on their own, and two-word phrases are tried first. Profile text aimed at an AI or
+        reviewer is skipped. A word that is also ordinary English ("rust", "excel") must appear
+        next to a technical word, so "rust prevention coatings" doesn't match Rust.
         """
+        generic = GENERIC_WORDS | generic_terms()
+        directed = directed_spans(evidence_text)
         words = re.findall(r"[A-Za-z][A-Za-z0-9+#.&-]*", requirement_text)
         for size in (2, 1):
             for i in range(len(words) - size + 1):
                 window = words[i : i + size]
-                if any(w.casefold() in GENERIC_WORDS or len(w) < 3 for w in window):
+                if any(w.casefold() in generic or len(w) < 3 for w in window):
                     continue
                 phrase = " ".join(window)
-                if contains_phrase(evidence_text, phrase):
-                    return find_verbatim(evidence_text, phrase)
+                if not contains_phrase(evidence_text, phrase):
+                    continue
+                whole = rf"(?<![A-Za-z0-9]){re.escape(phrase)}(?![A-Za-z0-9])"
+                for match in re.finditer(whole, evidence_text, flags=re.IGNORECASE):
+                    if any(s < match.end() and match.start() < e for s, e in directed):
+                        continue
+                    quote = match.group(0)
+                    if quote_terms(quote, evidence_text) or size > 1:
+                        return quote
         return None

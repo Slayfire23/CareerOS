@@ -12,7 +12,8 @@ from fastapi.testclient import TestClient
 
 from app.main import create_app
 from app.matching.relations import relation
-from app.matching.requirement_text import QUALIFICATION_WORDS, looks_like_instructions
+from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
+from app.matching.untrusted_text import has_directed_text, qualification_text
 from app.providers.hybrid import HybridProvider
 from app.providers.ollama import OllamaProvider
 from app.providers.rules import RulesProvider, required_skill_level
@@ -111,17 +112,19 @@ def answer(index: int, verdict: str, *citations: tuple[str, str]) -> dict:
 
 @pytest.mark.parametrize("case", FIXTURE["relations"], ids=lambda c: f"{c['requirement']}|{c['quote']}")
 def test_relations_match_the_shared_fixture(case):
-    assert relation(case["requirement"], case["quote"]) == case["relation"]
+    assert relation(case["requirement"], case["quote"], case["field"]) == case["relation"]
 
 
 @pytest.mark.parametrize("case", FIXTURE["texts"], ids=lambda c: c["text"][:40])
 def test_requirement_wording_matches_the_shared_fixture(case):
     level = required_skill_level(case["text"])
     assert {
-        "instructions": looks_like_instructions(case["text"]),
+        "directed": has_directed_text(case["text"]),
+        "qualification_text": qualification_text(case["text"]),
         "qualification": bool(QUALIFICATION_WORDS.search(case["text"])),
         "level": level[0] if level else None,
-    } == {k: case[k] for k in ("instructions", "qualification", "level")}
+        "skill_like_experience": skill_like_experience(case["text"]),
+    } == {k: v for k, v in case.items() if k != "text"}
 
 
 # --- Per-requirement decisions ----------------------------------------------------------------
@@ -311,7 +314,7 @@ def app_with(mock: ScriptedOllama):
 def test_api_returns_labeled_findings_and_omits_labels_for_other_providers(example_request):
     client = app_with(ScriptedOllama({"findings": []}))
     body = post_match(client, {**example_request, "provider": "hybrid"}).json()
-    assert body["provider"] == "hybrid" and body["method_version"] == "hybrid/rules-v1+qwen3:8b/hybrid-v2"
+    assert body["provider"] == "hybrid" and body["method_version"] == "hybrid/rules-v2+qwen3:8b/hybrid-v3"
     assert all(f["method"] == "rules" and f["ai_status"] for f in body["findings"])
     rules = post_match(client, {**example_request, "provider": "rules"}).json()
     assert all("method" not in f and "ai_status" not in f for f in rules["findings"])

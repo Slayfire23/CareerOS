@@ -38,7 +38,7 @@ function fakeService(overrides: (request: MatchRequest, body: Record<string, unk
     });
     const counts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 } as Record<string, number>;
     for (const f of findings) counts[f.verdict]++;
-    const body: Record<string, unknown> = { request_id: request.request_id, findings, verdict_counts: counts, provider: request.provider, model: null, method_version: "rules-v1", usage: null, provider_request_id: null };
+    const body: Record<string, unknown> = { request_id: request.request_id, findings, verdict_counts: counts, provider: request.provider, model: null, method_version: "rules-v2", usage: null, provider_request_id: null };
     overrides(request, body);
     return new Response(JSON.stringify(body), { status: 200 });
   });
@@ -219,7 +219,7 @@ it("database constraints reject cross-account links and inconsistent rows", asyn
   await run(accountA, jobA.id);
   const runA = await prisma.aiAnalysisRun.findFirstOrThrow({ where: { savedJobId: jobA.id } });
   const userB = await prisma.user.findUniqueOrThrow({ where: { supabaseAuthId: accountB } });
-  const base = { requirementsVersion: 1, profileFingerprint: "a".repeat(64), provider: "rules", methodVersion: "rules-v1", requirements: [], findings: [], verdictCounts: {} };
+  const base = { requirementsVersion: 1, profileFingerprint: "a".repeat(64), provider: "rules", methodVersion: "rules-v2", requirements: [], findings: [], verdictCounts: {} };
 
   // B's analysis may not point at A's job, nor at A's run.
   const runB = await prisma.aiAnalysisRun.create({ data: { userId: userB.id, provider: "rules" } });

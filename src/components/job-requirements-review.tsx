@@ -3,6 +3,7 @@ import { useActionState, useId, useState } from "react";
 import { requirementsHref } from "@/lib/sections";
 import { categories, priorities, type Requirement } from "@/lib/job-requirements";
 import { saveRequirements, type RequirementState } from "@/app/jobs/requirements-actions";
+import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
 export function JobRequirementsReview({id, description, version, reviewed, stale, initial}: {id: string; description: string; version: number; reviewed: boolean; stale: boolean; initial: Requirement[]}) {
  const prefix = useId();
@@ -30,6 +31,7 @@ export function JobRequirementsReview({id, description, version, reviewed, stale
      <div>
       <label className="label" htmlFor={`${prefix}-${row.key}-text`}>Requirement {index + 1}</label>
       <textarea id={`${prefix}-${row.key}-text`} className="field" rows={2} maxLength={1000} required={row.selected} value={row.text} onChange={event => update(row.key, {text: event.target.value})} />
+      {hasDirectedText(row.text) && <p className="alert mt-2">Part of this text reads like instructions to an AI or reviewer, not a qualification. Analysis ignores that part; remove it unless it states a real requirement.</p>}
      </div>
      <div className="grid gap-3 sm:grid-cols-2">
       <div>
