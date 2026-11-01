@@ -44,9 +44,9 @@ export function qualificationText(text: string): string {
     .join(" ");
 }
 
-/** True if some occurrence of the quote lies outside every evaluator-directed segment. */
-export function quoteInTrustedText(text: string, quote: string): boolean {
-  const directed = directedSpans(text);
+/** True if some occurrence of the quote lies outside every evaluator-directed segment (or the given spans). */
+export function quoteInTrustedText(text: string, quote: string, spans?: Span[]): boolean {
+  const directed = spans ?? directedSpans(text);
   for (let start = text.indexOf(quote); start >= 0; start = text.indexOf(quote, start + 1)) {
     const end = start + quote.length;
     if (!directed.some(([s, e]) => s < end && start < e)) return true;

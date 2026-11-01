@@ -126,17 +126,19 @@ def _related(a: str, b: str) -> bool:
 
 
 def has_tech_context(field_text: str, quote: str, word: str) -> bool:
-    """True when an ambiguous word in the quote sits near a technical word in its field."""
+    """True when an ambiguous word sits within three words of a technical noun or another known
+    technology in its field, outside any hyphenated compound ("go-kart", "go-live")."""
     _, context, _ = _word_lists()
-    tokens = words(field_text)
     known = vocabulary()
-    for i, token in enumerate(tokens):
-        if token != word:
-            continue
-        window = tokens[max(0, i - 6) : i] + tokens[i + 1 : i + 7]
+    pattern = re.compile(rf"(?<![\w.]){re.escape(word)}(?![\w])", re.IGNORECASE)
+    for match in pattern.finditer(field_text):
+        before, after = field_text[: match.start()], field_text[match.end() :]
+        if before.endswith("-") or re.match(r"-[a-z]", after, re.IGNORECASE):
+            continue  # part of a compound word, not the technology
+        window = words(before)[-3:] + words(after)[:3]
         if any(t in context or (t in known and t != word) for t in window):
             return True
-    return word not in words(field_text)  # the word only appears inside a longer token
+    return False
 
 
 def quote_terms(quote: str, field_text: str | None = None) -> set[str]:
@@ -168,3 +170,33 @@ def relation(requirement_text: str, quote: str, field_text: str | None = None) -
     if any(_related(a, b) for a in wanted for b in found):
         return "related"
     return None
+
+
+def _field_alternatives(text: str) -> list[frozenset[str]]:
+    """Fields of study a requirement names, as word sets: "Computer Science, Engineering, or a
+    related field" -> [{computer, science}, {engineering}]. Degree words and filler are dropped."""
+    raw = _raw()
+    stop = frozenset(raw["degree_field_stopwords"])
+    parts = re.split(r",|\bor\b|/|;", text, flags=re.IGNORECASE)
+    alternatives = []
+    for part in parts:
+        found = frozenset(w for w in words(part) if w not in stop and len(w) > 1 and not w.isdigit())
+        if found:
+            alternatives.append(found)
+    return alternatives
+
+
+def asks_for_field(requirement_text: str) -> bool:
+    return bool(_field_alternatives(requirement_text))
+
+
+def field_matches(requirement_text: str, field_of_study: str) -> bool:
+    """True when the field of study meets one of the fields the requirement names: every word of
+    that field appears in it ("engineering" in "Mechanical Engineering"), or a reviewed family
+    covers it ("quantitative" covers "Statistics"). Whole words only, never substrings."""
+    families = {k: frozenset(v) for k, v in _raw()["degree_field_families"].items()}
+    have = frozenset(words(field_of_study))
+    for wanted in _field_alternatives(requirement_text):
+        if all(w in have or (w in families and families[w] & have) for w in wanted):
+            return True
+    return False

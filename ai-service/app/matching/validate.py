@@ -30,6 +30,7 @@ from app.matching.evidence import (
     role_months,
     shares_term,
 )
+from app.matching.untrusted_text import qualification_text
 from app.schemas import (
     EducationEvidence,
     ExperienceEvidence,
@@ -83,13 +84,19 @@ def _allowed_year_values(request: MatchRequest, requirement: Requirement) -> set
 
 def _area_is_empty(request: MatchRequest, requirement: Requirement) -> bool:
     kinds: tuple[type, ...]
-    if requirement.category == "Experience":
+    if requirement.category == "Experience" and not _skill_like(qualification_text(requirement.text)):
         kinds = (ExperienceEvidence,)
     elif requirement.category == "Education":
         kinds = (EducationEvidence,)
     else:
         kinds = (SkillEvidence, ExperienceEvidence, ProjectEvidence)
     return not any(isinstance(e, kinds) for e in request.evidence)
+
+
+def _skill_like(text: str) -> bool:
+    from app.matching.requirement_text import skill_like_experience
+
+    return skill_like_experience(text)
 
 
 def validate_findings(request: MatchRequest, findings: list[Finding], strict: bool = False) -> list[Finding]:
@@ -130,7 +137,9 @@ def _check(
         verdict = "possible"
         caveats.append(UNRELATED_EVIDENCE)
 
-    if requirement.category == "Experience":
+    # "Experience with <technology>" is judged as a skill (requirement_text.skill_like_experience),
+    # so the employment rules below apply only to real employment requirements.
+    if requirement.category == "Experience" and not _skill_like(qualification_text(requirement.text)):
         cited = [evidence[c.evidence_id] for c in citations]
         if any(isinstance(e, ProjectEvidence) for e in cited):
             caveats.append(PROJECT_NOT_EMPLOYMENT)

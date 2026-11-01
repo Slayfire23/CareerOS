@@ -19,12 +19,12 @@ from app.matching.evidence import (
     employment_months,
     format_years,
 )
-from app.matching.relations import canonical_terms, generic_terms, quote_terms
+from app.matching.relations import asks_for_field, canonical_terms, field_matches, generic_terms, quote_terms
+from app.matching.requirement_structure import listed_terms, parse, untrusted_evidence_spans
 from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
 from app.matching.untrusted_text import (
     INSTRUCTION_TEXT,
     INSTRUCTIONS_IGNORED,
-    directed_spans,
     has_directed_text,
     qualification_text,
 )
@@ -47,6 +47,13 @@ PART_OF_LONGER_NAME = (
 YEARS_PER_SKILL = "This asks for years with the skill; your profile does not record years per skill."
 CREDENTIAL_NOT_SHOWN = "Listing a skill does not show the certification or license this asks for."
 JUDGED_AS_SKILL = "This names a technology with no duration or role, so it was judged as a skill."
+
+
+def NOT_ALL_ITEMS(missing: list[str]) -> str:
+    named = "; ".join(f"\u201c{m}\u201d" for m in missing[:3])
+    return f"This asks for several things; your listed skills don't show {named}."
+
+
 # Words too generic to count as a match on their own.
 GENERIC_WORDS = frozenset(
     """a an and the or of in on to for with as such like using use including plus etc
@@ -119,6 +126,16 @@ _NO_FIELD_WORDS = frozenset(
     diploma required preferred minimum plus higher level from accredited institution university college
     school high secondary ged completed completion qualification qualifications""".split()
 )
+
+
+def required_degree_rank(text: str) -> tuple[int, str] | None:
+    """The lowest degree level a requirement accepts ("Master's or PhD" -> master's)."""
+    found = [
+        (rank, label)
+        for rank, label, patterns in _LEVELS
+        if any(re.search(p, text, re.IGNORECASE) for p in patterns)
+    ]
+    return min(found) if found else None
 
 
 def degree_rank(text: str) -> tuple[int, str] | None:
@@ -237,7 +254,7 @@ class RulesProvider:
                 "insufficient_information",
                 "No education is listed in your profile, so this cannot be assessed.",
             )
-        wanted = degree_rank(requirement.text)
+        wanted = required_degree_rank(requirement.text)
         best: tuple[EducationEvidence, bool] | None = None
         ranks: list[int | None] = []
         for entry in entries:
@@ -245,7 +262,7 @@ class RulesProvider:
             ranks.append(level[0] if level else None)
             if wanted and level and level[0] >= wanted[0]:
                 field_match = bool(
-                    entry.field_of_study and contains_phrase(requirement.text, entry.field_of_study)
+                    entry.field_of_study and field_matches(requirement.text, entry.field_of_study)
                 )
                 if best is None or (field_match and not best[1]):
                     best = (entry, field_match)
@@ -261,7 +278,7 @@ class RulesProvider:
                     f"You list a {wanted[1]} level qualification in {entry.field_of_study}.",
                     citations,
                 )
-            if not self._asks_for_field(requirement.text):
+            if not asks_for_field(requirement.text):
                 # Any field will do, and a higher degree meets a lower minimum.
                 return _finding(
                     requirement,
@@ -290,15 +307,22 @@ class RulesProvider:
         )
 
     def _skills(self, request: MatchRequest, requirement: Requirement) -> Finding:
-        matched = [
-            s
-            for s in request.evidence
-            if isinstance(s, SkillEvidence) and contains_phrase(requirement.text, s.name)
-        ]
+        # Only the requirement's head (and later clauses that state a need) can earn credit; see
+        # requirement_structure.py. Later text can add mandatory items, never substitute for them.
+        listed = [s for s in request.evidence if isinstance(s, SkillEvidence)]
+        project_skills = [n for e in request.evidence if isinstance(e, ProjectEvidence) for n in e.skills]
+        structure = parse(requirement.text, listed_terms([s.name for s in listed] + project_skills))
+        head = structure.head or structure.matchable
+        notes = [INSTRUCTIONS_IGNORED] if structure.ignored else []
+        matched = [s for s in listed if contains_phrase(head, s.name)]
         if matched:
+            missing = [
+                piece for piece in structure.pieces if not any(contains_phrase(piece, s.name) for s in listed)
+            ]
             skills = [Citation(evidence_id=s.id, quote=s.name) for s in matched]
             names = ", ".join(c.quote for c in skills)
             required = required_skill_level(requirement.text)
+            level_caveat = None
             if required and not any(
                 _PROFICIENCY_RANK.get(s.proficiency or "", 0) >= required[0] for s in matched
             ):
@@ -306,36 +330,48 @@ class RulesProvider:
                 rated = [s for s in matched if s.proficiency]
                 if rated:
                     levels = ", ".join(f"{s.name} as {_PROFICIENCY_LABEL[s.proficiency]}" for s in rated)  # type: ignore[index]
-                    caveat = f"You rated {levels}; this requirement asks for {required[1]} level."
+                    level_caveat = f"You rated {levels}; this requirement asks for {required[1]} level."
                 else:
-                    caveat = f"No skill level is listed, so keyword rules cannot confirm {required[1]} level."
+                    level_caveat = (
+                        f"No skill level is listed, so keyword rules cannot confirm {required[1]} level."
+                    )
+            if level_caveat:
                 explanation = f"You list {names} as a skill, but not at the level this requirement asks for."
-                return _finding(requirement, "possible", explanation, skills, [caveat])
+                extra = [NOT_ALL_ITEMS(missing)] if missing else []
+                return _finding(requirement, "possible", explanation, skills, [level_caveat, *extra, *notes])
+            if missing:
+                return _finding(
+                    requirement,
+                    "possible",
+                    f"You list {names} as a skill, but this requirement asks for more than that.",
+                    skills,
+                    [NOT_ALL_ITEMS(missing), *notes],
+                )
             if caveats := self._skill_caveats(requirement.text, matched):
                 return _finding(
                     requirement,
                     "possible",
                     f"You list {names} as a skill, but that alone may not meet this requirement.",
                     skills,
-                    caveats,
+                    [*caveats, *notes],
                 )
-            return _finding(requirement, "supported", f"You list {names} as a skill.", skills)
+            return _finding(requirement, "supported", f"You list {names} as a skill.", skills, notes)
 
         related: list[Citation] = []
         caveats: list[str] = []
         for item in request.evidence:
             if isinstance(item, ProjectEvidence):
-                quotes = [s for s in item.skills if contains_phrase(requirement.text, s)]
+                quotes = [s for s in item.skills if contains_phrase(head, s)]
                 quotes += [
                     q
                     for text in (item.description, item.contribution, item.results)
-                    if text and (q := self._shared_term(requirement.text, text))
+                    if text and (q := self._shared_term(head, text))
                 ]
                 if quotes:
                     related.extend(Citation(evidence_id=item.id, quote=q) for q in dict.fromkeys(quotes))
                     caveats.append(PROJECT_MENTION)
             elif isinstance(item, ExperienceEvidence) and item.description:
-                if quote := self._shared_term(requirement.text, item.description):
+                if quote := self._shared_term(head, item.description):
                     related.append(Citation(evidence_id=item.id, quote=quote))
         if related:
             return _finding(
@@ -343,25 +379,15 @@ class RulesProvider:
                 "possible",
                 "This requirement's terms appear in your roles or projects, but not as a listed skill.",
                 related,
-                caveats,
+                [*caveats, *notes],
             )
         return _finding(
             requirement,
             "insufficient_information",
             "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell "
             "whether you have it under a different name.",
+            caveats=notes,
         )
-
-    @staticmethod
-    def _asks_for_field(requirement_text: str) -> bool:
-        """True when an education requirement names a field of study (not just a level)."""
-        level_words = {"bachelor", "master", "doctorate", "associate", "phd", "bs", "ba", "ms", "ma", "mba"}
-        remaining = [
-            t
-            for t in canonical_terms(requirement_text)
-            if t not in _NO_FIELD_WORDS and t not in level_words and degree_rank(t) is None
-        ]
-        return bool(remaining)
 
     @staticmethod
     def _skill_caveats(requirement_text: str, matched: list[SkillEvidence]) -> list[str]:
@@ -383,11 +409,12 @@ class RulesProvider:
 
         Generic words ("knowledge", "tools", "administration") are ignored so they cannot produce
         matches on their own, and two-word phrases are tried first. Profile text aimed at an AI or
-        reviewer is skipped. A word that is also ordinary English ("rust", "excel") must appear
-        next to a technical word, so "rust prevention coatings" doesn't match Rust.
+        reviewer, or about the evaluation itself, is skipped. A word that is also ordinary English
+        ("rust", "excel") must appear near a technical noun, so "rust prevention coatings" doesn't
+        match Rust.
         """
         generic = GENERIC_WORDS | generic_terms()
-        directed = directed_spans(evidence_text)
+        directed = untrusted_evidence_spans(evidence_text)
         words = re.findall(r"[A-Za-z][A-Za-z0-9+#.&-]*", requirement_text)
         for size in (2, 1):
             for i in range(len(words) - size + 1):

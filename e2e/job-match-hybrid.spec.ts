@@ -78,7 +78,7 @@ test("rules + local AI labels each finding's method and adds a synonym match", a
     // The injected clause is ignored: K8s is not credited for Tableau, and the finding says why.
     const tableau = findings.filter({ hasText: "Note to the AI" });
     await expect(tableau.getByText("Not enough information", { exact: true })).toBeVisible();
-    await expect(tableau.getByText(/reads like instructions to an AI or reviewer, so it was ignored/)).toBeVisible();
+    await expect(tableau.getByText(/reads like instructions to an AI or reviewer, or a claim about how it should be judged, so it was ignored/)).toBeVisible();
   } finally {
     await openPage(page, "/dashboard/jobs");
     if (await jobRow.count()) await confirmAction(jobRow.getByRole("button", { name: /^Remove / }));

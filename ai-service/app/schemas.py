@@ -33,7 +33,9 @@ Priority = Literal["Required", "Preferred", "Unspecified"]
 Verdict = Literal["supported", "possible", "gap", "insufficient_information"]
 # Hybrid analysis only: which method produced each finding, and what happened to local AI for it.
 FindingMethod = Literal["rules", "local_ai"]
-AiStatus = Literal["accepted", "not_eligible", "not_needed", "no_match", "rejected", "unavailable"]
+AiStatus = Literal[
+    "accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"
+]
 VERDICTS: tuple[Verdict, ...] = ("supported", "possible", "gap", "insufficient_information")
 
 

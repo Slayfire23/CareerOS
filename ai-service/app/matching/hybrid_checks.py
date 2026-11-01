@@ -23,10 +23,11 @@ from typing import Literal
 
 from app.matching.evidence import quote_is_verbatim
 from app.matching.relations import relation
+from app.matching.requirement_structure import Structure, listed_terms, parse, untrusted_evidence_spans
 from app.matching.requirement_text import QUALIFICATION_WORDS, skill_like_experience
 from app.matching.untrusted_text import has_directed_text, quote_in_trusted_text
 from app.matching.validate import stated_years
-from app.providers.rules import _PROFICIENCY_LABEL, _PROFICIENCY_RANK, required_skill_level
+from app.providers.rules import _PROFICIENCY_LABEL, _PROFICIENCY_RANK, NOT_ALL_ITEMS, required_skill_level
 from app.schemas import (
     Citation,
     Evidence,
@@ -53,7 +54,7 @@ Rejection = Literal[
     "unrelated_citation",
 ]
 # Why a model's "supported" was lowered to "possible" (reported by the evaluation).
-Lowered = Literal["related_only", "not_a_listed_skill", "level_not_met"]
+Lowered = Literal["related_only", "not_a_listed_skill", "level_not_met", "not_all_items"]
 
 
 def semantic_eligible(requirement: Requirement) -> bool:
@@ -68,6 +69,18 @@ def semantic_eligible(requirement: Requirement) -> bool:
         and not QUALIFICATION_WORDS.search(text)
         and not has_directed_text(text)
     )
+
+
+def structure_of(requirement: Requirement, evidence: dict[str, Evidence]) -> Structure:
+    """The requirement's structure (requirement_structure.py), given the skills the profile lists."""
+    names = [e.name for e in evidence.values() if isinstance(e, SkillEvidence)]
+    names += [n for e in evidence.values() if isinstance(e, ProjectEvidence) for n in e.skills]
+    return parse(requirement.text, listed_terms(names))
+
+
+def contains_instructions(requirement: Requirement, evidence: dict[str, Evidence]) -> bool:
+    """Text aimed at the evaluator, or a claim about how it should be judged: rules only."""
+    return has_directed_text(requirement.text) or structure_of(requirement, evidence).ignored
 
 
 def quote_source(item: Evidence, quote: str) -> tuple[bool, str | None]:
@@ -85,7 +98,7 @@ def quote_source(item: Evidence, quote: str) -> tuple[bool, str | None]:
     if any(quote in field for field in structured):
         return True, None
     for field in free:
-        if field and quote in field and quote_in_trusted_text(field, quote):
+        if field and quote in field and quote_in_trusted_text(field, quote, untrusted_evidence_spans(field)):
             return True, field
     return False, None
 
@@ -109,6 +122,9 @@ def check_local_finding(
     if not isinstance(raw_citations, list) or not 1 <= len(raw_citations) <= 10:
         return "no_citation"
 
+    # Citations are judged only against the requirement's head and later required clauses.
+    structure = structure_of(requirement, evidence)
+    target = structure.matchable or requirement.text
     citations: list[Citation] = []
     strengths: list[tuple[Evidence, str, str]] = []
     for raw in raw_citations:
@@ -123,7 +139,7 @@ def check_local_finding(
         allowed, free_text = quote_source(cited, quote)
         if not allowed:
             return "untrusted_text"
-        strength = relation(requirement.text, quote, free_text)
+        strength = relation(target, quote, free_text)
         if strength is None:  # every citation must be about this requirement
             return "unrelated_citation"
         citations.append(Citation(evidence_id=cited.id, quote=quote))
@@ -139,8 +155,18 @@ def check_local_finding(
         s for s in same_skills if not required or _PROFICIENCY_RANK.get(s.proficiency or "", 0) >= required[0]
     ]
     quotes = _quoted([q for _, q, _ in strengths])
+    # Every mandatory part ("Python and Go") needs a listed skill that is the same technology.
+    listed = [e for e in evidence.values() if isinstance(e, SkillEvidence)]
+    missing = [p for p in structure.pieces if not any(relation(p, s.name) == "same" for s in listed)]
     lowered: Lowered | None
-    if level_ok:
+    if level_ok and missing:
+        final, lowered = "possible", "not_all_items"
+        caveats = [NOT_ALL_ITEMS(missing)]
+        explanation = (
+            f"You list {_quoted([s.name for s in level_ok])}, which local AI matched to part of this "
+            "requirement, but it asks for more than that."
+        )
+    elif level_ok:
         final, lowered, caveats = "supported", None, []
         explanation = (
             f"You list {_quoted([s.name for s in level_ok])}, which local AI matched as another name "

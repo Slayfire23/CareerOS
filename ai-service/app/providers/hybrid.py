@@ -29,6 +29,7 @@ from app.matching.hybrid_checks import (
     Lowered,
     Rejection,
     check_local_finding,
+    contains_instructions,
     semantic_eligible,
 )
 from app.matching.validate import validate_findings
@@ -90,15 +91,17 @@ class HybridProvider:
         }
         statuses: dict[int, AiStatus] = {}
         candidates: list[Requirement] = []
+        evidence = short_ids(request.evidence)
         for requirement in request.requirements:
-            if not semantic_eligible(requirement):
+            if contains_instructions(requirement, evidence):
+                statuses[requirement.index] = "contains_instructions"
+            elif not semantic_eligible(requirement):
                 statuses[requirement.index] = "not_eligible"
             elif baseline[requirement.index].verdict == "supported":
                 statuses[requirement.index] = "not_needed"
             else:
                 candidates.append(requirement)
 
-        evidence = short_ids(request.evidence)
         accepted: dict[int, Finding] = {}
         result = HybridResult(findings=[], usage=None)
         if candidates and not evidence:

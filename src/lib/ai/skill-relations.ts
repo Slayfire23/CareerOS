@@ -7,7 +7,8 @@ import { DEGREE_WORDS, RELEVANCE_STOPWORDS } from "@/lib/ai/evidence";
 
 export type Relation = "same" | "related";
 
-const GENERIC = new Set<string>([...RELEVANCE_STOPWORDS, ...table.generic]);
+export const GENERIC_TERMS = new Set<string>([...RELEVANCE_STOPWORDS, ...table.generic]);
+const GENERIC = GENERIC_TERMS;
 const PHRASES = new Map<string, string>();
 for (const [canonical, variants] of Object.entries(table.aliases)) {
   PHRASES.set(canonical, canonical);
@@ -27,7 +28,7 @@ const AMBIGUOUS = new Set(table.ambiguous);
 const TECH_CONTEXT = new Set(table.tech_context);
 const EMPLOYMENT_WORDS = new Set(table.employment_words);
 /** Every technology and concept term the table knows, in canonical form. */
-const VOCABULARY = new Set<string>([...PHRASES.values(), ...FAMILIES.flatMap(f => [...f.terms, ...f.members])]);
+export const VOCABULARY = new Set<string>([...PHRASES.values(), ...FAMILIES.flatMap(f => [...f.terms, ...f.members])]);
 
 export function words(text: string): string[] {
   const result: string[] = [];
@@ -74,15 +75,19 @@ function related(a: string, b: string): boolean {
     (terms.has(a) || members.has(a)) && (terms.has(b) || members.has(b)) && (members.has(a) || members.has(b)));
 }
 
-/** True when an ambiguous word in the quote sits near a technical word in its field. */
+/** True when an ambiguous word sits within three words of a technical noun or another known
+ * technology in its field, outside any hyphenated compound ("go-kart"). See relations.py. */
 function hasTechContext(fieldText: string, word: string): boolean {
-  const tokens = words(fieldText);
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i] !== word) continue;
-    const window = [...tokens.slice(Math.max(0, i - 6), i), ...tokens.slice(i + 1, i + 7)];
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
+  for (const match of fieldText.matchAll(pattern)) {
+    const before = fieldText.slice(0, match.index);
+    const after = fieldText.slice(match.index + match[0].length);
+    if (before.endsWith("-") || /^-[a-z]/i.test(after)) continue;
+    const window = [...words(before).slice(-3), ...words(after).slice(0, 3)];
     if (window.some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && t !== word))) return true;
   }
-  return !tokens.includes(word);
+  return false;
 }
 
 /** Terms in a quote. For free text, ambiguous words without technical context are dropped. */

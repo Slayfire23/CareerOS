@@ -13,7 +13,8 @@ import {
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
 import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
-import { hasDirectedText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
+import { hasDirectedText, qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
+import { listedTerms, parseRequirement, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import type { TokenUsage } from "@/lib/ai/pricing";
 
 // Independent re-validation of the AI service's response. The service already enforces these
@@ -25,8 +26,8 @@ export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional 
 export type Citation = { evidenceId: string; quote: string };
 /** Hybrid analysis only: which method produced a finding, and what happened to local AI for it. */
 export type FindingMethod = "rules" | "local_ai";
-export type AiStatus = "accepted" | "not_eligible" | "not_needed" | "no_match" | "rejected" | "unavailable";
-export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "not_needed", "no_match", "rejected", "unavailable"];
+export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
+export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
 export type Finding = {
   requirementIndex: number;
   verdict: Verdict;
@@ -95,7 +96,7 @@ function quoteSource(item: Evidence, quote: string): { allowed: boolean; freeTex
     ? [[item.job_title], [item.description]]
     : [[item.title, ...item.skills], [item.description, item.contribution, item.results]];
   if (structured.some(f => f.includes(quote))) return { allowed: true, freeText: null };
-  const field = free.find(f => f && f.includes(quote) && quoteInTrustedText(f, quote));
+  const field = free.find(f => f && f.includes(quote) && quoteInTrustedText(f, quote, untrustedEvidenceSpans(f)));
   return field ? { allowed: true, freeText: field } : { allowed: false, freeText: null };
 }
 
@@ -103,23 +104,36 @@ function quoteSource(item: Evidence, quote: string): { allowed: boolean; freeTex
 function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], verdict: Verdict, citations: Citation[], evidence: Map<string, Evidence>) {
   if (!semanticEligible(requirement)) reject("local AI judged a requirement it may not judge");
   if (verdict !== "supported" && verdict !== "possible") reject("local AI may only add a match");
+  // Judged only against the requirement's head and later required clauses (requirement_structure.py).
+  const skills = [...evidence.values()].filter(e => e.kind === "skill");
+  const names = [...evidence.values()].flatMap(e => e.kind === "skill" ? [e.name] : e.kind === "project" ? e.skills : []);
+  const structure = parseRequirement(requirement.text, listedTerms(names));
+  if (structure.ignored) reject("local AI judged a requirement containing instructions or claims");
+  const target = structure.matchable || requirement.text;
   const strengths = citations.map(c => {
     const item = evidence.get(c.evidenceId)!;
     if (item.kind === "education") reject("local AI cited education");
     const source = quoteSource(item, c.quote);
-    if (!source.allowed) reject("local AI cited text directed at an AI or reviewer");
-    return { item, quote: c.quote, strength: relation(requirement.text, c.quote, source.freeText) ?? reject("local AI cited unrelated evidence") };
+    if (!source.allowed) reject("local AI cited text directed at an AI or reviewer, or about the evaluation");
+    return { item, quote: c.quote, strength: relation(target, c.quote, source.freeText) ?? reject("local AI cited unrelated evidence") };
   });
   if (verdict === "supported") {
     const needed = requiredSkillLevel(requirement.text);
     const proven = strengths.some(({ item, quote, strength }) =>
       item.kind === "skill" && quote === item.name && strength === "same" && (!needed || (PROFICIENCY_RANK[item.proficiency ?? ""] ?? 0) >= needed));
     if (!proven) reject("local AI supported claim is not a listed skill at the level asked for");
+    // Every mandatory part needs a listed skill that is the same technology.
+    const covered = structure.pieces.every(piece => skills.some(s => s.kind === "skill" && relation(piece, s.name) === "same"));
+    if (!covered) reject("local AI supported a requirement whose mandatory parts are not all listed");
   }
 }
 
-function areaIsEmpty(request: MatchRequest, category: string): boolean {
-  const kinds = category === "Experience" ? ["experience"] : category === "Education" ? ["education"] : ["skill", "experience", "project"];
+/** Employment rules apply to real employment requirements, not "Experience with <technology>". */
+const isEmployment = (requirement: MatchRequest["requirements"][number]) =>
+  requirement.category === "Experience" && !skillLikeExperience(qualificationText(requirement.text));
+
+function areaIsEmpty(request: MatchRequest, requirement: MatchRequest["requirements"][number]): boolean {
+  const kinds = isEmployment(requirement) ? ["experience"] : requirement.category === "Education" ? ["education"] : ["skill", "experience", "project"];
   return !request.evidence.some(e => kinds.includes(e.kind));
 }
 
@@ -192,12 +206,12 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     if (!["rules", "hybrid"].includes(expected.provider) && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
       reject("supported claim cites evidence unrelated to the requirement");
     }
-    if (requirement.category === "Experience") {
+    if (isEmployment(requirement)) {
       const kinds = citations.map(c => evidence.get(c.evidenceId)!.kind);
       if (verdict === "supported" && !kinds.includes("experience")) reject("project or non-employment evidence used as employment");
       if (kinds.includes("project") && !caveats.includes(PROJECT_NOT_EMPLOYMENT)) reject("project cited without the employment caveat");
     }
-    if (verdict === "gap" && areaIsEmpty(request, requirement.category)) reject("gap claimed for an empty profile area");
+    if (verdict === "gap" && areaIsEmpty(request, requirement)) reject("gap claimed for an empty profile area");
 
     const requirementYears = new Set(statedYears(requirement.text));
     for (const years of statedYears(explanation)) {

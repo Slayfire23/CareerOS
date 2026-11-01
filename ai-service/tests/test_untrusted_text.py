@@ -86,7 +86,8 @@ async def test_an_injected_duration_cannot_change_a_years_requirement():
 @pytest.mark.parametrize(
     ("text", "verdict"),
     [
-        ("SQL skills. Experience with Excel is a plus.", "supported"),
+        # Excel is only "a plus": the requirement is SQL, so Excel alone doesn't support it.
+        ("SQL skills. Experience with Excel is a plus.", "insufficient_information"),
         ("Excel. Must be comfortable presenting to stakeholders.", "supported"),
         ("Experience with Excel (pivot tables, lookups).", "supported"),
         ("Excel; Google Sheets also accepted.", "supported"),
@@ -163,5 +164,5 @@ async def test_requirements_containing_injections_are_not_sent_to_local_ai():
     result = await HybridProvider(s, ollama=OllamaProvider(s, client=client)).assess(
         request(INJECTIONS[0], "Skills", EXCEL)
     )
-    assert calls == [] and result.findings[0].ai_status == "not_eligible"
+    assert calls == [] and result.findings[0].ai_status == "contains_instructions"
     assert RANK[result.findings[0].verdict] == 0

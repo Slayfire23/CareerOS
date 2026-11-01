@@ -116,6 +116,8 @@ async function createReviewedJob(supabaseAuthId: string) {
   });
 }
 
+const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+
 const run = (supabaseAuthId: string, jobId: string, config: AiConfig, fetchImpl: unknown, provider: "rules" | "anthropic" = "anthropic", now?: Date) =>
   runJobAnalysis({ supabaseAuthId, jobId, provider, config, contactEmail: FICTIONAL.email, fetchImpl: fetchImpl as typeof fetch, now });
 
@@ -184,14 +186,21 @@ it("requires an allow-listed account, full configuration, and current versioned 
   expect((await getAnalysisPageData(accountB, (await createReviewedJob(accountB)).id, config))?.cloud).toEqual({ available: false, consentCurrent: false });
 });
 
+it("checks for leaked text ignore random ids (regression: a UUID containing 555 failed the phone check)", () => {
+  const body = JSON.stringify({ request_id: "30fb5925-a22e-4f9b-8def-04849e5551b2", text: "Reach me at [phone]." });
+  expect(body.replace(UUID_PATTERN, "<id>")).not.toContain("555");
+});
+
 it("sends only redacted, minimized data with a token budget, and confirms the charge from reported usage", async () => {
   await setCloudAiConsent(accountA, true);
   const job = await createReviewedJob(accountA);
   const { fetchImpl, requests } = fakeCloud();
   expect(await run(accountA, job.id, cloudConfig([await userId(accountA)]), fetchImpl)).toMatchObject({ ok: true });
 
-  const sent = JSON.stringify(requests[0]);
-  for (const secret of [FICTIONAL.name, "Avery", "Quillfeather", "quillfeather", FICTIONAL.company, FICTIONAL.school, FICTIONAL.employer, FICTIONAL.email, "555", "https://"]) {
+  // Random UUIDs (request and evidence ids) are removed before checking for leaked text: an id can
+  // contain "555" by chance, which made this test fail about once in 40 runs.
+  const sent = JSON.stringify(requests[0]).replace(UUID_PATTERN, "<id>");
+  for (const secret of [FICTIONAL.name, "Avery", "Quillfeather", "quillfeather", FICTIONAL.company, FICTIONAL.school, FICTIONAL.employer, FICTIONAL.email, "555", "010-4477", "https://"]) {
     expect(sent).not.toContain(secret);
   }
   for (const placeholder of ["[company]", "[school]", "[employer]", "[email]", "[phone]", "[link]", "[name]"]) expect(sent).toContain(placeholder);

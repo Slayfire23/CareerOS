@@ -11,10 +11,11 @@ Changing any text here needs a new HYBRID_PROMPT_VERSION.
 import json
 from collections.abc import Sequence
 
+from app.matching.requirement_structure import listed_terms, parse, untrusted_evidence_spans
 from app.matching.untrusted_text import masked
 from app.schemas import Evidence, ExperienceEvidence, ProjectEvidence, Requirement, SkillEvidence
 
-HYBRID_PROMPT_VERSION = "hybrid-v3"
+HYBRID_PROMPT_VERSION = "hybrid-v4"
 LOCAL_AI_VERDICTS = ("supported", "possible", "insufficient_information")
 
 HYBRID_SYSTEM_PROMPT = """You find skills that a keyword search missed. For each requirement, \
@@ -57,8 +58,8 @@ def short_ids(evidence: Sequence[Evidence]) -> dict[str, Evidence]:
 
 
 def _free(text: str | None) -> str | None:
-    """Free text with any part directed at an AI or reviewer replaced by a marker."""
-    return masked(text) if text else None
+    """Free text with any part aimed at the evaluator, or about the evaluation, replaced by a marker."""
+    return masked(text, untrusted_evidence_spans(text)) if text else None
 
 
 def _evidence_view(short_id: str, item: Evidence) -> dict:
@@ -78,8 +79,14 @@ def _evidence_view(short_id: str, item: Evidence) -> dict:
 
 
 def build_hybrid_message(requirements: Sequence[Requirement], evidence: dict[str, Evidence]) -> str:
+    names = [e.name for e in evidence.values() if isinstance(e, SkillEvidence)]
+    names += [n for e in evidence.values() if isinstance(e, ProjectEvidence) for n in e.skills]
+    listed = listed_terms(names)
+    # Only the requirement's head and later required clauses are sent (requirement_structure.py).
     data = {
-        "requirements": [{"index": r.index, "text": r.text} for r in requirements],
+        "requirements": [
+            {"index": r.index, "text": parse(r.text, listed).matchable or r.text} for r in requirements
+        ],
         "evidence": [
             {k: v for k, v in _evidence_view(sid, item).items() if v is not None}
             for sid, item in evidence.items()

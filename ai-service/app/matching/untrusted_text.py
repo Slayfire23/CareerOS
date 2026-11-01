@@ -23,8 +23,8 @@ from functools import lru_cache
 from pathlib import Path
 
 INSTRUCTIONS_IGNORED = (
-    "Part of this requirement reads like instructions to an AI or reviewer, so it was ignored. "
-    "Check its wording in the job review."
+    "Part of this requirement reads like instructions to an AI or reviewer, or a claim about how "
+    "it should be judged, so it was ignored. Check its wording in the job review."
 )
 INSTRUCTION_TEXT = (
     "This requirement reads like instructions to an AI or reviewer rather than a qualification, "
@@ -87,20 +87,21 @@ def qualification_text(text: str) -> str:
     return " ".join(k for k in kept if k)
 
 
-def masked(text: str) -> str:
-    """The text with evaluator-directed segments replaced by a marker, for sending to local AI.
-    Quotes taken from the rest stay verbatim in the original."""
+def masked(text: str, spans: list[tuple[int, int]] | None = None) -> str:
+    """The text with evaluator-directed segments (or the given spans) replaced by a marker, for
+    sending to local AI. Quotes taken from the rest stay verbatim in the original."""
     result, cursor = [], 0
-    for start, end in directed_spans(text):
+    for start, end in sorted(directed_spans(text) if spans is None else spans):
         result += [text[cursor:start], REMOVED]
         cursor = end
     result.append(text[cursor:])
     return "".join(result)
 
 
-def quote_in_trusted_text(text: str, quote: str) -> bool:
-    """True if some occurrence of the quote lies outside every evaluator-directed segment."""
-    directed = directed_spans(text)
+def quote_in_trusted_text(text: str, quote: str, spans: list[tuple[int, int]] | None = None) -> bool:
+    """True if some occurrence of the quote lies outside every evaluator-directed segment (or the
+    given spans)."""
+    directed = directed_spans(text) if spans is None else spans
     start = text.find(quote)
     while start >= 0:
         end = start + len(quote)

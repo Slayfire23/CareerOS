@@ -55,6 +55,7 @@ const methodLabel = (provider: string, model?: string | null) =>
 const FINDING_SOURCE: Record<AiStatus, string> = {
   accepted: "Local AI match, checked by code",
   not_eligible: "Rules engine (experience, education, durations, and credentials are never sent to local AI)",
+  contains_instructions: "Rules engine (part of this requirement reads like instructions or a claim about how to judge it, so local AI was not used)",
   not_needed: "Rules engine (exact match)",
   no_match: "Rules engine (local AI found no other match)",
   rejected: "Rules engine (local AI's answer failed verification and was discarded)",
