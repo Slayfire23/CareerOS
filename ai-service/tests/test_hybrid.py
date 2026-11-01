@@ -314,7 +314,7 @@ def app_with(mock: ScriptedOllama):
 def test_api_returns_labeled_findings_and_omits_labels_for_other_providers(example_request):
     client = app_with(ScriptedOllama({"findings": []}))
     body = post_match(client, {**example_request, "provider": "hybrid"}).json()
-    assert body["provider"] == "hybrid" and body["method_version"] == "hybrid/rules-v2+qwen3:8b/hybrid-v4"
+    assert body["provider"] == "hybrid" and body["method_version"] == "hybrid/rules-v3+qwen3:8b/hybrid-v4"
     assert all(f["method"] == "rules" and f["ai_status"] for f in body["findings"])
     rules = post_match(client, {**example_request, "provider": "rules"}).json()
     assert all("method" not in f and "ai_status" not in f for f in rules["findings"])

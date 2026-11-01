@@ -51,7 +51,7 @@ function fakeHybrid(mode: "matched" | "ai_off" | "spoofed" = "matched") {
     for (const f of findings) counts[f.verdict]++;
     return new Response(JSON.stringify({
       request_id: request.request_id, findings, verdict_counts: counts, provider: "hybrid", model: MODEL,
-      method_version: `hybrid/rules-v2+${MODEL}/hybrid-v2`, usage: mode === "matched" ? { input_tokens: 700, output_tokens: 40 } : null, provider_request_id: null,
+      method_version: `hybrid/rules-v3+${MODEL}/hybrid-v2`, usage: mode === "matched" ? { input_tokens: 700, output_tokens: 40 } : null, provider_request_id: null,
     }), { status: 200 });
   });
   return { fetchImpl, requests };

@@ -76,7 +76,7 @@ function response(overrides: Record<number, Partial<RawFinding>> = {}) {
   for (const f of findings) counts[f.verdict as string]++;
   return {
     request_id: REQUEST.request_id, findings, verdict_counts: counts, provider: "hybrid", model: "qwen3:8b",
-    method_version: "hybrid/rules-v2+qwen3:8b/hybrid-v2", usage: { input_tokens: 900, output_tokens: 80 }, provider_request_id: null,
+    method_version: "hybrid/rules-v3+qwen3:8b/hybrid-v2", usage: { input_tokens: 900, output_tokens: 80 }, provider_request_id: null,
   };
 }
 
@@ -116,7 +116,7 @@ describe("hybrid response validation", () => {
 
   it("rejects method labels from any other provider", () => {
     const rules = response({ 0: { method: "rules", ai_status: "not_needed", verdict: "insufficient_information", citations: [] }, 3: { method: "rules", ai_status: "not_needed" } });
-    const body = { ...rules, provider: "rules", model: null, method_version: "rules-v2", usage: null };
+    const body = { ...rules, provider: "rules", model: null, method_version: "rules-v3", usage: null };
     expect(() => validateMatchResponse({ ...REQUEST, provider: "rules" }, body, { provider: "rules", model: null })).toThrow("may not set");
   });
 

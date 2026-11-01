@@ -158,7 +158,7 @@ def _finding(requirement: Requirement, verdict, explanation: str, citations=(), 
 class RulesProvider:
     name = "rules"
     model = None
-    method_version = "rules-v2"
+    method_version = "rules-v3"
     local = True
     generative = False
 
