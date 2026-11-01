@@ -284,6 +284,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Evaluation: qwen3:8b is best for this hardware (82% agreement, 0 false "supported", 25% of responses discarded). Not yet accurate enough to offer; see docs/MILESTONE_3_OLLAMA_REPORT.md.
 - [x] Hybrid design approved and built: rules engine decides, qwen3:8b only proposes skill matches it missed, code decides each finding, every finding labeled; short evidence ids; "Rules + local AI" in the app.
 - [x] Held-out evaluation sets A (48 cases) and B (27 cases, untouched). Hybrid on B: 94.2% vs rules 84.9%, never worse than rules on any requirement. See docs/MILESTONE_3_HYBRID_REPORT.md.
-- [ ] Not ready to offer: one injection wording on B gets past the rules engine (1 false "supported"). Proposed fixes (first-clause keyword matching, education abbreviations, relation-table additions, category check) need a new untouched set C.
+- [x] Fixes built and frozen (c119428): untrusted-text segmentation, word sense, education equivalency, more relations, "Experience with X" as a skill. Dev/A/B now 0 false "supported", 0 injections.
+- [x] Held-out set C (52 cases, untouched): hybrid 88.3% vs rules 80.2%; see docs/MILESTONE_3_HYBRID_V3_REPORT.md.
+- [ ] Not ready to offer: on C, 4 of 8 new injection wordings get past the rules engine (12 false "supported" across runs), and hybrid accepts "go-kart" as Go. Next steps (structural injection handling, stricter word sense, two UI/validator bugs) need a new untouched set D.
 - [ ] One cloud integration test failed once in 33 runs; not reproduced, cause unknown.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
