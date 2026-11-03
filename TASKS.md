@@ -297,7 +297,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Milestone 8 (frozen fdff413): education status, negation, untrusted claims, years tied to the field, and degree names without invented equivalence. See docs/MILESTONE_8_REPORT.md.
 - [ ] Safety target still not met: on untouched set H (174 cases, AI-written, second AI rater), accuracy 76.8%, 0 of 33 injections, but 3 false "supported" of 190. Not fixed, because H has been seen.
 - [ ] Decide on a private Vercel Preview: needs an isolated Supabase project, Preview-only variables, and Deployment Protection (docs/MILESTONE_8_REPORT.md section 6). Needs approval.
-- [ ] Next proposed (Milestone 9): a listed skill inside a longer requirement, "no X" skill names, more completion wording, wider table beyond software, then set I with a person reviewing labels. Needs approval.
+- [x] Milestone 9 implementation (rules-v8, committed, not yet frozen): the three false "supported" verdicts fixed, plus word senses, trades, automotive, accounting, role families, and credentials.
+- [ ] Owner reviews docs/SET_H_REVIEW_WORKSHEET.md. Waiting on this before the freeze and untouched set I.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
 - [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
