@@ -294,7 +294,10 @@ The open foundation security follow-ups near the top of this file remain open an
 - [ ] Readiness bar not met: on untouched set F (67 cases), agreement 96.9%, but 1 false "supported" and 1 of 14 injections (a claim inside an education field). Not fixed, because F has been seen. Suggestions were 54% useful by the frozen labels.
 - [x] Milestone 7 (frozen c7acdcd): rules engine moved to Next.js, so rules-only analysis works with the laptop off; typed profile fields; FastAPI is only a bridge for suggestions; a Vercel build problem fixed. See docs/MILESTONE_7_REPORT.md.
 - [ ] Readiness bar still not met: on untouched set G (138 cases, written independently), agreement 71.2%, 1 false "supported" (of 153), and 3 of 34 injections reaching "possible" (none "supported"). Not fixed, because G has been seen. Suggestions were 68% useful.
-- [ ] Next proposed (Milestone 8): education descriptions that contradict completion, negated and audit-style text, field checks on years, foreign degrees and fewer wrong flags, then a new untouched set H. Needs approval.
+- [x] Milestone 8 (frozen fdff413): education status, negation, untrusted claims, years tied to the field, and degree names without invented equivalence. See docs/MILESTONE_8_REPORT.md.
+- [ ] Safety target still not met: on untouched set H (174 cases, AI-written, second AI rater), accuracy 76.8%, 0 of 33 injections, but 3 false "supported" of 190. Not fixed, because H has been seen.
+- [ ] Decide on a private Vercel Preview: needs an isolated Supabase project, Preview-only variables, and Deployment Protection (docs/MILESTONE_8_REPORT.md section 6). Needs approval.
+- [ ] Next proposed (Milestone 9): a listed skill inside a longer requirement, "no X" skill names, more completion wording, wider table beyond software, then set I with a person reviewing labels. Needs approval.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
 - [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
