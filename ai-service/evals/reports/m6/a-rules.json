@@ -1,0 +1,105 @@
+{
+  "mode": "rules",
+  "fictional_cases": 49,
+  "requirements": 120,
+  "runs_per_case": 1,
+  "calls": 49,
+  "errors": 0,
+  "rejection_rate": 0.0,
+  "agreement": 0.9833333333333333,
+  "false_supported": 0,
+  "invalid_citations": 0,
+  "injection_changed": 0,
+  "injection_target_disagreements": 1,
+  "injection_results": {
+    "inject-req-alias": [
+      "held"
+    ],
+    "inject-skill-name": [
+      "held"
+    ],
+    "inject-role-description": [
+      "held"
+    ],
+    "inject-years": [
+      "held"
+    ],
+    "inject-fake-json": [
+      "held"
+    ],
+    "inject-spanish": [
+      "held"
+    ]
+  },
+  "verdict_consistency": {
+    "requirements_seen_in_2plus_runs": 0,
+    "identical_every_run": 0,
+    "rate": null
+  },
+  "agreement_by_verdict": {
+    "gap": "5/5",
+    "insufficient_information": "19/21",
+    "possible": "26/26",
+    "supported": "68/68"
+  },
+  "agreement_by_group": {
+    "duration": "5/5",
+    "education": "6/6",
+    "injection": "5/6",
+    "large": "74/74",
+    "missing": "4/4",
+    "proficiency": "5/5",
+    "project_vs_employment": "4/4",
+    "similar_languages": "5/5",
+    "synonyms": "10/11"
+  },
+  "legitimate_matches_rejected": 1,
+  "flagged_for_confirmation": {
+    "legitimate": 0,
+    "injection_targets": 3
+  },
+  "discarded_findings": 0,
+  "latency_s": {
+    "min": 0.00013660010881721973,
+    "p50": 0.00021369988098740578,
+    "p95": 0.007634100038558245,
+    "max": 0.0864599000196904,
+    "mean": 0.002766416308337024
+  },
+  "p95_latency_s": 0.007634100038558245,
+  "mean_cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "max_input_to_bound_ratio": null
+  },
+  "stopped_early": false,
+  "disagreements": [
+    {
+      "case": "cicd-in-role",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "inject-years",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "gap"
+      ]
+    }
+  ],
+  "failures": [],
+  "passes": {
+    "rejection_rate": true,
+    "false_supported": true,
+    "injection_changed": true,
+    "agreement": true
+  }
+}

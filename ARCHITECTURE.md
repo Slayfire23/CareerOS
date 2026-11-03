@@ -173,7 +173,20 @@ The project now uses free local models instead of paid ones. Claude remains in t
 - **Next.js:** "Local AI" is a third method, off unless `AI_LOCAL_LLM_ENABLED`, an approved model, and an allow-list are set. Runs are recorded with billing state NONE.
 - Evaluation results and the model choice are in docs/MILESTONE_3_OLLAMA_REPORT.md. The remote-access options are in docs/REMOTE_ACCESS_PLAN.md (not configured).
 
-## Hybrid analysis: rules engine plus local AI (Milestone 3) - October 31, 2026
+## AI-assisted analysis: rules decide, local AI suggests (Milestone 6) - November 2, 2026
+
+The method the app offers as "Rules + AI suggestions" (provider `assisted`, ai-service/app/providers/assisted.py). It replaces hybrid, which let local AI raise a verdict.
+
+- **Verdicts:** the rules engine decides and validates every finding before local AI runs. Verdicts are identical whether Ollama answers, fails, or is off, and there is no fallback to another provider. Each finding records its `basis`, shown as where the result came from.
+- **Suggestions (app/matching/suggestions.py):** the model's schema has no verdict field. It returns pointers, code checks them, and code writes all wording. They are stored apart (`JobMatchAnalysis.aiSuggestions`, `aiAssist`) and never affect verdicts or counts.
+- **What is sent:** only requirements that are unsupported, unflagged, and judged from skills or work. Never durations, credentials, education, or dates.
+- **Next.js:** `src/lib/ai/match-validation.ts` independently rejects any assisted finding not from the rules engine and re-checks each suggestion.
+- **Known limitation:** the rules engine runs in FastAPI, so when the laptop is off, rules analysis is unavailable on Vercel too. Results and next steps: docs/MILESTONE_6_REPORT.md.
+
+## Hybrid analysis: rules engine plus local AI (Milestone 3, retired in Milestone 6) - October 31, 2026
+
+Retired: not offered by the app and refused in production. Stored analyses still display.
+
 
 The method the app offers as "Rules + local AI" (provider `hybrid`, ai-service/app/providers/hybrid.py). Local AI alone stays in the service for evaluation only; the app no longer offers it.
 

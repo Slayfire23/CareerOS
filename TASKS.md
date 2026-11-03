@@ -290,4 +290,7 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Milestone 5 (frozen 13f85d6): structured requirements, "needs confirmation" for instruction-like requirements (confirmation is never evidence), no hybrid contamination, legitimate-match fixes. See docs/MILESTONE_5_REPORT.md.
 - [ ] Not ready for controlled remote-access testing of hybrid: on untouched set E, hybrid 89.6% (rules 84.9%, local AI alone 48.8%) with 4 false "supported" requirements and 3 of 10 injections. Next steps and a new set F proposed.
 - [x] Intermittent cloud integration failure: reproduced; a random UUID containing "555" failed the redaction check (fixed, regression test), and concurrent runs interfered (run lock added). Original output never captured.
+- [x] Milestone 6 (frozen a9e3d52): rules are the only verdict authority; Ollama only adds separate, code-checked suggestions; verdicts identical with Ollama on or off; hybrid retired. See docs/MILESTONE_6_REPORT.md.
+- [ ] Readiness bar not met: on untouched set F (67 cases), agreement 96.9%, but 1 false "supported" and 1 of 14 injections (a claim inside an education field). Not fixed, because F has been seen. Suggestions were 54% useful by the frozen labels.
+- [ ] Next proposed: run the rules on Vercel so a laptop that's off only costs suggestions, validate all profile fields as typed data, tighten suggestions, then a new untouched set G. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
