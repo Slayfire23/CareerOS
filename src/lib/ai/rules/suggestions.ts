@@ -4,7 +4,7 @@ import { namesOfListedSkills } from "@/lib/ai/listed-skills";
 import { requiredMonths, type Citation, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { listedTerms, namesAnItem, parseRequirement, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { plainTitle } from "@/lib/ai/rules/profile-fields";
-import { canonicalTerms, hasQualificationWords, isDistinctPair, isKnownTechnology, ordinaryMeaning, plainSkillName, quoteTerms, relation, words } from "@/lib/ai/skill-relations";
+import { canonicalTerms, hasQualificationWords, isDistinctPair, isKnownTechnology, ordinaryMeaning, otherSense, plainSkillName, quoteTerms, relation, words } from "@/lib/ai/skill-relations";
 import { quoteInTrustedText } from "@/lib/ai/untrusted-text";
 
 // AI suggestions: local AI only points at things. Code decides which pointers are worth showing and
@@ -134,6 +134,7 @@ export function checkPointer(requirement: MatchRequirement, target: string, poin
     for (const term of found) if (wanted.has(term) && (!kept.has(term) || ordinaryMeaning(freeText, term))) return "ordinary_word";
   }
   for (const a of wanted) for (const b of found) if (isDistinctPair(a, b)) return "table_says_unrelated";
+  for (const term of found) if (wanted.has(term) && otherSense(target, term) !== otherSense(freeText ?? cited.kind, term)) return "ordinary_word";
 
   const strength = relation(target, quote, freeText);
   if (strength === "same") return { ...base, kind: "relevant_evidence", knownToRules: true, text: `Your profile mentions ${named}. Check whether it shows this. It doesn't change the result.` };

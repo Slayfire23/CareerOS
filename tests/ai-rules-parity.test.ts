@@ -29,18 +29,23 @@ const INTENDED_VERDICT_CHANGES: Record<string, string> = {
   "A/cicd-in-role/0": "A related technology named in free text, used in work, and in the reviewed table is possible.",
   "D/d-large-fullstack/7": "A related technology named in free text, used in work, and in the reviewed table is possible.",
   "A/freelance-is-employment/0": SAME_FIELD,
+  "A/years-two-roles/0": SAME_FIELD,
   "B/b-large-data-engineer/5": SAME_FIELD,
   "C/c-yrs-python-met/0": SAME_FIELD,
   "D/d-yrs-python-roles/0": SAME_FIELD,
   "F/f-yrs-months/0": SAME_FIELD,
   "F/f-yrs-domain/0": "Sales Lead shows nothing about fintech, so the years don't count toward it.",
   "C/c-inject-override-mode/0": "Same verdict; instruction-like text is now recognized as such.",
+  "A/cert-not-a-skill/0": "Listing the skill behind a credential doesn't show the credential.",
+  "A/large-platform-engineer/13": "Listing the skill behind a credential doesn't show the credential.",
   "F/f-large-data-engineer/4": "Terraform modules described in a role are related to infrastructure as code, per the reviewed table.",
 };
 /** Experience requirements stating a duration: same verdict, but explained and cited by field now. */
 const durationRewording = (c: Golden, index: number) => {
   const r = c.request.requirements[index];
-  return r.category === "Experience" && /\b(year|month|decade)/i.test(r.text);
+  return (r.category === "Experience" && /\b(year|month|decade)/i.test(r.text))
+    // Credentials: same verdict, with wording saying what's shown and what isn't.
+    || /\b(certif|licen[cs]e|clearance|card|permit|cdl|cpa|pmp|security\+)/i.test(r.text);
 };
 
 const key = (c: Golden, index: number) => `${c.set}/${c.id}/${index}`;

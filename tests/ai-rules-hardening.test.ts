@@ -286,9 +286,9 @@ describe("legitimate matching, on independent evidence", () => {
     expect(f.caveats.join(" ")).toContain("related technology");
   });
 
-  it("a credential's own name isn't rejected, and still doesn't prove it", () => {
+  it("a credential's own name isn't rejected, and one that's pending or a remark doesn't count", () => {
     const f = decide("AWS Certified Solutions Architect certification", "Skills", [skill("AWS Certified Solutions Architect")]);
-    expect(f.verdict).toBe("possible");
+    expect(f.verdict).toBe("supported");
     expect(decide("AWS Certified Solutions Architect certification", "Skills", [skill("AWS Certified Solutions Architect (exam booked, not yet sat)")]).verdict).toBe("insufficient_information");
     expect(decide("Terraform", "Skills", [skill("Terraform (certified)")]).verdict).toBe("insufficient_information");
   });

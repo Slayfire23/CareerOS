@@ -102,8 +102,9 @@ describe("education fields are typed data", () => {
     expect(f.citations[0].evidence_id).toBe(id("education", 2));
   });
 
-  it("a certificate in education isn't a license", () => {
-    expect(decide("CPA license", "Education", [school("CPA", null)]).verdict).not.toBe("supported");
+  it("a credential in education counts only when finished", () => {
+    expect(decide("CPA license", "Education", [school("CPA", null, null)]).verdict).not.toBe("supported");
+    expect(decide("CPA license", "Education", [school("CPA", null)]).verdict).toBe("supported");
   });
 
   it("helpers agree on what a plain value is", () => {
@@ -170,7 +171,7 @@ describe("invented dates", () => {
   ])("a role %s counts for nothing", (_name, item) => {
     expect(employmentMonths([item], asOf)).toBe(0);
     expect(roleMonths(item as never, asOf)).toBe(0);
-    expect(decide("1+ years of professional experience", "Experience", [item]).verdict).toBe("gap");
+    expect(decide("1+ years of professional experience", "Experience", [item]).verdict).toBe("insufficient_information");
   });
 
   it("time after today doesn't count, and overlapping roles count once", () => {
@@ -223,6 +224,15 @@ describe("runs with nothing else available", () => {
   it("the same input always gives the same result", () => {
     const req = request("Python and SQL", "Skills", [skill("Python", 1), role("Analyst", "Wrote SQL queries.")]);
     expect(assessRequirements(req)).toEqual(assessRequirements(req));
+  });
+
+  it("the source holds no stray control characters, which can silently break a pattern", () => {
+    const files = (dir: string): string[] => readdirSync(dir).flatMap(name => {
+      const path = join(dir, name);
+      return statSync(path).isDirectory() ? (name === "generated" ? [] : files(path)) : /\.(tsx?|json)$/.test(name) ? [path] : [];
+    });
+    const stray = new RegExp(`[${String.fromCharCode(0)}-${String.fromCharCode(8)}${String.fromCharCode(11)}${String.fromCharCode(12)}${String.fromCharCode(14)}-${String.fromCharCode(31)}]`);
+    expect(files("src").filter(f => stray.test(readFileSync(f, "utf8")))).toEqual([]);
   });
 
   it("nothing in the app imports from ai-service, which Vercel doesn't build", () => {

@@ -54,13 +54,20 @@ export function plainQualification(qualification: string): boolean {
 
 /** Whether a listed degree was earned. Free text can only lower this, never raise it. */
 export type EducationStatus = "completed" | "in_progress" | "incomplete" | "unknown";
-const SAYS_INCOMPLETE = /\b(did\s+not\s+(complete|finish|graduate)|didn'?t\s+(complete|finish|graduate)|not\s+(completed|finished|graduated|awarded|conferred)|never\s+(completed|finished|graduated)|without\s+(completing|finishing|graduating|a\s+degree)|left\s+(after|before|in|during|without)|dropped\s+out|drop[\s-]?out|withdrew|withdrawn|discontinued|abandoned|unfinished|incomplete|all\s+but\s+(thesis|dissertation)|no\s+degree|degree\s+(was\s+)?not)\b/i;
+// A negation shortly before a word for finishing or receiving a degree, in any order of the small words
+// between: "never conferred", "was not actually awarded", "didn't get my diploma". "Not only" isn't one.
+const NOT_EARNED = /\b(?:never|not|didn'?t|wasn'?t|weren'?t|hasn'?t|hadn'?t)(?!\s+(?:only|just\s+a))(?:\s+\w+){0,3}?\s+(?:complet\w*|finish\w*|graduat\w*|confer\w*|award\w*|grant\w*|issu\w*|receiv\w*|obtain\w*|earn\w*|get|got|gotten)\b/i;
+const SAYS_INCOMPLETE = /\b(without\s+(completing|finishing|graduating|a\s+degree)|left\s+(after|before|in|during|without)|stopped\s+(before|after|short)|dropped\s+out|drop[\s-]?out|withdrew|withdrawn|withheld|revoked|rescinded|discontinued|abandoned|unfinished|incomplete|abd|all\s+but\s+(thesis|dissertation)|no\s+degree|degree\s+(was\s+)?not|sin\s+terminar|no\s+terminad[oa]|inconclus[oa]|abgebrochen|nicht\s+abgeschlossen|non\s+termin[ée]e?)\b/i;
+const NOT_YET = /\bnot\s+yet\s+(?:been\s+)?(?:confer\w*|award\w*|grant\w*|issu\w*)\b/i;
+/** The qualification itself says it wasn't finished: usable to show that, and nothing else. */
+export const saysNotCompleted = (qualification: string) => SAYS_INCOMPLETE.test(qualification) || NOT_EARNED.test(qualification);
 const SAYS_IN_PROGRESS = /\b(currently\s+(enrolled|studying|pursuing|attending)|in[\s-]progress|expected\s+(in\s+|graduation\s+)?\d{0,4}|expected\s+to\s+(graduate|finish|complete)|pursuing|still\s+(studying|enrolled))\b/i;
-const SAYS_UNCERTAIN = /\b(pending|awaiting|on\s+hold|deferred|on\s+leave|paused|thesis\s+(outstanding|pending)|may\s+(have|not)|unverified|not\s+sure|unsure|to\s+be\s+confirmed|tbc|provisional)\b/i;
+const SAYS_UNCERTAIN = /\b(expired|lapsed|pending|awaiting|on\s+hold|deferred|on\s+leave|paused|thesis\s+(outstanding|pending)|may\s+(have|not)|unverified|not\s+sure|unsure|to\s+be\s+confirmed|tbc|provisional)\b/i;
 
 export function educationStatus(entry: { qualification: string; field_of_study: string | null; end_month: string | null; description: string | null }, asOf: string): EducationStatus {
   const text = [entry.qualification, entry.field_of_study, entry.description].filter(Boolean).join(" . ").normalize("NFKC");
-  if (SAYS_INCOMPLETE.test(text)) return "incomplete";
+  if (NOT_YET.test(text)) return "unknown";
+  if (SAYS_INCOMPLETE.test(text) || NOT_EARNED.test(text)) return "incomplete";
   if (SAYS_UNCERTAIN.test(text)) return "unknown";
   if (SAYS_IN_PROGRESS.test(text) || entry.end_month === null || entry.end_month > asOf) return "in_progress";
   return "completed";
@@ -70,6 +77,17 @@ export function educationStatus(entry: { qualification: string; field_of_study: 
 const BELOW_DEGREE = /\b(bootcamp|boot\s+camp|certificate|certification|nanodegree|short\s+course|online\s+course|mooc|diploma)\b/i;
 const DEGREE_DIPLOMA = /\b(graduate|postgraduate|post-graduate|advanced|higher|national)\s+diploma\b/i;
 export const belowDegree = (qualification: string) => BELOW_DEGREE.test(qualification) && !DEGREE_DIPLOMA.test(qualification);
+
+/** A credential listed by name, with words that say it's held rather than planned. */
+const NOT_HELD = /\b(expired|lapsed|pending|booked|scheduled|studying|preparing|planned|planning|enrolled|working\s+toward|in\s+progress|not\s+yet|exam\s+(date|booked)|renewal\s+due|suspended|revoked)\b/i;
+const CREDENTIAL_MARKER = /\b(certified|certification|certificate|licensed|license|licence|card)\b/i;
+const ACRONYM_NOTE = /\(([A-Z0-9+/]{2,8})\)/g;
+export const notHeld = (text: string) => NOT_HELD.test(text.normalize("NFKC"));
+export const hasCredentialMarker = (text: string) => CREDENTIAL_MARKER.test(text);
+export function plainCredentialName(name: string): boolean {
+  const text = name.normalize("NFKC").replace(ACRONYM_NOTE, " $1 ");
+  return !carriesClaim(name) && !notHeld(text) && !text.includes("(") && wordCount(text) <= 10;
+}
 
 /** A job or project title usable as evidence or shown to local AI. */
 export function plainTitle(title: string): boolean {

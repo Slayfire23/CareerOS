@@ -27,16 +27,21 @@ import {
   degreePhrases,
   describesUse,
   fieldMatches,
+  hasOtherSenses,
   hasQualificationWords,
+  isCredentialName,
+  otherSense,
+  rolesForField,
   namesSameDegree,
   plainSkillName,
+  ordinaryMeaning,
   quoteTerms,
   relatedTermInText,
   relation,
   surfaceForms,
   words,
 } from "@/lib/ai/skill-relations";
-import { belowDegree, educationStatus, fieldOfStudyForMatching, plainQualification, plainTitle, type EducationStatus } from "@/lib/ai/rules/profile-fields";
+import { belowDegree, educationStatus, fieldOfStudyForMatching, hasCredentialMarker, notHeld, plainCredentialName, plainQualification, plainTitle, saysNotCompleted, type EducationStatus } from "@/lib/ai/rules/profile-fields";
 import { qualificationText } from "@/lib/ai/untrusted-text";
 
 // The deterministic rules engine, and the only authority for final verdicts. It runs on the Next.js
@@ -52,7 +57,7 @@ import { qualificationText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v7";
+export const RULES_VERSION = "rules-v8";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -65,9 +70,12 @@ const JUDGED_AS_SKILL = "This names a technology with no duration or role, so it
 const NEEDS_CONFIRMATION = "This requirement's wording reads partly like instructions or a judgment about how to evaluate it, so it was not assessed. Check it in the job review and confirm it if it is a real requirement; confirming it does not count as evidence that you meet it.";
 const INSTRUCTIONS_IGNORED = "Part of this requirement reads like instructions to an AI or reviewer, or a claim about how it should be judged, so it was ignored. Check its wording in the job review.";
 const INSTRUCTION_TEXT = "This requirement reads like instructions to an AI or reviewer rather than a qualification, so it was not assessed. Check its wording in the job review.";
+const UNREADABLE_DATES = "Check the dates on your listed roles.";
 const FIELD_NOT_USED = "Your field of study contains a remark or claim, so it wasn't used. Enter only the field's name.";
 const QUALIFICATION_NOT_USED = "A listed qualification contains a remark, a claim, or wording that it isn't finished, so it wasn't counted as a completed degree.";
 const NOT_FINISHED = "You list this as still in progress, so it isn't counted as a completed degree.";
+const OTHER_SENSE = "This word can name something else in a requirement like this one. Check that it means what you list.";
+const CREDENTIAL_SELF_LISTED = "You list this credential yourself; an employer may ask to see it.";
 const NOT_COMPLETED_NOTE = "Your entry says this wasn't completed, so it isn't counted as a degree.";
 const STATUS_UNKNOWN = "Check that this entry says plainly whether the degree was awarded.";
 const EQUIVALENCE_NOT_VERIFIED = "This degree has no exact counterpart in the requirement, and equivalence can't be confirmed automatically.";
@@ -213,6 +221,8 @@ function listed(request: MatchRequest): Set<string> {
 function sameSkill(requirementText: string, name: string): boolean {
   if (!plainSkillName(name)) return false;
   const terms = canonicalTerms(name);
+  // "SWIFT payment messaging" isn't the Swift language, though the word is the same.
+  if ([...terms].some(t => otherSense(requirementText, t) !== otherSense(name, t))) return false;
   if (containsPhrase(requirementText, name)) return true;
   const wanted = canonicalTerms(requirementText);
   return terms.size > 0 && [...terms].every(t => wanted.has(t));
@@ -227,8 +237,17 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
   const directed = untrustedEvidenceSpans(evidenceText);
   const usable = (quote: string, start: number, end: number) => {
     if (directed.some(([s, e]) => s < end && start < e)) return false;
+    const sentence = evidenceText.slice(evidenceText.slice(0, start).search(/[^.!?;\n]*$/), end + (evidenceText.slice(end).search(/[.!?;\n]|$/)));
+    // The same word in another sense on either side: only a match when both mean the other thing.
+    const senses = [...canonicalTerms(quote)].filter(hasOtherSenses);
+    if (senses.some(t => otherSense(requirementText, t) !== otherSense(sentence, t))) return false;
+    if (senses.length && senses.every(t => otherSense(requirementText, t))) return true;
+    if ([...canonicalTerms(quote)].some(t => ordinaryMeaning(evidenceText, t))) return false;
     if (!quoteTerms(quote, evidenceText).size) return false;
-    const namesTechnology = [...canonicalTerms(quote)].some(t => VOCABULARY.has(t)) || /\p{Lu}/u.test(quote);
+    // A capital that only starts a sentence doesn't make a name when the requirement writes it in lower case.
+    const startsSentence = /(^|[.!?;\n]\s*)$/.test(evidenceText.slice(0, start));
+    const plainNoun = startsSentence && requirementText.includes(quote.toLowerCase()) && !/\p{Lu}/u.test(quote.slice(1));
+    const namesTechnology = [...canonicalTerms(quote)].some(t => VOCABULARY.has(t)) || (/\p{Lu}/u.test(quote) && !plainNoun);
     return !namesTechnology || describesUse(evidenceText, quote);
   };
   const find = (phrase: string) => {
@@ -254,9 +273,13 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
         return GENERIC_WORDS.has(low) || GENERIC_TERMS.has(low) || (w.length < 3 && !VOCABULARY.has(low));
       })) continue; // two-letter words only when they name a known technology ("Go")
       const phrase = window.join(" ");
-      if (!containsPhrase(evidenceText, phrase)) continue;
-      const quote = find(phrase);
-      if (quote) return quote;
+      // Either number of a plain noun: "contract review" and "vendor contracts".
+      const plainNoun = /^[A-Za-z][a-z ]*[a-z]$/.test(phrase) && !window.some(w => VOCABULARY.has(w.toLowerCase()));
+      for (const form of plainNoun ? [phrase, `${phrase}s`] : [phrase]) {
+        if (!containsPhrase(evidenceText, form)) continue;
+        const quote = find(form);
+        if (quote) return quote;
+      }
     }
   }
   return null;
@@ -271,11 +294,13 @@ must have having required preferred ideally be is are you your our we will need 
 environment environments setting settings fast paced dynamic company companies startup startups`.split(/\s+/));
 /** Too broad to name a field when something more specific is present ("backend development"). */
 const BROAD = new Set(`development developing developer developers engineering engineer engineers programming
-administration administrator analysis analyst support supporting software systems services
+administration administrator analysis analyst support supporting software systems services operations
 management manager managing leading lead team teams`.split(/\s+/));
 
 /** A word's stem, so "nursing" meets "Nurse" and "welding" meets "Welder". */
 function stem(word: string): string {
+  // An engineer's work isn't an engine's.
+  if (/^engineer/.test(word)) return "engineer";
   let result = word;
   for (let i = 0; i < 2; i++) {
     const next = result.replace(/(ations?|ments?|ings?|ers?|ors?|ants?|ists?|ies|es|e|s)$/, "");
@@ -288,7 +313,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[] } {
+function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; roles: ReturnType<typeof rolesForField> } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+years?)/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -297,18 +322,28 @@ function durationField(text: string): { technologies: string[]; rest: string[]; 
   const specific = all.filter(w => !BROAD.has(w));
   const named = new Set(technologies.flatMap(t => surfaceForms(t).flatMap(form => words(form))));
   const stems = [...new Set((specific.length ? specific : all).map(stem))];
-  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems };
+  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, roles: rolesForField(clause) };
 }
 const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
 
 /** How well a text names the field: "full" when most of it is named, "some" for part of it. */
 function fieldCoverage(field: ReturnType<typeof durationField>, text: string): "full" | "some" | "none" {
+  // A look-alike title: an account manager's job isn't accounting.
+  if (field.roles.some(r => r.not?.some(title => containsPhrase(text, title)))) return "none";
+  // The reviewed titles for this field: a same title covers it; a related one is only ever a lead.
+  if (field.roles.some(r => r.same.some(title => containsPhrase(text, title)))) return "full";
+  const base = namedCoverage(field, text);
+  if (base !== "none") return base;
+  return field.roles.some(r => r.related.some(title => containsPhrase(text, title))) ? "some" : "none";
+}
+
+function namedCoverage(field: ReturnType<typeof durationField>, text: string): "full" | "some" | "none" {
   const stems = words(text).map(stem);
   const exact = (t: string) => stems.includes(t);
   const near = (t: string) => stems.some(h => sameRoot(t, h));
   if (field.technologies.length) {
     const have = canonicalTerms(text);
-    const hits = field.technologies.filter(t => have.has(t)).length;
+    const hits = field.technologies.filter(t => have.has(t) || t.split(" ").every(w => exact(stem(w)))).length;
     // "Cloud security": being a cloud engineer shows only half of what's asked.
     if (hits === field.technologies.length) return field.rest.every(exact) ? "full" : "some";
     return hits || field.rest.some(exact) ? "some" : "none";
@@ -327,8 +362,21 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
   if (!roles.length) return finding(requirement, "insufficient_information", "No professional employment is listed in your profile, so this cannot be assessed.", { caveats });
   if (needed !== null) {
     const amount = needed % 12 ? `${needed}-month` : `${needed / 12}-year`;
-    const field = durationField(requirement.text);
     const asOf = request.as_of_month;
+    // "4 years in supply chain or logistics": the best of the alternatives.
+    const alternatives = requirement.text.split(/\s+or\s+(?!more\b|above\b|greater\b|longer\b|equivalent\b)/i);
+    const options = alternatives.length > 1 && requiredMonths(alternatives[0]) !== null
+      ? alternatives.map((part, i) => durationField(i ? `${amount} ${part}` : part))
+      : [durationField(requirement.text)];
+    const field = options[0];
+    const coverage = (text: string) => {
+      const found = options.map(o => fieldCoverage(o, text));
+      return found.includes("full") ? "full" : found.includes("some") ? "some" : "none";
+    };
+    // Dates that can't be right say nothing about time, in any field.
+    if (roles.every(r => roleMonths(r, asOf) === 0)) {
+      return finding(requirement, "insufficient_information", "Your listed role dates can't be right, so this cannot be assessed.", { caveats: [UNREADABLE_DATES, ...caveats] });
+    }
     // Asks only for time ("3+ years of experience"): all employment counts, but relevance can't be judged.
     if (!field.technologies.length && !field.stems.length && !field.rest.length) {
       const roleCitations = roles.map(r => ({ evidence_id: r.id, quote: r.job_title }));
@@ -341,8 +389,20 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
     }
     // Years must be in the field asked for: time in an unrelated job doesn't count toward it.
     const usable = (role: ExperienceEvidence) => plainTitle(role.job_title);
-    const named = roles.filter(r => usable(r) && fieldCoverage(field, r.job_title) === "full");
-    const partly = roles.filter(r => !named.includes(r) && ((usable(r) && fieldCoverage(field, r.job_title) !== "none") || !!sharedTerm(requirement.text, r.description ?? "")));
+    const named = roles.filter(r => usable(r) && coverage(r.job_title) === "full");
+    const describes = (r: ExperienceEvidence) => {
+      if (!r.description) return false;
+      const spans = untrustedEvidenceSpans(r.description);
+      let trusted = "";
+      let cursor = 0;
+      for (const [s, e] of spans) {
+        if (s >= cursor) trusted += r.description.slice(cursor, s) + " ";
+        cursor = Math.max(cursor, e);
+      }
+      trusted += r.description.slice(cursor);
+      return !!sharedTerm(requirement.text, r.description) || options.some(o => o.roles.some(x => x.related.some(t => containsPhrase(trusted, t))));
+    };
+    const partly = roles.filter(r => !named.includes(r) && ((usable(r) && coverage(r.job_title) !== "none") || describes(r)));
     const cite = (list: ExperienceEvidence[]) => list.map(r => ({ evidence_id: r.id, quote: r.job_title }));
     const credential = hasQualificationWords(requirement.text);
     if (named.length) {
@@ -391,7 +451,7 @@ function assessEducation(request: MatchRequest, requirement: MatchRequirement): 
   const asOf = request.as_of_month;
   // Typed fields are data: a qualification holding a remark or claim isn't evidence. Below-degree
   // training stays usable: it can show that a degree isn't there.
-  const plain = listedEntries.filter(e => plainQualification(e.qualification));
+  const plain = listedEntries.filter(e => plainQualification(e.qualification) || saysNotCompleted(e.qualification));
   const notUsed = plain.length < listedEntries.length ? [QUALIFICATION_NOT_USED] : [];
   const wanted = requiredDegreeRank(requirement.text);
   const requiredFields = implied(requirement.text).map(([, , field]) => field).filter(Boolean);
@@ -400,8 +460,9 @@ function assessEducation(request: MatchRequest, requirement: MatchRequirement): 
 
   type Candidate = { entry: EducationEvidence; level: Level | null; comparable: boolean; status: EducationStatus; fieldMatch: boolean; fieldNotUsed: boolean; sameDegree: boolean; below: boolean };
   const candidates: Candidate[] = plain.map(entry => {
-    const below = belowDegree(entry.qualification);
-    const known = below ? null : degreeRank(entry.qualification);
+    const named = degreeRank(entry.qualification);
+    const below = !named && belowDegree(entry.qualification);
+    const known = below ? null : named;
     const comparable = known ? null : comparableRank(entry.qualification);
     const level = known ?? comparable;
     const field = entry.field_of_study ? fieldOfStudyForMatching(entry.field_of_study) : impliedField(entry.qualification);
@@ -512,6 +573,9 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
       return finding(requirement, "possible", `You list ${names} as a skill, but this requirement asks for more than that.`, { citations, caveats: [notAllItems(missing), ...notes], basis });
     }
     const caveats = skillCaveats(requirement.text, matched);
+    // "SWIFT" alone, against the language "Swift": the capitals may mean the other thing.
+    const capitals = matched.some(s => [...canonicalTerms(s.name)].some(t => hasOtherSenses(t) && t.length >= 3 && head.includes(t.toUpperCase()) && s.name.toLowerCase().includes(t) && !s.name.includes(t.toUpperCase())));
+    if (capitals) caveats.push(OTHER_SENSE);
     if (caveats.length) {
       return finding(requirement, "possible", `You list ${names} as a skill, but that alone may not meet this requirement.`, { citations, caveats: [...caveats, ...notes], basis });
     }
@@ -581,6 +645,61 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
   return finding(requirement, "insufficient_information", "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell whether you have it under a different name.", { caveats: notes });
 }
 
+const CREDENTIAL_WORDS = new Set(`certification certifications certified certificate certificates cert certs license licenses
+licensed licence licences card cards permit permits credential credentials current active valid valid required preferred must
+hold holds holding have having a an in of and or with comptia isc2 pmi state any required`.split(/\s+/));
+const credentialTerms = (text: string) => new Set([...canonicalTerms(text)].filter(t => !CREDENTIAL_WORDS.has(t)));
+const HOLDS = /\b(hold|holds|held|holding|licensed|certified|passed|earned|obtained|maintain|maintains)\b/i;
+/** Asks for a credential rather than a skill or a degree. */
+const asksForCredential = (text: string) =>
+  !requiredDegreeRank(text) && (/\b(certification|certified|licensed|licence|permit|clearance)\b|(?<!\b(?:ssl|tls)\s)\bcertificate\b|(?<!\bsoftware\s)\blicense\b|(?<!\b(?:credit|debit|gift|graphics|video|sim|sd|network|sound)\s)\bcard\b/i.test(text) || [...canonicalTerms(text)].some(isCredentialName));
+
+/** A credential is shown by a completed education entry or a skill listing naming it as held. Listing the
+ * skill behind it, holding a related job, or a credential that's expired or pending never shows it. */
+function assessCredential(request: MatchRequest, requirement: MatchRequirement): RawFinding {
+  const structure = parseRequirement(requirement.text, new Set(), true);
+  const head = structure.creditText || requirement.text;
+  const wanted = credentialTerms(head);
+  const names = (text: string) => {
+    const have = credentialTerms(text);
+    return wanted.size > 0 && [...wanted].every(t => have.has(t)) && ![...wanted].some(t => otherSense(head, t) !== otherSense(text, t));
+  };
+  const schools = request.evidence.filter(isEducation).filter(e => plainQualification(e.qualification) && names(e.qualification));
+  const completed = schools.filter(e => educationStatus(e, request.as_of_month) === "completed");
+  if (completed.length) {
+    return finding(requirement, "supported", `You list ${completed[0].qualification} in your education.`, {
+      citations: completed.map(e => ({ evidence_id: e.id, quote: e.qualification })), caveats: [CREDENTIAL_SELF_LISTED], basis: "education",
+    });
+  }
+  if (schools.some(e => educationStatus(e, request.as_of_month) === "in_progress")) {
+    const current = schools.find(e => educationStatus(e, request.as_of_month) === "in_progress")!;
+    return finding(requirement, "possible", `You list ${current.qualification}, but it isn't finished yet.`, { citations: [{ evidence_id: current.id, quote: current.qualification }], caveats: [NOT_FINISHED], basis: "education" });
+  }
+  const skills = request.evidence.filter(isSkill).filter(s => plainCredentialName(s.name) && names(s.name));
+  const marked = skills.filter(s => hasCredentialMarker(s.name));
+  const citeSkills = (list: SkillEvidence[]) => list.map(s => ({ evidence_id: s.id, quote: s.name }));
+  if (marked.length) {
+    return finding(requirement, "supported", `You list ${marked[0].name}.`, { citations: citeSkills(marked), caveats: [CREDENTIAL_SELF_LISTED], basis: "listed_skill" });
+  }
+  // The credential's own name with nothing saying it's held ("CPA"), or a name it shares with its skill.
+  const bare = skills.filter(s => [...credentialTerms(s.name)].some(isCredentialName));
+  if (bare.length) {
+    return finding(requirement, "possible", `You list ${bare[0].name}, but your profile doesn't say you hold this credential.`, { citations: citeSkills(bare), caveats: [CREDENTIAL_NOT_SHOWN], basis: "listed_skill" });
+  }
+  const result = assessSkills(request, requirement);
+  // Everything else here rests on a skill or a job: that doesn't show a credential.
+  if (result.verdict === "supported" || result.basis === "listed_skill" || result.basis === "alternate_name") {
+    return finding(requirement, "insufficient_information", "Your profile doesn't list this credential. Listing the skill behind it doesn't show it.", { caveats: [CREDENTIAL_NOT_SHOWN] });
+  }
+  // A role or project only counts when it says the credential is held, in that sentence.
+  const texts = request.evidence.flatMap(e => (isRole(e) ? [e.description] : isProject(e) ? [e.description, e.contribution, e.results] : []));
+  const statesHeld = (quote: string) => texts.some(t => !!t && t.split(/(?<=[.!?;])\s+/).some(line => line.includes(quote) && HOLDS.test(line)));
+  if (result.verdict === "possible" && result.citations.some(c => statesHeld(c.quote))) {
+    return { ...result, caveats: unique([...result.caveats, CREDENTIAL_NOT_SHOWN]).slice(0, 5) };
+  }
+  return finding(requirement, "insufficient_information", "Your profile doesn't list this credential.", { caveats: unique([...result.caveats.filter(c => c !== RELATED_TECHNOLOGY), CREDENTIAL_NOT_SHOWN]).slice(0, 5) });
+}
+
 function assess(request: MatchRequest, requirement: MatchRequirement, terms: Set<string>): RawFinding {
   // A requirement containing instructions or evaluation language is not judged until the person
   // confirms it. Otherwise only its qualification is judged.
@@ -598,7 +717,8 @@ function assess(request: MatchRequest, requirement: MatchRequirement, terms: Set
   if (current.category === "Experience" && skillLikeExperience(current.text)) {
     result = assessSkills(request, current);
     notes.push(JUDGED_AS_SKILL);
-  } else if (current.category === "Experience") result = assessExperience(request, current);
+  } else if (current.category !== "Experience" && asksForCredential(current.text)) result = assessCredential(request, current);
+  else if (current.category === "Experience") result = assessExperience(request, current);
   else if (current.category === "Education") result = assessEducation(request, current);
   else result = assessSkills(request, current);
   return notes.length ? { ...result, caveats: unique([...result.caveats, ...notes]).slice(0, 5) } : result;
@@ -641,7 +761,7 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
   // "Supported" comes only from a clean listed skill or a clean qualification, whatever happened above.
   if (verdict === "supported" && !citations.some(c => {
     const item = evidence.get(c.evidence_id)!;
-    return (item.kind === "skill" && plainSkillName(item.name) && c.quote === item.name)
+    return (item.kind === "skill" && (plainSkillName(item.name) || plainCredentialName(item.name)) && c.quote === item.name)
       || (item.kind === "education" && plainQualification(item.qualification) && c.quote === item.qualification)
       || (item.kind === "experience" && f.basis === "employment_dates" && plainTitle(item.job_title) && c.quote === item.job_title);
   })) {

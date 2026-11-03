@@ -115,6 +115,9 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
   if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || hasNegation(name)) return false;
+  // "No Photoshop", "Photoshop: none", "Photoshop (never)". Hyphenated and joined names like "No-code",
+  // "Non-destructive testing", and "NoSQL" are unaffected, and so is the spaced spelling "No SQL".
+  if (/(?:^|[\s(,/-])(?:no|not|none|never|without|n\/a)(?=[\s),/]|$)/i.test(name) && !/^no\s+sql\b/i.test(name.trim())) return false;
   // "AWS Certified Developer" is a credential's name; a remark about one ("Terraform (certified)") isn't.
   if (/\bcertified\b/i.test(name) && (name.includes("(") || /\bcertified\s+by\b/i.test(name) || /\bcertified$/i.test(name.trim()))) return false;
   return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|expert|aka|treated|deemed|qualifies)\b/i.test(name);
@@ -133,6 +136,24 @@ export function ordinaryMeaning(fieldText: string, word: string): boolean {
   return false;
 }
 
+const WORD_SENSES = (table as unknown as { word_senses: Record<string, string[]> }).word_senses;
+/** The text uses this word in another sense: "SWIFT payment messaging", "spark plugs", "access control". */
+export function otherSense(text: string, term: string): boolean {
+  const senses = WORD_SENSES[term];
+  return !!senses && words(text).some(w => senses.includes(w));
+}
+export const hasOtherSenses = (term: string) => term in WORD_SENSES;
+
+const CREDENTIAL_NAMES = new Set((table as unknown as { credentials: string[] }).credentials);
+export const isCredentialName = (term: string) => CREDENTIAL_NAMES.has(term);
+
+type FieldRoles = { same: string[]; related: string[]; not?: string[] };
+const FIELD_ROLES = Object.entries((table as unknown as { field_roles: Record<string, FieldRoles> }).field_roles);
+/** The reviewed job titles for the fields a requirement's clause names. */
+export function rolesForField(clause: string): FieldRoles[] {
+  return FIELD_ROLES.filter(([field]) => containsPhrase(clause, field)).map(([, roles]) => roles);
+}
+
 const KNOWN_TECHNOLOGIES = new Set<string>((table as unknown as { known_technologies: string[] }).known_technologies);
 /** A technology with its own identity: only the reviewed table may connect it to something else. */
 export const isKnownTechnology = (term: string) => KNOWN_TECHNOLOGIES.has(term) || VOCABULARY.has(term);
@@ -140,6 +161,7 @@ export const isKnownTechnology = (term: string) => KNOWN_TECHNOLOGIES.has(term) 
  * reviewed table decides what's related. */
 export function relatedTermInText(requirementText: string, fieldText: string): string | null {
   const wanted = canonicalTerms(requirementText);
+  if ([...wanted].some(t => otherSense(requirementText, t))) return null;
   const names: [string, string][] = [...PHRASES, ...[...VOCABULARY].map((v): [string, string] => [v, v])];
   for (const [phrase, canonical] of names) {
     if (phrase.length < 3 || GENERIC.has(phrase)) continue;

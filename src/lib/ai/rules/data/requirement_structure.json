@@ -4,7 +4,7 @@
   "optional_markers": "\\b(a\\s+plus|is\\s+a\\s+plus|preferred|nice\\s+to\\s+have|bonus|ideally|desirable|an?\\s+advantage|advantageous|optional|welcome|beneficial|helpful)\\b",
   "relation_claim": "\\b(equivalent\\s+to|is\\s+equivalent|are\\s+equivalent|as\\s+equivalent|counts?\\s+as|counted\\s+as|same\\s+as|the\\s+same\\s+(thing|skill|technology)|interchangeable|in\\s+place\\s+of|substitutes?\\s+for|stands?\\s+in\\s+for|satisf(y|ies|ied)|fulfil(l|ls|led)?|qualif(y|ies)\\s+as|treated\\s+as|accepted\\s+as|full\\s+match|full\\s+credit)\\b|\\s=\\s",
   "evaluation_reference": "\\b(this|the|my|every|each|all|any|listed|job|technical)\\s+(requirements?|criteria|qualifications|profile|resume|cv|candidate|applicant|application|assessment|evaluation|screening|reviewer|grader|evaluator|scoring|rating|verdicts?)\\b",
-  "and_split": "\\s*,\\s*and\\s+|\\s+and\\s+|\\s*&\\s*|\\s+as\\s+well\\s+as\\s+|\\s+plus\\s+|\\s*,\\s*",
+  "and_split": "\\s*,\\s*and\\s+|\\s+and\\s+|\\s+&\\s+|\\s+as\\s+well\\s+as\\s+|\\s+plus\\s+|\\s*,\\s*",
   "item_stopwords": [
     "experience",
     "experienced",
@@ -107,7 +107,7 @@
     "etc"
   ],
   "or_marker": "\\b(or|either)\\b",
-  "and_marker": "\\band\\b|&|\\bas\\s+well\\s+as\\b",
+  "and_marker": "\\band\\b|\\s&\\s|\\bas\\s+well\\s+as\\b",
   "evaluation_language": [
     "\\b(grant|give|giving|award|assign|allow|add)\\b[^.]{0,30}\\bcredit\\b",
     "\\bcredit\\s+for\\b",
@@ -129,5 +129,5 @@
   "evaluation_exempt": "\\bcounts?\\s+as\\s+an?\\s+(plus|bonus|advantage)\\b",
   "profile_label": "^\\W*[A-Za-z][A-Za-z ]{0,40}\\b(note|notes|comment|comments|feedback|remark|remarks)\\b[^:]{0,40}:",
   "unverifiable_field": "\\b(related|relevant|similar|comparable|appropriate|applicable)\\s+(field|fields|discipline|disciplines|area|areas|subject|subjects|major|majors)\\b",
-  "profile_claim": "\\b(treated|regarded|recogni[sz]ed|deemed|counted)\\s+(as|equal)\\b|\\bcounts?\\s+(as|for|toward)\\b|\\bequivalent\\s+(to|of)\\b|\\bsame\\s+as\\b|\\binterchangeable\\b|\\bsubstitutes?\\s+for\\b|\\bstands?\\s+in\\s+for\\b|\\bqualifies\\s+as\\b|\\bplease\\s+(trust|accept|believe)\\b|\\b(do\\s+not|don'?t|no\\s+need\\s+to)\\s+(check|verify|review)\\b|\\b(criterion|criteria)\\b|\\b(requirements?|qualifications?)\\s+(\\w+\\s+){0,3}(met|satisfied|fulfilled|passed)\\b|\\bmet\\s+in\\s+full\\b|\\b(audit|audited|auditor|assessor|examiner)\\b[^.]{0,60}\\b(met|passed|confirmed|verified|approved|satisf\\w*)\\b|\\bno\\s+further\\s+(review|check|checks|verification)\\b|\\b(scored|rated|graded|ranked)\\s+(as|at|this)\\b|\\bscore\\s*[:=]|\\b(verified|confirmed|validated|attested|certified|signed\\s+off)\\s+by\\b|\\b(certif(y|ies)|attests?|confirms?)\\s+that\\b|\\b(independently|officially|formally)\\s+(verified|confirmed|validated|recogni[sz]ed)\\b|\\bper\\s+(the\\s+)?(registrar|auditor|hr|hiring)\\b"
+  "profile_claim": "\\b(treated|regarded|recogni[sz]ed|deemed|counted)\\s+(as|equal)\\b|\\bcounts?\\s+(as|for|toward)\\b|\\bequivalent\\s+(to|of)\\b|\\bsame\\s+as\\b|\\binterchangeable\\b|\\bsubstitutes?\\s+for\\b|\\bstands?\\s+in\\s+for\\b|\\bqualifies\\s+as\\b|\\bplease\\s+(trust|accept|believe)\\b|\\b(do\\s+not|don'?t|no\\s+need\\s+to)\\s+(check|verify|review)\\b|\\b(criterion|criteria)\\b|\\b(requirements?|qualifications?)\\s+(\\w+\\s+){0,3}(met|satisfied|fulfilled|passed)\\b|\\bmet\\s+in\\s+full\\b|\\b(audit|audited|auditor|assessor|examiner)\\b[^.]{0,60}\\b(met|passed|confirmed|verified|approved|satisf\\w*)\\b|\\bno\\s+further\\s+(review|check|checks|verification)\\b|\\b(scored|rated|graded|ranked)\\s+(as|at|this)\\b|\\bscore\\s*[:=]|\\b(verified|confirmed|validated|attested|certified|signed\\s+off)\\s+by\\b|\\b(certif(y|ies)|attests?|confirms?)\\s+that\\b|\\b(independently|officially|formally)\\s+(verified|confirmed|validated|recogni[sz]ed)\\b|\\bper\\s+(the\\s+)?(registrar|auditor|hr|hiring)\\b|\\b(is|are|be|being)\\s+deemed\\b|\\bdeemed\\s+to\\b"
 }
