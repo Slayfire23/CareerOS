@@ -1,4 +1,7 @@
-"""Hybrid provider: the rules engine decides every requirement, and local AI (Ollama) may add skill
+"""RETIRED in Milestone 6 (see providers/assisted.py). Kept for reference and comparison: the app
+no longer offers it, and it refuses to run in production, because it lets local AI raise a verdict.
+
+Hybrid provider: the rules engine decides every requirement, and local AI (Ollama) may add skill
 matches the rules engine missed, such as another name for the same technology.
 
 For each requirement:
@@ -73,7 +76,7 @@ class HybridProvider:
 
     def __init__(self, settings: Settings, ollama: OllamaProvider | None = None) -> None:
         self._settings = settings
-        self._rules = RulesProvider()
+        self._rules = RulesProvider(use_trusted_table=False)
         self._ollama = ollama or OllamaProvider(settings)
         self.model = self._ollama.model
         self.method_version = f"hybrid/{self._rules.method_version}+{self.model}/{HYBRID_PROMPT_VERSION}"

@@ -58,13 +58,31 @@ _YEARS = re.compile(
 )
 
 
+_NUMBER = r"\d+(?:\.\d+)?|" + "|".join(_NUMBER_WORDS)
+# The lower end of a range: "2-3 years", "2\u20133 years", "two to three years".
+_YEAR_RANGE = re.compile(
+    rf"\b({_NUMBER})\s*(?:-|\u2013|\u2014|to)\s*(?:{_NUMBER})\s*\+?\s*years?\b", re.IGNORECASE
+)
+_MONTHS = re.compile(rf"\b({_NUMBER})\s*\+?\s*(?:or more\s+)?-?\s*months?\b", re.IGNORECASE)
+
+
+def _number(raw: str) -> float:
+    return float(_NUMBER_WORDS.get(raw.casefold(), raw))
+
+
 def stated_years(text: str) -> set[str]:
-    """Every number of years mentioned, normalized ("five" and "5.0" both become "5")."""
-    values = set()
-    for match in _YEARS.finditer(text):
-        raw = match.group(1).casefold()
-        values.add(f"{float(_NUMBER_WORDS.get(raw, raw)):g}")
+    """Every number of years mentioned, normalized ("five" and "5.0" both become "5"). A range
+    contributes both ends, so its minimum is the lower bound."""
+    values = {f"{_number(m.group(1)):g}" for m in _YEARS.finditer(text)}
+    values |= {f"{_number(m.group(1)):g}" for m in _YEAR_RANGE.finditer(text)}
     return values
+
+
+def required_months(text: str) -> float | None:
+    """The shortest duration a requirement states, in months ("2-3 years" -> 24, "six months" -> 6)."""
+    found = [float(v) * 12 for v in stated_years(text)]
+    found += [_number(m.group(1)) for m in _MONTHS.finditer(text)]
+    return min(found) if found else None
 
 
 class InvalidProviderOutput(Exception):

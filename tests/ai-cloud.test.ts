@@ -129,10 +129,17 @@ describe("cloud redaction", () => {
   });
 });
 
+/** The rules example, as a language-model response: only the rules engine sets a rule basis. */
+const withoutBasis = (response: ReturnType<typeof contract>) => {
+  const copy = structuredClone(response);
+  for (const finding of copy.findings as Record<string, unknown>[]) delete finding.basis;
+  return copy;
+};
+
 describe("cloud response validation", () => {
   const request: MatchRequest = { ...contract("request.example.json"), provider: "anthropic", budget: { max_input_tokens: 20000, max_output_tokens: 6000 } };
   const response = () => ({
-    ...structuredClone(contract("response.rules.example.json")),
+    ...withoutBasis(contract("response.rules.example.json")),
     provider: "anthropic", model: CLOUD_MODEL, method_version: `${CLOUD_MODEL}/prompt-v1`,
     usage: { input_tokens: 3000, output_tokens: 500, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }, provider_request_id: "req_fictional_1",
   });
@@ -237,7 +244,7 @@ describe("relevance rule (language-model results)", () => {
   it("rejects a local or cloud result whose supported claim cites unrelated evidence, but not a rules result", () => {
     const request: MatchRequest = { ...contract("request.example.json"), provider: "ollama" };
     const body = {
-      ...structuredClone(contract("response.rules.example.json")),
+      ...withoutBasis(contract("response.rules.example.json")),
       provider: "ollama", model: "qwen3:8b", method_version: "ollama/qwen3:8b/prompt-v2", usage: { input_tokens: 1, output_tokens: 1 }, provider_request_id: null,
     };
     body.findings[4] = { requirement_index: 4, verdict: "supported", explanation: "You list it.", citations: [{ evidence_id: request.evidence[0].id, quote: "SolidWorks" }], caveats: [] };

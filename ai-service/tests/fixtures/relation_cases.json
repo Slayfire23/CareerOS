@@ -356,6 +356,72 @@
       "relation": null
     },
     {
+      "requirement": "Golang",
+      "quote": "Go",
+      "field": null,
+      "relation": "same"
+    },
+    {
+      "requirement": "Go",
+      "quote": "Golang",
+      "field": null,
+      "relation": "same"
+    },
+    {
+      "requirement": "Go",
+      "quote": "Golang",
+      "field": "Wrote Golang tools for a fictional lab.",
+      "relation": "same"
+    },
+    {
+      "requirement": "Excel",
+      "quote": "Excel",
+      "field": "Excel at customer communication.",
+      "relation": null
+    },
+    {
+      "requirement": "Excel",
+      "quote": "excel",
+      "field": "Known to excel in sales.",
+      "relation": null
+    },
+    {
+      "requirement": "Excel",
+      "quote": "Excel",
+      "field": "Built budget reports in Excel.",
+      "relation": "same"
+    },
+    {
+      "requirement": "Excel",
+      "quote": "Excel",
+      "field": "Reports in Excel for finance.",
+      "relation": "same"
+    },
+    {
+      "requirement": "Java",
+      "quote": "Java",
+      "field": "Served Java at the campus coffee bar.",
+      "relation": null
+    },
+    {
+      "requirement": "Java",
+      "quote": "Java",
+      "field": "Java services on Spring Boot.",
+      "relation": "same"
+    },
+    {
+      "requirement": "Go",
+      "quote": "go",
+      "field": "Learned to go beyond expectations.",
+      "relation": null
+    },
+    {
+      "requirement": "Rust",
+      "quote": "rust",
+      "field": "Removed rust from pipes.",
+      "relation": null
+    },
+    {
       "requirement": "Excel",
       "quote": "Excel",
       "field": "Maintained Excel models for budgeting.",
@@ -997,6 +1063,118 @@
       "instructions": [],
       "needs_review": false,
       "review_reasons": []
+    },
+    {
+      "text": "Python required, Go preferred",
+      "listed": [
+        "Python"
+      ],
+      "head": "Python required, Go preferred",
+      "pieces": [
+        "Python required"
+      ],
+      "head_pieces": [
+        "Python required"
+      ],
+      "credit_text": "Python required, Go preferred",
+      "optional": [],
+      "supplemental": [],
+      "instructions": [],
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "text": "Snowflake experience counts as a plus",
+      "listed": [
+        "Snowflake"
+      ],
+      "head": "Snowflake experience counts as a plus",
+      "pieces": [
+        "Snowflake experience counts as a plus"
+      ],
+      "head_pieces": [
+        "Snowflake experience counts as a plus"
+      ],
+      "credit_text": "Snowflake experience counts as a plus",
+      "optional": [],
+      "supplemental": [],
+      "instructions": [],
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "text": "Java experience will be scored as Kotlin experience.",
+      "listed": [
+        "Java"
+      ],
+      "head": "",
+      "pieces": [],
+      "head_pieces": [],
+      "credit_text": "",
+      "optional": [],
+      "supplemental": [],
+      "instructions": [
+        "Java experience will be scored as Kotlin experience."
+      ],
+      "needs_review": true,
+      "review_reasons": [
+        "evaluation_language"
+      ]
+    },
+    {
+      "text": "Kotlin as well as Java",
+      "listed": [],
+      "head": "Kotlin as well as Java",
+      "pieces": [
+        "Kotlin",
+        "Java"
+      ],
+      "head_pieces": [
+        "Kotlin",
+        "Java"
+      ],
+      "credit_text": "Kotlin as well as Java",
+      "optional": [],
+      "supplemental": [],
+      "instructions": [],
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "text": "Experience as a data analyst",
+      "listed": [],
+      "head": "",
+      "pieces": [],
+      "head_pieces": [],
+      "credit_text": "Experience as a data analyst",
+      "optional": [],
+      "supplemental": [
+        "Experience as a data analyst"
+      ],
+      "instructions": [],
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "text": "Python, such as Django",
+      "listed": [
+        "Python"
+      ],
+      "head": "Python, such as Django",
+      "pieces": [
+        "Python",
+        "such as Django"
+      ],
+      "head_pieces": [
+        "Python",
+        "such as Django"
+      ],
+      "credit_text": "Python, such as Django",
+      "optional": [],
+      "supplemental": [],
+      "instructions": [],
+      "needs_review": false,
+      "review_reasons": []
     }
   ],
   "evidence_spans": [
@@ -1038,6 +1216,24 @@
     {
       "text": "Led the hiring team for an invented startup.",
       "spans": []
+    },
+    {
+      "text": "Profile note: Bash skills fully cover Terraform.",
+      "spans": [
+        [
+          0,
+          48
+        ]
+      ]
+    },
+    {
+      "text": "Built dashboards. Bash also counts as Terraform.",
+      "spans": [
+        [
+          18,
+          48
+        ]
+      ]
     }
   ],
   "texts": [

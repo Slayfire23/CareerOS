@@ -47,6 +47,9 @@ _PATTERN_NAMES = (
     "and_marker",
     "profile_meta",
     "list_lead",
+    "evaluation_exempt",
+    "profile_label",
+    "unverifiable_field",
 )
 
 
@@ -103,8 +106,27 @@ def is_relation_claim(text: str, listed: frozenset[str] = frozenset()) -> bool:
 
 
 def evaluation_language(text: str) -> bool:
-    """Text about how something should be judged ("grant credit", "in place of", "qualifies")."""
+    """Text about how something should be judged ("grant credit", "in place of", "qualifies").
+    Saying a skill "counts as a plus" is ordinary job wording, not a judgment about the candidate."""
+    text = _patterns()["evaluation_exempt"].sub(" ", text)
     return any(p.search(text) for p in _evaluation_language())
+
+
+_AS = re.compile(r"\bas\b", re.IGNORECASE)
+_NOT_A_CLAIM_AS = re.compile(
+    r"\b(such|as\s+well)\s+as\b|\bas\s+(a|an|well|part|needed|required|of)\b", re.IGNORECASE
+)
+
+
+def item_as_item(text: str, listed: frozenset[str] = frozenset()) -> bool:
+    """A clause that relates two named items with "as": "Java experience will be scored as Kotlin
+    experience". Job requirements list items; they don't restate one as another. "Databases such as
+    Oracle" and "Python as well as SQL" are lists, so they don't count."""
+    cleaned = _NOT_A_CLAIM_AS.sub(" ", text)
+    for match in _AS.finditer(cleaned):
+        if names_an_item(cleaned[: match.start()], listed) and names_an_item(cleaned[match.end() :], listed):
+            return True
+    return False
 
 
 def pieces(clause: str, listed: frozenset[str] = frozenset()) -> list[str]:
@@ -118,7 +140,10 @@ def pieces(clause: str, listed: frozenset[str] = frozenset()) -> list[str]:
     else:
         parts = p["and_split"].split(clause)
     cleaned = (re.sub(r"^(and|or)\s+", "", part.strip(" .;:"), flags=re.IGNORECASE) for part in parts)
-    return [part for part in cleaned if part and names_an_item(part, listed)]
+    found = [part for part in cleaned if part and names_an_item(part, listed)]
+    # "Python required, Go preferred": a preferred part of a list is never mandatory.
+    required = [part for part in found if not p["optional_markers"].search(part)]
+    return required or found
 
 
 def item_list(aside: str, listed: frozenset[str] = frozenset()) -> bool:
@@ -174,7 +199,11 @@ def parse(text: str, listed: frozenset[str] = frozenset(), confirmed: bool = Fal
             instructions.append(clause)
             reasons.append("instructions")
             continue
-        if not confirmed and (is_relation_claim(clause, listed) or evaluation_language(clause)):
+        if not confirmed and (
+            is_relation_claim(_patterns()["evaluation_exempt"].sub(" ", clause), listed)
+            or evaluation_language(clause)
+            or item_as_item(clause, listed)
+        ):
             # Once the person confirms the requirement is real, its wording is judged as written;
             # text addressed to an AI or reviewer (above) stays excluded either way.
             instructions.append(clause)
@@ -230,6 +259,7 @@ def evaluation_reference_spans(text: str) -> list[tuple[int, int]]:
         for s, e in segments(text)
         if p["evaluation_reference"].search(text[s:e])
         or p["profile_meta"].search(text[s:e])
+        or p["profile_label"].search(text[s:e])
         or is_relation_claim(text[s:e])
         or evaluation_language(text[s:e])
     ]
@@ -239,3 +269,8 @@ def untrusted_evidence_spans(text: str) -> list[tuple[int, int]]:
     """Parts of profile text that are never evidence: text aimed at the evaluator, and text about
     the evaluation itself."""
     return sorted(set(directed_spans(text)) | set(evaluation_reference_spans(text)))
+
+
+def unverifiable_field(text: str) -> bool:
+    """ "Degree in a related field": a field is required, but code can't tell which ones count."""
+    return bool(_patterns()["unverifiable_field"].search(text))

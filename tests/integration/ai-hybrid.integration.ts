@@ -138,11 +138,12 @@ it("is gated by the allow-list and never touches another account's job or profil
   expect(fetchImpl).not.toHaveBeenCalled();
 });
 
-it("the server action offers hybrid, not local AI alone", async () => {
+it("the server action offers neither local AI alone nor the retired hybrid method", async () => {
   const job = await createReviewedJob(accountA);
   signIn(accountA);
   const form = (provider: string) => { const f = new FormData(); f.set("jobId", job.id); f.set("provider", provider); return f; };
   expect(await runJobMatch({}, form("ollama"))).toEqual({ error: "Choose an analysis method." });
+  expect(await runJobMatch({}, form("hybrid"))).toEqual({ error: "Choose an analysis method." });
 });
 
 it("passes the person's confirmation of a flagged requirement to the analysis, and nothing else", async () => {

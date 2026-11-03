@@ -14,7 +14,7 @@ export const CLOUD_MODEL = "claude-sonnet-5-5";
 export const CLOUD_MAX_INPUT_TOKENS = 40_000;
 export const CLOUD_MAX_OUTPUT_TOKENS = 6_000;
 /// Providers that run on CareerOS-controlled hardware and send nothing to an AI company.
-export const LOCAL_PROVIDERS = new Set<string>(["rules", "ollama", "hybrid"]);
+export const LOCAL_PROVIDERS = new Set<string>(["rules", "ollama", "hybrid", "assisted"]);
 /// Local models approved for the AI host (an RTX 5060 Laptop GPU with 8 GB). Must match the AI service.
 export const LOCAL_AI_MODELS = ["qwen3:8b", "qwen3.5:9b", "qwen3.5:4b"] as const;
 /// A local model on a laptop GPU can take longer than a cloud call.

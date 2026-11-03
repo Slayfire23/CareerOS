@@ -38,7 +38,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
     const add = page.getByRole("form", { name: "Add job", exact: true });
     await add.getByLabel("Job title", { exact: true }).fill("Engineer");
     await add.getByLabel("Company", { exact: true }).fill(company);
-    await add.getByLabel("Job description", { exact: true }).fill(`Requirements:\n- Proficiency in ${skill}\n- Kubernetes administration`);
+    await add.getByLabel("Job description", { exact: true }).fill(`Requirements:\n- Proficiency in ${skill}\n- Quuxflow administration`);
     await add.getByRole("button", { name: "Save job", exact: true }).click();
     await expect(add.getByRole("status")).toHaveText("Job saved.");
 
@@ -75,7 +75,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
     await expect(first.getByText("Supported", { exact: true })).toBeVisible();
     await expect(first.getByText(skill, { exact: true })).toBeVisible();
     await expect(first.getByRole("link", { name: "Skill", exact: true })).toHaveAttribute("href", "/dashboard/skills");
-    const second = findings.filter({ hasText: "Kubernetes administration" });
+    const second = findings.filter({ hasText: "Quuxflow administration" });
     await expect(second.getByText("Not enough information", { exact: true })).toBeVisible();
     await expect(page.getByText("They are not a fit score.", { exact: false })).toBeVisible();
 

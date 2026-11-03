@@ -204,7 +204,7 @@ async def test_level_caveat_names_the_listed_level(example_request):
     ("text", "category", "skill", "caveat"),
     [
         ("React Native mobile apps", "Skills", "React", "inside a longer name"),
-        ("5+ years of Python", "Skills", "Python", "years with the skill"),
+        ("5+ years of Python", "Skills", "Python", "time with the skill"),
         ("AWS Certified Solutions Architect certification", "Other", "AWS", "certification or license"),
     ],
 )

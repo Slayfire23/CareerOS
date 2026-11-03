@@ -235,7 +235,8 @@
       "apache kafka"
     ],
     "spark": [
-      "apache spark"
+      "apache spark",
+      "pyspark"
     ],
     "airflow": [
       "apache airflow"
@@ -894,8 +895,6 @@
     "sdk",
     "server",
     "servers",
-    "service",
-    "services",
     "shader",
     "shaders",
     "software",
@@ -1144,49 +1143,62 @@
       "charts"
     ],
     "java": [
-      "jvm",
-      "maven",
-      "gradle",
-      "spring",
-      "jdk",
-      "jre",
-      "kotlin",
       "android",
       "backend",
       "enterprise",
-      "microservices"
+      "gradle",
+      "jdk",
+      "jre",
+      "jvm",
+      "kotlin",
+      "maven",
+      "microservices",
+      "service",
+      "services",
+      "spring"
     ],
     "go": [
-      "goroutines",
+      "backend",
+      "concurrency",
       "gin",
+      "goroutines",
       "grpc",
       "microservices",
-      "backend",
-      "concurrency"
+      "service",
+      "services"
     ],
     "swift": [
+      "cocoa",
       "ios",
-      "xcode",
-      "swiftui",
-      "iphone",
       "ipad",
+      "iphone",
       "macos",
-      "cocoa"
+      "microservices",
+      "service",
+      "services",
+      "swiftui",
+      "xcode"
     ],
     "rust": [
       "cargo",
       "crates",
+      "embedded",
+      "memory-safe",
+      "microservices",
+      "service",
+      "services",
+      "systems",
       "tokio",
       "wasm",
-      "webassembly",
-      "systems",
-      "embedded",
-      "memory-safe"
+      "webassembly"
     ],
     "ruby": [
-      "rails",
       "gems",
+      "microservices",
+      "rails",
       "rspec",
+      "service",
+      "services",
       "sinatra"
     ],
     "spark": [
@@ -1203,23 +1215,29 @@
       "hadoop"
     ],
     "r": [
-      "rstudio",
-      "ggplot2",
-      "tidyverse",
       "cran",
+      "ggplot2",
+      "microservices",
+      "regression",
+      "rstudio",
+      "service",
+      "services",
       "shiny",
       "statistical",
       "statistics",
-      "regression"
+      "tidyverse"
     ],
     "c": [
       "embedded",
       "firmware",
-      "pointers",
       "kernel",
       "microcontrollers",
-      "systems",
-      "posix"
+      "microservices",
+      "pointers",
+      "posix",
+      "service",
+      "services",
+      "systems"
     ]
   },
   "degree_implied": {
@@ -1294,6 +1312,275 @@
     "march": {
       "level": 3,
       "field": "Architecture"
+    }
+  },
+  "ambiguous_negative": {
+    "java": [
+      "coffee",
+      "beans",
+      "roast",
+      "island",
+      "indonesia",
+      "kiosk",
+      "cafe",
+      "espresso"
+    ],
+    "excel": [
+      "at",
+      "in"
+    ],
+    "swift": [
+      "action",
+      "response",
+      "resolution",
+      "delivery",
+      "recovery",
+      "turnaround"
+    ],
+    "rust": [
+      "removal",
+      "prevention",
+      "coatings",
+      "corrosion",
+      "paint"
+    ],
+    "go": [
+      "live",
+      "to",
+      "through",
+      "beyond",
+      "above",
+      "kart"
+    ],
+    "spring": [
+      "semester",
+      "break",
+      "fair",
+      "term",
+      "season"
+    ],
+    "spark": [
+      "interest",
+      "curiosity",
+      "joy",
+      "conversation"
+    ],
+    "ruby": [
+      "sapphire",
+      "gemstone",
+      "jewelry",
+      "ring"
+    ],
+    "chef": [
+      "line",
+      "pastry",
+      "kitchen",
+      "restaurant",
+      "bistro"
+    ]
+  },
+  "work_verbs": [
+    "administer",
+    "administered",
+    "administering",
+    "administers",
+    "analysed",
+    "analyze",
+    "analyzed",
+    "analyzes",
+    "automate",
+    "automated",
+    "automates",
+    "automating",
+    "build",
+    "building",
+    "builds",
+    "built",
+    "code",
+    "coded",
+    "configure",
+    "configured",
+    "configures",
+    "configuring",
+    "create",
+    "created",
+    "creates",
+    "creating",
+    "debug",
+    "debugged",
+    "deploy",
+    "deployed",
+    "deploying",
+    "deploys",
+    "design",
+    "designed",
+    "designing",
+    "designs",
+    "develop",
+    "developed",
+    "developing",
+    "develops",
+    "implement",
+    "implemented",
+    "implementing",
+    "implements",
+    "integrate",
+    "integrated",
+    "integrates",
+    "integrating",
+    "maintain",
+    "maintained",
+    "maintaining",
+    "maintains",
+    "migrate",
+    "migrated",
+    "migrates",
+    "migrating",
+    "model",
+    "modeled",
+    "modelled",
+    "models",
+    "monitor",
+    "monitored",
+    "monitors",
+    "operate",
+    "operated",
+    "operates",
+    "operating",
+    "optimise",
+    "optimised",
+    "optimize",
+    "optimized",
+    "program",
+    "programmed",
+    "ran",
+    "refactor",
+    "refactored",
+    "run",
+    "running",
+    "runs",
+    "script",
+    "scripted",
+    "set",
+    "sets",
+    "ship",
+    "shipped",
+    "ships",
+    "test",
+    "tested",
+    "testing",
+    "tests",
+    "train",
+    "trained",
+    "trains",
+    "tune",
+    "tuned",
+    "tunes",
+    "tuning",
+    "upgrade",
+    "upgraded",
+    "use",
+    "used",
+    "uses",
+    "using",
+    "write",
+    "writes",
+    "writing",
+    "written",
+    "wrote"
+  ],
+  "degree_phrases": {
+    "master of business administration": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "bachelor of business administration": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bachelor of science in nursing": {
+      "level": 2,
+      "field": "Nursing"
+    },
+    "master of science in nursing": {
+      "level": 3,
+      "field": "Nursing"
+    },
+    "master of public health": {
+      "level": 3,
+      "field": "Public Health"
+    },
+    "master of social work": {
+      "level": 3,
+      "field": "Social Work"
+    },
+    "master of fine arts": {
+      "level": 3,
+      "field": "Fine Arts"
+    },
+    "bachelor of fine arts": {
+      "level": 2,
+      "field": "Fine Arts"
+    },
+    "bachelor of commerce": {
+      "level": 2,
+      "field": "Commerce"
+    },
+    "bachelor of engineering": {
+      "level": 2,
+      "field": "Engineering"
+    },
+    "master of engineering": {
+      "level": 3,
+      "field": "Engineering"
+    },
+    "bachelor of laws": {
+      "level": 2,
+      "field": "Law"
+    },
+    "master of laws": {
+      "level": 3,
+      "field": "Law"
+    },
+    "juris doctor": {
+      "level": 4,
+      "field": "Law"
+    },
+    "doctor of medicine": {
+      "level": 4,
+      "field": "Medicine"
+    },
+    "doctor of philosophy": {
+      "level": 4,
+      "field": ""
+    },
+    "bachelor of science": {
+      "level": 2,
+      "field": "",
+      "abbreviations": ["bs", "bsc"]
+    },
+    "bachelor of arts": {
+      "level": 2,
+      "field": "",
+      "abbreviations": ["ba"]
+    },
+    "master of science": {
+      "level": 3,
+      "field": "",
+      "abbreviations": ["ms", "msc"]
+    },
+    "master of arts": {
+      "level": 3,
+      "field": "",
+      "abbreviations": ["ma"]
+    },
+    "associate of science": {
+      "level": 1,
+      "field": ""
+    },
+    "associate of arts": {
+      "level": 1,
+      "field": ""
     }
   }
 }

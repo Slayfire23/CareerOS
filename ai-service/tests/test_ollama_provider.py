@@ -19,7 +19,8 @@ def settings(**overrides):
 
 
 def golden_findings() -> list[dict]:
-    return json.loads((CONTRACTS / "response.rules.example.json").read_text(encoding="utf-8"))["findings"]
+    findings = json.loads((CONTRACTS / "response.rules.example.json").read_text(encoding="utf-8"))["findings"]
+    return [{k: v for k, v in f.items() if k != "basis"} for f in findings]  # rules-engine label only
 
 
 def chat(content: str, done_reason: str = "stop", prompt: int = 1800, output: int = 400) -> dict:

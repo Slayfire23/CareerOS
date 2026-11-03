@@ -17,8 +17,9 @@ export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | 
 
 /** `confirmed`: the person confirmed in the job review that a flagged requirement is real (never evidence). */
 export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"]; confirmed?: true };
-/** "hybrid" is the rules engine plus local AI for skills it missed (the local-AI method in the app). */
-export type AnalysisProvider = "rules" | "anthropic" | "ollama" | "hybrid";
+/** "assisted" is the rules engine, the only authority for verdicts, plus local AI suggestions. "hybrid"
+ * is retired: it let local AI raise a verdict. It remains so stored analyses still display. */
+export type AnalysisProvider = "rules" | "anthropic" | "ollama" | "hybrid" | "assisted";
 export type TokenBudget = { max_input_tokens: number; max_output_tokens: number };
 export type MatchRequest = {
   request_id: string;

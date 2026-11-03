@@ -125,11 +125,16 @@ def _related(a: str, b: str) -> bool:
     )
 
 
+# Negative words that only count right after the word ("excel at"), never nearby ("reports in Excel").
+_FUNCTION_WORDS = frozenset({"at", "in", "to", "through", "beyond", "above"})
+
+
 def has_tech_context(field_text: str, quote: str, word: str) -> bool:
     """True when an ambiguous word sits within three words of a technical noun or another known
     technology in its field, outside any hyphenated compound ("go-kart", "go-live")."""
     _, context, _ = _word_lists()
     context = context | frozenset(_raw().get("ambiguous_context", {}).get(word, []))
+    negative = frozenset(_raw().get("ambiguous_negative", {}).get(word, []))
     known = vocabulary()
     pattern = re.compile(rf"(?<![\w.]){re.escape(word)}(?![\w])", re.IGNORECASE)
     for match in pattern.finditer(field_text):
@@ -137,9 +142,53 @@ def has_tech_context(field_text: str, quote: str, word: str) -> bool:
         if before.endswith("-") or re.match(r"-[a-z]", after, re.IGNORECASE):
             continue  # part of a compound word, not the technology
         window = words(before)[-3:] + words(after)[:3]
+        following = words(after)[:1]
+        if (following and following[0] in negative) or any(
+            t in negative and t not in _FUNCTION_WORDS for t in window
+        ):
+            continue  # "Java coffee", "excel at", "swift action": the ordinary meaning
         if any(t in context or (t in known and t != word) for t in window):
             return True
     return False
+
+
+def describes_use(field_text: str, quote: str) -> bool:
+    """True when free text describes a technology as used in work: a work verb shortly before it, or
+    a technical noun or another known technology beside it. "Built Kafka consumers" does;
+    "Kubernetes expertise confirmed" does not. A mention alone is not evidence."""
+    _, context, _ = _word_lists()
+    verbs = frozenset(_raw()["work_verbs"])
+    known = vocabulary()
+    terms = canonical_terms(quote)
+    pattern = re.compile(rf"(?<![\w.]){re.escape(quote)}(?![\w])", re.IGNORECASE)
+    for match in pattern.finditer(field_text):
+        before, after = words(field_text[: match.start()]), words(field_text[match.end() :])
+        if any(t in verbs for t in before[-5:]):
+            return True
+        if any(t in context or (t in known and t not in terms) for t in before[-3:] + after[:3]):
+            return True
+    return False
+
+
+def plain_skill_name(name: str) -> bool:
+    """A skill name is a name: short, with no parenthetical remark or sentence in it. "Bash (also
+    counts as Terraform)" is a claim, so it never counts as a listed skill. "Node.js" and
+    "C++ (Qt)" are fine: a parenthesis may only add a short qualifier without a verb."""
+    if len(words(name)) > 6 or re.search(r"[:;{}<>]", name):
+        return False
+    return not re.search(
+        r"\b(counts?|is|are|was|means?|equals?|same|equivalent|as|also|verified|approved|certified\s+by|expert)\b",
+        name,
+        re.IGNORECASE,
+    )
+
+
+def surface_forms(term: str) -> list[str]:
+    """Every way the table writes a canonical term, longest first ("kubernetes", "k8s", "kube")."""
+    phrases, _, _, _ = _table()
+    return sorted(
+        {p for p, canonical in phrases.items() if canonical == term} | {term}, key=len, reverse=True
+    )
 
 
 def quote_terms(quote: str, field_text: str | None = None) -> set[str]:
@@ -148,7 +197,11 @@ def quote_terms(quote: str, field_text: str | None = None) -> set[str]:
     if field_text is None:
         return terms
     ambiguous, _, _ = _word_lists()
-    return {t for t in terms if t not in ambiguous or has_tech_context(field_text, quote, t)}
+    # Only the word as written can be ambiguous: "Golang" is the language, "go" may not be.
+    written = set(words(quote))
+    return {
+        t for t in terms if t not in ambiguous or t not in written or has_tech_context(field_text, quote, t)
+    }
 
 
 def technology_terms(text: str) -> set[str]:
@@ -173,18 +226,42 @@ def relation(requirement_text: str, quote: str, field_text: str | None = None) -
     return None
 
 
-def _field_alternatives(text: str) -> list[frozenset[str]]:
-    """Fields of study a requirement names, as word sets: "Computer Science, Engineering, or a
-    related field" -> [{computer, science}, {engineering}]. Degree words and filler are dropped."""
-    raw = _raw()
-    stop = frozenset(raw["degree_field_stopwords"])
-    parts = re.split(r",|\bor\b|/|;", text, flags=re.IGNORECASE)
+def _word_alternatives(text: str) -> list[frozenset[str]]:
+    stop = frozenset(_raw()["degree_field_stopwords"])
     alternatives = []
-    for part in parts:
+    for part in re.split(r",|\bor\b|/|;", text, flags=re.IGNORECASE):
         found = frozenset(w for w in words(part) if w not in stop and len(w) > 1 and not w.isdigit())
         if found:
             alternatives.append(found)
     return alternatives
+
+
+def _without_degree_names(text: str) -> str:
+    """The text with full degree names removed: "Bachelor of Science in Statistics" -> "in Statistics"."""
+    for phrase in _raw().get("degree_phrases", {}):
+        text = re.sub(rf"\b{phrase.replace(' ', r'\s+')}\b", " ", text, flags=re.IGNORECASE)
+    return text
+
+
+def _field_alternatives(text: str) -> list[frozenset[str]]:
+    """Fields of study a requirement names, as word sets: "Computer Science, Engineering, or a
+    related field" -> [{computer, science}, {engineering}]. Degree words and filler are dropped. A
+    degree name that stands alone keeps its words, so "Bachelor of Science" still asks for science."""
+    return _word_alternatives(_without_degree_names(text)) or _word_alternatives(text)
+
+
+def names_same_degree(requirement_text: str, qualification: str) -> bool:
+    """True when a requirement is only a degree name and the qualification is that degree, written
+    either way: "Bachelor of Science" and "B.S."."""
+    if _word_alternatives(_without_degree_names(requirement_text)):
+        return False
+    have = " ".join(re.findall(r"[a-z]+", qualification.lower().replace(".", "")))
+    for phrase, info in _raw().get("degree_phrases", {}).items():
+        if re.search(rf"\b{phrase.replace(' ', r'\s+')}\b", requirement_text, flags=re.IGNORECASE):
+            names = {phrase, *info.get("abbreviations", [])}
+            if any(f" {name} " in f" {have} " for name in names):
+                return True
+    return False
 
 
 def asks_for_field(requirement_text: str) -> bool:

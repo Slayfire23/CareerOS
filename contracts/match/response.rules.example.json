@@ -17,7 +17,8 @@
       ],
       "caveats": [
         "Projects are not counted as professional employment."
-      ]
+      ],
+      "basis": "employment_dates"
     },
     {
       "requirement_index": 1,
@@ -29,7 +30,8 @@
           "quote": "SolidWorks"
         }
       ],
-      "caveats": []
+      "caveats": [],
+      "basis": "listed_skill"
     },
     {
       "requirement_index": 2,
@@ -45,7 +47,8 @@
           "quote": "Mechanical Engineering"
         }
       ],
-      "caveats": []
+      "caveats": [],
+      "basis": "education"
     },
     {
       "requirement_index": 3,
@@ -57,14 +60,16 @@
           "quote": "injection molding"
         }
       ],
-      "caveats": []
+      "caveats": [],
+      "basis": "described_in_work"
     },
     {
       "requirement_index": 4,
       "verdict": "insufficient_information",
       "explanation": "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell whether you have it under a different name.",
       "citations": [],
-      "caveats": []
+      "caveats": [],
+      "basis": "no_evidence"
     },
     {
       "requirement_index": 5,
@@ -78,7 +83,8 @@
       ],
       "caveats": [
         "Mentioned in a project, not listed as a skill."
-      ]
+      ],
+      "basis": "project"
     }
   ],
   "verdict_counts": {
@@ -89,7 +95,7 @@
   },
   "provider": "rules",
   "model": null,
-  "method_version": "rules-v4",
+  "method_version": "rules-v5",
   "usage": null,
   "provider_request_id": null
 }

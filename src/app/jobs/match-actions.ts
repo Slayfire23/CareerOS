@@ -10,7 +10,7 @@ export type FeedbackState = { error?: string; message?: string; version?: number
 export type ConsentState = { error?: string; message?: string };
 
 const UNAVAILABLE = "The analysis service is unavailable. Your saved requirements are unaffected; try again later.";
-const PROVIDER_DOWN = "The AI model is not available right now (the computer that runs it may be off). The rules engine still works; try again later.";
+const PROVIDER_DOWN = "The AI model is not available right now (the computer that runs it may be off). Choose the rules engine or try again later.";
 const DISCARDED = "The analysis could not be verified and was discarded.";
 
 const RUN_MESSAGES: Record<RunErrorCode, string> = {
@@ -68,8 +68,8 @@ export async function runJobMatch(_previous: MatchRunState, form: FormData): Pro
     return { error: "Invalid job selection." };
   }
   const provider = one(form, "provider") ?? "rules";
-  // Local AI is offered as "hybrid": the rules engine plus local AI for skills it missed.
-  if (provider !== "rules" && provider !== "anthropic" && provider !== "hybrid") return { error: "Choose an analysis method." };
+  // Local AI is offered as "assisted": the rules engine decides, and local AI adds suggestions.
+  if (provider !== "rules" && provider !== "anthropic" && provider !== "assisted") return { error: "Choose an analysis method." };
   const result = await runJobAnalysis({ supabaseAuthId: user.id, jobId, provider, contactEmail: user.email ?? null, config: readAiConfig() });
   if (!result.ok) return { error: RUN_MESSAGES[result.error] };
   revalidatePath("/dashboard", "layout");

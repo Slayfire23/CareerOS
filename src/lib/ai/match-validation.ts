@@ -12,7 +12,7 @@ import {
 } from "@/lib/ai/evidence";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
-import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
+import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, plainSkillName, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
 import { hasDirectedText, qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 import { namesOfListedSkills } from "@/lib/ai/listed-skills";
 import { listedTerms, parseRequirement, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
@@ -29,6 +29,14 @@ export type Citation = { evidenceId: string; quote: string };
 export type FindingMethod = "rules" | "local_ai";
 export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
 export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
+/** Which deterministic rule decided a finding (shown as where the result came from). */
+export type RuleBasis = "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
+export const RULE_BASES: RuleBasis[] = ["listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
+export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
+const SUGGESTION_KINDS: SuggestionKind[] = ["alternate_name", "related_technology", "relevant_evidence", "profile_gap"];
+/** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
+export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
+export type AiAssist = "used" | "unavailable" | "not_needed";
 export type Finding = {
   requirementIndex: number;
   verdict: Verdict;
@@ -39,6 +47,7 @@ export type Finding = {
   aiStatus?: AiStatus;
   /** The requirement needs the person's confirmation in the job review before it is judged. */
   review?: "needs_confirmation";
+  basis?: RuleBasis;
 };
 export type ValidatedMatch = {
   findings: Finding[];
@@ -48,6 +57,8 @@ export type ValidatedMatch = {
   methodVersion: string;
   usage: TokenUsage | null;
   providerRequestId: string | null;
+  suggestions: Suggestion[];
+  aiAssist: AiAssist | null;
 };
 /** The provider and model this request asked for; anything else is rejected. */
 export type ExpectedSource = { provider: string; model: string | null };
@@ -66,10 +77,13 @@ const str = (v: unknown, max: number, field: string, min = 1): string =>
   typeof v === "string" && v.trim().length >= min && v.length <= max ? v : reject(`invalid ${field}`);
 
 const NUMBER_WORDS = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split(" ");
-const YEARS = new RegExp(`\\b(\\d+(?:\\.\\d+)?|${NUMBER_WORDS.join("|")})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*years?\\b`, "gi");
+const NUMBER = `\\d+(?:\\.\\d+)?|${NUMBER_WORDS.join("|")}`;
+const YEARS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*years?\\b`, "gi");
+/** The lower end of a range: "2-3 years", "two to three years". */
+const YEAR_RANGE = new RegExp(`\\b(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*years?\\b`, "gi");
 
 export function statedYears(text: string): number[] {
-  return [...text.matchAll(YEARS)].map(m => {
+  return [...text.matchAll(YEARS), ...text.matchAll(YEAR_RANGE)].map(m => {
     const raw = m[1].toLowerCase();
     const word = NUMBER_WORDS.indexOf(raw);
     return word >= 0 ? word : Number(raw);
@@ -134,6 +148,40 @@ function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], 
 /** Employment rules apply to real employment requirements, not "Experience with <technology>". */
 const isEmployment = (requirement: MatchRequest["requirements"][number]) =>
   requirement.category === "Experience" && !skillLikeExperience(qualificationText(requirement.text));
+
+/** AI suggestions: separate from findings, and only pointers that check out against the profile
+ * and against what the requirement requests (suggestions.py). */
+function validateSuggestions(request: MatchRequest, body: Record<string, unknown>, expected: ExpectedSource, evidence: Map<string, Evidence>, findings: Finding[]): Suggestion[] {
+  if (body.suggestions === undefined || body.suggestions === null) return [];
+  if (expected.provider !== "assisted") reject("suggestions from a provider that may not give them");
+  if (!Array.isArray(body.suggestions) || body.suggestions.length > 150) reject("invalid suggestions");
+  const listed = listedTerms(namesOfListedSkills(request.evidence));
+  return (body.suggestions as unknown[]).map((raw): Suggestion => {
+    if (!isObject(raw)) reject("suggestion is not an object");
+    const s = raw as Record<string, unknown>;
+    const requirement = request.requirements.find(r => r.index === s.requirement_index) ?? reject("suggestion for an unknown requirement");
+    const finding = findings.find(f => f.requirementIndex === requirement!.index)!;
+    if (finding.review || finding.verdict === "supported") reject("suggestion for a requirement that takes none");
+    const kind = SUGGESTION_KINDS.includes(s.kind as SuggestionKind) ? (s.kind as SuggestionKind) : reject("invalid suggestion kind");
+    const text = str(s.text, 400, "suggestion text");
+    const target = parseRequirement(requirement!.text, listed, requirement!.confirmed === true).creditText;
+    if (kind === "profile_gap") {
+      const term = str(s.term, 100, "suggestion term");
+      if (s.citation !== null && s.citation !== undefined) reject("a profile gap cites no evidence");
+      if (!target.toLowerCase().includes(term.toLowerCase())) reject("suggested term is not in the requirement");
+      return { requirementIndex: requirement!.index, kind, text, citation: null, term, knownToRules: false };
+    }
+    if (!isObject(s.citation)) reject("suggestion without evidence");
+    const c = s.citation as Record<string, unknown>;
+    const item = evidence.get(c.evidence_id as string) ?? reject("suggestion cites evidence that was not sent");
+    const quote = str(c.quote, 300, "suggestion quote");
+    if (item!.kind === "education") reject("suggestion cites education");
+    if (!quoteIsVerbatim(item!, quote)) reject("suggestion quote is not verbatim");
+    if (item!.kind === "skill" && !plainSkillName(item!.name)) reject("suggestion cites a skill name carrying a claim");
+    if (!quoteSource(item!, quote).allowed) reject("suggestion cites text directed at an AI or reviewer, or about the evaluation");
+    return { requirementIndex: requirement!.index, kind, text, citation: { evidenceId: item!.id, quote }, term: null, knownToRules: s.known_to_rules === true };
+  });
+}
 
 function areaIsEmpty(request: MatchRequest, requirement: MatchRequest["requirements"][number]): boolean {
   const kinds = isEmployment(requirement) ? ["experience"] : requirement.category === "Education" ? ["education"] : ["skill", "experience", "project"];
@@ -203,11 +251,18 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       aiStatus = AI_STATUSES.includes(f.ai_status as AiStatus) ? (f.ai_status as AiStatus) : reject("hybrid finding without a local AI status");
       if ((method === "local_ai") !== (aiStatus === "accepted")) reject("method and local AI status disagree");
       if (method === "local_ai") checkLocalAiFinding(requirement, verdict, citations, evidence);
+    } else if (expected.provider === "assisted") {
+      // Every verdict comes from the rules engine; local AI may only add suggestions.
+      if (f.method !== "rules" || f.ai_status !== undefined) reject("an AI-assisted verdict must come from the rules engine");
+      method = "rules";
     } else if (f.method !== undefined || f.ai_status !== undefined) {
       reject("method labels from a provider that may not set them");
     }
+    const usesRules = ["rules", "hybrid", "assisted"].includes(expected.provider);
+    if (f.basis !== undefined && (!usesRules || !RULE_BASES.includes(f.basis as RuleBasis))) reject("invalid rule basis");
+    const basis = f.basis as RuleBasis | undefined;
     // Language-model results only: a supported claim must cite evidence that mentions the requirement.
-    if (!["rules", "hybrid"].includes(expected.provider) && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
+    if (!usesRules && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
       reject("supported claim cites evidence unrelated to the requirement");
     }
     if (isEmployment(requirement)) {
@@ -222,7 +277,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     const needsReview = parseRequirement(requirement.text, listed, requirement.confirmed === true).needsReview;
     if (review && (verdict !== "insufficient_information" || citations.length)) reject("a requirement that needs confirmation was judged");
     if (needsReview && verdict === "supported") reject("supported verdict for a requirement that needs confirmation");
-    if (needsReview && ["rules", "hybrid"].includes(expected.provider) && !review) reject("a requirement that needs confirmation was not flagged");
+    if (needsReview && usesRules && !review) reject("a requirement that needs confirmation was not flagged");
     if (review && !needsReview) reject("review flag on a requirement that does not need confirmation");
 
     const requirementYears = new Set(statedYears(requirement.text));
@@ -231,7 +286,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method, aiStatus }), ...(review && { review }) };
+    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }) };
   });
   if (seen.size !== requirements.size) reject("a requirement has no finding");
 
@@ -239,7 +294,14 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
   const reported = body.verdict_counts;
   if (!isObject(reported) || VERDICTS.some(v => reported[v] !== verdictCounts[v])) reject("verdict counts do not match findings");
 
+  const suggestions = validateSuggestions(request, body, expected, evidence, findings);
+  const aiAssist = body.ai_assist === undefined || body.ai_assist === null ? null
+    : expected.provider === "assisted" && ["used", "unavailable", "not_needed"].includes(body.ai_assist as string) ? (body.ai_assist as AiAssist)
+    : reject("invalid AI assist status");
+
   return {
+    suggestions,
+    aiAssist,
     findings: findings.sort((a, b) => a.requirementIndex - b.requirementIndex),
     verdictCounts,
     provider,

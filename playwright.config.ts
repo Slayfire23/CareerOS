@@ -14,8 +14,8 @@ function assertLocalSupabase() {
   const isLocal = (url?: string) => { try { return ["127.0.0.1", "localhost"].includes(new URL(url!).hostname); } catch { return false; } };
   // Browser tests must never reach a paid AI provider: a cloud provider may only use the fictional
   // test key and the local mock API (ai-service/devtools/mock_anthropic.py).
-  // Local providers are allowed: rules, fake, and Ollama on this machine (alone or in "hybrid").
-  const cloudInAiService = (ai.AI_PROVIDERS ?? "").split(",").map(p => p.trim()).some(p => p && !["rules", "fake", "ollama", "hybrid"].includes(p));
+  // Local providers are allowed: rules, fake, and Ollama on this machine (alone, "hybrid", or "assisted").
+  const cloudInAiService = (ai.AI_PROVIDERS ?? "").split(",").map(p => p.trim()).some(p => p && !["rules", "fake", "ollama", "hybrid", "assisted"].includes(p));
   const unsafeCloud = (cloudInAiService || ai.ANTHROPIC_API_KEY) &&
     (!(ai.ANTHROPIC_API_KEY ?? "").startsWith("sk-ant-test.") || !isLocal(ai.AI_ANTHROPIC_BASE_URL));
   const problems = [
@@ -41,7 +41,7 @@ export default defineConfig({
   reporter: "list",
   outputDir: join(tmpdir(), "careeros-playwright-results"),
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000",
     storageState: { cookies: [], origins: [] },
     trace: "off",
     screenshot: "off",

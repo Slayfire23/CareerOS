@@ -78,9 +78,13 @@ function related(a: string, b: string): boolean {
 /** True when an ambiguous word sits within three words of a technical noun or another known
  * technology in its field, outside any hyphenated compound ("go-kart"). See relations.py. */
 const WORD_CONTEXT = (table as { ambiguous_context?: Record<string, string[]> }).ambiguous_context ?? {};
+const WORD_NEGATIVE = (table as { ambiguous_negative?: Record<string, string[]> }).ambiguous_negative ?? {};
+/** Negative words that only count right after the word ("excel at"), never nearby ("reports in Excel"). */
+const FUNCTION_WORDS = new Set(["at", "in", "to", "through", "beyond", "above"]);
 
 function hasTechContext(fieldText: string, word: string): boolean {
   const context = new Set([...TECH_CONTEXT, ...(WORD_CONTEXT[word] ?? [])]);
+  const negative = new Set(WORD_NEGATIVE[word] ?? []);
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
   for (const match of fieldText.matchAll(pattern)) {
@@ -88,6 +92,8 @@ function hasTechContext(fieldText: string, word: string): boolean {
     const after = fieldText.slice(match.index + match[0].length);
     if (before.endsWith("-") || /^-[a-z]/i.test(after)) continue;
     const window = [...words(before).slice(-3), ...words(after).slice(0, 3)];
+    const following = words(after)[0];
+    if ((following && negative.has(following)) || window.some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
     if (window.some(t => context.has(t) || (VOCABULARY.has(t) && t !== word))) return true;
   }
   return false;
@@ -97,7 +103,16 @@ function hasTechContext(fieldText: string, word: string): boolean {
 export function quoteTerms(quote: string, fieldText?: string | null): Set<string> {
   const terms = canonicalTerms(quote);
   if (fieldText == null) return terms;
-  return new Set([...terms].filter(t => !AMBIGUOUS.has(t) || hasTechContext(fieldText, t)));
+  // Only the word as written can be ambiguous: "Golang" is the language, "go" may not be.
+  const written = new Set(words(quote));
+  return new Set([...terms].filter(t => !AMBIGUOUS.has(t) || !written.has(t) || hasTechContext(fieldText, t)));
+}
+
+/** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
+ * as Terraform)" is a claim, so it never counts as a listed skill. */
+export function plainSkillName(name: string): boolean {
+  if (words(name).length > 6 || /[:;{}<>]/.test(name)) return false;
+  return !/\b(counts?|is|are|was|means?|equals?|same|equivalent|as|also|verified|approved|certified\s+by|expert)\b/i.test(name);
 }
 
 export const technologyTerms = (text: string) => new Set([...canonicalTerms(text)].filter(t => VOCABULARY.has(t)));

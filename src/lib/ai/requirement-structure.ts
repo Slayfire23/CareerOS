@@ -20,6 +20,10 @@ const AND_SPLIT = re(structure.and_split);
 const OR_MARKER = re(structure.or_marker);
 const AND_MARKER = re(structure.and_marker);
 const EVALUATION_LANGUAGE = structure.evaluation_language.map(re);
+const EVALUATION_EXEMPT = new RegExp(structure.evaluation_exempt, "gi");
+const PROFILE_LABEL = re(structure.profile_label);
+const AS = /\bas\b/gi;
+const NOT_A_CLAIM_AS = /\b(such|as\s+well)\s+as\b|\bas\s+(a|an|well|part|needed|required|of)\b/gi;
 const ITEM_STOPWORDS = new Set<string>([...structure.item_stopwords, ...GENERIC_TERMS]);
 const TOKEN = /[A-Za-z][A-Za-z0-9+#.-]*/g;
 const tokens = (text: string) => text.match(TOKEN) ?? [];
@@ -40,15 +44,28 @@ export function isRelationClaim(text: string, listed: ReadonlySet<string> = new 
   return items.length >= 2 || EVALUATION_REFERENCE.test(text) || /full\s+(match|credit)/i.test(text);
 }
 
-export const evaluationLanguage = (text: string) => EVALUATION_LANGUAGE.some(p => p.test(text));
+const withoutExempt = (text: string) => text.replace(EVALUATION_EXEMPT, " ");
+export const evaluationLanguage = (text: string) => EVALUATION_LANGUAGE.some(p => p.test(withoutExempt(text)));
+
+/** A clause relating two named items with "as": "Java experience will be scored as Kotlin experience". */
+export function itemAsItem(text: string, listed: ReadonlySet<string> = new Set()): boolean {
+  const cleaned = text.replace(NOT_A_CLAIM_AS, " ");
+  for (const match of cleaned.matchAll(AS)) {
+    if (namesAnItem(cleaned.slice(0, match.index), listed) && namesAnItem(cleaned.slice(match.index + match[0].length), listed)) return true;
+  }
+  return false;
+}
 
 export function pieces(clause: string, listed: ReadonlySet<string> = new Set()): string[] {
   const hasOr = OR_MARKER.test(clause);
   const hasAnd = AND_MARKER.test(clause);
   const parts = hasOr && !hasAnd ? [clause] : hasOr ? clause.split(/\s+and\s+/i) : clause.split(AND_SPLIT);
-  return parts
+  const found = parts
     .map(part => part.replace(/^[\s.;:]+|[\s.;:]+$/g, "").replace(/^(and|or)\s+/i, ""))
     .filter(part => part && namesAnItem(part, listed));
+  // "Python required, Go preferred": a preferred part of a list is never mandatory.
+  const required = found.filter(part => !OPTIONAL.test(part));
+  return required.length ? required : found;
 }
 
 /** An aside that only lists items: "(Terraform)", "(e.g. SQS)", "(Kafka or Kinesis)". */
@@ -87,7 +104,7 @@ export function parseRequirement(text: string, listed: ReadonlySet<string> = new
       continue;
     }
     // Once confirmed, the wording is judged as written; text addressed to an AI stays excluded.
-    if (!confirmed && (isRelationClaim(clause, listed) || evaluationLanguage(clause))) {
+    if (!confirmed && (isRelationClaim(withoutExempt(clause), listed) || evaluationLanguage(clause) || itemAsItem(clause, listed))) {
       instructions.push(clause);
       reasons.push("evaluation_language");
       continue;
@@ -138,7 +155,7 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   for (const span of directedSpans(text)) spans.set(span.join(":"), span);
   for (const [s, e] of segments(text)) {
     const segment = text.slice(s, e);
-    if (EVALUATION_REFERENCE.test(segment) || PROFILE_META.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) {
+    if (EVALUATION_REFERENCE.test(segment) || PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) {
       spans.set(`${s}:${e}`, [s, e]);
     }
   }

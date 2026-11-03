@@ -125,5 +125,8 @@
     "(\\b[A-Za-z]\\s){4,}[A-Za-z]\\b"
   ],
   "profile_meta": "\\b(this|the)\\s+(person|candidate|applicant|individual|employee|user)\\b|\\b(recruiter|hr|hiring|screening|assessment|reviewer|evaluator|grader)\\s+(note|notes|comment|comments|feedback|override)\\b|\\bapproved\\s+for\\b|\\bverified\\s+by\\b",
-  "list_lead": "^\\s*[(\\[]\\s*(e\\.?\\s?g\\.?|i\\.?\\s?e\\.?|such\\s+as|like|including|for\\s+example|esp\\.?|especially)?[\\s,:]*"
+  "list_lead": "^\\s*[(\\[]\\s*(e\\.?\\s?g\\.?|i\\.?\\s?e\\.?|such\\s+as|like|including|for\\s+example|esp\\.?|especially)?[\\s,:]*",
+  "evaluation_exempt": "\\bcounts?\\s+as\\s+an?\\s+(plus|bonus|advantage)\\b",
+  "profile_label": "^\\W*[A-Za-z][A-Za-z ]{0,40}\\b(note|notes|comment|comments|feedback|remark|remarks)\\b[^:]{0,40}:",
+  "unverifiable_field": "\\b(related|relevant|similar|comparable|appropriate|applicable)\\s+(field|fields|discipline|disciplines|area|areas|subject|subjects|major|majors)\\b"
 }

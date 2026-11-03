@@ -19,6 +19,10 @@ def build_provider(settings: Settings, name: str) -> MatchProvider:
         from app.providers.ollama import OllamaProvider
 
         return OllamaProvider(settings)
+    if name == "assisted":
+        from app.providers.assisted import AssistedProvider
+
+        return AssistedProvider(settings)
     if name == "hybrid":
         from app.providers.hybrid import HybridProvider
 

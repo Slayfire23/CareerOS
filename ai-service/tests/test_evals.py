@@ -58,7 +58,7 @@ async def test_rules_baseline_runs_offline_without_false_support():
     # Regression: "Expert-level Java" with a beginner skill was "supported" before the level check.
     assert not any(d["case"] == "level-conflict" for d in result["disagreements"])
     # Known keyword limits that remain: synonyms and role-to-requirement judgment.
-    assert {d["case"] for d in result["disagreements"]} == {"synonym-rules-misses", "duration-bait"}
+    assert {d["case"] for d in result["disagreements"]} == {"duration-bait"}
 
 
 def test_scoring_counts_false_support_injections_rejections_and_consistency():

@@ -203,6 +203,10 @@ model JobMatchAnalysis {
   requirements        Json
   findings            Json
   verdictCounts       Json
+  /// AI suggestions shown beside the findings. They never change a finding or its verdict.
+  aiSuggestions       Json          @default("[]")
+  /// Whether local AI could help with this analysis: "used", "unavailable", "not_needed", or null.
+  aiAssist            String?       @db.VarChar(20)
   /// The owner's Agree/Disagree feedback, keyed by requirement index.
   feedback            Json          @default("{}")
   feedbackVersion     Int           @default(0)

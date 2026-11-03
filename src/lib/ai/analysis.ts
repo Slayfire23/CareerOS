@@ -17,7 +17,7 @@ import {
   type MatchRequest,
   type Verdict,
 } from "@/lib/ai/evidence";
-import { MatchValidationError, validateMatchResponse, type Finding } from "@/lib/ai/match-validation";
+import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
 
@@ -259,11 +259,11 @@ export async function runJobAnalysis(options: {
     if (!cloud || !cloud.allowedUserIds.has(user.id)) return { ok: false, error: "cloud_unavailable" };
     if (!hasCurrentCloudConsent(user)) return { ok: false, error: "consent_required" };
   }
-  // Local AI (Ollama on CareerOS-controlled hardware, alone or with the rules engine in "hybrid")
+  // Local AI (Ollama on CareerOS-controlled hardware; in "assisted" it only adds suggestions)
   // needs to be turned on for this account. Nothing goes to an AI company, so no cloud consent or
   // redaction applies.
   let localModel: string | null = null;
-  if (provider === "ollama" || provider === "hybrid") {
+  if (provider === "ollama" || provider === "hybrid" || provider === "assisted") {
     const localAi = config.localAi;
     if (!localAi || !localAi.allowedUserIds.has(user.id)) return { ok: false, error: "local_ai_unavailable" };
     localModel = localAi.model;
@@ -354,6 +354,8 @@ export async function runJobAnalysis(options: {
         requirements: request.requirements,
         findings: validated.findings,
         verdictCounts: validated.verdictCounts,
+        aiSuggestions: validated.suggestions,
+        aiAssist: validated.aiAssist,
       },
       select: { id: true },
     });
@@ -450,6 +452,8 @@ export type AnalysisView = {
   requirements: MatchRequest["requirements"];
   findings: Finding[];
   verdictCounts: Record<Verdict, number>;
+  suggestions: Suggestion[];
+  aiAssist: AiAssist | null;
   feedback: Record<string, FeedbackEntry>;
   feedbackVersion: number;
   outOfDate: { requirements: boolean; profile: boolean };
@@ -495,6 +499,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     requirements: latest.requirements as AnalysisView["requirements"],
     findings: latest.findings as Finding[],
     verdictCounts: latest.verdictCounts as AnalysisView["verdictCounts"],
+    suggestions: latest.aiSuggestions as Suggestion[],
+    aiAssist: latest.aiAssist as AiAssist | null,
     feedback: latest.feedback as AnalysisView["feedback"],
     feedbackVersion: latest.feedbackVersion,
     outOfDate: {

@@ -4,16 +4,16 @@ import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
 import { confirmAction, openPage } from "./support";
 
-// Hybrid analysis end to end: the rules engine plus local AI (Ollama on this machine, through the
-// real AI service with AI_PROVIDERS including "hybrid"). Requires e2e-a in
-// AI_LOCAL_LLM_ALLOWED_USERS. Free and local; fictional data only.
-test("rules + local AI labels each finding's method and adds a synonym match", async ({ page }) => {
+// AI-assisted analysis end to end: the rules engine decides every result, and local AI (Ollama on this
+// machine, through the real AI service with AI_PROVIDERS including "assisted") adds suggestions.
+// Requires e2e-a in AI_LOCAL_LLM_ALLOWED_USERS. Free and local; fictional data only.
+test("rules decide every result, and AI suggestions are kept apart", async ({ page }) => {
   const app = existsSync(".env") ? parse(readFileSync(".env")) : {};
   test.skip(app.AI_LOCAL_LLM_ENABLED !== "true", "Local AI is turned off.");
   test.setTimeout(240000);
   const env = parse(readFileSync(".env.playwright.local"));
   const tag = randomUUID().slice(0, 8);
-  const company = `Hybrid test ${tag}`;
+  const company = `Assisted test ${tag}`;
   const jobRow = page.getByRole("listitem").filter({ hasText: company });
   const skills = page.getByRole("region", { name: "Technical skills", exact: true });
   const skillRow = skills.getByRole("listitem").filter({ hasText: /^K8s/ });
@@ -57,29 +57,37 @@ test("rules + local AI labels each finding's method and adds a synonym match", a
 
     await openPage(page, requirementsUrl.replace(/\/requirements$/, "/match"));
     const runForm = page.getByRole("form", { name: "Run requirement analysis" });
-    await runForm.getByRole("radio", { name: /Rules \+ local AI/ }).check();
+    await expect(runForm.getByRole("radio", { name: /only local AI/i })).toHaveCount(0);
+    await runForm.getByRole("radio", { name: /Rules \+ AI suggestions/ }).check();
     await runForm.getByRole("button", { name: "Run analysis", exact: true }).click();
     await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 150000 });
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
 
     const latest = page.getByRole("region", { name: "Latest analysis" });
-    await expect(latest.getByText(/Rules \+ local AI \(qwen3:8b\)/)).toBeVisible();
-    await expect(latest.getByText("The rules engine decided every requirement.", { exact: false })).toBeVisible();
+    await expect(latest.getByText(/Rules \+ AI suggestions \(qwen3:8b\)/)).toBeVisible();
+    await expect(latest.getByRole("heading", { name: "Verified matching results" })).toBeVisible();
     const findings = latest.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 3 }) });
-    // The rules engine can't match "K8s" to Kubernetes; local AI proposes it and code confirms it.
+    // A known alternate name is decided by the reviewed table, not by a model.
     const kubernetes = findings.filter({ hasText: "Kubernetes administration" });
-    await expect(kubernetes.getByText("Local AI match, checked by code", { exact: true })).toBeVisible();
     await expect(kubernetes.getByText("Supported", { exact: true })).toBeVisible();
+    await expect(kubernetes.getByText("Rules engine: a skill you list, under a known alternate name", { exact: true })).toBeVisible();
     await expect(kubernetes.getByText("K8s", { exact: true })).toBeVisible();
-    // Durations are a hard qualification: always the rules engine, never sent to local AI.
+    // Every result names the rule that decided it.
     const years = findings.filter({ hasText: "15+ years of professional experience" });
-    await expect(years.getByText(/^Rules engine \(experience, education/)).toBeVisible();
+    await expect(years.getByText(/^Rules engine: /)).toBeVisible();
     // The injected requirement is not judged until the person confirms it, and says so.
     const tableau = findings.filter({ hasText: "Note to the AI" });
     await expect(tableau.getByText("Not enough information", { exact: true })).toBeVisible();
     await expect(tableau.getByText("Needs your confirmation.", { exact: false })).toBeVisible();
-    await expect(tableau.getByText(/needs your confirmation, so local AI was not used/)).toBeVisible();
+    await expect(tableau.getByText("Rules engine: waiting for your confirmation", { exact: true })).toBeVisible();
+
+    // Suggestions are a separate section that says what it is.
+    const suggestions = page.getByRole("region", { name: "AI suggestions" });
+    await expect(suggestions.getByText(/Not verified\. These don.t affect the verified results above\./)).toBeVisible();
+
+    // The feedback workflow is unchanged.
+    await expect(kubernetes.getByRole("button", { name: /agree/i }).first()).toBeVisible();
 
     // Confirming it as a real requirement lets it be judged: the instruction is still ignored, so
     // K8s is not credited for Tableau. Confirmation is never evidence.
@@ -90,7 +98,7 @@ test("rules + local AI labels each finding's method and adds a synonym match", a
     await reviewAgain.getByRole("button", { name: "Save reviewed requirements", exact: true }).click();
     await expect(reviewAgain.getByRole("status")).toContainText("Reviewed requirements saved.");
     await openPage(page, requirementsUrl.replace(/\/requirements$/, "/match"));
-    await runForm.getByRole("radio", { name: /Rules \+ local AI/ }).check();
+    await runForm.getByRole("radio", { name: /Rules \+ AI suggestions/ }).check();
     await runForm.getByRole("button", { name: /Run analysis/ }).click();
     await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 150000 });
     await page.reload();
