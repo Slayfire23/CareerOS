@@ -79,12 +79,16 @@ const YEARS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*years?
 /** The lower end of a range: "2-3 years", "two to three years". */
 const YEAR_RANGE = new RegExp(`\\b(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*years?\\b`, "gi");
 
+const WORDED_YEARS: [RegExp, number][] = [[/\b(?:a|one)\s+decade\b/i, 10], [/\bone\s+and\s+a\s+half\s+years?\b/i, 1.5], [/\btwo\s+and\s+a\s+half\s+years?\b/i, 2.5]];
+
 export function statedYears(text: string): number[] {
-  return [...text.matchAll(YEARS), ...text.matchAll(YEAR_RANGE)].map(m => {
+  const found = [...text.matchAll(YEARS), ...text.matchAll(YEAR_RANGE)].map(m => {
     const raw = m[1].toLowerCase();
     const word = NUMBER_WORDS.indexOf(raw);
     return word >= 0 ? word : Number(raw);
   });
+  for (const [pattern, years] of WORDED_YEARS) if (pattern.test(text)) found.push(years);
+  return found;
 }
 
 const MONTHS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*months?\\b`, "gi");
@@ -96,6 +100,7 @@ const numberValue = (raw: string) => {
 /** The shortest duration a requirement states, in months ("2-3 years" -> 24, "six months" -> 6). */
 export function requiredMonths(text: string): number | null {
   const found = [...statedYears(text).map(y => y * 12), ...[...text.matchAll(MONTHS)].map(m => numberValue(m[1]))];
+  if (/\bhalf\s+a\s+year\b/i.test(text)) found.push(6);
   return found.length ? Math.min(...found) : null;
 }
 

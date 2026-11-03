@@ -34,7 +34,7 @@ export type SuggestRequest = { request_id: string; requirements: { index: number
 
 export type Rejected =
   | "invalid_kind" | "unknown_evidence" | "quote_not_verbatim" | "untrusted_text" | "long_quote" | "no_new_information"
-  | "ordinary_word" | "table_says_unrelated" | "term_not_in_requirement" | "term_already_listed";
+  | "ordinary_word" | "table_says_unrelated" | "no_connection" | "term_not_in_requirement" | "term_already_listed";
 
 /** Suggestions help where the rules didn't settle a skill question. Hard qualifications, durations,
  * and requirements awaiting confirmation never go to local AI. */
@@ -142,6 +142,8 @@ export function checkPointer(requirement: MatchRequirement, target: string, poin
   // Unrelated by the table. A technology it knows has its own identity, so no pointer can connect it.
   if ([...found].some(isKnownTechnology)) return "table_says_unrelated";
   const isName = cited.kind === "skill" || (cited.kind === "project" && cited.skills.includes(quote));
+  // Free text must share something with the requirement: a model's hunch alone isn't worth showing.
+  if (!isName && ![...found].some(a => [...wanted].some(b => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b.slice(0, 4)) || b.startsWith(a.slice(0, 4))))))) return "no_connection";
   if (isName) return { ...base, kind: "alternate_name", knownToRules: false, text: `${named} might be another name for this, or related. Not verified, so please review it.` };
   return { ...base, kind: "relevant_evidence", knownToRules: false, text: `${named} in your profile might be relevant. Not verified, so please review it.` };
 }

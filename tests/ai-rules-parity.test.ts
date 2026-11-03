@@ -20,11 +20,27 @@ type Golden = {
 };
 const golden = JSON.parse(readFileSync("tests/fixtures/rules_v5_golden.json", "utf8")) as { method_version: string; cases: Golden[] };
 
-/** Requirements where rules-v6 deliberately decides differently: "<set>/<case>/<index>" -> why. */
+/** Requirements where the engine deliberately decides differently: "<set>/<case>/<index>" -> why. */
+const SAME_FIELD = "Years now count only in the field asked for, and a role naming that field and covering the time is supported.";
 const INTENDED_VERDICT_CHANGES: Record<string, string> = {
   "F/f-inj-prof-field-note/0": "A field of study holding a claim is not evidence (set F's false supported).",
   "F/f-legit-as-a/0": "A requirement naming a role exactly is matched against that job title.",
   "F/f-syn-redshift/0": "\"AWS Redshift\" and \"Amazon Redshift\" are now the same name in the reviewed table.",
+  "A/cicd-in-role/0": "A related technology named in free text, used in work, and in the reviewed table is possible.",
+  "D/d-large-fullstack/7": "A related technology named in free text, used in work, and in the reviewed table is possible.",
+  "A/freelance-is-employment/0": SAME_FIELD,
+  "B/b-large-data-engineer/5": SAME_FIELD,
+  "C/c-yrs-python-met/0": SAME_FIELD,
+  "D/d-yrs-python-roles/0": SAME_FIELD,
+  "F/f-yrs-months/0": SAME_FIELD,
+  "F/f-yrs-domain/0": "Sales Lead shows nothing about fintech, so the years don't count toward it.",
+  "C/c-inject-override-mode/0": "Same verdict; instruction-like text is now recognized as such.",
+  "F/f-large-data-engineer/4": "Terraform modules described in a role are related to infrastructure as code, per the reviewed table.",
+};
+/** Experience requirements stating a duration: same verdict, but explained and cited by field now. */
+const durationRewording = (c: Golden, index: number) => {
+  const r = c.request.requirements[index];
+  return r.category === "Experience" && /\b(year|month|decade)/i.test(r.text);
 };
 
 const key = (c: Golden, index: number) => `${c.set}/${c.id}/${index}`;
@@ -43,6 +59,10 @@ describe("TypeScript rules engine preserves the frozen Python engine's decisions
     for (const [i, expected] of c.findings.entries()) {
       const actual = findings[i];
       if (INTENDED_VERDICT_CHANGES[key(c, expected.requirement_index)]) continue;
+      if (durationRewording(c, expected.requirement_index)) {
+        expect(actual.verdict).toBe(expected.verdict);
+        continue;
+      }
       expect({ verdict: actual.verdict, basis: actual.basis, review: actual.review, citations: actual.citations, caveats: actual.caveats })
         .toEqual({ verdict: expected.verdict, basis: expected.basis, review: expected.review, citations: expected.citations, caveats: expected.caveats });
       expect(normalized(actual.explanation)).toBe(normalized(expected.explanation));

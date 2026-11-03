@@ -20,6 +20,8 @@ import {
   VOCABULARY,
   asksForField,
   canonicalTerms,
+  comparableDegrees,
+  degreeNames,
   containsPhrase,
   degreeImplied,
   degreePhrases,
@@ -29,10 +31,12 @@ import {
   namesSameDegree,
   plainSkillName,
   quoteTerms,
+  relatedTermInText,
   relation,
   surfaceForms,
+  words,
 } from "@/lib/ai/skill-relations";
-import { fieldOfStudyForMatching, plainQualification, plainTitle } from "@/lib/ai/rules/profile-fields";
+import { belowDegree, educationStatus, fieldOfStudyForMatching, plainQualification, plainTitle, type EducationStatus } from "@/lib/ai/rules/profile-fields";
 import { qualificationText } from "@/lib/ai/untrusted-text";
 
 // The deterministic rules engine, and the only authority for final verdicts. It runs on the Next.js
@@ -48,7 +52,7 @@ import { qualificationText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v6";
+export const RULES_VERSION = "rules-v7";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -64,6 +68,9 @@ const INSTRUCTION_TEXT = "This requirement reads like instructions to an AI or r
 const FIELD_NOT_USED = "Your field of study contains a remark or claim, so it wasn't used. Enter only the field's name.";
 const QUALIFICATION_NOT_USED = "A listed qualification contains a remark, a claim, or wording that it isn't finished, so it wasn't counted as a completed degree.";
 const NOT_FINISHED = "You list this as still in progress, so it isn't counted as a completed degree.";
+const NOT_COMPLETED_NOTE = "Your entry says this wasn't completed, so it isn't counted as a degree.";
+const STATUS_UNKNOWN = "Check that this entry says plainly whether the degree was awarded.";
+const EQUIVALENCE_NOT_VERIFIED = "This degree has no exact counterpart in the requirement, and equivalence can't be confirmed automatically.";
 const UNVERIFIED_EVIDENCE = "Some cited evidence could not be verified and was removed.";
 const UNVERIFIED_DURATION = "A stated duration could not be verified against your listed employment.";
 
@@ -130,10 +137,34 @@ function requiredDegreeRank(text: string): Level | null {
   return found.sort(compare)[0];
 }
 
+/** A degree whose level is standard though it's named differently ("B.Tech", "M.Tech"). All-caps "BE"
+ * and "ME" count only as written, so "be" and "me" in a sentence never do. */
+const compact = (text: string) => text.toLowerCase().replace(/[.\s]/g, "");
+function namedDegreeRank(text: string): Level | null {
+  if (/\bB\.?E\.?(?=\s|$|,)/.test(text)) return [2, LEVEL_LABELS[2]];
+  if (/\bM\.?E\.?(?=\s|$|,)/.test(text)) return [3, LEVEL_LABELS[3]];
+  for (const token of text.split(/[\s,/(]+/)) {
+    const level = degreeNames[compact(token)];
+    if (level !== undefined) return [level, LEVEL_LABELS[level]];
+  }
+  return null;
+}
+
+/** A foreign degree with no exact counterpart: a level it may be comparable to. */
+function comparableRank(text: string): Level | null {
+  const low = text.toLowerCase();
+  const names = Object.entries(comparableDegrees).sort((a, b) => b[0].length - a[0].length);
+  for (const [name, level] of names) {
+    if (new RegExp(`(?<![\\p{L}])${name}(?![\\p{L}])`, "iu").test(low)) return [level, LEVEL_LABELS[level]];
+  }
+  return null;
+}
+
 function degreeRank(text: string): Level | null {
   for (const [rank, label, patterns] of LEVELS) if (patterns.some(p => p.test(text))) return [rank, label];
   const all = implied(text).sort(compare);
-  return all.length ? [all[all.length - 1][0], all[all.length - 1][1]] : null;
+  if (all.length) return [all[all.length - 1][0], all[all.length - 1][1]];
+  return namedDegreeRank(text);
 }
 
 export type RawCitation = { evidence_id: string; quote: string };
@@ -231,21 +262,110 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
   return null;
 }
 
+/** Words in an experience requirement that don't say which field it means. */
+const NOT_A_FIELD = new Set(`a an and at or of in on to for with as the by from least minimum plus more over
+year years month months decade half experience experienced professional relevant related prior previous
+total overall combined progressive solid strong proven demonstrated hands-on work working role roles
+position positions job jobs career field domain background including post-graduate industry
+must have having required preferred ideally be is are you your our we will need needs
+environment environments setting settings fast paced dynamic company companies startup startups`.split(/\s+/));
+/** Too broad to name a field when something more specific is present ("backend development"). */
+const BROAD = new Set(`development developing developer developers engineering engineer engineers programming
+administration administrator analysis analyst support supporting software systems services
+management manager managing leading lead team teams`.split(/\s+/));
+
+/** A word's stem, so "nursing" meets "Nurse" and "welding" meets "Welder". */
+function stem(word: string): string {
+  let result = word;
+  for (let i = 0; i < 2; i++) {
+    const next = result.replace(/(ations?|ments?|ings?|ers?|ors?|ants?|ists?|ies|es|e|s)$/, "");
+    if (next.length < 3) break;
+    result = next;
+  }
+  return result;
+}
+/** The same first five letters ("analytics" and "Analyst"): related, but not proof of the same field. */
+const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
+
+/** The clause stating the duration, without the amount: what the years must relate to. */
+function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[] } {
+  // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
+  const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+years?)/);
+  const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
+  const technologies = [...canonicalTerms(clause)].filter(t => VOCABULARY.has(t));
+  const all = words(clause).filter(w => !NOT_A_FIELD.has(w) && !/^\d/.test(w) && !NUMBER_WORD.test(w));
+  const specific = all.filter(w => !BROAD.has(w));
+  const named = new Set(technologies.flatMap(t => surfaceForms(t).flatMap(form => words(form))));
+  const stems = [...new Set((specific.length ? specific : all).map(stem))];
+  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems };
+}
+const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
+
+/** How well a text names the field: "full" when most of it is named, "some" for part of it. */
+function fieldCoverage(field: ReturnType<typeof durationField>, text: string): "full" | "some" | "none" {
+  const stems = words(text).map(stem);
+  const exact = (t: string) => stems.includes(t);
+  const near = (t: string) => stems.some(h => sameRoot(t, h));
+  if (field.technologies.length) {
+    const have = canonicalTerms(text);
+    const hits = field.technologies.filter(t => have.has(t)).length;
+    // "Cloud security": being a cloud engineer shows only half of what's asked.
+    if (hits === field.technologies.length) return field.rest.every(exact) ? "full" : "some";
+    return hits || field.rest.some(exact) ? "some" : "none";
+  }
+  const hits = field.stems.filter(exact).length;
+  if (hits >= 1 && hits === field.stems.length) return "full";
+  if (hits >= 2 && hits / field.stems.length >= 0.6) return "full";
+  return hits || field.stems.some(near) ? "some" : "none";
+}
+
 function assessExperience(request: MatchRequest, requirement: MatchRequirement): RawFinding {
   const roles = request.evidence.filter(isRole);
   const caveats = request.evidence.some(isProject) ? [PROJECT_NOT_EMPLOYMENT] : [];
-  const roleCitations = roles.map(r => ({ evidence_id: r.id, quote: r.job_title }));
   const needed = requiredMonths(requirement.text); // "3+ years", "two years", "2-3 years", "six months"
 
   if (!roles.length) return finding(requirement, "insufficient_information", "No professional employment is listed in your profile, so this cannot be assessed.", { caveats });
   if (needed !== null) {
     const amount = needed % 12 ? `${needed}-month` : `${needed / 12}-year`;
-    const months = employmentMonths(request.evidence, request.as_of_month);
-    const total = formatYears(months);
-    if (months >= needed) {
-      return finding(requirement, "possible", `Your listed employment totals ${total} years, which meets the ${amount} amount. Keyword rules cannot judge whether that experience is in the field this requirement means.`, { citations: roleCitations, caveats, basis: "employment_dates" });
+    const field = durationField(requirement.text);
+    const asOf = request.as_of_month;
+    // Asks only for time ("3+ years of experience"): all employment counts, but relevance can't be judged.
+    if (!field.technologies.length && !field.stems.length && !field.rest.length) {
+      const roleCitations = roles.map(r => ({ evidence_id: r.id, quote: r.job_title }));
+      const months = employmentMonths(request.evidence, asOf);
+      const total = formatYears(months);
+      if (months >= needed) {
+        return finding(requirement, "possible", `Your listed employment totals ${total} years, which meets the ${amount} amount. Keyword rules cannot judge whether that experience is in the field this requirement means.`, { citations: roleCitations, caveats, basis: "employment_dates" });
+      }
+      return finding(requirement, "gap", `Your listed employment totals ${total} years, less than the ${amount} amount stated.`, { citations: roleCitations, caveats, basis: "employment_dates" });
     }
-    return finding(requirement, "gap", `Your listed employment totals ${total} years, less than the ${amount} amount stated.`, { citations: roleCitations, caveats, basis: "employment_dates" });
+    // Years must be in the field asked for: time in an unrelated job doesn't count toward it.
+    const usable = (role: ExperienceEvidence) => plainTitle(role.job_title);
+    const named = roles.filter(r => usable(r) && fieldCoverage(field, r.job_title) === "full");
+    const partly = roles.filter(r => !named.includes(r) && ((usable(r) && fieldCoverage(field, r.job_title) !== "none") || !!sharedTerm(requirement.text, r.description ?? "")));
+    const cite = (list: ExperienceEvidence[]) => list.map(r => ({ evidence_id: r.id, quote: r.job_title }));
+    const credential = hasQualificationWords(requirement.text);
+    if (named.length) {
+      if (employmentMonths(named, asOf) >= needed) {
+        if (credential) return finding(requirement, "possible", `Your roles in this field cover the ${amount} amount, but that doesn't show the credential this asks for.`, { citations: cite(named), caveats: [CREDENTIAL_NOT_SHOWN, ...caveats], basis: "employment_dates" });
+        return finding(requirement, "supported", `Your listed roles as ${unique(named.map(r => r.job_title)).join(", ")} cover the ${amount} amount.`, { citations: cite(named), caveats, basis: "employment_dates" });
+      }
+      if (employmentMonths([...named, ...partly], asOf) >= needed && partly.length) {
+        return finding(requirement, "possible", `Your roles in this field, together with related ones, may cover the ${amount} amount.`, { citations: cite([...named, ...partly]), caveats, basis: "employment_dates" });
+      }
+      return finding(requirement, "gap", `Your listed roles in this field total less than the ${amount} amount stated.`, { citations: cite(named), caveats, basis: "employment_dates" });
+    }
+    if (partly.length) {
+      if (employmentMonths(partly, asOf) >= needed) {
+        return finding(requirement, "possible", `Some of your roles may relate to this, and together they cover the ${amount} amount. Check that they are in the field it means.`, { citations: cite(partly), caveats, basis: "employment_dates" });
+      }
+      return finding(requirement, "gap", `The roles of yours that may relate to this total less than the ${amount} amount stated.`, { citations: cite(partly), caveats, basis: "employment_dates" });
+    }
+    // Even all of it together wouldn't be enough, whichever field it was in.
+    if (employmentMonths(roles, asOf) < needed) {
+      return finding(requirement, "gap", `All your listed employment together is less than the ${amount} amount stated.`, { citations: cite(roles), caveats, basis: "employment_dates" });
+    }
+    return finding(requirement, "insufficient_information", "None of your listed roles show the field this asks for, so time in other jobs wasn't counted toward it.", { caveats });
   }
   const related: RawCitation[] = [];
   for (const role of roles) {
@@ -254,8 +374,8 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
       related.push({ evidence_id: role.id, quote: role.job_title });
       continue;
     }
-    for (const text of [role.job_title, role.description ?? ""]) {
-      const quote = sharedTerm(requirement.text, text);
+    for (const text of [plainTitle(role.job_title) ? role.job_title : "", role.description ?? ""]) {
+      const quote = text && sharedTerm(requirement.text, text);
       if (quote) related.push({ evidence_id: role.id, quote });
     }
   }
@@ -268,38 +388,48 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
 function assessEducation(request: MatchRequest, requirement: MatchRequirement): RawFinding {
   const listedEntries = request.evidence.filter(isEducation);
   if (!listedEntries.length) return finding(requirement, "insufficient_information", "No education is listed in your profile, so this cannot be assessed.");
-  // Typed fields are data: a qualification or field holding a remark or claim isn't evidence.
-  const entries = listedEntries.filter(e => plainQualification(e.qualification));
-  const notUsed = entries.length < listedEntries.length ? [QUALIFICATION_NOT_USED] : [];
+  const asOf = request.as_of_month;
+  // Typed fields are data: a qualification holding a remark or claim isn't evidence. Below-degree
+  // training stays usable: it can show that a degree isn't there.
+  const plain = listedEntries.filter(e => plainQualification(e.qualification));
+  const notUsed = plain.length < listedEntries.length ? [QUALIFICATION_NOT_USED] : [];
   const wanted = requiredDegreeRank(requirement.text);
   const requiredFields = implied(requirement.text).map(([, , field]) => field).filter(Boolean);
-  let best: { entry: EducationEvidence; fieldMatch: boolean } | null = null;
-  const ranks: (number | null)[] = listedEntries.length > entries.length ? [null] : [];
-  for (const entry of entries) {
-    const level = degreeRank(entry.qualification);
-    ranks.push(level ? level[0] : null);
-    if (wanted && level && level[0] >= wanted[0]) {
-      // A degree name can imply its field: an MBA is in business administration, on either side.
-      const field = entry.field_of_study ? fieldOfStudyForMatching(entry.field_of_study) : impliedField(entry.qualification);
-      const fieldMatch = !!field && (requiredFields.length ? requiredFields.some(f => fieldMatches(f, field)) : fieldMatches(requirement.text, field));
-      if (!best || (fieldMatch && !best.fieldMatch)) best = { entry, fieldMatch };
-    }
-  }
+  const unverifiable = unverifiableField(requirement.text);
+  const asksField = asksForField(requirement.text) || requiredFields.length > 0 || unverifiable;
 
+  type Candidate = { entry: EducationEvidence; level: Level | null; comparable: boolean; status: EducationStatus; fieldMatch: boolean; fieldNotUsed: boolean; sameDegree: boolean; below: boolean };
+  const candidates: Candidate[] = plain.map(entry => {
+    const below = belowDegree(entry.qualification);
+    const known = below ? null : degreeRank(entry.qualification);
+    const comparable = known ? null : comparableRank(entry.qualification);
+    const level = known ?? comparable;
+    const field = entry.field_of_study ? fieldOfStudyForMatching(entry.field_of_study) : impliedField(entry.qualification);
+    return {
+      entry, level, below, comparable: !known && !!comparable, status: educationStatus(entry, asOf),
+      fieldMatch: !!field && (requiredFields.length ? requiredFields.some(f => fieldMatches(f, field)) : fieldMatches(requirement.text, field)),
+      fieldNotUsed: !!entry.field_of_study && !fieldOfStudyForMatching(entry.field_of_study),
+      sameDegree: namesSameDegree(requirement.text, entry.qualification),
+    };
+  });
+  const meets = (c: Candidate) => !!wanted && !!c.level && c.level[0] >= wanted[0];
+  const citeQualification = (c: Candidate): RawCitation[] => [{ evidence_id: c.entry.id, quote: c.entry.qualification }];
+  const score = (c: Candidate) => Number(c.fieldMatch || c.sameDegree) * 2 + Number(!c.fieldNotUsed);
+  const pick = (status: EducationStatus) => candidates.filter(c => meets(c) && c.status === status).sort((a, b) => score(b) - score(a))[0];
+
+  // Only an earned degree can support a requirement.
+  const best = pick("completed");
   if (best) {
-    const { entry, fieldMatch } = best;
-    const citations: RawCitation[] = [{ evidence_id: entry.id, quote: entry.qualification }];
-    const unverifiable = unverifiableField(requirement.text);
-    const asksField = asksForField(requirement.text) || requiredFields.length > 0 || unverifiable;
-    const sameDegree = namesSameDegree(requirement.text, entry.qualification);
-    const fieldNotUsed = !!entry.field_of_study && !fieldOfStudyForMatching(entry.field_of_study);
+    const citations = citeQualification(best);
+    const { entry, fieldMatch, sameDegree, fieldNotUsed, comparable } = best;
     if (fieldNotUsed && asksField && !sameDegree) {
       return finding(requirement, "insufficient_information", "Your listed field of study couldn't be read as a field, so this cannot be assessed.", { caveats: [FIELD_NOT_USED, ...notUsed], basis: "education" });
     }
-    // Still studying, or finishing after today: the level isn't earned yet.
-    const finished = entry.end_month !== null && entry.end_month <= request.as_of_month;
-    if ((fieldMatch || sameDegree || !asksField) && !finished) {
-      return finding(requirement, "possible", `You list a ${wanted![1]} level qualification that isn't finished yet.`, { citations, caveats: [NOT_FINISHED, ...notUsed], basis: "education" });
+    const satisfied = fieldMatch || sameDegree || !asksField;
+    // Comparable isn't equivalent: code can't establish that a foreign degree meets this level.
+    if (comparable && satisfied) {
+      if (fieldMatch && entry.field_of_study) citations.push({ evidence_id: entry.id, quote: entry.field_of_study });
+      return finding(requirement, "possible", `You list ${entry.qualification}, which may be comparable to the ${wanted![1]} level this asks for.`, { citations, caveats: [EQUIVALENCE_NOT_VERIFIED, ...notUsed], basis: "education" });
     }
     if (fieldMatch) {
       const field = entry.field_of_study ? fieldOfStudyForMatching(entry.field_of_study) : impliedField(entry.qualification);
@@ -311,15 +441,31 @@ function assessEducation(request: MatchRequest, requirement: MatchRequirement): 
       // Any field will do, and a higher degree meets a lower minimum.
       return finding(requirement, "supported", `You list a qualification at or above the ${wanted![1]} level this asks for.`, { citations, caveats: notUsed, basis: "education" });
     }
-    return finding(requirement, "possible", `You list a ${wanted![1]} level qualification, but its field could not be matched to this requirement.`, { citations, caveats: [...(unverifiable ? [UNVERIFIABLE_FIELD] : []), ...notUsed], basis: "education" });
+    return finding(requirement, "possible", `You list a ${wanted![1]} level qualification, but its field could not be matched to this requirement.`, { citations, caveats: [...(comparable ? [EQUIVALENCE_NOT_VERIFIED] : []), ...(unverifiable ? [UNVERIFIABLE_FIELD] : []), ...notUsed], basis: "education" });
   }
-  if (wanted && ranks.length && ranks.every(rank => rank !== null && rank < wanted[0])) {
+  const studying = pick("in_progress");
+  if (studying) {
+    return finding(requirement, "possible", `You list a ${wanted![1]} level qualification that isn't finished yet.`, { citations: citeQualification(studying), caveats: [NOT_FINISHED, ...notUsed], basis: "education" });
+  }
+  const uncertain = pick("unknown");
+  if (uncertain) {
+    return finding(requirement, "insufficient_information", "Your entry doesn't make clear whether this degree was awarded, so it isn't counted.", { caveats: [STATUS_UNKNOWN, ...notUsed], basis: "education" });
+  }
+  const left = pick("incomplete");
+  if (left) {
+    return finding(requirement, "gap", `Your entry says this ${wanted![1]} level degree wasn't completed.`, { citations: citeQualification(left), caveats: [NOT_COMPLETED_NOTE, ...notUsed], basis: "education" });
+  }
+  // Nothing at the level: a gap only when every entry is clearly a lower qualification.
+  const lower = (c: Candidate) => (c.below || (c.level !== null && !c.comparable && c.level[0] < wanted![0]));
+  if (wanted && candidates.length && !notUsed.length && candidates.every(lower)) {
     return finding(requirement, "gap", `This asks for a ${wanted[1]} degree; your listed qualifications are at a lower level.`, {
-      citations: entries.map(e => ({ evidence_id: e.id, quote: e.qualification })),
+      citations: candidates.map(citeQualification).flat(),
       basis: "education",
     });
   }
-  return finding(requirement, "insufficient_information", "Your listed education could not be compared with this requirement by keyword rules.", { caveats: notUsed });
+  return finding(requirement, "insufficient_information", "Your listed education could not be compared with this requirement by keyword rules.", {
+    caveats: [...(candidates.some(c => c.comparable) ? [EQUIVALENCE_NOT_VERIFIED] : []), ...notUsed],
+  });
 }
 
 /** Why a listed skill named in the requirement does not fully meet it (empty if it does). */
@@ -386,25 +532,47 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
   const related: RawCitation[] = [];
   const caveats: string[] = [];
   let projectOnly = true;
+  // "Swift for iOS apps" asks for Swift: its purpose can't earn credit on its own.
+  const purpose = head.search(/\s+for\s+/i);
+  const asked = purpose > 0 && canonicalTerms(head.slice(0, purpose)).size ? head.slice(0, purpose) : head;
+  const inText = (text: string) => {
+    const same = sharedTerm(asked, text);
+    if (same) return { quote: same, kin: false };
+    const directed = untrustedEvidenceSpans(text);
+    const kin = relatedTermInText(asked, text);
+    const index = kin ? text.indexOf(kin) : -1;
+    return kin && !directed.some(([s, e]) => s <= index && index < e) ? { quote: kin, kin: true } : null;
+  };
+  let kinOnly = true;
   for (const item of request.evidence) {
     if (isProject(item)) {
-      const quotes = item.skills.filter(s => sameSkill(head, s));
+      const quotes = item.skills.filter(s => sameSkill(asked, s));
+      if (quotes.length) kinOnly = false;
       for (const text of [item.description, item.contribution, item.results]) {
-        const quote = text && sharedTerm(head, text);
-        if (quote) quotes.push(quote);
+        const found = text ? inText(text) : null;
+        if (found) {
+          quotes.push(found.quote);
+          kinOnly &&= found.kin;
+        }
       }
       if (quotes.length) {
         for (const quote of unique(quotes)) related.push({ evidence_id: item.id, quote });
         caveats.push(PROJECT_MENTION);
       }
-    } else if (isRole(item) && item.description) {
-      const quote = sharedTerm(head, item.description);
+    } else if (isRole(item)) {
+      // A title naming the technology shows it in use ("Oracle DBA"), and so does a description.
+      const wanted = canonicalTerms(asked);
+      const title = plainTitle(item.job_title) && [...quoteTerms(item.job_title, item.job_title)].some(t => wanted.has(t) && VOCABULARY.has(t)) ? item.job_title : null;
+      const found = item.description ? inText(item.description) : null;
+      const quote = title ?? found?.quote;
       if (quote) {
         related.push({ evidence_id: item.id, quote });
         projectOnly = false;
+        kinOnly &&= !title && !!found?.kin;
       }
     }
   }
+  if (related.length && kinOnly) caveats.push(RELATED_TECHNOLOGY);
   if (related.length) {
     return finding(requirement, "possible", "This requirement's terms appear in your roles or projects, but not as a listed skill.", {
       citations: related, caveats: [...caveats, ...notes], basis: projectOnly ? "project" : "described_in_work",
@@ -474,7 +642,8 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
   if (verdict === "supported" && !citations.some(c => {
     const item = evidence.get(c.evidence_id)!;
     return (item.kind === "skill" && plainSkillName(item.name) && c.quote === item.name)
-      || (item.kind === "education" && plainQualification(item.qualification) && c.quote === item.qualification);
+      || (item.kind === "education" && plainQualification(item.qualification) && c.quote === item.qualification)
+      || (item.kind === "experience" && f.basis === "employment_dates" && plainTitle(item.job_title) && c.quote === item.job_title);
   })) {
     verdict = "insufficient_information";
     caveats.push(UNVERIFIED_EVIDENCE);

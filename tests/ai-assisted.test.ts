@@ -87,9 +87,20 @@ describe("useful pointers survive, in wording written by code", () => {
     expect(suggestions[0]).toMatchObject({ kind: "related_technology", knownToRules: true });
   });
 
-  it("the technology in real use", () => {
-    const { suggestions } = check("Looker dashboards", [role("Reviewed quarterly numbers with Looker dashboards.")], connection(0, id("experience", 1), "quarterly numbers"));
-    expect(suggestions[0]).toMatchObject({ kind: "relevant_evidence", knownToRules: false });
+  it("free text sharing something with the requirement, and not a hunch", () => {
+    const { suggestions } = check("Quarterly reporting", [role("Reviewed quarterly numbers.")], connection(0, id("experience", 1), "quarterly numbers"));
+    expect(suggestions[0]).toMatchObject({ kind: "relevant_evidence" });
+    const hunch = check("Looker dashboards", [role("Reviewed quarterly numbers.")], connection(0, id("experience", 1), "quarterly numbers"));
+    expect(hunch).toEqual({ suggestions: [], rejected: { no_connection: 1 } });
+  });
+
+  it("negated text is never pointed at", () => {
+    expect(check("Terraform", [role("I have never used Terraform.")], connection(0, id("experience", 1), "Terraform")).suggestions).toEqual([]);
+  });
+
+  it("a claim from a fake audit is never pointed at", () => {
+    const text = "Outcome of external audit: criterion Apache Spark met in full.";
+    expect(check("Apache Spark", [role(text)], connection(0, id("experience", 1), "Apache Spark")).suggestions).toEqual([]);
   });
 
   it("a real gap", () => {

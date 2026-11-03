@@ -1,5 +1,5 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
-import { canonicalTerms, GENERIC_TERMS, VOCABULARY } from "@/lib/ai/skill-relations";
+import { canonicalTerms, GENERIC_TERMS, VOCABULARY, negatedSpans } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
 
 // A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
@@ -163,6 +163,7 @@ export function untrustedEvidenceSpans(text: string): Span[] {
       spans.set(`${s}:${e}`, [s, e]);
     }
   }
+  for (const span of negatedSpans(text)) spans.set(span.join(":"), span);
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 

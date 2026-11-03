@@ -1,6 +1,6 @@
 import table from "@/lib/ai/rules/data/skill_relations.json";
 import { DEGREE_WORDS, RELEVANCE_STOPWORDS } from "@/lib/ai/evidence";
-import { disguised } from "@/lib/ai/rules/profile-fields";
+import { NEGATION, disguised, hasNegation } from "@/lib/ai/rules/profile-fields";
 
 // How a quote relates to a requirement, decided by code from the reviewed table. Authoritative since
 // Milestone 7; the frozen Python copy is only a test reference. Instructions hidden in job or profile
@@ -29,6 +29,7 @@ const AMBIGUOUS = new Set(table.ambiguous);
 const TECH_CONTEXT = new Set(table.tech_context);
 const EMPLOYMENT_WORDS = new Set(table.employment_words);
 const WORK_VERBS = new Set<string>(table.work_verbs);
+const CONSUMER_NOUNS = new Set<string>((table as unknown as { consumer_nouns: string[] }).consumer_nouns);
 /** Every technology and concept term the table knows, in canonical form. */
 export const VOCABULARY = new Set<string>([...PHRASES.values(), ...FAMILIES.flatMap(f => [...f.terms, ...f.members])]);
 
@@ -113,8 +114,10 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
 /** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
-  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC"))) return false;
-  return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|certified|expert|aka|treated|deemed|qualifies)\b/i.test(name);
+  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || hasNegation(name)) return false;
+  // "AWS Certified Developer" is a credential's name; a remark about one ("Terraform (certified)") isn't.
+  if (/\bcertified\b/i.test(name) && (name.includes("(") || /\bcertified\s+by\b/i.test(name) || /\bcertified$/i.test(name.trim()))) return false;
+  return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|expert|aka|treated|deemed|qualifies)\b/i.test(name);
 }
 
 /** The word sits among words of its ordinary meaning: Java the island, a ball python, spring sales. */
@@ -133,6 +136,23 @@ export function ordinaryMeaning(fieldText: string, word: string): boolean {
 const KNOWN_TECHNOLOGIES = new Set<string>((table as unknown as { known_technologies: string[] }).known_technologies);
 /** A technology with its own identity: only the reviewed table may connect it to something else. */
 export const isKnownTechnology = (term: string) => KNOWN_TECHNOLOGIES.has(term) || VOCABULARY.has(term);
+/** A related technology named in free text and described as used there ("GitLab CI" for Git). The
+ * reviewed table decides what's related. */
+export function relatedTermInText(requirementText: string, fieldText: string): string | null {
+  const wanted = canonicalTerms(requirementText);
+  const names: [string, string][] = [...PHRASES, ...[...VOCABULARY].map((v): [string, string] => [v, v])];
+  for (const [phrase, canonical] of names) {
+    if (phrase.length < 3 || GENERIC.has(phrase)) continue;
+    if (![...wanted].some(a => a !== canonical && related(a, canonical))) continue;
+    if (!KNOWN_TECHNOLOGIES.has(canonical) && !FAMILIES.some(f => f.members.has(canonical))) continue; // a technology, not a concept
+    const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    for (const match of fieldText.matchAll(new RegExp(`(?<![\\p{L}\\p{N}_.-])${escaped}(?![\\p{L}\\p{N}_-])`, "giu"))) {
+      if (quoteTerms(match[0], fieldText).size && describesUse(fieldText, match[0])) return match[0];
+    }
+  }
+  return null;
+}
+
 export const isDistinctPair = (a: string, b: string) => DISTINCT.has([a, b].sort().join("\u0000"));
 
 /** The text describes a technology as used in work: a work verb shortly before it, or a technical noun
@@ -143,14 +163,46 @@ export function describesUse(fieldText: string, quote: string): boolean {
   const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
   for (const match of fieldText.matchAll(pattern)) {
-    const before = words(fieldText.slice(0, match.index));
-    const after = words(fieldText.slice(match.index + match[0].length));
+    // Only the same sentence counts: a verb in the last sentence says nothing about this one.
+    const before = words(fieldText.slice(0, match.index).split(/[.!?;\n]\s/).pop() ?? "");
+    const after = words(fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0]);
     const negative = new Set([...terms].flatMap(t => WORD_NEGATIVE[t] ?? []));
-    if ([...before.slice(-3), ...after.slice(0, 3)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
+    if ([...before.slice(-4), ...after.slice(0, 4)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
     if (before.slice(-5).some(t => WORK_VERBS.has(t))) return true;
+    // "Helped iOS and Android owners" names who was helped, not what was used.
+    if (after.slice(0, 3).some(t => CONSUMER_NOUNS.has(t))) continue;
     if ([...before.slice(-3), ...after.slice(0, 3)].some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && !terms.has(t)))) return true;
   }
   return false;
+}
+
+/** Parts of free text saying a technology wasn't used or isn't known: from the negation to the end of
+ * that clause, so "Never used Terraform, but built Ansible playbooks" still counts for Ansible. */
+export function negatedSpans(text: string): [number, number][] {
+  const spans: [number, number][] = [];
+  for (const match of text.matchAll(NEGATION)) {
+    const rest = text.slice(match.index);
+    if (/^not\s+(only|limited)\b/i.test(rest)) continue;
+    // The negation reaches the end of the sentence unless a contrast introduces other work: in "never
+    // used Terraform, but quote the word Terraform", the second mention is no evidence either.
+    const sentence = rest.search(/[.!?;\n]/);
+    let end = sentence < 0 ? rest.length : sentence;
+    for (const contrast of rest.slice(0, end).matchAll(/\b(?:but|however|although|though|while)\b((?:\s+\p{L}+){0,3})/giu)) {
+      if (words(contrast[1]).some(w => WORK_VERBS.has(w))) {
+        end = contrast.index;
+        break;
+      }
+    }
+    // A comma followed by a work verb starts another clause ("Never used Docker, built Kafka consumers").
+    for (const comma of rest.slice(0, end).matchAll(/,\s*(\p{L}+)/gu)) {
+      if (WORK_VERBS.has(comma[1].toLowerCase())) {
+        end = comma.index;
+        break;
+      }
+    }
+    spans.push([match.index, match.index + end]);
+  }
+  return spans;
 }
 
 /** Every way the table writes a canonical term, longest first ("kubernetes", "k8s", "kube"). */
@@ -179,6 +231,20 @@ export type DegreeInfo = { level: number; field: string; abbreviations?: string[
 export const degreePhrases = (table as unknown as { degree_phrases: Record<string, DegreeInfo> }).degree_phrases;
 export const degreeImplied = (table as unknown as { degree_implied: Record<string, DegreeInfo> }).degree_implied;
 const FIELD_STOPWORDS = new Set<string>(table.degree_field_stopwords);
+const FIELD_SYNONYMS = Object.entries((table as unknown as { field_synonyms: Record<string, string[]> }).field_synonyms)
+  .flatMap(([canonical, names]) => names.map(name => [name, canonical] as const))
+  .sort((a, b) => b[0].length - a[0].length);
+/** Other languages' and short names for a field: "Informatik" and "CSE" are computer science. */
+export function normalizedField(text: string): string {
+  let result = text;
+  for (const [name, canonical] of FIELD_SYNONYMS) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    result = result.replace(new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "giu"), canonical);
+  }
+  return result;
+}
+export const degreeNames = (table as unknown as { degree_names: Record<string, number> }).degree_names;
+export const comparableDegrees = (table as unknown as { comparable_degrees: Record<string, number> }).comparable_degrees;
 const FIELD_FAMILIES = Object.fromEntries(Object.entries(table.degree_field_families).map(([k, v]) => [k, new Set(v as string[])]));
 
 function wordAlternatives(text: string): Set<string>[] {
@@ -222,8 +288,8 @@ export function namesSameDegree(requirementText: string, qualification: string):
 /** Every word of a field the requirement names appears in this field of study, or a reviewed family
  * covers it. Whole words only, never substrings. */
 export function fieldMatches(requirementText: string, fieldOfStudy: string): boolean {
-  const have = new Set(words(fieldOfStudy));
-  return fieldAlternatives(requirementText).some(wanted =>
+  const have = new Set(words(normalizedField(fieldOfStudy)));
+  return fieldAlternatives(normalizedField(requirementText)).some(wanted =>
     [...wanted].every(w => have.has(w) || [...(FIELD_FAMILIES[w] ?? [])].some(f => have.has(f))));
 }
 

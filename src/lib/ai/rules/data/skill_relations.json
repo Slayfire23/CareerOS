@@ -738,6 +738,32 @@
         "luigi",
         "argo"
       ]
+    },
+    {
+      "name": "crm",
+      "terms": [
+        "crm",
+        "crm software",
+        "customer relationship management"
+      ],
+      "members": [
+        "salesforce",
+        "hubspot",
+        "zoho",
+        "pipedrive",
+        "dynamics"
+      ]
+    },
+    {
+      "name": "git hosting",
+      "terms": [
+        "git"
+      ],
+      "members": [
+        "github",
+        "gitlab",
+        "bitbucket"
+      ]
     }
   ],
   "distinct": [
@@ -1377,7 +1403,10 @@
       "recovery",
       "turnaround",
       "orders",
-      "service-recovery"
+      "service-recovery",
+      "reply",
+      "replies",
+      "handling"
     ],
     "rust": [
       "removal",
@@ -1462,7 +1491,51 @@
       "wildlife",
       "animal",
       "animals",
-      "habitat"
+      "habitat",
+      "keeper",
+      "keepers",
+      "care"
+    ],
+    "azure": [
+      "palette",
+      "colour",
+      "color",
+      "blue",
+      "sky",
+      "sea",
+      "water",
+      "waters",
+      "paint",
+      "shade",
+      "hue",
+      "logo"
+    ],
+    "flask": [
+      "lab",
+      "laboratory",
+      "chemistry",
+      "chemical",
+      "sample",
+      "samples",
+      "beaker",
+      "vacuum",
+      "whisky",
+      "hip"
+    ],
+    "tableau": [
+      "vivant",
+      "vivants",
+      "theatre",
+      "theater",
+      "stage",
+      "painting",
+      "scene"
+    ],
+    "oracle": [
+      "delphi",
+      "ancient",
+      "myth",
+      "greek"
     ]
   },
   "work_verbs": [
@@ -1799,5 +1872,98 @@
     "wordpress",
     "xml",
     "zsh"
-  ]
+  ],
+  "consumer_nouns": [
+    "owner",
+    "owners",
+    "customer",
+    "customers",
+    "client",
+    "clients",
+    "caller",
+    "callers",
+    "subscriber",
+    "subscribers",
+    "user",
+    "users",
+    "shopper",
+    "shoppers"
+  ],
+  "field_synonyms": {
+    "computer science": [
+      "cs",
+      "cse",
+      "compsci",
+      "comp sci",
+      "computer sciences",
+      "informatik",
+      "informatics",
+      "informatique",
+      "informatica",
+      "informática",
+      "ingeniería informática",
+      "ingenieria informatica",
+      "ciencias de la computación",
+      "ciencias de la computacion",
+      "ciência da computação",
+      "ciencia da computacao",
+      "computer engineering and science",
+      "computer science and engineering"
+    ],
+    "electrical engineering": [
+      "ee",
+      "elektrotechnik"
+    ],
+    "mechanical engineering": [
+      "maschinenbau"
+    ],
+    "business administration": [
+      "betriebswirtschaftslehre",
+      "bwl",
+      "administración de empresas",
+      "administracion de empresas"
+    ],
+    "mathematics": [
+      "math",
+      "maths",
+      "mathematik",
+      "matemáticas",
+      "matematicas"
+    ],
+    "physics": [
+      "physik",
+      "física",
+      "fisica"
+    ]
+  },
+  "degree_names": {
+    "btech": 2,
+    "beng": 2,
+    "bca": 2,
+    "bcs": 2,
+    "bbm": 2,
+    "bsit": 2,
+    "mtech": 3,
+    "meng": 3,
+    "mca": 3,
+    "mcs": 3,
+    "msit": 3
+  },
+  "comparable_degrees": {
+    "diplom": 3,
+    "diplom-ingenieur": 3,
+    "diplom-informatiker": 3,
+    "dipl-ing": 3,
+    "dipl-inf": 3,
+    "magister": 3,
+    "licenciatura": 2,
+    "licence": 2,
+    "laurea": 2,
+    "laurea magistrale": 3,
+    "grado": 2,
+    "maestria": 3,
+    "maestría": 3,
+    "staatsexamen": 3,
+    "specialist": 3
+  }
 }

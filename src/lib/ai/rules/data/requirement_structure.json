@@ -120,7 +120,7 @@
     "\\bverdicts?\\b|[\\\"'`](supported|insufficient_information)[\\\"'`]",
     "\\b(approve|approved|pass|passes|passed)\\s+(this|the|any|all|every)?\\s*(candidate|applicant|profile|person|requirement)s?\\b",
     "\\b(rate|rank|grade|score|mark)\\s+(this|it|them|the\\s+(candidate|applicant|requirement|profile))\\b",
-    "\\b(ignore|disregard|override|bypass)\\b",
+    "\\b(ignore|disregard|override|bypass)\\b[^.]{0,40}\\b(instructions?|rules?|prompts?|previous|above|guidelines?|polic(y|ies)|requirements?|criteria|checks?|validation|profile|resume|cv|candidate|applicant|evidence|verdicts?|scor(e|ing)|review|line)\\b",
     "<!--|-->|</?[a-z][a-z0-9]*\\b[^>]*>|[{}]|```",
     "(\\b[A-Za-z]\\s){4,}[A-Za-z]\\b"
   ],
@@ -129,5 +129,5 @@
   "evaluation_exempt": "\\bcounts?\\s+as\\s+an?\\s+(plus|bonus|advantage)\\b",
   "profile_label": "^\\W*[A-Za-z][A-Za-z ]{0,40}\\b(note|notes|comment|comments|feedback|remark|remarks)\\b[^:]{0,40}:",
   "unverifiable_field": "\\b(related|relevant|similar|comparable|appropriate|applicable)\\s+(field|fields|discipline|disciplines|area|areas|subject|subjects|major|majors)\\b",
-  "profile_claim": "\\b(treated|regarded|recogni[sz]ed|deemed|counted)\\s+(as|equal)\\b|\\bcounts?\\s+(as|for|toward)\\b|\\bequivalent\\s+(to|of)\\b|\\bsame\\s+as\\b|\\binterchangeable\\b|\\bsubstitutes?\\s+for\\b|\\bstands?\\s+in\\s+for\\b|\\bqualifies\\s+as\\b|\\bplease\\s+(trust|accept|believe)\\b|\\b(do\\s+not|don'?t|no\\s+need\\s+to)\\s+(check|verify|review)\\b"
+  "profile_claim": "\\b(treated|regarded|recogni[sz]ed|deemed|counted)\\s+(as|equal)\\b|\\bcounts?\\s+(as|for|toward)\\b|\\bequivalent\\s+(to|of)\\b|\\bsame\\s+as\\b|\\binterchangeable\\b|\\bsubstitutes?\\s+for\\b|\\bstands?\\s+in\\s+for\\b|\\bqualifies\\s+as\\b|\\bplease\\s+(trust|accept|believe)\\b|\\b(do\\s+not|don'?t|no\\s+need\\s+to)\\s+(check|verify|review)\\b|\\b(criterion|criteria)\\b|\\b(requirements?|qualifications?)\\s+(\\w+\\s+){0,3}(met|satisfied|fulfilled|passed)\\b|\\bmet\\s+in\\s+full\\b|\\b(audit|audited|auditor|assessor|examiner)\\b[^.]{0,60}\\b(met|passed|confirmed|verified|approved|satisf\\w*)\\b|\\bno\\s+further\\s+(review|check|checks|verification)\\b|\\b(scored|rated|graded|ranked)\\s+(as|at|this)\\b|\\bscore\\s*[:=]|\\b(verified|confirmed|validated|attested|certified|signed\\s+off)\\s+by\\b|\\b(certif(y|ies)|attests?|confirms?)\\s+that\\b|\\b(independently|officially|formally)\\s+(verified|confirmed|validated|recogni[sz]ed)\\b|\\bper\\s+(the\\s+)?(registrar|auditor|hr|hiring)\\b"
 }

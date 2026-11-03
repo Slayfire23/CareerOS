@@ -179,9 +179,9 @@ describe("invented dates", () => {
   });
 
   it("year ranges and months use the shortest amount", () => {
-    const newRole = [role("A", null, "2026-01")];
+    const newRole = [role("Sales Associate", null, "2026-01")];
     expect(decide("2-3 years of professional experience", "Experience", newRole).verdict).toBe("gap");
-    expect(decide("6 months of experience in sales", "Experience", newRole).verdict).toBe("possible");
+    expect(decide("6 months of experience in sales", "Experience", newRole).verdict).toBe("supported");
     expect(decide("two to three years of experience", "Experience", [role("A", null, "2020-01")]).verdict).toBe("possible");
   });
 });
