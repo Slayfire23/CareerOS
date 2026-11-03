@@ -24,7 +24,7 @@ const PROFILE_LABEL = re(structure.profile_label);
 const UNVERIFIABLE_FIELD = re(structure.unverifiable_field);
 const PROFILE_CLAIM = re(structure.profile_claim);
 const AS = /\bas\b/gi;
-const NOT_A_CLAIM_AS = /\b(such|as\s+well)\s+as\b|\bas\s+(a|an|well|part|needed|required|of)\b/gi;
+const NOT_A_CLAIM_AS = /\b(such|as\s+well)\s+as\b|\bas\s+(a|an|the|well|part|needed|required|of)\b/gi;
 const ITEM_STOPWORDS = new Set<string>([...structure.item_stopwords, ...GENERIC_TERMS]);
 const TOKEN = /[A-Za-z][A-Za-z0-9+#.-]*/g;
 const tokens = (text: string) => text.match(TOKEN) ?? [];

@@ -63,12 +63,12 @@ describe("a word naming something else", () => {
 
   it("the same sense on both sides counts", () => {
     expect(decide("SWIFT payment messaging", "Skills", [skill("SWIFT messaging")]).verdict).toBe("supported");
-    expect(decide("SWIFT payment messaging", "Skills", [role("Bank Operations Specialist", "Repaired failed SWIFT MT103 wire transfers.")]).verdict).toBe("possible");
+    expect(decide("SWIFT payment messaging", "Skills", [role("Bank Operations Specialist", "Repaired failed SWIFT MT103 wire transfers.")]).verdict).toBe("supported");
   });
 
   it("the other sense in a description isn't the technology", () => {
     expect(decide("Swift", "Skills", [role("Clerk", "Processed SWIFT wire transfers for an invented bank.")]).verdict).toBe("insufficient_information");
-    expect(decide("Swift programming", "Skills", [role("Developer", "Built iOS apps in Swift.")]).verdict).toBe("possible");
+    expect(decide("Swift programming", "Skills", [role("Developer", "Built iOS apps in Swift.")]).verdict).toBe("supported");
   });
 
   it("capitals alone are a question, not a match", () => {
@@ -133,7 +133,7 @@ describe("a skill name saying it's absent", () => {
     ["Never Photoshop"], ["Without Photoshop"], ["Photoshop n/a"], ["None, Photoshop"],
   ])("%s isn't Photoshop", name => {
     expect(plainSkillName(name)).toBe(false);
-    expect(decide("Adobe Photoshop", "Skills", [skill(name)]).verdict).toBe("insufficient_information");
+    expect(decide("Adobe Photoshop", "Skills", [skill(name)]).verdict).toBe("gap");
   });
 
   it.each([["NoSQL"], ["No-code tools"], ["Non-destructive testing"], ["Notion"], ["Node.js"], ["Nobel Prize data"], ["No SQL"], ["Zero Trust"]])("%s stays a real name", name => {
@@ -147,7 +147,7 @@ describe("a skill name saying it's absent", () => {
   });
 
   it("in a project's skills too", () => {
-    expect(decide("Adobe Photoshop", "Skills", [project("Posters", ["No Photoshop"])]).verdict).toBe("insufficient_information");
+    expect(decide("Adobe Photoshop", "Skills", [project("Posters", ["No Photoshop"])]).verdict).toBe("gap");
   });
 });
 
@@ -177,8 +177,8 @@ describe("manufacturing and skilled trades", () => {
     expect(decide(requirement, "Skills", [skill(name)]).verdict).toBe("possible");
   });
 
-  it("work described in a role is possible", () => {
-    expect(decide("TIG welding", "Skills", [role("Fabricator", "Welded aluminum frames using TIG.")]).verdict).toBe("possible");
+  it("work described in a role shows it; a related activity is only possible", () => {
+    expect(decide("TIG welding", "Skills", [role("Fabricator", "Welded aluminum frames using TIG.")]).verdict).toBe("supported");
     expect(decide("Lean manufacturing", "Skills", [role("Production Lead", "Ran monthly kaizen events on the packaging line.")]).verdict).toBe("possible");
   });
 
@@ -284,7 +284,8 @@ describe("years and related roles", () => {
     ["3 years in logistics", "Logistics Coordinator", "supported"],
     ["4 years in supply chain or logistics", "Logistics Coordinator", "supported"],
     ["4 years in supply chain or logistics", "Barista", "insufficient_information"],
-    ["5 years in a professional kitchen", "Line Cook", "possible"],
+    ["5 years in a professional kitchen", "Line Cook", "supported"],
+    ["5 years in a professional kitchen", "Dishwasher", "possible"],
     ["3 years in hospitality", "Hotel Night Auditor", "possible"],
     ["3 years of warehouse operations", "Warehouse Supervisor", "supported"],
     ["3 years of machining", "CNC Machinist", "supported"],
@@ -381,7 +382,7 @@ describe("completed education", () => {
     ["Associate's degree", "Associate of Applied Science", "Automotive Technology", "supported"],
     ["High school diploma", "High School Diploma", null, "supported"],
     ["High school diploma or GED", "GED", null, "supported"],
-    ["MD or equivalent medical degree", "MBBS", "Medicine", "possible"],
+    ["MD or equivalent medical degree", "MBBS", "Medicine", "supported"],
   ])("%s, with %s in %s, is %s", (requirement, qualification, field, verdict) => {
     expect(decide(requirement, "Education", [school(qualification, field)]).verdict).toBe(verdict);
   });

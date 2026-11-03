@@ -30,8 +30,8 @@ export type FindingMethod = "rules" | "local_ai";
 export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
 export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
 /** Which deterministic rule decided a finding (shown as where the result came from). */
-export type RuleBasis = "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
-export const RULE_BASES: RuleBasis[] = ["listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
+export type RuleBasis = "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
+export const RULE_BASES: RuleBasis[] = ["stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
 export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
 /** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
 export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
@@ -106,7 +106,8 @@ export function requiredMonths(text: string): number | null {
 
 /** "Experience with <technology>", with no duration, role, domain, or credential (requirement_text.py). */
 export function skillLikeExperience(text: string): boolean {
-  return statedYears(text).length === 0 && !hasQualificationWords(text) && !namesEmployment(text) && technologyTerms(text).size > 0;
+  // "Experience as the administrator for Linux servers" asks about a role, not just a tool.
+  return statedYears(text).length === 0 && !hasQualificationWords(text) && !namesEmployment(text) && !/\bas\s+(a|an|the)\b/i.test(text) && technologyTerms(text).size > 0;
 }
 
 /** Local AI may only look at skill requirements, never hard qualifications (hybrid_checks.py). */

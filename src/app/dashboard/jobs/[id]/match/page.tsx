@@ -64,6 +64,7 @@ const FINDING_SOURCE: Record<AiStatus, string> = {
 };
 /** Where each verified result came from. All of these are deterministic rules, never AI. */
 const RULE_SOURCE: Record<RuleBasis, string> = {
+  stated_absent: "Rules engine: your profile says you don't have this",
   listed_skill: "Rules engine: a skill you list",
   alternate_name: "Rules engine: a skill you list, under a known alternate name",
   related_technology: "Rules engine: a related technology from the reviewed table",

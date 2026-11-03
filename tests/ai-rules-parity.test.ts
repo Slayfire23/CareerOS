@@ -64,6 +64,11 @@ describe("TypeScript rules engine preserves the frozen Python engine's decisions
     for (const [i, expected] of c.findings.entries()) {
       const actual = findings[i];
       if (INTENDED_VERDICT_CHANGES[key(c, expected.requirement_index)]) continue;
+      // The human review of Set H: a role stating direct use, or naming the field, is direct evidence.
+      if (actual.verdict === "supported" && ["described_in_work", "role_description", "employment_dates"].includes(actual.basis)) {
+        expect(c.allowed[String(expected.requirement_index)], "a label on this case rejects Supported").toContain("supported");
+        continue;
+      }
       if (durationRewording(c, expected.requirement_index)) {
         expect(actual.verdict).toBe(expected.verdict);
         continue;

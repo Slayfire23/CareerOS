@@ -34,30 +34,37 @@ import {
   rolesForField,
   namesSameDegree,
   plainSkillName,
+  activityEvidence,
+  directUse,
+  equivalentWhenAsked,
+  negatedSpans,
   ordinaryMeaning,
   quoteTerms,
   relatedTermInText,
+  saysAbsent,
   relation,
   surfaceForms,
   words,
 } from "@/lib/ai/skill-relations";
-import { belowDegree, educationStatus, fieldOfStudyForMatching, hasCredentialMarker, notHeld, plainCredentialName, plainQualification, plainTitle, saysNotCompleted, type EducationStatus } from "@/lib/ai/rules/profile-fields";
-import { qualificationText } from "@/lib/ai/untrusted-text";
+import { belowDegree, educationStatus, fieldOfStudyForMatching, fullRoleTitle, hasCredentialMarker, notHeld, plainCredentialName, plainQualification, plainTitle, saysNotCompleted, type EducationStatus } from "@/lib/ai/rules/profile-fields";
+import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 
 // The deterministic rules engine, and the only authority for final verdicts. It runs on the Next.js
 // server with no network call, so it works with the AI service, Ollama, and the laptop all off.
 //
-// Deliberately conservative: "not enough information" is preferred to an unsupported positive claim.
-// Keyword rules cannot prove a skill is absent, so skills never get "gap". They also cannot judge
-// whether experience is relevant, so a years requirement that is met is "possible". A listed skill
-// is "supported" only when the requirement names exactly that skill, or a name the reviewed table
-// (rules/data/skill_relations.json) records as the same technology, and asks for no duration or
-// credential. A related technology is at most "possible". Free text is at most "possible", and only
-// when it describes the technology as used in work; a mention alone is not evidence.
+// The four verdicts and what each one takes (docs/MILESTONE_9_REPORT.md has the full thresholds):
+// - Supported: direct evidence of what's asked. A listed skill, or a name the reviewed table records as
+//   the same; a role stating the technology was used in the work; a completed degree at the level and in
+//   the field; a credential listed as held; or roles in the field covering the time asked for.
+// - Possible: plausible but not direct. A related technology, a related job, a project, a mention of real
+//   use with something missing, a degree still in progress, or a foreign degree with no exact counterpart.
+// - Not supported: the profile shows it isn't met. Too few years in the field, a lower degree, one the
+//   entry says wasn't completed, or an explicit statement such as "No Photoshop". An omission is never this.
+// - Not enough information: nothing settles it, including anything ambiguous, disguised, or manipulated.
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v8";
+export const RULES_VERSION = "rules-v9";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -290,7 +297,8 @@ const NOT_A_FIELD = new Set(`a an and at or of in on to for with as the by from 
 year years month months decade half experience experienced professional relevant related prior previous
 total overall combined progressive solid strong proven demonstrated hands-on work working role roles
 position positions job jobs career field domain background including post-graduate industry
-must have having required preferred ideally be is are you your our we will need needs
+must have having required preferred ideally be is are you your our we will need needs acting act
+users customers clients
 environment environments setting settings fast paced dynamic company companies startup startups`.split(/\s+/));
 /** Too broad to name a field when something more specific is present ("backend development"). */
 const BROAD = new Set(`development developing developer developers engineering engineer engineers programming
@@ -303,7 +311,7 @@ function stem(word: string): string {
   if (/^engineer/.test(word)) return "engineer";
   let result = word;
   for (let i = 0; i < 2; i++) {
-    const next = result.replace(/(ations?|ments?|ings?|ers?|ors?|ants?|ists?|ies|es|e|s)$/, "");
+    const next = result.replace(/(ations?|ments?|ings?|ers?|ors?|ants?|ists?|ies|ed|es|e|s)$/, "");
     if (next.length < 3) break;
     result = next;
   }
@@ -313,7 +321,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; roles: ReturnType<typeof rolesForField> } {
+function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+years?)/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -322,8 +330,12 @@ function durationField(text: string): { technologies: string[]; rest: string[]; 
   const specific = all.filter(w => !BROAD.has(w));
   const named = new Set(technologies.flatMap(t => surfaceForms(t).flatMap(form => words(form))));
   const stems = [...new Set((specific.length ? specific : all).map(stem))];
-  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, roles: rolesForField(clause) };
+  // "As a project manager" names a role, so every word of it counts: a coordinator isn't a manager.
+  const role = clause.match(/\bas\s+(?:an?|the)\s+(.+?)(?=\s+(?:for|at|with|in|on|of|who|that)\b|[,.;:]|$)/i)?.[1] ?? "";
+  const asRole = words(role).filter(w => !ROLE_ADJECTIVES.has(w)).map(stem);
+  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, roles: rolesForField(clause), asRole };
 }
+const ROLE_ADJECTIVES = new Set("practicing licensed senior junior experienced professional working lead full-time part-time".split(" "));
 const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
 
 /** How well a text names the field: "full" when most of it is named, "some" for part of it. */
@@ -333,6 +345,8 @@ function fieldCoverage(field: ReturnType<typeof durationField>, text: string): "
   // The reviewed titles for this field: a same title covers it; a related one is only ever a lead.
   if (field.roles.some(r => r.same.some(title => containsPhrase(text, title)))) return "full";
   const base = namedCoverage(field, text);
+  const stems = words(text).map(stem);
+  if (base === "full" && !field.asRole.every(w => stems.includes(w))) return "some";
   if (base !== "none") return base;
   return field.roles.some(r => r.related.some(title => containsPhrase(text, title))) ? "some" : "none";
 }
@@ -389,7 +403,21 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
     }
     // Years must be in the field asked for: time in an unrelated job doesn't count toward it.
     const usable = (role: ExperienceEvidence) => plainTitle(role.job_title);
-    const named = roles.filter(r => usable(r) && coverage(r.job_title) === "full");
+    const trustedText = (r: ExperienceEvidence) => {
+      if (!r.description) return "";
+      let text = "";
+      let cursor = 0;
+      for (const [s, e] of untrustedEvidenceSpans(r.description)) {
+        if (s >= cursor) text += `${r.description.slice(cursor, s)} `;
+        cursor = Math.max(cursor, e);
+      }
+      return text + r.description.slice(cursor);
+    };
+    // Technologies the role states it used count like the title naming them; a job title alone can't
+    // show a technology, and a description can't show a whole non-technical field.
+    const usedInRole = (r: ExperienceEvidence) => options.some(o => o.technologies.length > 0 && coverage(`${usable(r) ? r.job_title : ""}. ${trustedText(r)}`) === "full"
+      && o.technologies.every(t => canonicalTerms(usable(r) ? r.job_title : "").has(t) || surfaceForms(t).some(form => directUse(trustedText(r), form))));
+    const named = roles.filter(r => (usable(r) && fullRoleTitle(r.job_title) && coverage(r.job_title) === "full") || usedInRole(r));
     const describes = (r: ExperienceEvidence) => {
       if (!r.description) return false;
       const spans = untrustedEvidenceSpans(r.description);
@@ -426,6 +454,23 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
       return finding(requirement, "gap", `All your listed employment together is less than the ${amount} amount stated.`, { citations: cite(roles), caveats, basis: "employment_dates" });
     }
     return finding(requirement, "insufficient_information", "None of your listed roles show the field this asks for, so time in other jobs wasn't counted toward it.", { caveats });
+  }
+  // No amount of time: a role naming the field, or stating the technologies were used, shows it.
+  const field = durationField(requirement.text);
+  const credential = hasQualificationWords(requirement.text);
+  const trusted = (r: ExperienceEvidence) => {
+    if (!r.description) return "";
+    const spans = untrustedEvidenceSpans(r.description);
+    return spans.length ? "" : r.description;
+  };
+  const shown = roles.filter(r => {
+    if (!plainTitle(r.job_title) || !fullRoleTitle(r.job_title) || credential || (!field.technologies.length && !field.stems.length)) return false;
+    if (fieldCoverage(field, r.job_title) === "full" && !field.technologies.length) return true;
+    return field.technologies.length > 0 && fieldCoverage(field, `${r.job_title}. ${trusted(r)}`) === "full"
+      && field.technologies.every(t => canonicalTerms(r.job_title).has(t) || surfaceForms(t).some(form => directUse(trusted(r), form)));
+  });
+  if (shown.length) {
+    return finding(requirement, "supported", `Your role as ${unique(shown.map(r => r.job_title)).join(", ")} shows this.`, { citations: shown.map(r => ({ evidence_id: r.id, quote: r.job_title })), caveats, basis: "role_description" });
   }
   const related: RawCitation[] = [];
   for (const role of roles) {
@@ -465,9 +510,10 @@ function assessEducation(request: MatchRequest, requirement: MatchRequirement): 
     const known = below ? null : named;
     const comparable = known ? null : comparableRank(entry.qualification);
     const level = known ?? comparable;
+    const accepted = !!comparable && equivalentWhenAsked(requirement.text, entry.qualification);
     const field = entry.field_of_study ? fieldOfStudyForMatching(entry.field_of_study) : impliedField(entry.qualification);
     return {
-      entry, level, below, comparable: !known && !!comparable, status: educationStatus(entry, asOf),
+      entry, level, below, comparable: !known && !!comparable && !accepted, status: educationStatus(entry, asOf),
       fieldMatch: !!field && (requiredFields.length ? requiredFields.some(f => fieldMatches(f, field)) : fieldMatches(requirement.text, field)),
       fieldNotUsed: !!entry.field_of_study && !fieldOfStudyForMatching(entry.field_of_study),
       sameDegree: namesSameDegree(requirement.text, entry.qualification),
@@ -540,6 +586,35 @@ function skillCaveats(requirementText: string, matched: SkillEvidence[]): string
   return caveats;
 }
 
+/** An explicit statement that the thing asked for isn't there: a skill named "No Photoshop", or "never
+ * used Terraform" in a role. Negation about anything else doesn't count. */
+function statedAbsent(request: MatchRequest, asked: string): RawCitation | null {
+  const wanted = [...canonicalTerms(asked)];
+  if (!wanted.length) return null;
+  const about = (text: string) => {
+    const have = canonicalTerms(text);
+    return wanted.some(t => have.has(t));
+  };
+  for (const item of request.evidence) {
+    if (isSkill(item) && saysAbsent(item.name) && about(item.name)) return { evidence_id: item.id, quote: item.name };
+    if (isProject(item)) for (const name of item.skills) if (saysAbsent(name) && about(name)) return { evidence_id: item.id, quote: name };
+    const texts = isRole(item) ? [item.description] : isProject(item) ? [item.description, item.contribution, item.results] : [];
+    for (const text of texts) {
+      if (!text) continue;
+      for (const [start, end] of negatedSpans(text)) {
+        const clause = text.slice(start, end);
+        if (about(clause) && !untrustedOther(text, start, end)) return { evidence_id: item.id, quote: clause.trim() };
+      }
+    }
+  }
+  return null;
+}
+/** A negated clause that's also part of a claim or an instruction isn't a plain statement. */
+const untrustedOther = (text: string, start: number, end: number) => {
+  const negated = new Set(negatedSpans(text).map(s => s.join(":")));
+  return untrustedEvidenceSpans(text).some(([s, e]) => !negated.has(`${s}:${e}`) && s < end && start < e);
+};
+
 function assessSkills(request: MatchRequest, requirement: MatchRequirement): RawFinding {
   // Only the requirement's head (and later clauses that state a need) can earn credit. Later text can
   // add mandatory items, never substitute for them. A skill name carrying a claim is never matched.
@@ -581,6 +656,53 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
     }
     const explanation = alternate ? `You list ${names}, a known name for what this requirement asks for.` : `You list ${names} as a skill.`;
     return finding(requirement, "supported", explanation, { citations, caveats: notes, basis });
+  }
+
+  // A role stating the technology was used in the work is direct evidence, like listing it.
+  const inWork = (piece: string) => {
+    const wanted = canonicalTerms(piece);
+    if (!wanted.size) return null;
+    for (const role of request.evidence.filter(isRole)) {
+      if (!role.description) continue;
+      const quote = sharedTerm(piece, role.description);
+      if (!quote) continue;
+      const sense = [...canonicalTerms(quote)].some(t => hasOtherSenses(t) && otherSense(piece, t));
+      if (!directUse(role.description, quote, sense)) continue;
+      const line = role.description.split(/(?<=[.!?;])\s+/).find(l => l.includes(quote)) ?? role.description;
+      const have = canonicalTerms(line);
+      if (sense || [...wanted].every(t => have.has(t))) return { role, quote };
+    }
+    return null;
+  };
+  const askedFor = (() => {
+    const at = head.search(/\s+for\s+/i);
+    return at > 0 && canonicalTerms(head.slice(0, at)).size ? head.slice(0, at) : head;
+  })();
+  // "Kotlin and Terraform": each part on its own, by a listed skill or by work that shows it.
+  const parts = structure.pieces.length > 1 ? structure.pieces : [askedFor];
+  const shownParts = parts.map(p => inWork(p)).filter((x): x is NonNullable<typeof x> => x !== null);
+  const shownInWork = shownParts[0] ?? null;
+  if (shownInWork) {
+    const others = parts.filter(p => !skills.some(s => sameSkill(p, s.name)) && !inWork(p));
+    const citations = shownParts.map(x => ({ evidence_id: x.role.id, quote: x.quote }));
+    const needsMore = others.length > 0 || requiredLevel(requirement.text) !== null || requiredMonths(requirement.text) !== null || hasQualificationWords(requirement.text);
+    if (needsMore) {
+      return finding(requirement, "possible", "Your role describes using this, but that alone may not meet everything it asks for.", {
+        citations, caveats: [...(others.length ? [notAllItems(others)] : []), ...notes], basis: "described_in_work",
+      });
+    }
+    return finding(requirement, "supported", `Your role as ${shownInWork.role.job_title} describes using this in the work.`, { citations, caveats: notes, basis: "described_in_work" });
+  }
+  for (const role of request.evidence.filter(isRole)) {
+    if (!role.description) continue;
+    const activity = activityEvidence(requirement.text, role.description, plainTitle(role.job_title) ? role.job_title : "");
+    if (!activity) continue;
+    const start = role.description.indexOf(activity.quote);
+    if (untrustedEvidenceSpans(role.description).some(([s, e]) => s <= start && start < e)) continue;
+    const supported = activity.level === "supported" && requiredLevel(requirement.text) === null && requiredMonths(requirement.text) === null;
+    return finding(requirement, supported ? "supported" : "possible", supported ? `Your role as ${role.job_title} describes this work.` : `Your role as ${role.job_title} suggests this. Check that it fits.`, {
+      citations: [{ evidence_id: role.id, quote: activity.quote }], caveats: notes, basis: "described_in_work",
+    });
   }
 
   // A related technology from the reviewed table is a lead, never a match.
@@ -641,6 +763,11 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
     return finding(requirement, "possible", "This requirement's terms appear in your roles or projects, but not as a listed skill.", {
       citations: related, caveats: [...caveats, ...notes], basis: projectOnly ? "project" : "described_in_work",
     });
+  }
+  // The profile says outright that it isn't there. Leaving something out never counts as saying this.
+  const absent = statedAbsent(request, asked);
+  if (absent) {
+    return finding(requirement, "gap", "Your profile says you don't have this.", { citations: [absent], caveats: notes, basis: "stated_absent" });
   }
   return finding(requirement, "insufficient_information", "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell whether you have it under a different name.", { caveats: notes });
 }
@@ -763,7 +890,8 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
     const item = evidence.get(c.evidence_id)!;
     return (item.kind === "skill" && (plainSkillName(item.name) || plainCredentialName(item.name)) && c.quote === item.name)
       || (item.kind === "education" && plainQualification(item.qualification) && c.quote === item.qualification)
-      || (item.kind === "experience" && f.basis === "employment_dates" && plainTitle(item.job_title) && c.quote === item.job_title);
+      || (item.kind === "experience" && (f.basis === "employment_dates" || f.basis === "role_description") && plainTitle(item.job_title) && c.quote === item.job_title)
+      || (item.kind === "experience" && f.basis === "described_in_work" && !!item.description && quoteInTrustedText(item.description, c.quote, untrustedEvidenceSpans(item.description)));
   })) {
     verdict = "insufficient_information";
     caveats.push(UNVERIFIED_EVIDENCE);

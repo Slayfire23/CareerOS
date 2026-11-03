@@ -114,13 +114,17 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
 /** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
-  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || hasNegation(name)) return false;
-  // "No Photoshop", "Photoshop: none", "Photoshop (never)". Hyphenated and joined names like "No-code",
-  // "Non-destructive testing", and "NoSQL" are unaffected, and so is the spaced spelling "No SQL".
-  if (/(?:^|[\s(,/-])(?:no|not|none|never|without|n\/a)(?=[\s),/]|$)/i.test(name) && !/^no\s+sql\b/i.test(name.trim())) return false;
+  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || saysAbsent(name)) return false;
   // "AWS Certified Developer" is a credential's name; a remark about one ("Terraform (certified)") isn't.
   if (/\bcertified\b/i.test(name) && (name.includes("(") || /\bcertified\s+by\b/i.test(name) || /\bcertified$/i.test(name.trim()))) return false;
   return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|expert|aka|treated|deemed|qualifies)\b/i.test(name);
+}
+
+/** A skill name saying it's absent: "No Photoshop", "Photoshop: none", "Photoshop (never)". Hyphenated
+ * and joined names like "No-code", "Non-destructive testing", and "NoSQL" are unaffected, and so is the
+ * spaced spelling "No SQL". */
+export function saysAbsent(name: string): boolean {
+  return hasNegation(name) || (/(?:^|[\s(,/:-])(?:no|not|none|never|without|n\/a)(?=[\s),/]|$)/i.test(name) && !/^no\s+sql\b/i.test(name.trim()));
 }
 
 /** The word sits among words of its ordinary meaning: Java the island, a ball python, spring sales. */
@@ -195,7 +199,58 @@ export function describesUse(fieldText: string, quote: string): boolean {
     if (after.slice(0, 3).some(t => CONSUMER_NOUNS.has(t))) continue;
     if ([...before.slice(-3), ...after.slice(0, 3)].some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && !terms.has(t)))) return true;
   }
+  return directUse(fieldText, quote);
+}
+
+const WEAK_VERBS = new Set("read set sets filed handled handle balanced balance models designs codes scripts programs ships trains tests monitors".split(" "));
+const STRONG_VERBS = new Set([...WORK_VERBS].filter(v => /(ed|ing|s)$|^(built|wrote|written|ran|rewrote|rewritten|rebuilt|troubleshot)$/.test(v) && !WEAK_VERBS.has(v)));
+const NOT_WORK = new Set("about regarding discussed discussing attended attending learning studying watched watching interested heard talk talks webinar course class hobby curious considering".split(" "));
+const WORK_OBJECTS = new Set("support administration resets reset troubleshooting deployment deployments migration migrations maintenance cluster clusters server servers pipeline pipelines consumer consumers module modules query queries service services api apis app apps application applications development script scripts dashboard dashboards configuration".split(" "));
+const SOMEONE_ELSE = /\b(beside|alongside|near|next to|shadow\w*|observ\w*|assist\w* (?:the|a)|lunch)\b|\b(team|teams|group|groups|colleagues?|coworkers?|co-workers?|others?|people|staff|engineers?|vendors?|contractors?|consultants?|someone|department)\s+(that|who|which)\b|\b(they|he|she)\s+\w+$/;
+const CARRIERS = new Set("service services api apis app apps application applications system systems pipeline pipelines tool tools".split(" "));
+
+/** The text states this technology was used in the work itself, in that sentence: a strong work verb
+ * shortly before it ("Rewrote the payments service in Go"), a work object right after it ("Windows
+ * support"), or something carried over it ("Internal services over gRPC"). A mention, a course, or
+ * what someone else does isn't use, and neither is a job title alone. */
+export function directUse(fieldText: string, quote: string, sameOtherSense = false): boolean {
+  const terms = canonicalTerms(quote);
+  const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
+  for (const match of fieldText.matchAll(pattern)) {
+    const before = words(fieldText.slice(0, match.index).split(/[.!?;\n]\s/).pop() ?? "");
+    const after = words(fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0]);
+    const near = before.slice(-5);
+    const negative = new Set(sameOtherSense ? [] : [...terms].flatMap(t => WORD_NEGATIVE[t] ?? []));
+    if ([...before.slice(-4), ...after.slice(0, 4)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
+    if (near.some(t => NOT_WORK.has(t))) continue;
+    // Someone else's work: "Sat beside the team that ran Kubernetes".
+    if (SOMEONE_ELSE.test(before.join(" "))) continue;
+    if (after.slice(0, 3).some(t => CONSUMER_NOUNS.has(t))) continue;
+    if (near.some(t => STRONG_VERBS.has(t))) return true;
+    if (after.slice(0, 2).some(t => WORK_OBJECTS.has(t))) return true;
+    if (["over", "via", "using", "with", "on"].includes(before[before.length - 1]) && CARRIERS.has(before[before.length - 2])) return true;
+  }
   return false;
+}
+
+type Activity = { asks: string[]; verbs: string[]; nouns: string[]; context: string[]; level: "supported" | "possible" };
+const ACTIVITIES = (table as unknown as { activities: Activity[] }).activities;
+/** Work a role describes as an activity: a reviewed verb shortly before a reviewed noun, in one sentence,
+ * for a requirement that names that activity. Returns the words as written. */
+export function activityEvidence(requirementText: string, fieldText: string, titleText = ""): { quote: string; level: Activity["level"] } | null {
+  for (const activity of ACTIVITIES) {
+    if (!activity.asks.some(phrase => containsPhrase(requirementText, phrase))) continue;
+    const pattern = new RegExp(`(?<![\\p{L}])(?:${activity.verbs.join("|")})(?:\\s+[\\p{L}\\p{N}-]+){0,3}?\\s+(?:${activity.nouns.join("|")})(?![\\p{L}])`, "giu");
+    for (const match of fieldText.matchAll(pattern)) {
+      const sentenceStart = fieldText.slice(0, match.index).search(/[^.!?;\n]*$/);
+      const rest = fieldText.slice(match.index);
+      const sentence = fieldText.slice(sentenceStart, match.index + (rest.search(/[.!?;\n]/) < 0 ? rest.length : rest.search(/[.!?;\n]/)));
+      if (activity.context.length && ![...words(sentence), ...words(titleText)].some(w => activity.context.includes(w))) continue;
+      return { quote: match[0], level: activity.level };
+    }
+  }
+  return null;
 }
 
 /** Parts of free text saying a technology wasn't used or isn't known: from the negation to the end of
@@ -266,6 +321,10 @@ export function normalizedField(text: string): string {
   return result;
 }
 export const degreeNames = (table as unknown as { degree_names: Record<string, number> }).degree_names;
+const EQUIVALENT_WHEN_ASKED = new Set((table as unknown as { equivalent_when_asked: string[] }).equivalent_when_asked);
+/** A foreign degree accepted because the requirement itself says "or equivalent". */
+export const equivalentWhenAsked = (requirementText: string, qualification: string) =>
+  /\bor\s+(an?\s+)?equivalent\b/i.test(requirementText) && words(qualification).some(w => EQUIVALENT_WHEN_ASKED.has(w));
 export const comparableDegrees = (table as unknown as { comparable_degrees: Record<string, number> }).comparable_degrees;
 const FIELD_FAMILIES = Object.fromEntries(Object.entries(table.degree_field_families).map(([k, v]) => [k, new Set(v as string[])]));
 

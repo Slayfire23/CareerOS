@@ -412,7 +412,16 @@
     "transmission repair": [],
     "suspension repair": [],
     "wheel alignment": [],
-    "tire service": []
+    "tire service": [],
+    "active directory": [
+      "ad ds"
+    ],
+    "windows": [
+      "microsoft windows"
+    ],
+    "windows server": [],
+    "linux": [],
+    "grpc": []
   },
   "concepts": [
     {
@@ -1795,6 +1804,18 @@
       "hobby",
       "general",
       "special"
+    ],
+    "windows": [
+      "glass",
+      "glazing",
+      "door",
+      "doors",
+      "frame",
+      "frames",
+      "cleaning",
+      "cleaned",
+      "installer",
+      "storefront"
     ]
   },
   "work_verbs": [
@@ -2073,6 +2094,10 @@
     "associate of applied science": {
       "level": 1,
       "field": ""
+    },
+    "laurea magistrale": {
+      "level": 3,
+      "field": ""
     }
   },
   "known_technologies": [
@@ -2257,6 +2282,17 @@
       "physik",
       "física",
       "fisica"
+    ],
+    "architecture": [
+      "architettura"
+    ],
+    "medicine": [
+      "medical",
+      "medizin",
+      "medicina"
+    ],
+    "civil engineering": [
+      "ingeniería civil"
     ]
   },
   "degree_names": {
@@ -2272,19 +2308,18 @@
     "mcs": 3,
     "msit": 3,
     "bed": 2,
-    "bsw": 2
-  },
-  "comparable_degrees": {
-    "diplom": 3,
+    "bsw": 2,
     "diplom-ingenieur": 3,
     "diplom-informatiker": 3,
     "dipl-ing": 3,
-    "dipl-inf": 3,
+    "dipl-inf": 3
+  },
+  "comparable_degrees": {
+    "diplom": 3,
     "magister": 3,
     "licenciatura": 2,
     "licence": 2,
     "laurea": 2,
-    "laurea magistrale": 3,
     "grado": 2,
     "maestria": 3,
     "maestría": 3,
@@ -2627,14 +2662,19 @@
       ]
     },
     "kitchen": {
-      "same": [],
-      "related": [
+      "same": [
         "line cook",
         "cook",
         "chef",
         "sous chef",
-        "pastry",
-        "culinary"
+        "head chef",
+        "pastry chef",
+        "executive chef"
+      ],
+      "related": [
+        "culinary",
+        "dishwasher",
+        "food prep"
       ]
     },
     "hospitality": {
@@ -2664,5 +2704,152 @@
         "engine technician"
       ]
     }
-  }
+  },
+  "equivalent_when_asked": [
+    "mbbs",
+    "bds"
+  ],
+  "activities": [
+    {
+      "asks": [
+        "patient scheduling",
+        "appointment scheduling"
+      ],
+      "verbs": [
+        "booked",
+        "booking",
+        "scheduled",
+        "scheduling",
+        "managed"
+      ],
+      "nouns": [
+        "appointment",
+        "appointments"
+      ],
+      "context": [
+        "dental",
+        "clinic",
+        "medical",
+        "patient",
+        "patients",
+        "hospital",
+        "physician",
+        "optometry",
+        "doctor",
+        "veterinary"
+      ],
+      "level": "supported"
+    },
+    {
+      "asks": [
+        "contract review",
+        "reviewing contracts",
+        "contract redlining"
+      ],
+      "verbs": [
+        "reviewed",
+        "reviewing",
+        "redlined",
+        "redlining",
+        "negotiated",
+        "negotiating"
+      ],
+      "nouns": [
+        "contract",
+        "contracts",
+        "agreement",
+        "agreements"
+      ],
+      "context": [],
+      "level": "supported"
+    },
+    {
+      "asks": [
+        "invoice processing",
+        "processing invoices"
+      ],
+      "verbs": [
+        "processed",
+        "processing",
+        "reconciled",
+        "matched",
+        "entered"
+      ],
+      "nouns": [
+        "invoice",
+        "invoices"
+      ],
+      "context": [],
+      "level": "supported"
+    },
+    {
+      "asks": [
+        "payroll processing",
+        "running payroll"
+      ],
+      "verbs": [
+        "processed",
+        "processing",
+        "ran",
+        "running",
+        "prepared"
+      ],
+      "nouns": [
+        "payroll"
+      ],
+      "context": [],
+      "level": "supported"
+    },
+    {
+      "asks": [
+        "inventory management",
+        "inventory control"
+      ],
+      "verbs": [
+        "managed",
+        "managing",
+        "counted",
+        "tracked",
+        "controlled",
+        "reconciled"
+      ],
+      "nouns": [
+        "inventory",
+        "stock"
+      ],
+      "context": [],
+      "level": "supported"
+    },
+    {
+      "asks": [
+        "leadership",
+        "team leadership",
+        "people management",
+        "team management"
+      ],
+      "verbs": [
+        "led",
+        "leading",
+        "managed",
+        "managing",
+        "supervised",
+        "supervising",
+        "headed",
+        "ran"
+      ],
+      "nouns": [
+        "crew",
+        "crews",
+        "team",
+        "teams",
+        "staff",
+        "shift",
+        "shifts",
+        "department",
+        "employees"
+      ],
+      "context": [],
+      "level": "possible"
+    }
+  ]
 }

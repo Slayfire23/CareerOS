@@ -16,6 +16,7 @@ const HONORS = /\((hons?\.?|honou?rs|first\s+class|cum\s+laude|magna\s+cum\s+lau
 export const NEGATION = new RegExp(
   [
     "\\b(never|not\\s+yet|have\\s+not|haven'?t|has\\s+not|hasn'?t|had\\s+not|hadn'?t|did\\s+not|didn'?t|do\\s+not|don'?t|does\\s+not|doesn'?t|am\\s+not|was\\s+not|wasn'?t|were\\s+not|weren'?t|not)\\s+(?:\\w+\\s+){0,2}?(use|used|using|work|worked|working|touch|touched|try|tried|know|known|learn|learned|learnt|familiar|experienced?|proficient|deploy|deployed|build|built|write|written|wrote|hold|held|have|had|administer|administered|manage|managed|configure|configured|program|programmed|code|coded|run|ran|involved|responsible|an?\\s+\\w+\\s+(?:user|admin|developer|engineer))\\b",
+    "\\bnever\\s+(?!missed\\b|failed\\b|lost\\b|late\\b|dropped\\b|once\\b)\\w+\\b",
     "\\bno\\s+(?:\\w+\\s+){0,2}?(experience|knowledge|exposure|background|familiarity|expertise|skills?|training)\\b",
     "\\bwithout\\s+(?:any\\s+)?(using|experience|knowledge|exposure|touching|training)\\b",
     "\\b(lacks?|lacking|lacked|unfamiliar\\s+with|inexperienced\\s+(?:with|in)|new\\s+to|(?:have|has)\\s+yet\\s+to|yet\\s+to)\\b",
@@ -88,6 +89,10 @@ export function plainCredentialName(name: string): boolean {
   const text = name.normalize("NFKC").replace(ACRONYM_NOTE, " $1 ");
   return !carriesClaim(name) && !notHeld(text) && !text.includes("(") && wordCount(text) <= 10;
 }
+
+/** A title showing the job isn't the full role: "Chief Technology Officer (summer intern)". */
+const NOT_THE_FULL_ROLE = /\b(intern|internship|trainee|apprentice|shadow\w*|student|volunteer|unpaid|assistant\s+to|aspiring|acting|interim\s+intern|emergency\s+permit)\b/i;
+export const fullRoleTitle = (title: string) => !NOT_THE_FULL_ROLE.test(title.normalize("NFKC"));
 
 /** A job or project title usable as evidence or shown to local AI. */
 export function plainTitle(title: string): boolean {

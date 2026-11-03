@@ -44,7 +44,7 @@ describe("set F's known failures stay fixed", () => {
   });
 
   it("a job title the requirement names, and a known alternate name, are recognized", () => {
-    expect(decide("Experience as a project manager", "Experience", [role("Project Manager", "Ran invented builds.")]).verdict).toBe("possible");
+    expect(decide("Experience as a project manager", "Experience", [role("Project Manager", "Ran invented builds.")]).verdict).toBe("supported");
     expect(decide("Amazon Redshift", "Skills", [skill("AWS Redshift")]).verdict).toBe("supported");
   });
 
@@ -140,8 +140,9 @@ describe("skills, roles, and projects", () => {
     expect(decide(wanted, "Skills", [role("Clerk", text)]).verdict).toBe("insufficient_information");
   });
 
-  it("free text alone is never supported, however clearly it describes the work", () => {
-    expect(decide("Kafka", "Skills", [role("Developer", "Built Kafka consumers for an invented bank.")]).verdict).toBe("possible");
+  it("a role stating the technology was used is direct evidence; a project isn't employment", () => {
+    expect(decide("Kafka", "Skills", [role("Developer", "Built Kafka consumers for an invented bank.")]).verdict).toBe("supported");
+    expect(decide("Kafka", "Skills", [project("Pipeline", "Built Kafka consumers for fun.")]).verdict).toBe("possible");
   });
 
   it("a project title carrying a claim isn't evidence", () => {

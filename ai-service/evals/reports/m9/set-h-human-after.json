@@ -1,0 +1,514 @@
+{
+  "engine": "rules-v9",
+  "commit": "cfa37d4",
+  "src_has_uncommitted_changes": true,
+  "cases": 26,
+  "exact_agreement": 1,
+  "agree": 26,
+  "confusion": {
+    "supported": {
+      "supported": 17,
+      "possible": 0,
+      "gap": 0,
+      "insufficient_information": 0
+    },
+    "possible": {
+      "supported": 0,
+      "possible": 5,
+      "gap": 0,
+      "insufficient_information": 0
+    },
+    "gap": {
+      "supported": 0,
+      "possible": 0,
+      "gap": 2,
+      "insufficient_information": 0
+    },
+    "insufficient_information": {
+      "supported": 0,
+      "possible": 0,
+      "gap": 0,
+      "insufficient_information": 2
+    }
+  },
+  "false_supported": [],
+  "supported_downgraded": [],
+  "not_supported_as_uncertain": [],
+  "disagrees_with_rater1": [
+    "H-07",
+    "H-12",
+    "H-13",
+    "H-23",
+    "H-26"
+  ],
+  "disagrees_with_rater2": [
+    "H-04",
+    "H-06",
+    "H-08",
+    "H-10",
+    "H-11",
+    "H-23",
+    "H-26"
+  ],
+  "engine_outside_rater1": [
+    "H-07",
+    "H-12",
+    "H-13",
+    "H-23",
+    "H-26"
+  ],
+  "engine_outside_rater2": [
+    "H-04",
+    "H-06",
+    "H-08",
+    "H-10",
+    "H-11",
+    "H-23",
+    "H-26"
+  ],
+  "rows": [
+    {
+      "case": "H-01",
+      "source_case": "h-amb-swift-language-vs-bank",
+      "requirement": "SWIFT payment messaging",
+      "human": "insufficient_information",
+      "engine": "insufficient_information",
+      "agree": true,
+      "rater1": [
+        "gap",
+        "insufficient_information",
+        "possible"
+      ],
+      "rater2": [
+        "gap",
+        "insufficient_information"
+      ],
+      "basis": "no_evidence",
+      "explanation": "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell whether you have it under a different name."
+    },
+    {
+      "case": "H-02",
+      "source_case": "h-man-never-conferred",
+      "requirement": "Bachelor of Laws",
+      "human": "gap",
+      "engine": "gap",
+      "agree": true,
+      "rater1": [
+        "gap"
+      ],
+      "rater2": [
+        "gap"
+      ],
+      "basis": "education",
+      "explanation": "Your entry says this bachelor's level degree wasn't completed."
+    },
+    {
+      "case": "H-03",
+      "source_case": "h-neg-skill-no-photoshop",
+      "requirement": "Adobe Photoshop",
+      "human": "gap",
+      "engine": "gap",
+      "agree": true,
+      "rater1": [
+        "gap",
+        "insufficient_information"
+      ],
+      "rater2": [
+        "gap",
+        "insufficient_information"
+      ],
+      "basis": "stated_absent",
+      "explanation": "Your profile says you don't have this."
+    },
+    {
+      "case": "H-04",
+      "source_case": "h-neg-past-use",
+      "requirement": "AutoCAD",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Drafter describes using this in the work."
+    },
+    {
+      "case": "H-05",
+      "source_case": "h-rel-night-auditor",
+      "requirement": "3 years of accounting",
+      "human": "possible",
+      "engine": "possible",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "gap"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "employment_dates",
+      "explanation": "Some of your roles may relate to this, and together they cover the 3-year amount. Check that they are in the field it means."
+    },
+    {
+      "case": "H-06",
+      "source_case": "h-legit-dispatch-prompts",
+      "requirement": "Respond to prompts from the dispatch system within 60 seconds",
+      "human": "insufficient_information",
+      "engine": "insufficient_information",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "insufficient_information"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "no_evidence",
+      "explanation": "No listed skill, role, or project mentions this requirement's terms. Keyword rules cannot tell whether you have it under a different name."
+    },
+    {
+      "case": "H-07",
+      "source_case": "h-amb-swift-payments",
+      "requirement": "SWIFT payment messaging",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Bank Operations Specialist describes using this in the work."
+    },
+    {
+      "case": "H-08",
+      "source_case": "h-edu-diplom",
+      "requirement": "Master's degree in Mechanical Engineering",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "education",
+      "explanation": "You list a master's level qualification in Maschinenbau."
+    },
+    {
+      "case": "H-09",
+      "source_case": "h-edu-licenciatura",
+      "requirement": "Bachelor's in Accounting",
+      "human": "possible",
+      "engine": "possible",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "education",
+      "explanation": "You list a bachelor's level qualification, but its field could not be matched to this requirement."
+    },
+    {
+      "case": "H-10",
+      "source_case": "h-edu-laurea",
+      "requirement": "Master's degree in Architecture",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "education",
+      "explanation": "You list a master's level qualification in Architettura."
+    },
+    {
+      "case": "H-11",
+      "source_case": "h-edu-mbbs-md",
+      "requirement": "MD or equivalent medical degree",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "education",
+      "explanation": "You list a doctorate level qualification in Medicine."
+    },
+    {
+      "case": "H-12",
+      "source_case": "h-sug-scheduling",
+      "requirement": "Patient scheduling",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Dental Office Front Desk describes this work."
+    },
+    {
+      "case": "H-13",
+      "source_case": "h-sug-contracts",
+      "requirement": "Contract review",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Procurement Specialist describes this work."
+    },
+    {
+      "case": "H-14",
+      "source_case": "h-sug-leadership",
+      "requirement": "Strong leadership",
+      "human": "possible",
+      "engine": "possible",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Framing Foreman suggests this. Check that it fits."
+    },
+    {
+      "case": "H-15",
+      "source_case": "h-syn-gtaw-tig",
+      "requirement": "TIG welding",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "alternate_name",
+      "explanation": "You list GTAW, a known name for what this requirement asks for."
+    },
+    {
+      "case": "H-16",
+      "source_case": "h-syn-ap",
+      "requirement": "Accounts payable",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "alternate_name",
+      "explanation": "You list A/P processing, a known name for what this requirement asks for."
+    },
+    {
+      "case": "H-17",
+      "source_case": "h-syn-plc",
+      "requirement": "Programmable logic controllers",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "alternate_name",
+      "explanation": "You list PLC programming, a known name for what this requirement asks for."
+    },
+    {
+      "case": "H-18",
+      "source_case": "h-rel-driver-logistics",
+      "requirement": "3 years in logistics",
+      "human": "possible",
+      "engine": "possible",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "employment_dates",
+      "explanation": "Some of your roles may relate to this, and together they cover the 3-year amount. Check that they are in the field it means."
+    },
+    {
+      "case": "H-19",
+      "source_case": "h-rel-kitchen-sum",
+      "requirement": "5+ years in a professional kitchen",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported",
+        "possible"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "employment_dates",
+      "explanation": "Your listed roles as Line Cook, Sous Chef cover the 5-year amount."
+    },
+    {
+      "case": "H-20",
+      "source_case": "h-cred-secplus",
+      "requirement": "CompTIA Security+",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported"
+      ],
+      "rater2": [
+        "possible",
+        "supported"
+      ],
+      "basis": "listed_skill",
+      "explanation": "You list Security+ certification."
+    },
+    {
+      "case": "H-21",
+      "source_case": "h-cred-cpr-education",
+      "requirement": "CPR certification",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported"
+      ],
+      "rater2": [
+        "supported",
+        "possible"
+      ],
+      "basis": "education",
+      "explanation": "You list CPR/AED Certification in your education."
+    },
+    {
+      "case": "H-22",
+      "source_case": "h-legit-physician-instructions",
+      "requirement": "Administer medication according to physician instructions",
+      "human": "possible",
+      "engine": "possible",
+      "agree": true,
+      "rater1": [
+        "possible",
+        "supported"
+      ],
+      "rater2": [
+        "supported",
+        "possible"
+      ],
+      "basis": "described_in_work",
+      "explanation": "This requirement's terms appear in your roles or projects, but not as a listed skill."
+    },
+    {
+      "case": "H-23",
+      "source_case": "h-amb-go-real",
+      "requirement": "Go programming language",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Backend Engineer describes using this in the work."
+    },
+    {
+      "case": "H-24",
+      "source_case": "h-legit-supported-users",
+      "requirement": "Supported Windows and Active Directory users for at least 2 years",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported",
+        "possible"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "employment_dates",
+      "explanation": "Your listed roles as Help Desk Technician cover the 2-year amount."
+    },
+    {
+      "case": "H-25",
+      "source_case": "h-legit-sysadmin",
+      "requirement": "Prior experience acting as the system administrator for Linux servers",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "supported",
+        "possible"
+      ],
+      "rater2": [
+        "supported"
+      ],
+      "basis": "role_description",
+      "explanation": "Your role as System Administrator shows this."
+    },
+    {
+      "case": "H-26",
+      "source_case": "h-mix-software",
+      "requirement": "gRPC",
+      "human": "supported",
+      "engine": "supported",
+      "agree": true,
+      "rater1": [
+        "possible"
+      ],
+      "rater2": [
+        "possible"
+      ],
+      "basis": "described_in_work",
+      "explanation": "Your role as Backend Engineer describes using this in the work."
+    }
+  ]
+}
