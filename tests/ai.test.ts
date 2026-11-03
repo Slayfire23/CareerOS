@@ -33,21 +33,28 @@ describe("request signing", () => {
 
 describe("AI configuration", () => {
   const ok = { AI_SERVICE_URL: "http://127.0.0.1:8000", AI_SERVICE_SECRET: SECRET };
-  it("is disabled unless both URL and secret are set", () => {
-    expect(readAiConfig({}).enabled).toBe(false);
-    expect(readAiConfig({ AI_SERVICE_URL: ok.AI_SERVICE_URL }).enabled).toBe(false);
+  it("rules-only analysis needs no AI service; methods that use it are off without one", () => {
+    for (const env of [{}, { AI_SERVICE_URL: ok.AI_SERVICE_URL }, { AI_SERVICE_SECRET: SECRET }]) {
+      expect(readAiConfig({ ...env, AI_LOCAL_LLM_ENABLED: "true" })).toMatchObject({ enabled: true, serviceUrl: null, secret: null, localAi: null, cloud: null, dailyLimit: 20 });
+    }
   });
   it.each([
     [{ AI_SERVICE_SECRET: "short" }, "32"],
     [{ AI_SERVICE_URL: "http://ai.example.com" }, "HTTPS"],
     [{ AI_SERVICE_URL: "https://user:pw@ai.example.com" }, "credentials"],
     [{ AI_SERVICE_URL: "not a url" }, "valid URL"],
-    [{ AI_ANALYSIS_DAILY_LIMIT: "0" }, "1 to 1000"],
-    [{ AI_ANALYSIS_DAILY_LIMIT: "2.5" }, "1 to 1000"],
-  ])("rejects unsafe settings %j", (override, reason) => {
+  ])("never uses an unsafe AI service %j, and rules still work", (override, reason) => {
+    const config = readAiConfig({ ...ok, ...override });
+    expect(config).toMatchObject({ enabled: true, serviceUrl: null, secret: null });
+    if (config.enabled) expect(config.serviceProblem).toContain(reason);
+  });
+  it.each([
+    [{ AI_ANALYSIS_DAILY_LIMIT: "0" }],
+    [{ AI_ANALYSIS_DAILY_LIMIT: "2.5" }],
+  ])("refuses to run without a valid limit %j", override => {
     const config = readAiConfig({ ...ok, ...override });
     expect(config.enabled).toBe(false);
-    if (!config.enabled) expect(config.reason).toContain(reason);
+    if (!config.enabled) expect(config.reason).toContain("1 to 1000");
   });
   it("accepts localhost over HTTP, HTTPS elsewhere, and defaults to 20 per day, 60 attempts, and no cloud", () => {
     expect(readAiConfig(ok)).toMatchObject({ enabled: true, dailyLimit: 20, attemptLimit: 60, cloud: null, serviceUrl: "http://127.0.0.1:8000" });

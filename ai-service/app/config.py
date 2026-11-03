@@ -81,8 +81,10 @@ class Settings(BaseSettings):
             )
         if self.environment == "production" and "fake" in enabled:
             raise ValueError("The fake provider is for tests only and cannot run in production.")
-        if self.environment == "production" and enabled & {"hybrid", "ollama"}:
-            raise ValueError("Language models may not decide verdicts in production; use rules or assisted.")
+        if self.environment == "production" and enabled & {"hybrid", "ollama", "rules"}:
+            raise ValueError(
+                "Next.js decides verdicts in production; this service may only run assisted or anthropic."
+            )
         secret = self.service_secret.get_secret_value()
         if self.environment != "test" and len(set(secret)) < 16:
             raise ValueError("AI_SERVICE_SECRET looks weak; generate a random value of 32+ characters.")

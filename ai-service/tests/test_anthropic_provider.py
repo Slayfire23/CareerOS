@@ -335,6 +335,7 @@ def test_mock_base_url_is_local_and_never_in_production():
         cloud_settings(
             anthropic_base_url="http://127.0.0.1:8020",
             environment="production",
+            providers="assisted",
             service_secret="Zq8#xT2!pL9@vB4$nM6^kD1&hF3*wR7(",
             replay_store_url="rediss://replay.example.test:6380/0",
         )

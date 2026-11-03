@@ -1,13 +1,12 @@
-import structure from "../../../ai-service/app/matching/requirement_structure.json";
+import structure from "@/lib/ai/rules/data/requirement_structure.json";
 import { canonicalTerms, GENERIC_TERMS, VOCABULARY } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
 
-// Mirrors ai-service/app/matching/requirement_structure.py: a structured reading of each requirement.
-// Only what is requested (the head and its listed alternatives) can earn credit; later required
+// A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
+// is only a test reference. Only what is requested (the head and its listed alternatives) can earn credit; later required
 // clauses only add mandatory groups; optional, supplemental, and instruction-like text never count.
 // A requirement containing instructions or evaluation language needs the person's confirmation
-// before it is judged. Both read requirement_structure.json, and both test suites check
-// ai-service/tests/fixtures/relation_cases.json.
+// before it is judged.
 
 const re = (pattern: string) => new RegExp(pattern, "i");
 const NEED = re(structure.need_markers);
@@ -22,6 +21,8 @@ const AND_MARKER = re(structure.and_marker);
 const EVALUATION_LANGUAGE = structure.evaluation_language.map(re);
 const EVALUATION_EXEMPT = new RegExp(structure.evaluation_exempt, "gi");
 const PROFILE_LABEL = re(structure.profile_label);
+const UNVERIFIABLE_FIELD = re(structure.unverifiable_field);
+const PROFILE_CLAIM = re(structure.profile_claim);
 const AS = /\bas\b/gi;
 const NOT_A_CLAIM_AS = /\b(such|as\s+well)\s+as\b|\bas\s+(a|an|well|part|needed|required|of)\b/gi;
 const ITEM_STOPWORDS = new Set<string>([...structure.item_stopwords, ...GENERIC_TERMS]);
@@ -146,6 +147,9 @@ export function listedTerms(skillNames: string[]): Set<string> {
   return terms;
 }
 
+/** "Degree in a related field": a field is required, but code can't tell which ones count. */
+export const unverifiableField = (text: string) => UNVERIFIABLE_FIELD.test(text);
+
 type Span = [number, number];
 
 /** Parts of profile text that are never evidence: aimed at the evaluator, about the evaluation, or
@@ -155,7 +159,7 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   for (const span of directedSpans(text)) spans.set(span.join(":"), span);
   for (const [s, e] of segments(text)) {
     const segment = text.slice(s, e);
-    if (EVALUATION_REFERENCE.test(segment) || PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) {
+    if (EVALUATION_REFERENCE.test(segment) || PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) {
       spans.set(`${s}:${e}`, [s, e]);
     }
   }

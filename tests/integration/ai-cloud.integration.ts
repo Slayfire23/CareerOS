@@ -41,7 +41,7 @@ function cloudConfig(allowed: string[], limits: Partial<CloudConfig> = {}, base:
   return {
     enabled: true,
     serviceUrl: "http://127.0.0.1:1",
-    secret: "integration-secret-0123456789abcdefghij",
+    secret: "integration-secret-0123456789abcdefghij", serviceProblem: null,
     dailyLimit: 20,
     attemptLimit: 60,
     cloudReason: null,
@@ -322,24 +322,26 @@ it("never exceeds the global cap under 25 concurrent cloud requests from five us
 
 it("does not let an outage use up the daily limit, and stops retry storms at the attempt cap", async () => {
   const job = await createReviewedJob(accountA);
-  const config = cloudConfig([], {}, { dailyLimit: 2, attemptLimit: 6 });
-  for (let i = 0; i < 4; i++) expect(await run(accountA, job.id, config, refused(), "rules")).toEqual({ ok: false, error: "service_unavailable" });
+  await setCloudAiConsent(accountA, true);
+  await setCloudAiConsent(accountB, true);
+  const config = cloudConfig([await userId(accountA), await userId(accountB)], {}, { dailyLimit: 2, attemptLimit: 6 });
+  for (let i = 0; i < 4; i++) expect(await run(accountA, job.id, config, refused())).toEqual({ ok: false, error: "service_unavailable" });
   expect((await getAnalysisPageData(accountA, job.id, config))?.remainingToday).toBe(2);
   const { fetchImpl } = fakeCloud();
-  expect(await run(accountA, job.id, config, fetchImpl, "rules")).toMatchObject({ ok: true });
-  expect(await run(accountA, job.id, config, fetchImpl, "rules")).toMatchObject({ ok: true });
-  expect(await run(accountA, job.id, config, fetchImpl, "rules")).toEqual({ ok: false, error: "rate_limited" });
+  expect(await run(accountA, job.id, config, fetchImpl)).toMatchObject({ ok: true });
+  expect(await run(accountA, job.id, config, fetchImpl)).toMatchObject({ ok: true });
+  expect(await run(accountA, job.id, config, fetchImpl)).toEqual({ ok: false, error: "rate_limited" });
 
   const jobB = await createReviewedJob(accountB);
   // Runs in flight count toward the daily limit too, so a storm is refused by whichever limit binds
   // first; either way, no more than the attempt cap is ever created.
-  const storm = await Promise.all(Array.from({ length: 25 }, () => run(accountB, jobB.id, config, refused(), "rules")));
+  const storm = await Promise.all(Array.from({ length: 25 }, () => run(accountB, jobB.id, config, refused())));
   const created = await prisma.aiAnalysisRun.count({ where: { savedJobId: jobB.id } });
   expect(created).toBeGreaterThan(0);
   expect(created).toBeLessThanOrEqual(6);
   expect(storm.filter(r => !r.ok && (r.error === "attempts_exceeded" || r.error === "rate_limited"))).toHaveLength(25 - created);
-  for (let i = created; i < 6; i++) expect(await run(accountB, jobB.id, config, refused(), "rules")).toEqual({ ok: false, error: "service_unavailable" });
-  expect(await run(accountB, jobB.id, config, refused(), "rules")).toEqual({ ok: false, error: "attempts_exceeded" });
+  for (let i = created; i < 6; i++) expect(await run(accountB, jobB.id, config, refused())).toEqual({ ok: false, error: "service_unavailable" });
+  expect(await run(accountB, jobB.id, config, refused())).toEqual({ ok: false, error: "attempts_exceeded" });
   expect(await prisma.aiAnalysisRun.count({ where: { savedJobId: jobB.id } })).toBe(6);
 });
 

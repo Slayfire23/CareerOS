@@ -24,7 +24,7 @@ export function RunAnalysisForm({ jobId, disabled, hasAnalysis, cloud, localAi }
       <legend className="text-sm font-medium">Analysis method</legend>
       <label className="flex items-start gap-2 text-sm">
         <input type="radio" name="provider" value="rules" checked={provider === "rules"} onChange={() => setProvider("rules")} className="mt-1" />
-        <span><span className="font-medium">Rules engine</span> <span className="text-muted">— runs on CareerOS, free, keyword and date rules only.</span></span>
+        <span><span className="font-medium">Rules engine</span> <span className="text-muted">— always available, free, and sends nothing to any AI. Keyword and date rules only.</span></span>
       </label>
       {localAi.available && <label className="flex items-start gap-2 text-sm">
         <input type="radio" name="provider" value="assisted" checked={provider === "assisted"} onChange={() => setProvider("assisted")} className="mt-1" />

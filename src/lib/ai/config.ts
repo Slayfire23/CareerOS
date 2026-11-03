@@ -1,8 +1,9 @@
 import "server-only";
 import { priceFor } from "@/lib/ai/pricing";
 
-// Server-only configuration for the AI service. None of these values may use the NEXT_PUBLIC_
-// prefix: the secret signs requests and must never reach the browser. No AI provider key is ever
+// Server-only configuration. The rules engine runs in Next.js and needs none of the AI service
+// settings: without them, or with invalid ones, rules-only analysis still works and local AI and cloud
+// analysis are simply off. None of these values may use the NEXT_PUBLIC_ prefix: the secret signs requests and must never reach the browser. No AI provider key is ever
 // configured here; the Anthropic key lives only in the AI service's environment.
 
 export const DEFAULT_DAILY_LIMIT = 20;
@@ -34,8 +35,10 @@ export type CloudConfig = {
 export type AiConfig =
   | {
       enabled: true;
-      serviceUrl: string;
-      secret: string;
+      /** null when the optional AI service isn't configured; serviceProblem says why. */
+      serviceUrl: string | null;
+      secret: string | null;
+      serviceProblem: string | null;
       dailyLimit: number;
       attemptLimit: number;
       /** null unless the cloud provider is fully configured; reason says why. */
@@ -91,37 +94,49 @@ function readLocalAi(env: Record<string, string | undefined>): LocalAiConfig | n
   return { model: model as LocalAiConfig["model"], allowedUserIds: new Set(allowed) };
 }
 
-export function readAiConfig(env: Record<string, string | undefined> = process.env): AiConfig {
+/** The optional AI service: a checked origin and signing secret, or why it can't be used. */
+function readService(env: Record<string, string | undefined>): { url: string; secret: string } | { problem: string } {
   const serviceUrl = env.AI_SERVICE_URL?.trim();
   const secret = env.AI_SERVICE_SECRET ?? "";
-  if (!serviceUrl || !secret) return { enabled: false, reason: "AI analysis is not configured." };
-  if (secret.length < 32) return { enabled: false, reason: "AI_SERVICE_SECRET must be at least 32 characters." };
+  if (!serviceUrl || !secret) return { problem: "The AI service is not configured." };
+  if (secret.length < 32) return { problem: "AI_SERVICE_SECRET must be at least 32 characters." };
 
   let url: URL;
   try {
     url = new URL(serviceUrl);
   } catch {
-    return { enabled: false, reason: "AI_SERVICE_URL is not a valid URL." };
+    return { problem: "AI_SERVICE_URL is not a valid URL." };
   }
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (url.protocol !== "https:" && !(local && url.protocol === "http:")) {
-    return { enabled: false, reason: "AI_SERVICE_URL must use HTTPS (plain HTTP is allowed for localhost only)." };
+    return { problem: "AI_SERVICE_URL must use HTTPS (plain HTTP is allowed for localhost only)." };
   }
   if (url.username || url.password || url.search || url.hash) {
-    return { enabled: false, reason: "AI_SERVICE_URL must not contain credentials, a query, or a fragment." };
+    return { problem: "AI_SERVICE_URL must not contain credentials, a query, or a fragment." };
   }
+  return { url: url.origin + url.pathname.replace(/\/$/, ""), secret };
+}
 
+export function readAiConfig(env: Record<string, string | undefined> = process.env): AiConfig {
   const rawLimit = env.AI_ANALYSIS_DAILY_LIMIT?.trim();
   const dailyLimit = rawLimit ? Number(rawLimit) : DEFAULT_DAILY_LIMIT;
   if (!Number.isInteger(dailyLimit) || dailyLimit < 1 || dailyLimit > 1000) {
     return { enabled: false, reason: "AI_ANALYSIS_DAILY_LIMIT must be a whole number from 1 to 1000." };
   }
 
+  const service = readService(env);
+  if ("problem" in service) {
+    return {
+      enabled: true, serviceUrl: null, secret: null, serviceProblem: service.problem,
+      dailyLimit, attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER, cloud: null, cloudReason: service.problem, localAi: null,
+    };
+  }
   const { cloud, reason } = readCloud(env);
   return {
     enabled: true,
-    serviceUrl: url.origin + url.pathname.replace(/\/$/, ""),
-    secret,
+    serviceUrl: service.url,
+    secret: service.secret,
+    serviceProblem: null,
     dailyLimit,
     attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER,
     cloud,

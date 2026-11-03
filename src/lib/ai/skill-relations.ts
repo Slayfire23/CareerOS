@@ -1,9 +1,10 @@
-import table from "../../../ai-service/app/matching/skill_relations.json";
+import table from "@/lib/ai/rules/data/skill_relations.json";
 import { DEGREE_WORDS, RELEVANCE_STOPWORDS } from "@/lib/ai/evidence";
+import { disguised } from "@/lib/ai/rules/profile-fields";
 
-// Mirrors ai-service/app/matching/relations.py and requirement_text.py, so Next.js can re-check a
-// hybrid result on its own. Instructions hidden in job or profile text: see untrusted-text.ts. Both read the same table (skill_relations.json), and both test suites
-// check the shared examples in ai-service/tests/fixtures/relation_cases.json.
+// How a quote relates to a requirement, decided by code from the reviewed table. Authoritative since
+// Milestone 7; the frozen Python copy is only a test reference. Instructions hidden in job or profile
+// text: see untrusted-text.ts.
 
 export type Relation = "same" | "related";
 
@@ -27,6 +28,7 @@ const DOTNET = /(?<![\p{L}\p{N}_.])\.net(?![\p{L}\p{N}_])/giu;
 const AMBIGUOUS = new Set(table.ambiguous);
 const TECH_CONTEXT = new Set(table.tech_context);
 const EMPLOYMENT_WORDS = new Set(table.employment_words);
+const WORK_VERBS = new Set<string>(table.work_verbs);
 /** Every technology and concept term the table knows, in canonical form. */
 export const VOCABULARY = new Set<string>([...PHRASES.values(), ...FAMILIES.flatMap(f => [...f.terms, ...f.members])]);
 
@@ -111,8 +113,118 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
 /** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
-  if (words(name).length > 6 || /[:;{}<>]/.test(name)) return false;
-  return !/\b(counts?|is|are|was|means?|equals?|same|equivalent|as|also|verified|approved|certified\s+by|expert)\b/i.test(name);
+  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC"))) return false;
+  return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|certified|expert|aka|treated|deemed|qualifies)\b/i.test(name);
+}
+
+/** The word sits among words of its ordinary meaning: Java the island, a ball python, spring sales. */
+export function ordinaryMeaning(fieldText: string, word: string): boolean {
+  const negative = new Set(WORD_NEGATIVE[word] ?? []);
+  if (!negative.size) return false;
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
+  for (const match of fieldText.matchAll(pattern)) {
+    const window = [...words(fieldText.slice(0, match.index)).slice(-3), ...words(fieldText.slice(match.index + match[0].length)).slice(0, 3)];
+    if (window.some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) return true;
+  }
+  return false;
+}
+
+const KNOWN_TECHNOLOGIES = new Set<string>((table as unknown as { known_technologies: string[] }).known_technologies);
+/** A technology with its own identity: only the reviewed table may connect it to something else. */
+export const isKnownTechnology = (term: string) => KNOWN_TECHNOLOGIES.has(term) || VOCABULARY.has(term);
+export const isDistinctPair = (a: string, b: string) => DISTINCT.has([a, b].sort().join("\u0000"));
+
+/** The text describes a technology as used in work: a work verb shortly before it, or a technical noun
+ * or another known technology beside it. "Built Kafka consumers" does; "Kubernetes expertise confirmed"
+ * does not. A mention alone is not evidence. */
+export function describesUse(fieldText: string, quote: string): boolean {
+  const terms = canonicalTerms(quote);
+  const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
+  for (const match of fieldText.matchAll(pattern)) {
+    const before = words(fieldText.slice(0, match.index));
+    const after = words(fieldText.slice(match.index + match[0].length));
+    const negative = new Set([...terms].flatMap(t => WORD_NEGATIVE[t] ?? []));
+    if ([...before.slice(-3), ...after.slice(0, 3)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
+    if (before.slice(-5).some(t => WORK_VERBS.has(t))) return true;
+    if ([...before.slice(-3), ...after.slice(0, 3)].some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && !terms.has(t)))) return true;
+  }
+  return false;
+}
+
+/** Every way the table writes a canonical term, longest first ("kubernetes", "k8s", "kube"). */
+export function surfaceForms(term: string): string[] {
+  const forms = new Set([term]);
+  for (const [phrase, canonical] of PHRASES) if (canonical === term) forms.add(phrase);
+  return [...forms].sort((a, b) => b.length - a.length);
+}
+
+const tokens = (text: string) => (text.toLowerCase().match(/[a-z0-9][a-z0-9+#&/.-]*/g) ?? []).map(t => t.replace(/[.\-/]+$/, "")).filter(Boolean);
+
+/** Whole-token, case-insensitive: "C++" matches "C++"; "Java" does not match "JavaScript". */
+export function containsPhrase(text: string, phrase: string): boolean {
+  const needle = tokens(phrase);
+  const haystack = tokens(text);
+  if (!needle.length) return false;
+  for (let i = 0; i + needle.length <= haystack.length; i++) {
+    if (needle.every((t, j) => haystack[i + j] === t)) return true;
+  }
+  return false;
+}
+
+// --- Degrees ----------------------------------------------------------------------------------------
+
+export type DegreeInfo = { level: number; field: string; abbreviations?: string[] };
+export const degreePhrases = (table as unknown as { degree_phrases: Record<string, DegreeInfo> }).degree_phrases;
+export const degreeImplied = (table as unknown as { degree_implied: Record<string, DegreeInfo> }).degree_implied;
+const FIELD_STOPWORDS = new Set<string>(table.degree_field_stopwords);
+const FIELD_FAMILIES = Object.fromEntries(Object.entries(table.degree_field_families).map(([k, v]) => [k, new Set(v as string[])]));
+
+function wordAlternatives(text: string): Set<string>[] {
+  const alternatives: Set<string>[] = [];
+  for (const part of text.split(/,|\bor\b|\/|;/i)) {
+    const found = new Set(words(part).filter(w => !FIELD_STOPWORDS.has(w) && w.length > 1 && !/^\d+$/.test(w)));
+    if (found.size) alternatives.push(found);
+  }
+  return alternatives;
+}
+
+const degreeNamePattern = (phrase: string) => new RegExp(`\\b${phrase.replaceAll(" ", "\\s+")}\\b`, "gi");
+
+/** The text with full degree names removed: "Bachelor of Science in Statistics" -> "in Statistics". */
+function withoutDegreeNames(text: string): string {
+  let result = text;
+  for (const phrase of Object.keys(degreePhrases)) result = result.replace(degreeNamePattern(phrase), " ");
+  return result;
+}
+
+/** Fields of study a requirement names, as word sets. A degree name that stands alone keeps its words,
+ * so "Bachelor of Science" still asks for science. */
+function fieldAlternatives(text: string): Set<string>[] {
+  const stripped = wordAlternatives(withoutDegreeNames(text));
+  return stripped.length ? stripped : wordAlternatives(text);
+}
+
+export const asksForField = (requirementText: string) => fieldAlternatives(requirementText).length > 0;
+
+/** The requirement is only a degree name, and the qualification is that degree written either way. */
+export function namesSameDegree(requirementText: string, qualification: string): boolean {
+  if (wordAlternatives(withoutDegreeNames(requirementText)).length) return false;
+  const have = ` ${(qualification.toLowerCase().replaceAll(".", "").match(/[a-z]+/g) ?? []).join(" ")} `;
+  for (const [phrase, info] of Object.entries(degreePhrases)) {
+    if (!degreeNamePattern(phrase).test(requirementText)) continue;
+    if ([phrase, ...(info.abbreviations ?? [])].some(name => have.includes(` ${name} `))) return true;
+  }
+  return false;
+}
+
+/** Every word of a field the requirement names appears in this field of study, or a reviewed family
+ * covers it. Whole words only, never substrings. */
+export function fieldMatches(requirementText: string, fieldOfStudy: string): boolean {
+  const have = new Set(words(fieldOfStudy));
+  return fieldAlternatives(requirementText).some(wanted =>
+    [...wanted].every(w => have.has(w) || [...(FIELD_FAMILIES[w] ?? [])].some(f => have.has(f))));
 }
 
 export const technologyTerms = (text: string) => new Set([...canonicalTerms(text)].filter(t => VOCABULARY.has(t)));

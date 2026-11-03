@@ -7,6 +7,8 @@ import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 // Signed calls from the Next.js server to the AI service. Never imported by client components.
 
 export const SERVICE_TIMEOUT_MS = 45_000;
+/** Suggestions are optional, so a laptop that's off or slow costs at most this long. */
+export const SUGGEST_TIMEOUT_MS = 40_000;
 
 /** Whether a provider may have charged for the request (see ai-service/app/errors.py). */
 export type Billed = "no" | "yes" | "unknown";
@@ -62,18 +64,35 @@ function refusedConnection(error: unknown): boolean {
   return cause?.code === "ECONNREFUSED";
 }
 
-export async function callMatchService(
+export const callMatchService = (
   config: { serviceUrl: string; secret: string },
   request: MatchRequest,
   fetchImpl: Fetch = fetch,
   timeoutMs: number = SERVICE_TIMEOUT_MS,
+) => post(config, "/v1/match", request.request_id, request, fetchImpl, timeoutMs);
+
+/** Ask the local bridge for suggestion pointers. It sees no dates, education, or verdicts. */
+export const callSuggestService = (
+  config: { serviceUrl: string; secret: string },
+  request: { request_id: string },
+  fetchImpl: Fetch = fetch,
+  timeoutMs: number = SUGGEST_TIMEOUT_MS,
+) => post(config, "/v1/suggest", request.request_id, request, fetchImpl, timeoutMs);
+
+async function post(
+  config: { serviceUrl: string; secret: string },
+  path: string,
+  requestId: string,
+  payload: unknown,
+  fetchImpl: Fetch,
+  timeoutMs: number,
 ): Promise<unknown> {
-  const body = JSON.stringify(request);
+  const body = JSON.stringify(payload);
   let response: Response;
   try {
-    response = await fetchImpl(`${config.serviceUrl}/v1/match`, {
+    response = await fetchImpl(`${config.serviceUrl}${path}`, {
       method: "POST",
-      headers: signedHeaders(config.secret, request.request_id, body),
+      headers: signedHeaders(config.secret, requestId, body),
       body,
       cache: "no-store",
       redirect: "error",

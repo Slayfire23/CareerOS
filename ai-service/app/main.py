@@ -4,6 +4,7 @@ Endpoints:
 - GET  /health        liveness, no details
 - GET  /health/ready  readiness: configuration loaded, providers built, replay store reachable
 - POST /v1/match      signed requests only; each request names one enabled provider
+- POST /v1/suggest    signed requests only; pointers from local AI, with no verdicts in or out
 """
 
 import logging
@@ -19,7 +20,7 @@ from app.errors import ServiceError, error_body, install_error_handlers
 from app.matching.service import run_match
 from app.providers.base import MatchProvider
 from app.providers.factory import build_providers
-from app.schemas import MatchRequest, MatchResponse
+from app.schemas import MatchRequest, MatchResponse, SuggestRequest, SuggestResponse
 from app.security import (
     REQUEST_ID_HEADER,
     ReplayStore,
@@ -119,9 +120,26 @@ def create_app(
                 400, "request_id_mismatch", "Body request_id must match the signed request id."
             )
         chosen = providers.get(payload.provider)
-        if chosen is None:
+        if chosen is None or not hasattr(chosen, "match"):
             raise ServiceError(400, "provider_not_enabled", "That analysis provider is not enabled.")
         return await run_match(payload, chosen, settings.provider_timeout_seconds)
+
+    @app.post("/v1/suggest", response_model=SuggestResponse)
+    async def suggest(request: Request) -> SuggestResponse:
+        body = await verify_signed_request(request, settings, store, started_at)
+        try:
+            payload = SuggestRequest.model_validate_json(body)
+        except ValidationError as exc:
+            fields = sorted({".".join(str(p) for p in err["loc"]) or "body" for err in exc.errors()})[:10]
+            raise ServiceError(422, "invalid_request", f"Invalid fields: {', '.join(fields)}") from None
+        if str(payload.request_id) != request.headers.get(REQUEST_ID_HEADER, "").lower():
+            raise ServiceError(
+                400, "request_id_mismatch", "Body request_id must match the signed request id."
+            )
+        bridge = providers.get("assisted")
+        if bridge is None:
+            raise ServiceError(400, "provider_not_enabled", "AI suggestions are not enabled.")
+        return await bridge.suggest(payload)
 
     @app.exception_handler(Exception)
     async def unexpected(_: Request, exc: Exception) -> JSONResponse:

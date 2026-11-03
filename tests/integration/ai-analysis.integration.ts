@@ -17,7 +17,7 @@ import type { MatchRequest } from "@/lib/ai/evidence";
 import { getAnalysisPageData, runJobAnalysis, saveAnalysisFeedback } from "@/lib/ai/analysis";
 
 const CONFIG: AiConfig = {
-  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off", localAi: null,
+  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", serviceProblem: null, dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off", localAi: null,
 };
 let identities: string[] = [];
 let accountA: string;
@@ -110,16 +110,16 @@ it("refuses another account's job without creating any rows", async () => {
   expect(await getAnalysisPageData(accountB, job.id, CONFIG)).toBeNull();
 });
 
-it("sends only the owner's own evidence, without other accounts' data", async () => {
+it("judges only the owner's own evidence, and sends it nowhere", async () => {
   await addSkill(accountA, "SolidWorks");
   await addSkill(accountB, "SecretSkillOfB");
   const job = await createReviewedJob(accountA);
   const fetchImpl = fakeService();
   await run(accountA, job.id, fetchImpl);
-  const sent = (fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1].body as string;
-  expect(sent).toContain("SolidWorks");
-  expect(sent).not.toContain("SecretSkillOfB");
-  expect(sent).not.toContain("Test Co"); // company names are not sent
+  expect(fetchImpl).not.toHaveBeenCalled(); // the rules engine runs on the Next.js server
+  const saved = await prisma.jobMatchAnalysis.findFirstOrThrow({ where: { savedJobId: job.id } });
+  expect(JSON.stringify(saved.findings)).toContain("SolidWorks");
+  expect(JSON.stringify(saved)).not.toContain("SecretSkillOfB");
 });
 
 it.each([
@@ -133,24 +133,6 @@ it.each([
   expect(await prisma.aiAnalysisRun.count({ where: { savedJobId: job.id } })).toBe(0);
 });
 
-it.each([
-  ["service down", () => vi.fn(async () => { throw new TypeError("fetch failed"); }), "service_unavailable"],
-  ["malformed response", () => vi.fn(async () => new Response("{\"unexpected\":true}", { status: 200 })), "response_rejected"],
-  ["foreign citation", () => fakeService((_r, body) => {
-    (body.findings as { verdict: string; citations: unknown[] }[])[0].verdict = "supported";
-    (body.findings as { citations: unknown[] }[])[0].citations = [{ evidence_id: `skill:${randomUUID()}`, quote: "Invented" }];
-    body.verdict_counts = { supported: 1, possible: 0, gap: 0, insufficient_information: 0 };
-  }), "response_rejected"],
-  ["non-rules provider", () => fakeService((_r, body) => { body.provider = "anthropic"; }), "response_rejected"],
-  ["provider output rejected", () => vi.fn(async () => new Response("{}", { status: 502 })), "provider_output_rejected"],
-])("records a failed run and stores nothing when the %s", async (_label, makeFetch, error) => {
-  const job = await createReviewedJob(accountA);
-  expect(await run(accountA, job.id, makeFetch() as never)).toEqual({ ok: false, error });
-  expect(await prisma.jobMatchAnalysis.count({ where: { savedJobId: job.id } })).toBe(0);
-  const runs = await prisma.aiAnalysisRun.findMany({ where: { savedJobId: job.id } });
-  expect(runs).toEqual([expect.objectContaining({ status: "FAILED", errorCode: error })]);
-});
-
 it("enforces the daily limit exactly under 25 concurrent requests", async () => {
   const job = await createReviewedJob(accountA);
   const results = await Promise.all(Array.from({ length: 25 }, () => run(accountA, job.id)));
@@ -162,13 +144,13 @@ it("enforces the daily limit exactly under 25 concurrent requests", async () => 
   expect(await run(accountB, jobB.id)).toMatchObject({ ok: true });
 });
 
-it("counts runs over a rolling 24 hours, including failures, and honours a lower configured limit", async () => {
+it("counts runs over a rolling 24 hours and honours a lower configured limit", async () => {
   const job = await createReviewedJob(accountA);
   const config = { ...CONFIG, dailyLimit: 2 };
   const now = new Date();
   const old = new Date(now.getTime() - 25 * 60 * 60 * 1000);
   expect(await run(accountA, job.id, fakeService(), config, old)).toMatchObject({ ok: true });
-  expect(await run(accountA, job.id, vi.fn(async () => { throw new TypeError("down"); }) as never, config, now)).toMatchObject({ ok: false, error: "service_unavailable" });
+  expect(await run(accountA, job.id, fakeService(), config, now)).toMatchObject({ ok: true });
   expect(await run(accountA, job.id, fakeService(), config, now)).toMatchObject({ ok: true });
   expect(await run(accountA, job.id, fakeService(), config, now)).toEqual({ ok: false, error: "rate_limited" });
 });
@@ -259,12 +241,12 @@ it("server actions reject signed-out callers, malformed input, and foreign ids",
   const duplicated = form({ jobId: job.id });
   duplicated.append("jobId", job.id);
   expect((await runJobMatch({}, duplicated)).error).toBe("Invalid job selection.");
-  // AI_SERVICE_URL is not set in the test environment, so the action reports it as unavailable.
-  expect((await runJobMatch({}, form({ jobId: job.id }))).error).toContain("not available");
+  // AI_SERVICE_URL is not set in the test environment, and rules-only analysis doesn't need it.
+  expect(await runJobMatch({}, form({ jobId: job.id }))).toEqual({ message: "Analysis complete." });
 
   signIn(accountB);
-  expect((await runJobMatch({}, form({ jobId: job.id }))).error).toMatch(/not available|unavailable/);
-  expect(await prisma.aiAnalysisRun.count({ where: { savedJobId: job.id } })).toBe(0);
+  expect((await runJobMatch({}, form({ jobId: job.id }))).error).toBe("This job is unavailable.");
+  expect(await prisma.aiAnalysisRun.count({ where: { savedJobId: job.id } })).toBe(1); // only the owner's run
   const bad = await saveMatchFeedback({}, form({ analysisId: randomUUID(), version: "0", requirementIndex: "0", choice: "maybe", note: "" }));
   expect(bad.error).toContain("Agree or Disagree");
   const foreign = await saveMatchFeedback({}, form({ analysisId: randomUUID(), version: "0", requirementIndex: "0", choice: "agree", note: "" }));

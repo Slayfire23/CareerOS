@@ -1,74 +1,51 @@
-"""AI-assisted analysis: the rules engine decides every verdict, and local AI (Ollama) adds suggestions.
+"""A thin bridge from Next.js to local AI (Ollama) for suggestions. It makes no decisions.
 
-Verdicts come only from the rules engine, and the provider returns its findings untouched. Local AI
-never sees them change: its answers go through app/matching/suggestions.py and into a separate list.
-So verdicts are identical whether local AI answers, fails, or is off.
+Next.js decides every verdict on its own server and saves it first. It then sends this service only
+what local AI may see, with remarks and claims already removed: what each unsettled requirement
+requests, and the profile's skills, roles, and projects. There are no dates, education, skill levels,
+or verdicts in the request, by construction of its schema, and none in the response.
 
-- Local AI sees only requirements the rules engine did not support, and did not flag for
-  confirmation, that can be judged from skills and work: no durations, credentials, or education.
-- It sees what the requirement requests and the profile's skills, roles, and projects, under short
-  ids, with any text aimed at an evaluator masked. The output schema lists the only ids that exist.
-- When Ollama is down, slow, or busy, the result is the rules findings with no suggestions and
-  ``ai_assist="unavailable"``. There is no fallback to any other provider.
+The answers are untrusted pointers. This service checks only their shape; Next.js checks each one
+against the person's own profile and writes every word shown (src/lib/ai/rules/suggestions.ts).
+
+When Ollama is down, slow, or busy, the response says ``ai_assist="unavailable"`` with whatever
+arrived so far. There is no fallback to any other provider.
 """
 
 import asyncio
 import json
 import logging
 import time
-from dataclasses import dataclass, field
 
 from app.config import Settings
 from app.errors import ServiceError
-from app.matching.requirement_structure import listed_terms, parse
-from app.matching.requirement_text import QUALIFICATION_WORDS
-from app.matching.suggestions import check_suggestion
-from app.matching.validate import required_months, validate_findings
 from app.providers.assisted_prompt import ASSIST_PROMPT_VERSION, assist_message, assist_schema, assist_system
-from app.providers.base import ProviderOutput
-from app.providers.hybrid_prompt import short_ids
 from app.providers.ollama import OllamaProvider, estimated_prompt_tokens
-from app.providers.rules import RulesProvider
-from app.schemas import (
-    Evidence,
-    Finding,
-    MatchRequest,
-    ProjectEvidence,
-    Requirement,
-    SkillEvidence,
-    Suggestion,
-    Usage,
-)
+from app.schemas import Pointer, SuggestRequest, SuggestRequirement, SuggestResponse, Usage
 
 log = logging.getLogger("careeros.assisted")
 
 MAX_REQUIREMENTS_PER_CALL = 8
 OUTPUT_TOKENS_PER_REQUIREMENT = 200
-MAX_SUGGESTIONS_PER_REQUIREMENT = 3
 DEADLINE_MARGIN_SECONDS = 5.0
+_PREFIXES = {"skill": "s", "experience": "x", "project": "p"}
 
 
-@dataclass
-class AssistResult:
-    findings: list[Finding]
-    suggestions: list[Suggestion] = field(default_factory=list)
-    usage: Usage | None = None
-    ai_assist: str = "not_needed"
-    calls: int = 0
-    rejected: dict[str, int] = field(default_factory=dict)
-    ai_error: str | None = None
-
-
-def _sendable(requirement: Requirement, finding: Finding) -> bool:
-    """Suggestions help where the rules engine didn't settle a skill question. Hard qualifications
-    and requirements awaiting confirmation stay out."""
-    return (
-        finding.verdict != "supported"
-        and not finding.review
-        and requirement.category != "Education"
-        and required_months(requirement.text) is None
-        and not QUALIFICATION_WORDS.search(requirement.text)
-    )
+def _views(request: SuggestRequest) -> tuple[dict[str, str], list[dict]]:
+    """Short id -> real id, and what the model sees of each entry under its short id."""
+    counters = dict.fromkeys(_PREFIXES.values(), 0)
+    ids: dict[str, str] = {}
+    views: list[dict] = []
+    for item in request.evidence:
+        prefix = _PREFIXES[item.kind]
+        counters[prefix] += 1
+        short = f"{prefix}{counters[prefix]}"
+        ids[short] = item.id
+        fields = item.model_dump(exclude={"id", "kind"})
+        if item.kind == "skill":
+            fields = {"skill": item.name}
+        views.append({"id": short} | {k: v for k, v in fields.items() if v})
+    return ids, views
 
 
 class AssistedProvider:
@@ -78,53 +55,94 @@ class AssistedProvider:
 
     def __init__(self, settings: Settings, ollama: OllamaProvider | None = None) -> None:
         self._settings = settings
-        self._rules = RulesProvider()
         self._ollama = ollama or OllamaProvider(settings)
         self.model = self._ollama.model
-        self.method_version = f"assisted/{self._rules.method_version}+{self.model}/{ASSIST_PROMPT_VERSION}"
+        self.method_version = f"assist/{self.model}/{ASSIST_PROMPT_VERSION}"
 
     async def status(self) -> str:
         return await self._ollama.status()
 
-    async def match(self, request: MatchRequest) -> ProviderOutput:
-        result = await self.assess(request)
-        return ProviderOutput(
-            findings=result.findings,
-            usage=result.usage,
-            suggestions=result.suggestions,
-            ai_assist=result.ai_assist,
+    async def suggest(self, request: SuggestRequest) -> SuggestResponse:
+        ids, views = _views(request)
+        pointers: list[Pointer] = []
+        input_tokens = output_tokens = calls = malformed = 0
+        error: str | None = None
+        batches = self._batches(request.requirements, views, ids)
+        if request.requirements and views and not batches:
+            error = "over_budget"
+        deadline = time.monotonic() + max(
+            1.0, self._settings.provider_timeout_seconds - DEADLINE_MARGIN_SECONDS
+        )
+        for batch in batches:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                error = "provider_timeout"
+                break
+            schema = assist_schema([r.index for r in batch], list(ids))
+            try:
+                content, usage = await asyncio.wait_for(
+                    self._ollama.generate(
+                        assist_system(schema),
+                        assist_message(batch, views),
+                        schema,
+                        self._output_tokens(batch),
+                    ),
+                    timeout=remaining,
+                )
+            except ServiceError as exc:
+                if exc.code in ("provider_output_truncated", "provider_output_rejected"):
+                    malformed += 1
+                    continue
+                error = exc.code  # down, busy, or too slow: don't try the rest
+                break
+            except TimeoutError:
+                error = "provider_timeout"
+                break
+            calls += 1
+            input_tokens += usage.input_tokens
+            output_tokens += usage.output_tokens
+            found, bad = self._pointers(batch, content, ids)
+            pointers += found
+            malformed += bad
+        log.info(
+            "suggest done calls=%s sent=%s pointers=%s malformed=%s error=%s",
+            calls,
+            len(request.requirements),
+            len(pointers),
+            malformed,
+            error,
+        )
+        return SuggestResponse(
+            request_id=request.request_id,
+            model=self.model,
+            method_version=self.method_version,
+            # Partly answered still counts as unavailable, so the page can say some may be missing.
+            ai_assist="unavailable" if error else "used",
+            pointers=pointers,
+            usage=Usage(input_tokens=input_tokens, output_tokens=output_tokens) if calls else None,
         )
 
-    async def assess(self, request: MatchRequest) -> AssistResult:
-        # Validated and finished before local AI is involved: nothing below can reach these.
-        findings = validate_findings(request, await self._rules.match(request))
-        findings = [f.model_copy(update={"method": "rules"}) for f in findings]
-        result = AssistResult(findings=findings)
-        by_index = {f.requirement_index: f for f in findings}
-        evidence = short_ids(request.evidence)
-        candidates = [r for r in request.requirements if _sendable(r, by_index[r.index])]
-        if candidates and evidence:
-            await self._ask(candidates, evidence, by_index, result)
-        log.info(
-            "assisted done calls=%s sent=%s suggestions=%s rejected=%s error=%s",
-            result.calls,
-            len(candidates),
-            len(result.suggestions),
-            sum(result.rejected.values()),
-            result.ai_error,
-        )
-        return result
+    def _output_tokens(self, requirements: list[SuggestRequirement]) -> int:
+        limit = self._settings.ollama_num_predict
+        return min(limit, 200 + OUTPUT_TOKENS_PER_REQUIREMENT * len(requirements))
+
+    def _fits(self, requirements: list[SuggestRequirement], views: list[dict], ids: dict[str, str]) -> bool:
+        schema = assist_schema([r.index for r in requirements], list(ids))
+        tokens = estimated_prompt_tokens(assist_message(requirements, views), assist_system(schema))
+        return tokens + self._output_tokens(requirements) <= self._settings.ollama_num_ctx
 
     def _batches(
-        self, candidates: list[Requirement], evidence: dict[str, Evidence]
-    ) -> list[list[Requirement]]:
-        batches: list[list[Requirement]] = []
-        current: list[Requirement] = []
+        self, candidates: list[SuggestRequirement], views: list[dict], ids: dict[str, str]
+    ) -> list[list[SuggestRequirement]]:
+        if not views:
+            return []
+        batches: list[list[SuggestRequirement]] = []
+        current: list[SuggestRequirement] = []
         for requirement in candidates:
             trial = [*current, requirement]
-            if len(trial) <= MAX_REQUIREMENTS_PER_CALL and self._fits(trial, evidence):
+            if len(trial) <= MAX_REQUIREMENTS_PER_CALL and self._fits(trial, views, ids):
                 current = trial
-            elif current and self._fits([requirement], evidence):
+            elif current and self._fits([requirement], views, ids):
                 batches.append(current)
                 current = [requirement]
             elif not current:
@@ -136,101 +154,34 @@ class AssistedProvider:
             batches.append(current)
         return batches
 
-    def _output_tokens(self, requirements: list[Requirement]) -> int:
-        limit = self._settings.ollama_num_predict
-        return min(limit, 200 + OUTPUT_TOKENS_PER_REQUIREMENT * len(requirements))
-
-    def _fits(self, requirements: list[Requirement], evidence: dict[str, Evidence]) -> bool:
-        schema = assist_schema([r.index for r in requirements], list(evidence))
-        tokens = estimated_prompt_tokens(assist_message(requirements, evidence), assist_system(schema))
-        return tokens + self._output_tokens(requirements) <= self._settings.ollama_num_ctx
-
-    async def _ask(
-        self,
-        candidates: list[Requirement],
-        evidence: dict[str, Evidence],
-        by_index: dict[int, Finding],
-        result: AssistResult,
-    ) -> None:
-        batches = self._batches(candidates, evidence)
-        if not batches:
-            result.ai_assist, result.ai_error = "unavailable", "over_budget"
-            return
-        deadline = time.monotonic() + max(
-            1.0, self._settings.provider_timeout_seconds - DEADLINE_MARGIN_SECONDS
-        )
-        input_tokens = output_tokens = 0
-        for batch in batches:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                result.ai_error = "provider_timeout"
-                break
-            schema = assist_schema([r.index for r in batch], list(evidence))
-            try:
-                content, usage = await asyncio.wait_for(
-                    self._ollama.generate(
-                        assist_system(schema),
-                        assist_message(batch, evidence),
-                        schema,
-                        self._output_tokens(batch),
-                    ),
-                    timeout=remaining,
-                )
-            except ServiceError as exc:
-                if exc.code in ("provider_output_truncated", "provider_output_rejected"):
-                    result.rejected["unreadable_answer"] = result.rejected.get("unreadable_answer", 0) + 1
-                    continue
-                result.ai_error = exc.code  # down, busy, or too slow: don't try the rest
-                break
-            except TimeoutError:
-                result.ai_error = "provider_timeout"
-                break
-            result.calls += 1
-            input_tokens += usage.input_tokens
-            output_tokens += usage.output_tokens
-            self._merge(batch, content, evidence, by_index, result)
-        if result.calls:
-            result.usage = Usage(input_tokens=input_tokens, output_tokens=output_tokens)
-        # Partly answered still counts as unavailable, so the page can say suggestions may be incomplete.
-        result.ai_assist = "unavailable" if result.ai_error else "used"
-
     @staticmethod
-    def _merge(
-        batch: list[Requirement],
-        content: str,
-        evidence: dict[str, Evidence],
-        by_index: dict[int, Finding],
-        result: AssistResult,
-    ) -> None:
+    def _pointers(
+        batch: list[SuggestRequirement], content: str, ids: dict[str, str]
+    ) -> tuple[list[Pointer], int]:
+        """Well-formed pointers with real evidence ids. Whether each one is right is Next.js's call."""
         try:
             items = json.loads(content)["suggestions"]
             if not isinstance(items, list):
                 raise TypeError
         except (ValueError, KeyError, TypeError):
-            result.rejected["unreadable_answer"] = result.rejected.get("unreadable_answer", 0) + 1
-            return
-        requirements = {r.index: r for r in batch}
-        names = [e.name for e in evidence.values() if isinstance(e, SkillEvidence)]
-        names += [n for e in evidence.values() if isinstance(e, ProjectEvidence) for n in e.skills]
-        listed = listed_terms(names)
-        counts: dict[int, int] = {}
-        seen: set[tuple] = set()
+            return [], 1
+        indexes = {r.index for r in batch}
+        found: list[Pointer] = []
+        malformed = 0
         for item in items:
-            if not isinstance(item, dict):
+            if not isinstance(item, dict) or item.get("requirement_index") not in indexes:
+                malformed += 1
                 continue
-            requirement = requirements.get(item.get("requirement_index"))  # type: ignore[arg-type]
-            if requirement is None:
-                continue
-            structure = parse(requirement.text, listed, requirement.confirmed)
-            finding = by_index[requirement.index]
-            cited = {(c.evidence_id, c.quote) for c in finding.citations}
-            checked = check_suggestion(requirement, structure, item, evidence, cited)
-            if isinstance(checked, str):
-                result.rejected[checked] = result.rejected.get(checked, 0) + 1
-                continue
-            key = (checked.requirement_index, checked.kind, checked.term, checked.citation)
-            if key in seen or counts.get(requirement.index, 0) >= MAX_SUGGESTIONS_PER_REQUIREMENT:
-                continue
-            seen.add(key)
-            counts[requirement.index] = counts.get(requirement.index, 0) + 1
-            result.suggestions.append(checked)
+            kind, quote, term = item.get("kind"), item.get("quote"), item.get("term")
+            real = ids.get(item.get("evidence_id"))  # type: ignore[arg-type]
+            if kind == "possible_connection" and real and isinstance(quote, str) and 1 <= len(quote) <= 300:
+                found.append(
+                    Pointer(
+                        requirement_index=item["requirement_index"], kind=kind, evidence_id=real, quote=quote
+                    )
+                )
+            elif kind == "missing_from_profile" and isinstance(term, str) and 1 <= len(term) <= 100:
+                found.append(Pointer(requirement_index=item["requirement_index"], kind=kind, term=term))
+            else:
+                malformed += 1
+        return found, malformed

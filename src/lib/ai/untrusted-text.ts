@@ -1,8 +1,7 @@
-import patterns from "../../../ai-service/app/matching/untrusted_text.json";
+import patterns from "@/lib/ai/rules/data/untrusted_text.json";
 
-// Mirrors ai-service/app/matching/untrusted_text.py: job and profile text is untrusted data, and
-// segments directed at an AI or reviewer never take part in matching. Both read the same patterns
-// (untrusted_text.json), and both test suites check ai-service/tests/fixtures/untrusted_text_cases.json.
+// Job and profile text is untrusted data: segments directed at an AI or reviewer never take part in
+// matching. Authoritative since Milestone 7; the frozen Python copy is only a test reference.
 
 const ENCLOSED = new RegExp(patterns.enclosed, "g");
 const BOUNDARY = new RegExp(patterns.boundary, "g");

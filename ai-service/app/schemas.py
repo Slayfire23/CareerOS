@@ -129,7 +129,7 @@ class TokenBudget(Strict):
 
 class MatchRequest(Strict):
     request_id: UUID
-    # Which enabled provider to use. The deterministic rules engine stays a separate user choice.
+    # Which enabled provider to use. "assisted" is accepted here only to be refused: see /v1/suggest.
     provider: Literal["rules", "fake", "anthropic", "ollama", "hybrid", "assisted"] = "rules"
     # Required for cloud providers (checked by the service), ignored by local ones.
     budget: TokenBudget | None = None
@@ -194,25 +194,6 @@ class Finding(Strict):
         return data
 
 
-SuggestionKind = Literal["alternate_name", "related_technology", "relevant_evidence", "profile_gap"]
-
-
-class Suggestion(Strict):
-    """An AI suggestion, kept apart from verdicts. It never changes a finding. The wording is written
-    by code; the only text from the model's choices is a quote checked against the profile, or a
-    term checked against the requirement."""
-
-    requirement_index: int = Field(ge=0, lt=50)
-    kind: SuggestionKind
-    text: Annotated[str, StringConstraints(min_length=1, max_length=400)]
-    # Profile evidence the suggestion points to (absent for a profile gap).
-    citation: Citation | None = None
-    # A term from the requirement that may be missing from the profile (profile gap only).
-    term: Annotated[str, StringConstraints(min_length=1, max_length=100)] | None = None
-    # True when the trusted table knows this relationship; otherwise the person should review it.
-    known_to_rules: bool = False
-
-
 class Usage(Strict):
     """Token counts reported by the provider (None for local providers)."""
 
@@ -231,16 +212,64 @@ class MatchResponse(Strict):
     method_version: str
     usage: Usage | None = None
     provider_request_id: str | None = None
-    # AI-assisted analysis only. Suggestions never change findings.
-    suggestions: list[Suggestion] | None = None
-    # "used": local AI answered. "unavailable": it could not, so there are no suggestions. "not_needed":
-    # every requirement was already settled or can't be sent. Findings are the same in all three.
-    ai_assist: Literal["used", "unavailable", "not_needed"] | None = None
 
-    @model_serializer(mode="wrap")
-    def _omit_assist_fields(self, handler):
-        data = handler(self)
-        for key in ("suggestions", "ai_assist"):
-            if data.get(key) is None:
-                data.pop(key, None)
-        return data
+
+# --- The local bridge for AI suggestions. The types themselves hold no dates, education, or verdicts. --
+
+_Text = Annotated[str, StringConstraints(max_length=20_000)]
+
+
+class SuggestRequirement(Strict):
+    index: int = Field(ge=0, lt=50)
+    text: Annotated[str, StringConstraints(min_length=1, max_length=2_000)]
+
+
+class SuggestSkill(Strict):
+    id: Annotated[str, StringConstraints(max_length=60)]
+    kind: Literal["skill"]
+    name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+
+
+class SuggestRole(Strict):
+    id: Annotated[str, StringConstraints(max_length=60)]
+    kind: Literal["experience"]
+    job_title: Annotated[str, StringConstraints(max_length=200)] | None = None
+    description: _Text | None = None
+
+
+class SuggestProject(Strict):
+    id: Annotated[str, StringConstraints(max_length=60)]
+    kind: Literal["project"]
+    title: Annotated[str, StringConstraints(max_length=200)] | None = None
+    description: _Text | None = None
+    contribution: _Text | None = None
+    results: _Text | None = None
+    skills: list[Annotated[str, StringConstraints(max_length=200)]] = Field(
+        default_factory=list, max_length=10
+    )
+
+
+class SuggestRequest(Strict):
+    request_id: UUID
+    requirements: list[SuggestRequirement] = Field(min_length=1, max_length=50)
+    evidence: list[SuggestSkill | SuggestRole | SuggestProject] = Field(max_length=200)
+
+
+class Pointer(Strict):
+    """Something local AI suggests looking at. Untrusted: Next.js checks it against the profile."""
+
+    requirement_index: int = Field(ge=0, lt=50)
+    kind: Literal["possible_connection", "missing_from_profile"]
+    evidence_id: str | None = None
+    quote: Annotated[str, StringConstraints(max_length=300)] | None = None
+    term: Annotated[str, StringConstraints(max_length=100)] | None = None
+
+
+class SuggestResponse(Strict):
+    request_id: UUID
+    model: str
+    method_version: str
+    # "unavailable": Ollama was off, busy, or too slow, so some or all suggestions are missing.
+    ai_assist: Literal["used", "unavailable"]
+    pointers: list[Pointer]
+    usage: Usage | None = None

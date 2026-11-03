@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Protocol
 
-from app.schemas import Finding, MatchRequest, Suggestion, Usage
+from app.schemas import Finding, MatchRequest, Usage
 
 
 class ProviderUnavailable(Exception):
@@ -15,8 +15,6 @@ class ProviderOutput:
     findings: list[Finding]  # untrusted until validated
     usage: Usage | None = None
     provider_request_id: str | None = None
-    suggestions: list[Suggestion] | None = None  # AI suggestions; never change findings
-    ai_assist: str | None = None
 
 
 class MatchProvider(Protocol):

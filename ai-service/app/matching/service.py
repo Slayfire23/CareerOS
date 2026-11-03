@@ -27,12 +27,8 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
     output = raw if isinstance(raw, ProviderOutput) else ProviderOutput(findings=raw)
     usage = output.usage.model_dump() if output.usage else None
     try:
-        # Only the hybrid provider labels which method produced each finding, and the AI-assisted
-        # provider says "rules" on all of them; nobody else may.
-        rules_labels = provider.name == "assisted" and all(
-            f.method == "rules" and not f.ai_status for f in output.findings
-        )
-        if not (getattr(provider, "labels_methods", False) or rules_labels) and any(
+        # Only the hybrid provider labels which method produced each finding; nobody else may.
+        if not getattr(provider, "labels_methods", False) and any(
             f.method or f.ai_status for f in output.findings
         ):
             raise InvalidProviderOutput("Findings carry method labels this provider may not set.")
@@ -65,6 +61,4 @@ async def run_match(request: MatchRequest, provider: MatchProvider, timeout_seco
         method_version=provider.method_version,
         usage=output.usage,
         provider_request_id=output.provider_request_id,
-        suggestions=output.suggestions,
-        ai_assist=output.ai_assist,
     )

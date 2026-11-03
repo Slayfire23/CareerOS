@@ -12,7 +12,7 @@ import {
 } from "@/lib/ai/evidence";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
-import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, plainSkillName, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
+import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
 import { hasDirectedText, qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 import { namesOfListedSkills } from "@/lib/ai/listed-skills";
 import { listedTerms, parseRequirement, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
@@ -33,7 +33,6 @@ export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_in
 export type RuleBasis = "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
 export const RULE_BASES: RuleBasis[] = ["listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
 export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
-const SUGGESTION_KINDS: SuggestionKind[] = ["alternate_name", "related_technology", "relevant_evidence", "profile_gap"];
 /** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
 export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
 export type AiAssist = "used" | "unavailable" | "not_needed";
@@ -57,8 +56,6 @@ export type ValidatedMatch = {
   methodVersion: string;
   usage: TokenUsage | null;
   providerRequestId: string | null;
-  suggestions: Suggestion[];
-  aiAssist: AiAssist | null;
 };
 /** The provider and model this request asked for; anything else is rejected. */
 export type ExpectedSource = { provider: string; model: string | null };
@@ -88,6 +85,18 @@ export function statedYears(text: string): number[] {
     const word = NUMBER_WORDS.indexOf(raw);
     return word >= 0 ? word : Number(raw);
   });
+}
+
+const MONTHS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*months?\\b`, "gi");
+const numberValue = (raw: string) => {
+  const word = NUMBER_WORDS.indexOf(raw.toLowerCase());
+  return word >= 0 ? word : Number(raw);
+};
+
+/** The shortest duration a requirement states, in months ("2-3 years" -> 24, "six months" -> 6). */
+export function requiredMonths(text: string): number | null {
+  const found = [...statedYears(text).map(y => y * 12), ...[...text.matchAll(MONTHS)].map(m => numberValue(m[1]))];
+  return found.length ? Math.min(...found) : null;
 }
 
 /** "Experience with <technology>", with no duration, role, domain, or credential (requirement_text.py). */
@@ -148,40 +157,6 @@ function checkLocalAiFinding(requirement: MatchRequest["requirements"][number], 
 /** Employment rules apply to real employment requirements, not "Experience with <technology>". */
 const isEmployment = (requirement: MatchRequest["requirements"][number]) =>
   requirement.category === "Experience" && !skillLikeExperience(qualificationText(requirement.text));
-
-/** AI suggestions: separate from findings, and only pointers that check out against the profile
- * and against what the requirement requests (suggestions.py). */
-function validateSuggestions(request: MatchRequest, body: Record<string, unknown>, expected: ExpectedSource, evidence: Map<string, Evidence>, findings: Finding[]): Suggestion[] {
-  if (body.suggestions === undefined || body.suggestions === null) return [];
-  if (expected.provider !== "assisted") reject("suggestions from a provider that may not give them");
-  if (!Array.isArray(body.suggestions) || body.suggestions.length > 150) reject("invalid suggestions");
-  const listed = listedTerms(namesOfListedSkills(request.evidence));
-  return (body.suggestions as unknown[]).map((raw): Suggestion => {
-    if (!isObject(raw)) reject("suggestion is not an object");
-    const s = raw as Record<string, unknown>;
-    const requirement = request.requirements.find(r => r.index === s.requirement_index) ?? reject("suggestion for an unknown requirement");
-    const finding = findings.find(f => f.requirementIndex === requirement!.index)!;
-    if (finding.review || finding.verdict === "supported") reject("suggestion for a requirement that takes none");
-    const kind = SUGGESTION_KINDS.includes(s.kind as SuggestionKind) ? (s.kind as SuggestionKind) : reject("invalid suggestion kind");
-    const text = str(s.text, 400, "suggestion text");
-    const target = parseRequirement(requirement!.text, listed, requirement!.confirmed === true).creditText;
-    if (kind === "profile_gap") {
-      const term = str(s.term, 100, "suggestion term");
-      if (s.citation !== null && s.citation !== undefined) reject("a profile gap cites no evidence");
-      if (!target.toLowerCase().includes(term.toLowerCase())) reject("suggested term is not in the requirement");
-      return { requirementIndex: requirement!.index, kind, text, citation: null, term, knownToRules: false };
-    }
-    if (!isObject(s.citation)) reject("suggestion without evidence");
-    const c = s.citation as Record<string, unknown>;
-    const item = evidence.get(c.evidence_id as string) ?? reject("suggestion cites evidence that was not sent");
-    const quote = str(c.quote, 300, "suggestion quote");
-    if (item!.kind === "education") reject("suggestion cites education");
-    if (!quoteIsVerbatim(item!, quote)) reject("suggestion quote is not verbatim");
-    if (item!.kind === "skill" && !plainSkillName(item!.name)) reject("suggestion cites a skill name carrying a claim");
-    if (!quoteSource(item!, quote).allowed) reject("suggestion cites text directed at an AI or reviewer, or about the evaluation");
-    return { requirementIndex: requirement!.index, kind, text, citation: { evidenceId: item!.id, quote }, term: null, knownToRules: s.known_to_rules === true };
-  });
-}
 
 function areaIsEmpty(request: MatchRequest, requirement: MatchRequest["requirements"][number]): boolean {
   const kinds = isEmployment(requirement) ? ["experience"] : requirement.category === "Education" ? ["education"] : ["skill", "experience", "project"];
@@ -294,14 +269,10 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
   const reported = body.verdict_counts;
   if (!isObject(reported) || VERDICTS.some(v => reported[v] !== verdictCounts[v])) reject("verdict counts do not match findings");
 
-  const suggestions = validateSuggestions(request, body, expected, evidence, findings);
-  const aiAssist = body.ai_assist === undefined || body.ai_assist === null ? null
-    : expected.provider === "assisted" && ["used", "unavailable", "not_needed"].includes(body.ai_assist as string) ? (body.ai_assist as AiAssist)
-    : reject("invalid AI assist status");
+  // A service response can never carry suggestions: they are added separately, after saving (rules/suggestions.ts).
+  if (body.suggestions !== undefined || body.ai_assist !== undefined) reject("suggestions in a verdict response");
 
   return {
-    suggestions,
-    aiAssist,
     findings: findings.sort((a, b) => a.requirementIndex - b.requirementIndex),
     verdictCounts,
     provider,

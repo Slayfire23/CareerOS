@@ -94,15 +94,27 @@ export function monthIndex(month: string): number {
   return year * 12 + number - 1;
 }
 
+/** A role's span in months, or null if its dates can't be right (end before start, starting in the
+ * future, before 1950, or not a month). Time after the analysis date never counts. */
+function roleSpan(role: ExperienceEvidence, asOf: string): [number, number] | null {
+  const now = monthIndex(asOf);
+  const start = monthIndex(role.start_month);
+  const end = Math.min(monthIndex(role.end_month ?? asOf), now);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start > now || end < start || start < 1950 * 12) return null;
+  return [start, end];
+}
+
 export function roleMonths(role: ExperienceEvidence, asOf: string): number {
-  return monthIndex(role.end_month ?? asOf) - monthIndex(role.start_month) + 1;
+  const span = roleSpan(role, asOf);
+  return span ? span[1] - span[0] + 1 : 0;
 }
 
 /** Total months of listed employment, merging overlaps. Projects never count. */
 export function employmentMonths(evidence: Evidence[], asOf: string): number {
   const spans = evidence
     .filter((e): e is ExperienceEvidence => e.kind === "experience")
-    .map(e => [monthIndex(e.start_month), monthIndex(e.end_month ?? asOf)] as const)
+    .map(e => roleSpan(e, asOf))
+    .filter((span): span is [number, number] => span !== null)
     .sort((a, b) => a[0] - b[0]);
   let total = 0;
   let current: [number, number] | null = null;

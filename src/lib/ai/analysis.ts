@@ -4,7 +4,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { validateRequirements, type Requirement } from "@/lib/job-requirements";
 import { CLOUD_MAX_INPUT_TOKENS, CLOUD_MAX_OUTPUT_TOKENS, LOCAL_AI_TIMEOUT_MS, type AiConfig, type CloudConfig } from "@/lib/ai/config";
-import { AiServiceError, callMatchService, type Billed } from "@/lib/ai/client";
+import { AiServiceError, callMatchService, callSuggestService, type Billed } from "@/lib/ai/client";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { CLOUD_CONSENT_VERSION, hasCurrentCloudConsent } from "@/lib/ai/consent";
 import {
@@ -20,6 +20,8 @@ import {
 import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
+import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
+import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
 // Server-side analysis workflow. Every function takes the verified Supabase user id and scopes
 // every query to that user; callers must obtain it from supabase.auth.getUser().
@@ -269,6 +271,10 @@ export async function runJobAnalysis(options: {
     localModel = localAi.model;
   }
   const expectedModel = cloud?.model ?? localModel;
+  const usesRules = provider === "rules" || provider === "assisted";
+  // Only the optional methods need the AI service; the rules engine runs right here.
+  const service = config.serviceUrl && config.secret ? { serviceUrl: config.serviceUrl, secret: config.secret } : null;
+  if (!usesRules && !service) return { ok: false, error: "service_unavailable" };
 
   const profile = await ownedEvidenceProfile(user.id);
   if (!profile) return { ok: false, error: "profile_missing" };
@@ -309,10 +315,14 @@ export async function runJobAnalysis(options: {
   if (!reserved.ok) return { ok: false, error: reserved.error };
   const run = { id: reserved.runId, userId: user.id, cloud };
 
+  if (usesRules) {
+    return analyzeWithRules({ request, provider, model: localModel, run, jobId: job.id, requirementsVersion: job.reviewVersion, fingerprint, service, fetchImpl: options.fetchImpl });
+  }
+
   let validated;
   let raw: unknown;
   try {
-    raw = await callMatchService(config, request, options.fetchImpl, localModel ? LOCAL_AI_TIMEOUT_MS : undefined);
+    raw = await callMatchService(service!, request, options.fetchImpl, localModel ? LOCAL_AI_TIMEOUT_MS : undefined);
     validated = validateMatchResponse(request, raw, { provider, model: expectedModel });
   } catch (error) {
     if (error instanceof AiServiceError) {
@@ -354,8 +364,6 @@ export async function runJobAnalysis(options: {
         requirements: request.requirements,
         findings: validated.findings,
         verdictCounts: validated.verdictCounts,
-        aiSuggestions: validated.suggestions,
-        aiAssist: validated.aiAssist,
       },
       select: { id: true },
     });
@@ -369,6 +377,96 @@ export async function runJobAnalysis(options: {
     throw error;
   });
   return { ok: true, analysisId: analysis.id };
+}
+
+/**
+ * Rules-only and AI-assisted analysis. The verdicts are decided here with no network call and saved
+ * before local AI is asked anything, so local AI being off, slow, or wrong can't lose or change them.
+ * The later step can only write the separate suggestions column.
+ */
+async function analyzeWithRules(options: {
+  request: MatchRequest;
+  provider: "rules" | "assisted";
+  model: string | null;
+  run: { id: string; userId: string; cloud: CloudConfig | null };
+  jobId: string;
+  requirementsVersion: number;
+  fingerprint: string;
+  service: { serviceUrl: string; secret: string } | null;
+  fetchImpl?: typeof fetch;
+}): Promise<RunResult> {
+  const { request, provider, model, run } = options;
+  const assisted = provider === "assisted";
+  const methodVersion = assisted ? `assisted/${RULES_VERSION}+${model}/${ASSIST_PROMPT_VERSION}` : RULES_VERSION;
+  let validated;
+  try {
+    const body = rulesResponse(request, { provider, model, methodVersion });
+    // The same independent checks as any other result, on the same format.
+    validated = validateMatchResponse(request, JSON.parse(JSON.stringify(body)), { provider, model });
+  } catch (error) {
+    await failRun(run, { code: "response_rejected", billed: "no", usage: null, providerRequestId: null });
+    if (error instanceof MatchValidationError) return { ok: false, error: "response_rejected" };
+    throw error;
+  }
+
+  const sent = assisted ? sendableRequirements(request, validated.findings) : [];
+  const analysis = await prisma.$transaction(async tx => {
+    const created = await tx.jobMatchAnalysis.create({
+      data: {
+        userId: run.userId,
+        savedJobId: options.jobId,
+        runId: run.id,
+        requirementsVersion: options.requirementsVersion,
+        profileFingerprint: options.fingerprint,
+        provider,
+        model,
+        methodVersion,
+        requirements: request.requirements,
+        findings: validated.findings,
+        verdictCounts: validated.verdictCounts,
+        // Stays "unavailable" unless suggestions arrive below, so a crash can't overstate anything.
+        aiAssist: assisted ? (sent.length ? "unavailable" : "not_needed") : null,
+      },
+      select: { id: true },
+    });
+    await tx.aiAnalysisRun.update({ where: { id: run.id }, data: { status: "SUCCEEDED", finishedAt: new Date() } });
+    return created;
+  }).catch(async error => {
+    await failRun(run, { code: "save_failed", billed: "no", usage: null, providerRequestId: null });
+    throw error;
+  });
+
+  if (sent.length && model && options.service) {
+    await addSuggestions({ ...options, model, sent, findings: validated.findings, analysisId: analysis.id, service: options.service }).catch(error => {
+      // Never fails the analysis, and logs no content: the verified results are already saved.
+      console.warn("AI suggestions skipped:", error instanceof Error ? error.name : "unknown");
+    });
+  }
+  return { ok: true, analysisId: analysis.id };
+}
+
+/** Ask local AI for pointers, check each against the person's own profile, and store what survives.
+ * This update names only the suggestion columns; findings and counts can't change. */
+async function addSuggestions(options: {
+  request: MatchRequest;
+  model: string;
+  sent: MatchRequest["requirements"];
+  findings: Finding[];
+  analysisId: string;
+  run: { id: string; userId: string };
+  service: { serviceUrl: string; secret: string };
+  fetchImpl?: typeof fetch;
+}) {
+  const requestId = randomUUID();
+  const payload = buildSuggestRequest(options.request, options.sent, requestId);
+  const reply = parseSuggestResponse(await callSuggestService(options.service, payload, options.fetchImpl), requestId, options.model);
+  if (!reply) return;
+  const { suggestions } = checkPointers(options.request, options.sent, options.findings, reply.pointers);
+  await prisma.jobMatchAnalysis.updateMany({
+    where: { id: options.analysisId, userId: options.run.userId },
+    data: { aiSuggestions: suggestions, aiAssist: reply.aiAssist },
+  });
+  if (reply.tokens) await prisma.aiAnalysisRun.updateMany({ where: { id: options.run.id, userId: options.run.userId }, data: reply.tokens });
 }
 
 // --- Reconciliation (operators only; never exposed to users) ----------------------------------

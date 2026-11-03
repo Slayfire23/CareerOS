@@ -1,0 +1,1803 @@
+{
+  "_comment": "Curated technology names, read by both the AI service (relations.py) and Next.js (skill-relations.ts). Keys and variants are written as the shared tokenizer produces them: lower case, dots removed, words separated by single spaces. A canonical name is one token. 'aliases' are the SAME technology under another name (may support a match). 'concepts' are families of RELATED technologies (at most 'possible', never 'supported'). 'distinct' pairs are never related. 'ambiguous' words are also ordinary English words: in free text they count only near (within 3 words) a 'tech_context' noun or another known technology, and never as part of a hyphenated compound such as 'go-kart'. 'employment_words' mark an Experience requirement as being about employment rather than a technology. Changing this file changes what local AI may claim, so it needs review.",
+  "generic": [
+    "programming",
+    "development",
+    "developer",
+    "developing",
+    "develop",
+    "administration",
+    "administrator",
+    "design",
+    "designing",
+    "engineering",
+    "engineer",
+    "management",
+    "managing",
+    "manager",
+    "system",
+    "systems",
+    "software",
+    "data",
+    "application",
+    "applications",
+    "app",
+    "apps",
+    "service",
+    "services",
+    "web",
+    "framework",
+    "frameworks",
+    "language",
+    "languages",
+    "platform",
+    "platforms",
+    "technology",
+    "technologies",
+    "environment",
+    "environments",
+    "practices",
+    "practice",
+    "concepts",
+    "principles",
+    "methods",
+    "solutions",
+    "basic",
+    "basics",
+    "fundamentals",
+    "hands-on",
+    "hands",
+    "on",
+    "good",
+    "best",
+    "modern",
+    "building",
+    "build",
+    "built",
+    "writing",
+    "maintaining",
+    "operations",
+    "support",
+    "analysis",
+    "tooling",
+    "stack",
+    "projects",
+    "project",
+    "e",
+    "g",
+    "eg",
+    "ie",
+    "is",
+    "are",
+    "be",
+    "this",
+    "that",
+    "you",
+    "your",
+    "our",
+    "we",
+    "will",
+    "can",
+    "should",
+    "who",
+    "into",
+    "across",
+    "within",
+    "over",
+    "least",
+    "one",
+    "more",
+    "other",
+    "any",
+    "all",
+    "some",
+    "both",
+    "either",
+    "not",
+    "no",
+    "new"
+  ],
+  "aliases": {
+    "postgresql": [
+      "postgres",
+      "postgre",
+      "psql"
+    ],
+    "javascript": [
+      "js",
+      "ecmascript",
+      "es6"
+    ],
+    "typescript": [
+      "ts"
+    ],
+    "kubernetes": [
+      "k8s",
+      "kube"
+    ],
+    "go": [
+      "golang"
+    ],
+    "python": [
+      "python3",
+      "python 3"
+    ],
+    "nodejs": [
+      "node",
+      "node js"
+    ],
+    "react": [
+      "reactjs",
+      "react js"
+    ],
+    "reactnative": [
+      "react native"
+    ],
+    "vue": [
+      "vuejs",
+      "vue js"
+    ],
+    "nextjs": [
+      "next js"
+    ],
+    "aws": [
+      "amazon web services"
+    ],
+    "gcp": [
+      "google cloud",
+      "google cloud platform"
+    ],
+    "azure": [
+      "microsoft azure"
+    ],
+    "c#": [
+      "csharp",
+      "c sharp"
+    ],
+    "c++": [
+      "cpp"
+    ],
+    "objectivec": [
+      "objective c"
+    ],
+    "sqlserver": [
+      "sql server",
+      "microsoft sql server",
+      "mssql",
+      "ms sql"
+    ],
+    "mongodb": [
+      "mongo"
+    ],
+    "ml": [
+      "machine learning"
+    ],
+    "ai": [
+      "artificial intelligence"
+    ],
+    "cicd": [
+      "ci cd",
+      "continuous integration",
+      "continuous delivery",
+      "continuous deployment"
+    ],
+    "rest": [
+      "restful",
+      "rest api",
+      "rest apis"
+    ],
+    "sklearn": [
+      "scikit learn",
+      "scikit"
+    ],
+    "excel": [
+      "microsoft excel",
+      "ms excel"
+    ],
+    "photoshop": [
+      "adobe photoshop"
+    ],
+    "solidworks": [
+      "solid works"
+    ],
+    "springboot": [
+      "spring boot"
+    ],
+    "githubactions": [
+      "github actions"
+    ],
+    "gitlabci": [
+      "gitlab ci"
+    ],
+    "powerbi": [
+      "power bi"
+    ],
+    "googlesheets": [
+      "google sheets"
+    ],
+    "fusion360": [
+      "fusion 360"
+    ],
+    "dotnet": [
+      "net framework",
+      "net core"
+    ],
+    "tensorflow": [
+      "tensor flow"
+    ],
+    "pytorch": [
+      "torch"
+    ],
+    "rabbitmq": [
+      "rabbit mq"
+    ],
+    "kafka": [
+      "apache kafka"
+    ],
+    "spark": [
+      "apache spark",
+      "pyspark"
+    ],
+    "airflow": [
+      "apache airflow"
+    ],
+    "elasticsearch": [
+      "elastic search"
+    ],
+    "s3": [
+      "amazon s3",
+      "aws s3"
+    ],
+    "sqs": [
+      "amazon sqs",
+      "aws sqs"
+    ],
+    "vscode": [
+      "vs code",
+      "visual studio code"
+    ],
+    "msword": [
+      "ms word",
+      "microsoft word"
+    ],
+    "illustrator": [
+      "adobe illustrator"
+    ],
+    "googleanalytics": [
+      "google analytics",
+      "ga4"
+    ],
+    "dynamodb": [
+      "amazon dynamodb",
+      "dynamo db"
+    ],
+    "bigquery": [
+      "google bigquery",
+      "big query"
+    ],
+    "redshift": [
+      "amazon redshift",
+      "aws redshift"
+    ],
+    "jetpackcompose": [
+      "jetpack compose"
+    ],
+    "swiftui": [
+      "swift ui"
+    ],
+    "graphql": [
+      "graph ql"
+    ],
+    "rubyonrails": [
+      "ruby on rails",
+      "ror",
+      "rails"
+    ],
+    "fastapi": [
+      "fast api"
+    ],
+    "sqlalchemy": [
+      "sql alchemy"
+    ],
+    "hyperv": [
+      "hyper v"
+    ]
+  },
+  "concepts": [
+    {
+      "name": "relational databases",
+      "terms": [
+        "sql",
+        "relational database",
+        "relational databases",
+        "rdbms",
+        "sql database",
+        "sql databases"
+      ],
+      "members": [
+        "postgresql",
+        "mysql",
+        "sqlite",
+        "sqlserver",
+        "oracle",
+        "mariadb"
+      ]
+    },
+    {
+      "name": "NoSQL databases",
+      "terms": [
+        "nosql",
+        "document database",
+        "document databases"
+      ],
+      "members": [
+        "mongodb",
+        "dynamodb",
+        "cassandra",
+        "redis",
+        "couchdb",
+        "firestore"
+      ]
+    },
+    {
+      "name": "cloud platforms",
+      "terms": [
+        "cloud",
+        "cloud platform",
+        "cloud platforms",
+        "cloud computing"
+      ],
+      "members": [
+        "aws",
+        "azure",
+        "gcp"
+      ]
+    },
+    {
+      "name": "containers",
+      "terms": [
+        "container",
+        "containers",
+        "containerization",
+        "containerisation",
+        "container orchestration"
+      ],
+      "members": [
+        "docker",
+        "kubernetes",
+        "podman",
+        "openshift"
+      ]
+    },
+    {
+      "name": "front-end frameworks",
+      "terms": [
+        "frontend framework",
+        "frontend frameworks",
+        "front end framework",
+        "front end frameworks",
+        "javascript framework",
+        "javascript frameworks",
+        "spa",
+        "js framework",
+        "js frameworks",
+        "javascript library",
+        "javascript libraries",
+        "js library",
+        "js libraries"
+      ],
+      "members": [
+        "react",
+        "vue",
+        "angular",
+        "angularjs",
+        "svelte",
+        "nextjs"
+      ]
+    },
+    {
+      "name": "version control",
+      "terms": [
+        "version control",
+        "source control",
+        "vcs"
+      ],
+      "members": [
+        "git",
+        "github",
+        "gitlab",
+        "bitbucket",
+        "svn",
+        "mercurial"
+      ]
+    },
+    {
+      "name": "CI/CD tools",
+      "terms": [
+        "cicd",
+        "build pipelines",
+        "deployment pipelines"
+      ],
+      "members": [
+        "jenkins",
+        "githubactions",
+        "gitlabci",
+        "circleci",
+        "travisci"
+      ]
+    },
+    {
+      "name": "infrastructure as code",
+      "terms": [
+        "infrastructure as code",
+        "iac"
+      ],
+      "members": [
+        "terraform",
+        "cloudformation",
+        "pulumi",
+        "ansible"
+      ]
+    },
+    {
+      "name": "machine learning frameworks",
+      "terms": [
+        "ml",
+        "deep learning",
+        "neural networks",
+        "neural network"
+      ],
+      "members": [
+        "tensorflow",
+        "pytorch",
+        "keras",
+        "sklearn"
+      ]
+    },
+    {
+      "name": "business intelligence",
+      "terms": [
+        "data visualization",
+        "data visualisation",
+        "business intelligence",
+        "bi",
+        "dashboards",
+        "dashboarding"
+      ],
+      "members": [
+        "tableau",
+        "powerbi",
+        "looker"
+      ]
+    },
+    {
+      "name": "spreadsheets",
+      "terms": [
+        "spreadsheet",
+        "spreadsheets"
+      ],
+      "members": [
+        "excel",
+        "googlesheets"
+      ]
+    },
+    {
+      "name": "CAD",
+      "terms": [
+        "cad",
+        "3d modeling",
+        "3d modelling",
+        "3d cad",
+        "computer aided design"
+      ],
+      "members": [
+        "solidworks",
+        "autocad",
+        "fusion360",
+        "catia",
+        "inventor"
+      ]
+    },
+    {
+      "name": "message brokers",
+      "terms": [
+        "message broker",
+        "message brokers",
+        "message queue",
+        "message queues",
+        "message queuing",
+        "messaging systems",
+        "event streaming"
+      ],
+      "members": [
+        "rabbitmq",
+        "kafka",
+        "activemq",
+        "sqs",
+        "nats",
+        "pulsar",
+        "zeromq"
+      ]
+    },
+    {
+      "name": "search engines",
+      "terms": [
+        "search engine",
+        "search engines",
+        "full text search",
+        "full-text search"
+      ],
+      "members": [
+        "elasticsearch",
+        "opensearch",
+        "solr",
+        "algolia",
+        "meilisearch"
+      ]
+    },
+    {
+      "name": "data warehouses",
+      "terms": [
+        "data warehouse",
+        "data warehouses",
+        "data warehousing",
+        "cloud data warehouse",
+        "cloud data warehouses"
+      ],
+      "members": [
+        "snowflake",
+        "bigquery",
+        "redshift",
+        "synapse",
+        "databricks"
+      ]
+    },
+    {
+      "name": "stream processing",
+      "terms": [
+        "streaming",
+        "stream processing",
+        "real time data",
+        "real-time data"
+      ],
+      "members": [
+        "kafka",
+        "kinesis",
+        "flink",
+        "pulsar"
+      ]
+    },
+    {
+      "name": "workflow orchestration",
+      "terms": [
+        "workflow orchestration",
+        "data orchestration",
+        "pipeline orchestration"
+      ],
+      "members": [
+        "airflow",
+        "dagster",
+        "prefect",
+        "luigi"
+      ]
+    },
+    {
+      "name": "test automation",
+      "terms": [
+        "test automation",
+        "automated testing",
+        "unit testing",
+        "end to end testing",
+        "e2e testing"
+      ],
+      "members": [
+        "jest",
+        "pytest",
+        "junit",
+        "mocha",
+        "cypress",
+        "selenium",
+        "playwright"
+      ]
+    },
+    {
+      "name": "monitoring",
+      "terms": [
+        "monitoring",
+        "observability"
+      ],
+      "members": [
+        "prometheus",
+        "grafana",
+        "datadog",
+        "newrelic",
+        "splunk"
+      ]
+    },
+    {
+      "name": "Android development",
+      "terms": [
+        "android",
+        "android development",
+        "android apps"
+      ],
+      "members": [
+        "kotlin",
+        "jetpackcompose"
+      ]
+    },
+    {
+      "name": "iOS development",
+      "terms": [
+        "ios",
+        "ios development",
+        "ios apps"
+      ],
+      "members": [
+        "swift",
+        "swiftui",
+        "objectivec"
+      ]
+    },
+    {
+      "name": "Elastic Stack",
+      "terms": [
+        "elastic stack",
+        "elk stack",
+        "elk"
+      ],
+      "members": [
+        "elasticsearch",
+        "logstash",
+        "kibana",
+        "beats"
+      ]
+    },
+    {
+      "name": "big data",
+      "terms": [
+        "big data",
+        "distributed data processing",
+        "distributed computing"
+      ],
+      "members": [
+        "spark",
+        "hadoop",
+        "hive",
+        "flink",
+        "databricks"
+      ]
+    },
+    {
+      "name": "configuration management",
+      "terms": [
+        "configuration management",
+        "config management"
+      ],
+      "members": [
+        "ansible",
+        "chef",
+        "puppet",
+        "salt"
+      ]
+    },
+    {
+      "name": "virtualization",
+      "terms": [
+        "virtualization",
+        "virtualisation",
+        "virtual machines",
+        "hypervisors"
+      ],
+      "members": [
+        "vmware",
+        "hyperv",
+        "kvm",
+        "virtualbox",
+        "proxmox"
+      ]
+    },
+    {
+      "name": "ORMs",
+      "terms": [
+        "orm",
+        "orms",
+        "object relational mapping"
+      ],
+      "members": [
+        "sqlalchemy",
+        "hibernate",
+        "prisma",
+        "sequelize",
+        "typeorm"
+      ]
+    },
+    {
+      "name": "Python web frameworks",
+      "terms": [
+        "python web framework",
+        "python web frameworks"
+      ],
+      "members": [
+        "django",
+        "flask",
+        "fastapi"
+      ]
+    },
+    {
+      "terms": [
+        "orchestration",
+        "workflow orchestration",
+        "pipeline orchestration",
+        "data pipeline orchestration"
+      ],
+      "members": [
+        "airflow",
+        "dagster",
+        "prefect",
+        "luigi",
+        "argo"
+      ]
+    }
+  ],
+  "distinct": [
+    [
+      "java",
+      "javascript"
+    ],
+    [
+      "script",
+      "javascript"
+    ],
+    [
+      "type",
+      "typescript"
+    ],
+    [
+      "react",
+      "reactive"
+    ],
+    [
+      "scala",
+      "scalability"
+    ],
+    [
+      "go",
+      "google"
+    ]
+  ],
+  "ambiguous": [
+    "access",
+    "ada",
+    "airflow",
+    "bash",
+    "beam",
+    "beats",
+    "c",
+    "chef",
+    "consul",
+    "crystal",
+    "cypress",
+    "dart",
+    "docker",
+    "elixir",
+    "elm",
+    "ember",
+    "erlang",
+    "excel",
+    "express",
+    "flask",
+    "go",
+    "hack",
+    "hive",
+    "java",
+    "jenkins",
+    "jest",
+    "julia",
+    "kafka",
+    "lisp",
+    "meteor",
+    "mocha",
+    "nomad",
+    "office",
+    "pandas",
+    "pascal",
+    "pig",
+    "prolog",
+    "puppet",
+    "r",
+    "rails",
+    "react",
+    "ruby",
+    "rust",
+    "salt",
+    "scheme",
+    "selenium",
+    "shell",
+    "spark",
+    "spring",
+    "storm",
+    "swift",
+    "teams",
+    "unity",
+    "vault",
+    "word"
+  ],
+  "tech_context": [
+    "api",
+    "apis",
+    "app",
+    "application",
+    "applications",
+    "apps",
+    "backend",
+    "binaries",
+    "binary",
+    "cli",
+    "cluster",
+    "clusters",
+    "code",
+    "codebase",
+    "coding",
+    "command",
+    "compiled",
+    "compiler",
+    "compilers",
+    "container",
+    "containers",
+    "crate",
+    "crates",
+    "dashboard",
+    "dashboards",
+    "database",
+    "databases",
+    "dataframe",
+    "dataframes",
+    "deployments",
+    "developer",
+    "developers",
+    "development",
+    "endpoint",
+    "endpoints",
+    "engine",
+    "engineer",
+    "engineers",
+    "etl",
+    "extension",
+    "extensions",
+    "formula",
+    "formulas",
+    "framework",
+    "frameworks",
+    "frontend",
+    "game",
+    "games",
+    "infrastructure",
+    "jobs",
+    "language",
+    "languages",
+    "libraries",
+    "library",
+    "macro",
+    "macros",
+    "manifests",
+    "microservice",
+    "microservices",
+    "module",
+    "modules",
+    "notebook",
+    "notebooks",
+    "package",
+    "packages",
+    "pipeline",
+    "pipelines",
+    "pivot",
+    "playbooks",
+    "plugin",
+    "plugins",
+    "programming",
+    "queries",
+    "query",
+    "repo",
+    "repos",
+    "repositories",
+    "repository",
+    "runtime",
+    "schema",
+    "schemas",
+    "script",
+    "scripting",
+    "scripts",
+    "sdk",
+    "server",
+    "servers",
+    "shader",
+    "shaders",
+    "software",
+    "spreadsheet",
+    "spreadsheets",
+    "stack",
+    "testing",
+    "tests",
+    "tool",
+    "toolchain",
+    "tooling",
+    "tools",
+    "vba",
+    "webapp",
+    "website",
+    "websites",
+    "workbook",
+    "workbooks",
+    "workflows"
+  ],
+  "employment_words": [
+    "professional",
+    "employment",
+    "employed",
+    "work",
+    "working",
+    "job",
+    "jobs",
+    "role",
+    "roles",
+    "position",
+    "positions",
+    "career",
+    "industry",
+    "industries",
+    "year",
+    "years",
+    "month",
+    "months",
+    "leading",
+    "lead",
+    "led",
+    "leader",
+    "leadership",
+    "managing",
+    "manage",
+    "managed",
+    "management",
+    "manager",
+    "supervising",
+    "supervisor",
+    "team",
+    "teams",
+    "people",
+    "reports",
+    "client",
+    "clients",
+    "customer",
+    "customers",
+    "startup",
+    "startups",
+    "company",
+    "companies",
+    "environment",
+    "environments",
+    "setting",
+    "settings",
+    "sector",
+    "hospital",
+    "agency",
+    "agencies",
+    "internship",
+    "internships",
+    "intern",
+    "full-time",
+    "part-time",
+    "fulltime",
+    "parttime",
+    "consulting",
+    "consultancy",
+    "enterprise",
+    "organization",
+    "organizations",
+    "mentoring",
+    "mentor",
+    "hiring",
+    "stakeholder",
+    "stakeholders",
+    "cross-functional",
+    "healthcare",
+    "finance",
+    "retail",
+    "government",
+    "manufacturing",
+    "sales",
+    "domain"
+  ],
+  "degree_field_families": {
+    "quantitative": [
+      "statistics",
+      "mathematics",
+      "math",
+      "maths",
+      "applied",
+      "physics",
+      "economics",
+      "econometrics",
+      "finance",
+      "actuarial",
+      "computer",
+      "data",
+      "engineering",
+      "operations"
+    ],
+    "stem": [
+      "science",
+      "sciences",
+      "technology",
+      "engineering",
+      "mathematics",
+      "math",
+      "physics",
+      "chemistry",
+      "biology",
+      "computer",
+      "statistics"
+    ],
+    "technical": [
+      "engineering",
+      "computer",
+      "physics",
+      "mathematics",
+      "information",
+      "technology",
+      "electronics"
+    ]
+  },
+  "degree_field_stopwords": [
+    "a",
+    "accredited",
+    "an",
+    "and",
+    "any",
+    "are",
+    "area",
+    "areas",
+    "associate",
+    "associates",
+    "ba",
+    "bachelor",
+    "bachelors",
+    "beng",
+    "bs",
+    "bsc",
+    "closely",
+    "college",
+    "comparable",
+    "completed",
+    "completion",
+    "concentration",
+    "degree",
+    "degrees",
+    "diploma",
+    "discipline",
+    "disciplines",
+    "doctoral",
+    "doctorate",
+    "dphil",
+    "edd",
+    "equivalency",
+    "equivalent",
+    "equivalents",
+    "field",
+    "fields",
+    "from",
+    "ged",
+    "has",
+    "have",
+    "high",
+    "higher",
+    "in",
+    "institution",
+    "is",
+    "level",
+    "ma",
+    "major",
+    "majors",
+    "master",
+    "masters",
+    "mba",
+    "med",
+    "meng",
+    "minimum",
+    "mphil",
+    "mres",
+    "ms",
+    "msc",
+    "must",
+    "of",
+    "or",
+    "phd",
+    "plus",
+    "preferred",
+    "program",
+    "programs",
+    "qualification",
+    "qualifications",
+    "related",
+    "relevant",
+    "required",
+    "school",
+    "secondary",
+    "similar",
+    "studies",
+    "study",
+    "subject",
+    "subjects",
+    "the",
+    "university",
+    "with"
+  ],
+  "ambiguous_context": {
+    "excel": [
+      "model",
+      "models",
+      "modeling",
+      "modelling",
+      "budget",
+      "budgets",
+      "budgeting",
+      "forecast",
+      "forecasts",
+      "forecasting",
+      "report",
+      "reports",
+      "reporting",
+      "sheets",
+      "pivot",
+      "vlookup",
+      "xlookup",
+      "macros",
+      "workbooks",
+      "formulas",
+      "financial",
+      "tables",
+      "charts"
+    ],
+    "java": [
+      "android",
+      "backend",
+      "enterprise",
+      "gradle",
+      "jdk",
+      "jre",
+      "jvm",
+      "kotlin",
+      "maven",
+      "microservices",
+      "service",
+      "services",
+      "spring"
+    ],
+    "go": [
+      "backend",
+      "concurrency",
+      "gin",
+      "goroutines",
+      "grpc",
+      "microservices",
+      "service",
+      "services"
+    ],
+    "swift": [
+      "cocoa",
+      "ios",
+      "ipad",
+      "iphone",
+      "macos",
+      "microservices",
+      "service",
+      "services",
+      "swiftui",
+      "xcode"
+    ],
+    "rust": [
+      "cargo",
+      "crates",
+      "embedded",
+      "memory-safe",
+      "microservices",
+      "service",
+      "services",
+      "systems",
+      "tokio",
+      "wasm",
+      "webassembly"
+    ],
+    "ruby": [
+      "gems",
+      "microservices",
+      "rails",
+      "rspec",
+      "service",
+      "services",
+      "sinatra"
+    ],
+    "spark": [
+      "pyspark",
+      "rdd",
+      "rdds",
+      "dataframes",
+      "cluster",
+      "clusters",
+      "jobs",
+      "streaming",
+      "etl",
+      "databricks",
+      "hadoop"
+    ],
+    "r": [
+      "cran",
+      "ggplot2",
+      "microservices",
+      "regression",
+      "rstudio",
+      "service",
+      "services",
+      "shiny",
+      "statistical",
+      "statistics",
+      "tidyverse"
+    ],
+    "c": [
+      "embedded",
+      "firmware",
+      "kernel",
+      "microcontrollers",
+      "microservices",
+      "pointers",
+      "posix",
+      "service",
+      "services",
+      "systems"
+    ],
+    "kafka": [
+      "consumer",
+      "consumers",
+      "producer",
+      "producers",
+      "topic",
+      "topics",
+      "stream",
+      "streams",
+      "broker",
+      "brokers",
+      "connector",
+      "connectors"
+    ]
+  },
+  "degree_implied": {
+    "mba": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "emba": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "bba": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bsba": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bcom": {
+      "level": 2,
+      "field": "Commerce"
+    },
+    "bsn": {
+      "level": 2,
+      "field": "Nursing"
+    },
+    "msn": {
+      "level": 3,
+      "field": "Nursing"
+    },
+    "bfa": {
+      "level": 2,
+      "field": "Fine Arts"
+    },
+    "mfa": {
+      "level": 3,
+      "field": "Fine Arts"
+    },
+    "mph": {
+      "level": 3,
+      "field": "Public Health"
+    },
+    "msw": {
+      "level": 3,
+      "field": "Social Work"
+    },
+    "llb": {
+      "level": 2,
+      "field": "Law"
+    },
+    "llm": {
+      "level": 3,
+      "field": "Law"
+    },
+    "jd": {
+      "level": 4,
+      "field": "Law"
+    },
+    "md": {
+      "level": 4,
+      "field": "Medicine"
+    },
+    "beng": {
+      "level": 2,
+      "field": "Engineering"
+    },
+    "meng": {
+      "level": 3,
+      "field": "Engineering"
+    },
+    "march": {
+      "level": 3,
+      "field": "Architecture"
+    }
+  },
+  "ambiguous_negative": {
+    "java": [
+      "coffee",
+      "beans",
+      "roast",
+      "island",
+      "indonesia",
+      "kiosk",
+      "cafe",
+      "espresso",
+      "sumatra",
+      "bali",
+      "jakarta",
+      "sea",
+      "imports",
+      "exports",
+      "plantation",
+      "trip",
+      "travel"
+    ],
+    "excel": [
+      "at",
+      "in",
+      "fast-paced"
+    ],
+    "swift": [
+      "action",
+      "response",
+      "resolution",
+      "delivery",
+      "recovery",
+      "turnaround",
+      "orders",
+      "service-recovery"
+    ],
+    "rust": [
+      "removal",
+      "prevention",
+      "coatings",
+      "corrosion",
+      "paint"
+    ],
+    "go": [
+      "live",
+      "to",
+      "through",
+      "beyond",
+      "above",
+      "kart",
+      "go-to",
+      "market",
+      "person",
+      "ahead",
+      "home"
+    ],
+    "spring": [
+      "semester",
+      "break",
+      "fair",
+      "term",
+      "season",
+      "sale",
+      "sales",
+      "event",
+      "events",
+      "collection",
+      "cleaning",
+      "campaign",
+      "festival",
+      "planting",
+      "training"
+    ],
+    "spark": [
+      "interest",
+      "curiosity",
+      "joy",
+      "conversation"
+    ],
+    "ruby": [
+      "sapphire",
+      "gemstone",
+      "jewelry",
+      "ring",
+      "emerald",
+      "diamond",
+      "gem",
+      "gems-and",
+      "necklace",
+      "bracelet",
+      "wedding",
+      "anniversary"
+    ],
+    "chef": [
+      "line",
+      "pastry",
+      "kitchen",
+      "restaurant",
+      "bistro"
+    ],
+    "python": [
+      "ball",
+      "burmese",
+      "reticulated",
+      "snake",
+      "snakes",
+      "zoo",
+      "reptile",
+      "reptiles",
+      "pet",
+      "pets",
+      "monty",
+      "terrarium",
+      "aquarium",
+      "exotic",
+      "species",
+      "wildlife",
+      "animal",
+      "animals",
+      "habitat"
+    ]
+  },
+  "work_verbs": [
+    "administer",
+    "administered",
+    "administering",
+    "administers",
+    "analysed",
+    "analyze",
+    "analyzed",
+    "analyzes",
+    "automate",
+    "automated",
+    "automates",
+    "automating",
+    "build",
+    "building",
+    "builds",
+    "built",
+    "code",
+    "coded",
+    "configure",
+    "configured",
+    "configures",
+    "configuring",
+    "create",
+    "created",
+    "creates",
+    "creating",
+    "debug",
+    "debugged",
+    "deploy",
+    "deployed",
+    "deploying",
+    "deploys",
+    "design",
+    "designed",
+    "designing",
+    "designs",
+    "develop",
+    "developed",
+    "developing",
+    "develops",
+    "implement",
+    "implemented",
+    "implementing",
+    "implements",
+    "integrate",
+    "integrated",
+    "integrates",
+    "integrating",
+    "maintain",
+    "maintained",
+    "maintaining",
+    "maintains",
+    "migrate",
+    "migrated",
+    "migrates",
+    "migrating",
+    "model",
+    "modeled",
+    "modelled",
+    "models",
+    "monitor",
+    "monitored",
+    "monitors",
+    "operate",
+    "operated",
+    "operates",
+    "operating",
+    "optimise",
+    "optimised",
+    "optimize",
+    "optimized",
+    "program",
+    "programmed",
+    "ran",
+    "refactor",
+    "refactored",
+    "run",
+    "running",
+    "runs",
+    "script",
+    "scripted",
+    "set",
+    "sets",
+    "ship",
+    "shipped",
+    "ships",
+    "test",
+    "tested",
+    "testing",
+    "tests",
+    "train",
+    "trained",
+    "trains",
+    "tune",
+    "tuned",
+    "tunes",
+    "tuning",
+    "upgrade",
+    "upgraded",
+    "use",
+    "used",
+    "uses",
+    "using",
+    "write",
+    "writes",
+    "writing",
+    "written",
+    "wrote"
+  ],
+  "degree_phrases": {
+    "master of business administration": {
+      "level": 3,
+      "field": "Business Administration"
+    },
+    "bachelor of business administration": {
+      "level": 2,
+      "field": "Business Administration"
+    },
+    "bachelor of science in nursing": {
+      "level": 2,
+      "field": "Nursing"
+    },
+    "master of science in nursing": {
+      "level": 3,
+      "field": "Nursing"
+    },
+    "master of public health": {
+      "level": 3,
+      "field": "Public Health"
+    },
+    "master of social work": {
+      "level": 3,
+      "field": "Social Work"
+    },
+    "master of fine arts": {
+      "level": 3,
+      "field": "Fine Arts"
+    },
+    "bachelor of fine arts": {
+      "level": 2,
+      "field": "Fine Arts"
+    },
+    "bachelor of commerce": {
+      "level": 2,
+      "field": "Commerce"
+    },
+    "bachelor of engineering": {
+      "level": 2,
+      "field": "Engineering"
+    },
+    "master of engineering": {
+      "level": 3,
+      "field": "Engineering"
+    },
+    "bachelor of laws": {
+      "level": 2,
+      "field": "Law"
+    },
+    "master of laws": {
+      "level": 3,
+      "field": "Law"
+    },
+    "juris doctor": {
+      "level": 4,
+      "field": "Law"
+    },
+    "doctor of medicine": {
+      "level": 4,
+      "field": "Medicine"
+    },
+    "doctor of philosophy": {
+      "level": 4,
+      "field": ""
+    },
+    "bachelor of science": {
+      "level": 2,
+      "field": "",
+      "abbreviations": [
+        "bs",
+        "bsc"
+      ]
+    },
+    "bachelor of arts": {
+      "level": 2,
+      "field": "",
+      "abbreviations": [
+        "ba"
+      ]
+    },
+    "master of science": {
+      "level": 3,
+      "field": "",
+      "abbreviations": [
+        "ms",
+        "msc"
+      ]
+    },
+    "master of arts": {
+      "level": 3,
+      "field": "",
+      "abbreviations": [
+        "ma"
+      ]
+    },
+    "associate of science": {
+      "level": 1,
+      "field": ""
+    },
+    "associate of arts": {
+      "level": 1,
+      "field": ""
+    }
+  },
+  "known_technologies": [
+    "access",
+    "angular",
+    "ansible",
+    "apache",
+    "aws",
+    "azure",
+    "bash",
+    "bigquery",
+    "bitbucket",
+    "c",
+    "c#",
+    "c++",
+    "cassandra",
+    "chef",
+    "clojure",
+    "cobol",
+    "confluence",
+    "css",
+    "dart",
+    "databricks",
+    "dbt",
+    "django",
+    "docker",
+    "dotnet",
+    "elasticsearch",
+    "elixir",
+    "erlang",
+    "excel",
+    "express",
+    "fastapi",
+    "figma",
+    "flask",
+    "flutter",
+    "fortran",
+    "gcp",
+    "git",
+    "github",
+    "gitlab",
+    "go",
+    "golang",
+    "google",
+    "grafana",
+    "graphql",
+    "hadoop",
+    "haskell",
+    "helm",
+    "hive",
+    "html",
+    "java",
+    "javascript",
+    "jenkins",
+    "jira",
+    "julia",
+    "jupyter",
+    "kafka",
+    "keras",
+    "kotlin",
+    "kubernetes",
+    "laravel",
+    "linux",
+    "looker",
+    "lua",
+    "mariadb",
+    "matlab",
+    "mongodb",
+    "mysql",
+    "nginx",
+    "nodejs",
+    "numpy",
+    "objective-c",
+    "oracle",
+    "outlook",
+    "pandas",
+    "perl",
+    "photoshop",
+    "php",
+    "postgresql",
+    "powerbi",
+    "powerpoint",
+    "powershell",
+    "prometheus",
+    "puppet",
+    "python",
+    "pytorch",
+    "r",
+    "rabbitmq",
+    "rails",
+    "react",
+    "redis",
+    "redshift",
+    "ruby",
+    "rust",
+    "salesforce",
+    "sap",
+    "sas",
+    "scala",
+    "scikit-learn",
+    "sharepoint",
+    "shell",
+    "slack",
+    "snowflake",
+    "spark",
+    "splunk",
+    "spring",
+    "sql",
+    "sqlite",
+    "swift",
+    "tableau",
+    "tensorflow",
+    "terraform",
+    "typescript",
+    "unity",
+    "vba",
+    "vue",
+    "windows",
+    "word",
+    "wordpress",
+    "xml",
+    "zsh"
+  ]
+}

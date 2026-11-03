@@ -26,7 +26,7 @@ const signIn = (id: string) => auth.getUser.mockResolvedValue({ data: { user: { 
 const userId = async (supabaseAuthId: string) => (await prisma.user.findUniqueOrThrow({ where: { supabaseAuthId } })).id;
 
 const config = (allowed: string[], overrides: Partial<AiConfig> = {}): AiConfig => ({
-  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij",
+  enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", serviceProblem: null,
   dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off",
   localAi: { model: MODEL, allowedUserIds: new Set(allowed) },
   ...overrides,

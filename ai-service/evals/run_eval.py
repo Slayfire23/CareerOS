@@ -4,8 +4,6 @@ Modes (default: rules):
   rules          deterministic baseline, offline
   ollama         local AI alone: Ollama on this machine (free), --model picks the approved model
   hybrid         retired: rules engine plus local AI for skill matches the rules engine missed (free)
-  assisted       rules engine decides every verdict; local AI adds suggestions only (free).
-                 --ollama-url points at a closed port to measure behavior with Ollama off
   mock           the Anthropic provider end to end against the local mock API, offline
   replay DIR     recorded Messages API responses (from a live run) through the real parser and
                  strict validators, offline; this is how a live run is re-scored for free
@@ -24,7 +22,6 @@ Live-mode guarantees:
   - The key is read from the environment and is never printed, logged, or written to disk.
 
     uv run python -m evals.run_eval --mode rules
-    uv run python -m evals.run_eval --mode assisted --cases evals/holdout_f_cases.json --runs 3
     uv run python -m evals.run_eval --mode replay evals/recordings/<run>
 """
 
@@ -50,7 +47,6 @@ from app.errors import ServiceError
 from app.matching.evidence import quote_is_verbatim
 from app.matching.service import run_match
 from app.providers.anthropic import AnthropicProvider
-from app.providers.assisted import AssistedProvider
 from app.providers.hybrid import HybridProvider
 from app.providers.ollama import OllamaProvider
 from app.providers.prompt import build_user_message, prompt_size_bound
@@ -112,12 +108,6 @@ class Outcome:
     rules_verdicts: dict[int, str] = field(default_factory=dict)
     reviews: frozenset[int] = frozenset()  # requirements flagged as needing the person's confirmation
     invalid_citations: int = 0  # shown citations that aren't verbatim from the evidence (must be zero)
-    # Assisted only.
-    suggestions: list[dict] = field(default_factory=list)
-    ai_assist: str | None = None
-    ai_rejected: dict[str, int] = field(default_factory=dict)
-    ai_error: str | None = None
-    same_as_rules: bool | None = None
 
 
 SUGGESTION_LABELS = ("suggest_ok", "gap_ok")
@@ -262,41 +252,14 @@ class _RecordingHybrid:
         return ProviderOutput(findings=self.last.findings, usage=self.last.usage)
 
 
-class _RecordingAssisted:
-    """Runs the assisted provider through the normal service path and keeps what it rejected."""
-
-    def __init__(self, inner: AssistedProvider) -> None:
-        self.inner = inner
-        self.last = None
-        for attr in ("name", "model", "method_version", "local", "generative"):
-            setattr(self, attr, getattr(inner, attr))
-
-    async def match(self, request: MatchRequest):
-        from app.providers.base import ProviderOutput
-
-        self.last = await self.inner.assess(request)
-        return ProviderOutput(
-            findings=self.last.findings,
-            usage=self.last.usage,
-            suggestions=self.last.suggestions,
-            ai_assist=self.last.ai_assist,
-        )
-
-
 def _invalid_citations(request: MatchRequest, response) -> int:
     """Citations in a finished result that aren't verbatim from the cited evidence."""
     evidence = {e.id: e for e in request.evidence}
     citations = [c for f in response.findings for c in f.citations]
-    citations += [s.citation for s in response.suggestions or [] if s.citation]
     return sum(
         c.evidence_id not in evidence or not quote_is_verbatim(evidence[c.evidence_id], c.quote)
         for c in citations
     )
-
-
-def _decisions(response) -> list[dict]:
-    """A result's findings, apart from the label saying which method produced them."""
-    return [f.model_dump(exclude={"method", "ai_status"}) for f in response.findings]
 
 
 async def _run_one(case: Case, run: int, provider, request: MatchRequest) -> Outcome:
@@ -323,13 +286,6 @@ async def _run_one(case: Case, run: int, provider, request: MatchRequest) -> Out
         )
     usage = response.usage.model_dump() if response.usage else None
     recorded = getattr(provider, "last", None)
-    assisted = request.provider == "assisted"
-    same_as_rules = None
-    if assisted:
-        baseline = await run_match(
-            request.model_copy(update={"provider": "rules"}), RulesProvider(), timeout_seconds=35
-        )
-        same_as_rules = _decisions(response) == _decisions(baseline)
     return Outcome(
         case.id,
         run,
@@ -346,11 +302,6 @@ async def _run_one(case: Case, run: int, provider, request: MatchRequest) -> Out
         lowered=dict(getattr(recorded, "lowered", {})),
         ai_calls=recorded.calls if recorded else 0,
         invalid_citations=_invalid_citations(request, response),
-        suggestions=[s.model_dump(mode="json") for s in response.suggestions or []],
-        ai_assist=response.ai_assist,
-        ai_rejected=dict(recorded.rejected) if assisted and recorded else {},
-        ai_error=recorded.ai_error if assisted and recorded else None,
-        same_as_rules=same_as_rules,
         **common,
     )
 
@@ -466,7 +417,7 @@ async def evaluate(
         }
 
     resources: list[dict] = []
-    if mode in ("ollama", "hybrid", "assisted"):
+    if mode in ("ollama", "hybrid"):
         # Free and local: Ollama on this machine only (AI_OLLAMA_URL is validated to be localhost).
         local_settings = _settings().model_copy(
             update={"ollama_model": ollama_model} | ({"ollama_url": ollama_url} if ollama_url else {})
@@ -479,8 +430,6 @@ async def evaluate(
         }
         if mode == "hybrid":
             provider = _RecordingHybrid(HybridProvider(local_settings, ollama=provider))
-        if mode == "assisted":
-            provider = _RecordingAssisted(AssistedProvider(local_settings, ollama=provider))
 
     for run in range(runs):
         for case in cases:
@@ -489,7 +438,7 @@ async def evaluate(
             if mode == "rules":
                 outcomes.append(await _run_one(case, run, RulesProvider(), case.request))
                 continue
-            if mode in ("ollama", "hybrid", "assisted"):
+            if mode in ("ollama", "hybrid"):
                 outcome = await _run_one(
                     case, run, provider, case.request.model_copy(update={"provider": mode})
                 )
@@ -549,7 +498,7 @@ async def evaluate(
             break
 
     result = report(cases, outcomes, mode, runs=runs, stopped_early=bool(stop_reason))
-    if mode in ("ollama", "hybrid", "assisted"):
+    if mode in ("ollama", "hybrid"):
         result |= meta | {"resources": summarize_resources(resources)}
     if live:
         result |= {"stop_reason": stop_reason, "http_message_requests": transport.calls, **ledger, **meta}
@@ -658,71 +607,6 @@ def _hybrid_summary(by_id: dict[str, Case], outcomes: list[Outcome]) -> dict:
         "accepted_local_ai_findings_correct": f"{accepted_correct}/{accepted_total}",
         "hard_qualification_verdicts_changed": hard_changed,
         "rules_verdicts_lowered": lowered,
-        "local_ai_calls": sum(o.ai_calls for o in outcomes),
-    }
-
-
-def classify_suggestion(suggestion: dict, labels: dict | None) -> str:
-    """useful, misleading, or unlabeled, from labels written before the set was run. A connection is
-    useful only if it points at something listed in suggest_ok; a gap only if gap_ok is true."""
-    if not labels:
-        return "unlabeled"
-    if suggestion["kind"] == "profile_gap":
-        return "useful" if labels.get("gap_ok") else "misleading"
-    quote = suggestion["citation"]["quote"].casefold()
-    return "useful" if any(ok.casefold() in quote for ok in labels.get("suggest_ok", [])) else "misleading"
-
-
-def _assisted_summary(by_id: dict[str, Case], outcomes: list[Outcome]) -> dict:
-    """What local AI added, and whether it ever reached a verdict (it must not)."""
-    kinds: dict[str, int] = {}
-    quality = {"useful": 0, "misleading": 0, "unlabeled": 0}
-    reasons: dict[str, int] = {}
-    assist: dict[str, int] = {}
-    errors: dict[str, int] = {}
-    misleading: list[dict] = []
-    on_targets = 0
-    for o in outcomes:
-        if o.status != "ok":
-            continue
-        case = by_id[o.case_id]
-        assist[o.ai_assist or "none"] = assist.get(o.ai_assist or "none", 0) + 1
-        if o.ai_error:
-            errors[o.ai_error] = errors.get(o.ai_error, 0) + 1
-        for reason, count in o.ai_rejected.items():
-            reasons[reason] = reasons.get(reason, 0) + count
-        for s in o.suggestions:
-            index = s["requirement_index"]
-            kinds[s["kind"]] = kinds.get(s["kind"], 0) + 1
-            label = classify_suggestion(s, case.suggestion_labels.get(index))
-            quality[label] += 1
-            on_targets += index in case.injection_targets
-            if label == "misleading":
-                misleading.append(
-                    {
-                        "case": o.case_id,
-                        "run": o.run,
-                        "requirement": index,
-                        "kind": s["kind"],
-                        "term": s.get("term"),
-                        "quote": (s.get("citation") or {}).get("quote"),
-                    }
-                )
-    judged = sum(assist.values())
-    return {
-        "verdicts_differing_from_rules": sum(o.same_as_rules is False for o in outcomes),
-        "ai_assist_counts": dict(sorted(assist.items())),
-        "ai_errors": dict(sorted(errors.items())),
-        "analyses_without_full_suggestions_rate": assist.get("unavailable", 0) / judged if judged else 0.0,
-        "suggestions_shown": sum(kinds.values()),
-        "suggestions_by_kind": dict(sorted(kinds.items())),
-        "suggestion_quality": quality,
-        "precision_of_labeled": quality["useful"] / (quality["useful"] + quality["misleading"])
-        if quality["useful"] + quality["misleading"]
-        else None,
-        "misleading": misleading,
-        "suggestions_on_injection_targets": on_targets,
-        "model_answers_rejected": dict(sorted(reasons.items())),
         "local_ai_calls": sum(o.ai_calls for o in outcomes),
     }
 
@@ -854,8 +738,6 @@ def report(
     }
     if mode == "hybrid":
         result["hybrid"] = _hybrid_summary(by_id, outcomes)
-    if mode == "assisted":
-        result["assisted"] = _assisted_summary(by_id, outcomes)
     result["passes"] = {
         "rejection_rate": result["rejection_rate"] <= TARGETS["rejection_rate"],
         "false_supported": false_supported == 0,
@@ -875,15 +757,12 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        "--mode", choices=["rules", "mock", "replay", "live", "ollama", "hybrid", "assisted"], default="rules"
+        "--mode", choices=["rules", "mock", "replay", "live", "ollama", "hybrid"], default="rules"
     )
     parser.add_argument(
         "--cases", type=Path, default=CASES_FILE, help="evaluation set (default: development cases)"
     )
     parser.add_argument("--model", default="qwen3:8b", help="ollama mode: the approved local model")
-    parser.add_argument(
-        "--ollama-url", help="assisted mode: a localhost URL; a closed port measures Ollama off"
-    )
     parser.add_argument("replay_dir", nargs="?", type=Path)
     parser.add_argument("--runs", type=int, default=1)
     parser.add_argument("--approve-spend-usd", type=float)
@@ -930,7 +809,6 @@ def main(argv: list[str] | None = None) -> int:
             replay_dir=args.replay_dir,
             approve_usd=args.approve_spend_usd,
             ollama_model=args.model,
-            ollama_url=args.ollama_url,
         )
     )
     text = json.dumps(result, indent=2)

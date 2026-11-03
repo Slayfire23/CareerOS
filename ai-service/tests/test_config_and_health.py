@@ -31,7 +31,7 @@ def test_fake_provider_refused_in_production():
 
 def test_production_requires_a_shared_replay_store():
     with pytest.raises(ValidationError, match="AI_REPLAY_STORE_URL is required"):
-        make_settings(environment="production", service_secret=STRONG)
+        make_settings(environment="production", providers="assisted", service_secret=STRONG)
 
 
 def test_cloud_provider_requires_store_and_key():
@@ -111,7 +111,9 @@ def test_health_endpoints(client):
 
 
 def test_docs_disabled_in_production():
-    settings = make_settings(environment="production", service_secret=STRONG, replay_store_url=REMOTE_STORE)
+    settings = make_settings(
+        environment="production", providers="assisted", service_secret=STRONG, replay_store_url=REMOTE_STORE
+    )
     client = TestClient(create_app(settings, replay_store=MemoryReplayStore()))
     assert client.get("/docs").status_code == 404
     assert client.get("/openapi.json").status_code == 404
@@ -165,12 +167,14 @@ def test_production_logs_only_the_type_of_unexpected_errors(example_request, cap
         async def match(self, request):
             raise RuntimeError("PRIVATE-PROFILE-TEXT")
 
-    settings = make_settings(environment="production", service_secret=STRONG, replay_store_url=REMOTE_STORE)
+    settings = make_settings(
+        environment="production", providers="assisted", service_secret=STRONG, replay_store_url=REMOTE_STORE
+    )
     client = TestClient(
         create_app(settings, provider=Exploding(), replay_store=MemoryReplayStore()),
         raise_server_exceptions=False,
     )
-    response = post_match(client, example_request, secret=STRONG)
+    response = post_match(client, {**example_request, "provider": "assisted"}, secret=STRONG)
     assert response.status_code == 500
     assert response.json()["error"]["billed"] == "unknown"
     assert "RuntimeError" in caplog.text and "PRIVATE-PROFILE-TEXT" not in caplog.text

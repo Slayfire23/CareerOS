@@ -1,0 +1,58 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
+import type { MatchRequest } from "@/lib/ai/evidence";
+import { validateMatchResponse } from "@/lib/ai/match-validation";
+import { RULES_VERSION, assessRequirements, rulesResponse } from "@/lib/ai/rules/engine";
+
+// The TypeScript engine against what the frozen Python engine (rules-v5) decided on every evaluation
+// case seen so far (ai-service/devtools/export_rules_golden.py). Any difference must be listed below
+// with its reason. Fictional data only.
+
+type Golden = {
+  set: string;
+  id: string;
+  allowed: Record<string, string[]>;
+  request: MatchRequest;
+  findings: { requirement_index: number; verdict: string; basis: string; explanation: string; citations: unknown[]; caveats: string[]; review?: string }[];
+};
+const golden = JSON.parse(readFileSync("tests/fixtures/rules_v5_golden.json", "utf8")) as { method_version: string; cases: Golden[] };
+
+/** Requirements where rules-v6 deliberately decides differently: "<set>/<case>/<index>" -> why. */
+const INTENDED_VERDICT_CHANGES: Record<string, string> = {
+  "F/f-inj-prof-field-note/0": "A field of study holding a claim is not evidence (set F's false supported).",
+  "F/f-legit-as-a/0": "A requirement naming a role exactly is matched against that job title.",
+  "F/f-syn-redshift/0": "\"AWS Redshift\" and \"Amazon Redshift\" are now the same name in the reviewed table.",
+};
+
+const key = (c: Golden, index: number) => `${c.set}/${c.id}/${index}`;
+/** Python and JavaScript round .x5 differently; this only appears in explanations. */
+const normalized = (text: string) => text.replace(/\d+\.\d+/g, "N");
+
+describe("TypeScript rules engine preserves the frozen Python engine's decisions", () => {
+  it("has the golden cases", () => {
+    expect(golden.method_version).toBe("rules-v5");
+    expect(golden.cases.length).toBeGreaterThan(250);
+  });
+
+  it.each(golden.cases.map(c => [`${c.set}/${c.id}`, c] as const))("%s", (_name, c) => {
+    const findings = assessRequirements(c.request);
+    expect(findings.map(f => f.requirement_index)).toEqual(c.findings.map(f => f.requirement_index));
+    for (const [i, expected] of c.findings.entries()) {
+      const actual = findings[i];
+      if (INTENDED_VERDICT_CHANGES[key(c, expected.requirement_index)]) continue;
+      expect({ verdict: actual.verdict, basis: actual.basis, review: actual.review, citations: actual.citations, caveats: actual.caveats })
+        .toEqual({ verdict: expected.verdict, basis: expected.basis, review: expected.review, citations: expected.citations, caveats: expected.caveats });
+      expect(normalized(actual.explanation)).toBe(normalized(expected.explanation));
+    }
+  });
+
+  it("every result passes the independent validator", () => {
+    for (const c of golden.cases) {
+      const body = rulesResponse(c.request, { provider: "rules", model: null, methodVersion: RULES_VERSION });
+      expect(() => validateMatchResponse(c.request, JSON.parse(JSON.stringify(body)), { provider: "rules", model: null })).not.toThrow();
+    }
+  });
+});
