@@ -173,7 +173,17 @@ The project now uses free local models instead of paid ones. Claude remains in t
 - **Next.js:** "Local AI" is a third method, off unless `AI_LOCAL_LLM_ENABLED`, an approved model, and an allow-list are set. Runs are recorded with billing state NONE.
 - Evaluation results and the model choice are in docs/MILESTONE_3_OLLAMA_REPORT.md. The remote-access options are in docs/REMOTE_ACCESS_PLAN.md (not configured).
 
-## AI-assisted analysis: rules decide, local AI suggests (Milestone 6) - November 2, 2026
+## Rules on the Next.js server (Milestone 7) - November 2, 2026
+
+The rules engine (`src/lib/ai/rules/engine.ts`, `rules-v6`) is the only authority for verdicts. It runs on the Next.js server with no network call, so rules-only analysis works with the AI service, Ollama, and the laptop all off. It needs no AI settings. The tables live in `src/lib/ai/rules/data/`, because `.vercelignore` excludes `ai-service/`.
+
+- **Order:** decide, validate, save, and only then ask local AI. The later step writes only `aiSuggestions` and `aiAssist`, so it can't reach a verdict or a count.
+- **FastAPI:** a thin signed bridge (`POST /v1/suggest`). Its schema has no dates, education, or verdicts. Next.js removes claims before sending and checks every pointer afterward (`rules/suggestions.ts`).
+- **Typed fields (`rules/profile-fields.ts`):** a field holding a remark, claim, markup, hidden characters, or look-alike letters isn't evidence. "Supported" can rest only on a clean listed skill or qualification.
+- **Python rules:** frozen at `rules-v5` as a test reference (`tests/fixtures/rules_v5_golden.json`) and refused in production. They are to be deleted after the next evaluation confirms the TypeScript engine.
+- Results and limitations: docs/MILESTONE_7_REPORT.md.
+
+## AI-assisted analysis: rules decide, local AI suggests (Milestone 6, superseded by Milestone 7) - November 2, 2026
 
 The method the app offers as "Rules + AI suggestions" (provider `assisted`, ai-service/app/providers/assisted.py). It replaces hybrid, which let local AI raise a verdict.
 

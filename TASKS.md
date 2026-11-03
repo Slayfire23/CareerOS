@@ -292,5 +292,9 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Intermittent cloud integration failure: reproduced; a random UUID containing "555" failed the redaction check (fixed, regression test), and concurrent runs interfered (run lock added). Original output never captured.
 - [x] Milestone 6 (frozen a9e3d52): rules are the only verdict authority; Ollama only adds separate, code-checked suggestions; verdicts identical with Ollama on or off; hybrid retired. See docs/MILESTONE_6_REPORT.md.
 - [ ] Readiness bar not met: on untouched set F (67 cases), agreement 96.9%, but 1 false "supported" and 1 of 14 injections (a claim inside an education field). Not fixed, because F has been seen. Suggestions were 54% useful by the frozen labels.
-- [ ] Next proposed: run the rules on Vercel so a laptop that's off only costs suggestions, validate all profile fields as typed data, tighten suggestions, then a new untouched set G. Needs approval.
+- [x] Milestone 7 (frozen c7acdcd): rules engine moved to Next.js, so rules-only analysis works with the laptop off; typed profile fields; FastAPI is only a bridge for suggestions; a Vercel build problem fixed. See docs/MILESTONE_7_REPORT.md.
+- [ ] Readiness bar still not met: on untouched set G (138 cases, written independently), agreement 71.2%, 1 false "supported" (of 153), and 3 of 34 injections reaching "possible" (none "supported"). Not fixed, because G has been seen. Suggestions were 68% useful.
+- [ ] Next proposed (Milestone 8): education descriptions that contradict completion, negated and audit-style text, field checks on years, foreign degrees and fewer wrong flags, then a new untouched set H. Needs approval.
+- [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
+- [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

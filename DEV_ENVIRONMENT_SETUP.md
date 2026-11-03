@@ -140,8 +140,8 @@ Production Auth URLs, Storage, and Vercel variables are not changed by this setu
 Install Ollama for Windows (a pinned release that is at least two weeks old), keep its default `127.0.0.1:11434` binding, and pull the approved model: `ollama pull qwen3:8b`. Then:
 
 ```dotenv
-# ai-service/.env ("assisted": rules decide every result, local AI adds suggestions; offered as "Rules + AI suggestions")
-AI_PROVIDERS=rules,assisted
+# ai-service/.env ("assisted" turns on the /v1/suggest bridge; the rules run in Next.js and need none of this)
+AI_PROVIDERS=assisted
 AI_OLLAMA_MODEL=qwen3:8b
 
 # .env
@@ -153,9 +153,11 @@ AI_LOCAL_LLM_ALLOWED_USERS=<internal User ids, comma-separated>
 Never set `OLLAMA_HOST` to `0.0.0.0`. The AI service and the browser tests refuse a non-local Ollama URL. To evaluate for free, on the development cases or a held-out set:
 
 ```bash
-uv run python -m evals.run_eval --mode assisted --cases evals/holdout_f_cases.json --runs 3
+EVAL_CASES=ai-service/evals/holdout_g_cases.json EVAL_MODE=assisted EVAL_RUNS=3 EVAL_REPORT=ai-service/evals/reports/m7/g.json npx vitest run --config vitest.eval.config.mts
 ```
 
-`--mode` is `rules`, `assisted`, `ollama` (local AI alone), or `hybrid` (retired). Add `--ollama-url http://127.0.0.1:11999` (a closed port) to measure `assisted` with Ollama off. The held-out sets (`evals/holdout_*.json`) were labeled before any run; never edit their labels to match results.
+Run that from the `web` folder. `EVAL_MODE` is `rules`, `offline` (every network call throws), `closed_port` (the bridge is unreachable), or `assisted`. The Python harness (`uv run python -m evals.run_eval`) remains only for the frozen Python rules and retired methods. The held-out sets (`evals/holdout_*.json`) were labeled before any run; never edit their labels to match results.
 
-If port 3000 is taken, run `npx next dev --port 3001`, set `APP_URL=http://localhost:3001` in `.env`, and run browser tests with `E2E_BASE_URL=http://localhost:3001`.
+If port 3000 is taken, run `npx next dev --port 3002`, set `APP_URL=http://localhost:3002` in `.env`, and run browser tests with `E2E_BASE_URL=http://localhost:3002`. With the AI service stopped, `E2E_AI_SERVICE_OFF=true npx playwright test e2e/job-match-offline.spec.ts` checks the laptop-off case.
+
+Rules-only analysis needs no AI service settings. To add a rule, change `src/lib/ai/rules/` only: the Python rules are frozen, and any difference from them must be listed in `tests/ai-rules-parity.test.ts`.
