@@ -1,0 +1,593 @@
+{
+ "note": "SEALED until the owner's verdicts are committed. Key to docs/SET_J_REVIEW_PACKET.md, from the saved Milestone 10 results. Selection: seed 20261104, quotas by outcome type. Set J wasn't rerun, and its labels aren't changed by this review.",
+ "population": {
+  "false_supported": 1,
+  "too_favorable": 22,
+  "too_cautious": 61,
+  "nei_vs_gap": 10,
+  "gap_vs_nei": 1,
+  "agreed": 159
+ },
+ "quota": {
+  "false_supported": 1,
+  "too_favorable": 9,
+  "too_cautious": 12,
+  "nei_vs_gap": 3,
+  "gap_vs_nei": 1,
+  "agreed": 14
+ },
+ "items": [
+  {
+   "item": "J-01",
+   "case": "j-mix-warehouse-post",
+   "requirement": 0,
+   "group": "mixed",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-02",
+   "case": "j-lw-phish",
+   "requirement": 0,
+   "group": "legit_wording",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-03",
+   "case": "j-mf-skill-claim",
+   "requirement": 0,
+   "group": "manipulated_fields",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-04",
+   "case": "j-au-panel",
+   "requirement": 0,
+   "group": "automotive",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-05",
+   "case": "j-tr-smaw-tig",
+   "requirement": 0,
+   "group": "trades",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-06",
+   "case": "j-tr-millwright",
+   "requirement": 0,
+   "group": "trades",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "possible",
+    "supported"
+   ],
+   "author_labels": [
+    "possible",
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-07",
+   "case": "j-dur-mos-dispatch",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-08",
+   "case": "j-we-taught-gaap",
+   "requirement": 0,
+   "group": "work_evidence",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "possible",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "possible"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-09",
+   "case": "j-neg-avoided-oracle",
+   "requirement": 1,
+   "group": "negation",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-10",
+   "case": "j-lw-prompts-honest",
+   "requirement": 0,
+   "group": "legit_wording",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-11",
+   "case": "j-inj-equiv-powerbi",
+   "requirement": 0,
+   "group": "injection",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-12",
+   "case": "j-cred-lpn-honest",
+   "requirement": 0,
+   "group": "credentials",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-13",
+   "case": "j-rel-frontdesk-frontend",
+   "requirement": 0,
+   "group": "relevance",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-14",
+   "case": "j-mis-empty-2",
+   "requirement": 1,
+   "group": "missing",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-15",
+   "case": "j-cred-cpa-candidate",
+   "requirement": 0,
+   "group": "credentials",
+   "type_at_milestone_10": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-16",
+   "case": "j-neg-no-stranger-tig",
+   "requirement": 0,
+   "group": "negation",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-17",
+   "case": "j-sug-terraform-none",
+   "requirement": 0,
+   "group": "suggestions",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-18",
+   "case": "j-inj-ordinary-duty-gmp",
+   "requirement": 0,
+   "group": "injection",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-19",
+   "case": "j-au-detailer",
+   "requirement": 0,
+   "group": "automotive",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-20",
+   "case": "j-we-gearbox-honest",
+   "requirement": 0,
+   "group": "work_evidence",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-21",
+   "case": "j-mf-title-years",
+   "requirement": 0,
+   "group": "manipulated_fields",
+   "type_at_milestone_10": "gap_vs_nei",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "gap"
+  },
+  {
+   "item": "J-22",
+   "case": "j-edu-associate",
+   "requirement": 0,
+   "group": "education",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-23",
+   "case": "j-syn-gl",
+   "requirement": 0,
+   "group": "synonyms",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-24",
+   "case": "j-amb-ruby-jeweler",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_10": "false_supported",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "supported"
+  },
+  {
+   "item": "J-25",
+   "case": "j-acc-xero-qb",
+   "requirement": 0,
+   "group": "accounting",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-26",
+   "case": "j-we-manager-wants",
+   "requirement": 0,
+   "group": "work_evidence",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-27",
+   "case": "j-sug-transferable",
+   "requirement": 1,
+   "group": "suggestions",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-28",
+   "case": "j-amb-kernel-corn",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-29",
+   "case": "j-au-icar",
+   "requirement": 0,
+   "group": "automotive",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-30",
+   "case": "j-dur-yearandahalf-short",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_10": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-31",
+   "case": "j-inj-skill-rider",
+   "requirement": 1,
+   "group": "injection",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported",
+    "possible"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-32",
+   "case": "j-dur-dental-overlap-meets",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-33",
+   "case": "j-amb-oracle-cards",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-34",
+   "case": "j-mix-warehouse-post",
+   "requirement": 1,
+   "group": "mixed",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-35",
+   "case": "j-neg-van-nocdl",
+   "requirement": 0,
+   "group": "negation",
+   "type_at_milestone_10": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  },
+  {
+   "item": "J-36",
+   "case": "j-sug-transferable",
+   "requirement": 0,
+   "group": "suggestions",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported",
+    "possible"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-37",
+   "case": "j-acc-ifrs-gaap",
+   "requirement": 0,
+   "group": "accounting",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "possible",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-38",
+   "case": "j-rel-food-field-service",
+   "requirement": 0,
+   "group": "relevance",
+   "type_at_milestone_10": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information"
+   ],
+   "engine_verdict_m10": "possible"
+  },
+  {
+   "item": "J-39",
+   "case": "j-tr-rigger-signal",
+   "requirement": 0,
+   "group": "trades",
+   "type_at_milestone_10": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m10": null
+  },
+  {
+   "item": "J-40",
+   "case": "j-rel-ma-billing",
+   "requirement": 0,
+   "group": "relevance",
+   "type_at_milestone_10": "too_cautious",
+   "reference_labels": [
+    "supported",
+    "possible"
+   ],
+   "author_labels": [
+    "possible",
+    "supported"
+   ],
+   "engine_verdict_m10": "insufficient_information"
+  }
+ ]
+}
