@@ -79,7 +79,8 @@ class Settings(BaseSettings):
         enabled = self.enabled_providers
         if not enabled or not enabled <= set(PROVIDER_NAMES):
             raise ValueError(
-                "AI_PROVIDERS must list one or more of: rules, fake, anthropic, ollama, hybrid, assisted, embedding."
+                "AI_PROVIDERS must list one or more of: "
+                "rules, fake, anthropic, ollama, hybrid, assisted, embedding."
             )
         if self.environment == "production" and "fake" in enabled:
             raise ValueError("The fake provider is for tests only and cannot run in production.")

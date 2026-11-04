@@ -26,7 +26,9 @@ def provider(handler=None) -> tuple[EmbeddingProvider, list[dict]]:
         return httpx2.Response(200, json={"embeddings": [VECTORS[t] for t in body["input"]]})
 
     s = make_settings(providers="embedding")
-    client = httpx2.AsyncClient(base_url="http://127.0.0.1:11434", transport=httpx2.MockTransport(handler or default))
+    client = httpx2.AsyncClient(
+        base_url="http://127.0.0.1:11434", transport=httpx2.MockTransport(handler or default)
+    )
     return EmbeddingProvider(s, client=client), seen
 
 
@@ -43,7 +45,10 @@ async def test_scores_rank_passages_and_contain_only_ids():
     embedding, seen = provider()
     reply = await embedding.retrieve(RetrieveRequest.model_validate(payload()))
     assert reply.status == "used"
-    assert [(s.query_id, s.passage_id, s.similarity) for s in reply.scores] == [("q0", "p1", 0.8), ("q0", "p0", 0.0)]
+    assert [(s.query_id, s.passage_id, s.similarity) for s in reply.scores] == [
+        ("q0", "p1", 0.8),
+        ("q0", "p0", 0.0),
+    ]
     assert seen[0]["model"] == "bge-m3"
     assert "Kept the ledgers" not in reply.model_dump_json()
 
@@ -64,10 +69,18 @@ async def test_wrong_number_of_vectors_is_unavailable():
     assert reply.status == "unavailable"
 
 
-@pytest.mark.parametrize("change", [
-    {"evidence": []}, {"verdict": "supported"}, {"start_month": "2020-01"}, {"top_k": 99},
-    {"queries": []}, {"passages": [{"id": "p0", "text": "x" * 1001}]}, {"passages": [{"id": "p0", "text": "ok text", "kind": "education"}]},
-])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"evidence": []},
+        {"verdict": "supported"},
+        {"start_month": "2020-01"},
+        {"top_k": 99},
+        {"queries": []},
+        {"passages": [{"id": "p0", "text": "x" * 1001}]},
+        {"passages": [{"id": "p0", "text": "ok text", "kind": "education"}]},
+    ],
+)
 def test_the_request_can_carry_nothing_else(change):
     with pytest.raises(ValidationError):
         RetrieveRequest.model_validate({**payload(), **change})
@@ -86,8 +99,11 @@ def test_endpoint_needs_a_valid_signature():
 
 def test_endpoint_is_off_unless_enabled():
     client, s = client_with({"rules": RulesProvider()})
-    body = json.dumps(payload())
-    reply = client.post("/v1/retrieve", content=body, headers=signed_headers(s, json.loads(body)["request_id"], body))
+    body = payload()
+    raw = json.dumps(body).encode()
+    reply = client.post(
+        "/v1/retrieve", content=raw, headers=signed_headers(raw, request_id=body["request_id"])
+    )
     assert reply.status_code == 400
     assert reply.json()["error"]["code"] == "provider_not_enabled"
 

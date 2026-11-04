@@ -45,7 +45,11 @@ class EmbeddingProvider:
     async def _embed(self, texts: list[str]) -> list[list[float]]:
         response = await self._client.post(
             "/api/embed",
-            json={"model": self._settings.embedding_model, "input": texts, "keep_alive": self._settings.ollama_keep_alive},
+            json={
+                "model": self._settings.embedding_model,
+                "input": texts,
+                "keep_alive": self._settings.ollama_keep_alive,
+            },
         )
         response.raise_for_status()
         vectors = response.json()["embeddings"]
@@ -56,17 +60,27 @@ class EmbeddingProvider:
     async def retrieve(self, request: RetrieveRequest) -> RetrieveResponse:
         model = self._settings.embedding_model
         try:
-            vectors = await self._embed([q.text for q in request.queries] + [p.text for p in request.passages])
+            vectors = await self._embed(
+                [q.text for q in request.queries] + [p.text for p in request.passages]
+            )
         except (httpx2.HTTPError, ValueError, KeyError, TypeError) as exc:
             log.warning("embedding unavailable: %s", type(exc).__name__)  # never the text
-            return RetrieveResponse(request_id=request.request_id, model=model, status="unavailable", scores=[])
+            return RetrieveResponse(
+                request_id=request.request_id, model=model, status="unavailable", scores=[]
+            )
         count = len(request.queries)
         scores: list[RetrieveScore] = []
         for query, vector in zip(request.queries, vectors[:count], strict=True):
             ranked = sorted(
-                ((sum(a * b for a, b in zip(vector, other, strict=True)), passage.id) for passage, other in zip(request.passages, vectors[count:], strict=True)),
+                (
+                    (sum(a * b for a, b in zip(vector, other, strict=True)), passage.id)
+                    for passage, other in zip(request.passages, vectors[count:], strict=True)
+                ),
                 key=lambda pair: pair[0],
                 reverse=True,
             )
-            scores += [RetrieveScore(query_id=query.id, passage_id=pid, similarity=round(score, 4)) for score, pid in ranked[: request.top_k]]
+            scores += [
+                RetrieveScore(query_id=query.id, passage_id=pid, similarity=round(score, 4))
+                for score, pid in ranked[: request.top_k]
+            ]
         return RetrieveResponse(request_id=request.request_id, model=model, status="used", scores=scores)

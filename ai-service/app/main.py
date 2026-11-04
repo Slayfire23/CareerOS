@@ -20,7 +20,14 @@ from app.errors import ServiceError, error_body, install_error_handlers
 from app.matching.service import run_match
 from app.providers.base import MatchProvider
 from app.providers.factory import build_providers
-from app.schemas import MatchRequest, MatchResponse, RetrieveRequest, RetrieveResponse, SuggestRequest, SuggestResponse
+from app.schemas import (
+    MatchRequest,
+    MatchResponse,
+    RetrieveRequest,
+    RetrieveResponse,
+    SuggestRequest,
+    SuggestResponse,
+)
 from app.security import (
     REQUEST_ID_HEADER,
     ReplayStore,
