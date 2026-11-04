@@ -40,10 +40,12 @@ import {
   directUse,
   equivalentWhenAsked,
   negatedSpans,
+  occurrences,
   ordinaryMeaning,
   quoteTerms,
   relatedTermInText,
   saysAbsent,
+  sentenceAt,
   relation,
   surfaceForms,
   words,
@@ -66,7 +68,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v10";
+export const RULES_VERSION = "rules-v11";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -273,7 +275,7 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
     const plainNoun = startsSentence && requirementText.includes(quote.toLowerCase()) && !/\p{Lu}/u.test(quote.slice(1));
     const namesTechnology = [...canonicalTerms(quote)].some(t => VOCABULARY.has(t)) || (/\p{Lu}/u.test(quote) && !plainNoun);
     // "Tools: Tableau, Excel" says what was around: a lead, though not direct use.
-    return !namesTechnology || describesUse(evidenceText, quote) || labelledList(sentence);
+    return !namesTechnology || describesUse(evidenceText, quote, start) || labelledList(sentence);
   };
   const find = (phrase: string) => {
     const pattern = new RegExp(`(?<![A-Za-z0-9])${phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z0-9])`, "gi");
@@ -730,9 +732,12 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
       const quote = sharedTerm(piece, role.description);
       if (!quote) continue;
       const sense = [...canonicalTerms(quote)].some(t => hasOtherSenses(t) && otherSense(piece, t));
-      if (!directUse(role.description, quote, sense)) continue;
-      const line = role.description.split(/(?<=[.!?;])\s+/).find(l => l.includes(quote)) ?? role.description;
-      const have = canonicalTerms(line);
+      // Judge the occurrence that can count: the same words may also sit in a sentence that can't.
+      const description = role.description;
+      const barred = untrustedEvidenceSpans(description);
+      const at = occurrences(description, quote).find(i => !barred.some(([s, e]) => s < i + quote.length && i < e) && directUse(description, quote, sense, i));
+      if (at === undefined) continue;
+      const have = canonicalTerms(sentenceAt(description, at, at + quote.length));
       if (sense || [...wanted].every(t => have.has(t))) return { role, quote };
     }
     return null;

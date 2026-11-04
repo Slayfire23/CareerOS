@@ -224,7 +224,7 @@ export function labelledList(sentence: string): boolean {
 }
 
 /** The whole sentence around a position in free text. */
-function sentenceAt(text: string, start: number, end: number): string {
+export function sentenceAt(text: string, start: number, end: number): string {
   const from = text.slice(0, start).search(/[^.!?;\n]*$/);
   const stop = text.slice(end).search(/[.!?;\n]/);
   return text.slice(from, stop < 0 ? text.length : end + stop);
@@ -243,14 +243,21 @@ function namesConsumers(after: string[]): boolean {
   return after.slice(0, stop < 0 ? 3 : stop).some(t => CONSUMER_NOUNS.has(t));
 }
 
+/** Where a quote occurs in free text, by whole word: the offsets that a check can then judge one at a time. */
+export function occurrences(fieldText: string, quote: string): number[] {
+  const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return [...fieldText.matchAll(new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu"))].map(m => m.index);
+}
+
 /** The text describes a technology as used in work: a work verb shortly before it, or a technical noun
  * or another known technology beside it. "Built Kafka consumers" does; "Kubernetes expertise confirmed"
  * does not. A mention alone is not evidence. */
-export function describesUse(fieldText: string, quote: string): boolean {
+export function describesUse(fieldText: string, quote: string, at?: number): boolean {
   const terms = canonicalTerms(quote);
   const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
   for (const match of fieldText.matchAll(pattern)) {
+    if (at !== undefined && match.index !== at) continue;
     // Only the same sentence counts: a verb in the last sentence says nothing about this one.
     const before = words(fieldText.slice(0, match.index).split(/[.!?;\n]\s/).pop() ?? "");
     const after = words(fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0]);
@@ -263,7 +270,7 @@ export function describesUse(fieldText: string, quote: string): boolean {
     if (namesConsumers(after)) continue;
     if ([...before.slice(-3), ...after.slice(0, 3)].some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && !terms.has(t)))) return true;
   }
-  return directUse(fieldText, quote);
+  return directUse(fieldText, quote, false, at);
 }
 
 const WEAK_VERBS = new Set("read set sets filed handled handle balanced balance models designs codes scripts programs ships trains tests monitors".split(" "));
@@ -277,11 +284,12 @@ const CARRIERS = new Set("service services api apis app apps application applica
  * shortly before it ("Rewrote the payments service in Go"), a work object right after it ("Windows
  * support"), or something carried over it ("Internal services over gRPC"). A mention, a course, or
  * what someone else does isn't use, and neither is a job title alone. */
-export function directUse(fieldText: string, quote: string, sameOtherSense = false): boolean {
+export function directUse(fieldText: string, quote: string, sameOtherSense = false, at?: number): boolean {
   const terms = canonicalTerms(quote);
   const escaped = quote.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = new RegExp(`(?<![\\p{L}\\p{N}_.])${escaped}(?![\\p{L}\\p{N}_])`, "giu");
   for (const match of fieldText.matchAll(pattern)) {
+    if (at !== undefined && match.index !== at) continue;
     const before = words(fieldText.slice(0, match.index).split(/[.!?;\n]\s/).pop() ?? "");
     const after = words(fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0]);
     const near = before.slice(-5);
