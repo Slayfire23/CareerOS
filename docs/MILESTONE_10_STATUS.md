@@ -2,7 +2,7 @@
 
 November 3, 2026. Branch `milestone-3-ai-matching`. Local commits only: nothing was pushed, merged, or deployed, no hosted or production resource was touched, and no paid AI was used.
 
-**This isn't the final report.** Set J doesn't exist yet. The implementation isn't frozen, and it's waiting on your label audit.
+**Superseded by `docs/MILESTONE_10_REPORT.md`.** This describes the implementation as it stood at the audit stop. The rules changed again before the freeze, and the final report has the results.
 
 ## 1. Safety fixes (`rules-v10`)
 

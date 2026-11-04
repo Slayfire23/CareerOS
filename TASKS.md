@@ -299,8 +299,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [ ] Decide on a private Vercel Preview: needs an isolated Supabase project, Preview-only variables, and Deployment Protection (docs/MILESTONE_8_REPORT.md section 6). Needs approval.
 - [x] Milestone 9 (frozen 772c01f, rules-v9): Set H's false "supported" verdicts fixed; non-software coverage; the owner's 26 decisions stored and applied as general rules (direct evidence in work, explicit absence, relevant experience). See docs/MILESTONE_9_REPORT.md.
 - [ ] Criteria not met on untouched set I (242 cases, AI-written, AI-labeled blind): 57.3% accuracy, 3 false "supported" of 276, 1 of 36 injections, 37% of legitimate matches missed. Not tuned. Rules availability, citations, and AI independence held.
-- [x] Milestone 10 implementation (rules-v10, not frozen): the three false "supported" classes closed; clarification workflow with "Supported — Self-reported"; terminology prototype. See docs/MILESTONE_10_STATUS.md.
-- [ ] Owner completes docs/SET_I_AUDIT_WORKSHEET.md. Waiting on this before the freeze and untouched Set J.
+- [x] Milestone 10 (frozen e4a68e0, rules-v10): safety fixes, clarification workflow with "Supported — Self-reported", terminology prototype, the owner's Set I audit. See docs/MILESTONE_10_REPORT.md.
+- [ ] Criteria not met on untouched Set J (236 cases, AI-written, AI-labeled blind): 62.6% accuracy, 1 false "supported" of 254, 2 of 32 injections reaching Possible, 51% of legitimate matches missed. Not tuned. Waiting on the owner's decision about next steps.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
 - [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.
