@@ -1,6 +1,7 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
 import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
+import { notAStatement } from "@/lib/ai/rules/profile-fields";
 
 // A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
 // is only a test reference. Only what is requested (the head and its listed alternatives) can earn credit; later required
@@ -167,6 +168,15 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   // A sentence written for a keyword filter: nothing in it is a statement about the work.
   for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
     if (keywordDump(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+  }
+  // A hypothetical, a template, or an order about what to report, including one taken back in an aside.
+  // The same sentence three times over is written for a filter, not a reader.
+  const sentences = [...text.matchAll(/[^.!?\n]+[.!?\n]?/g)];
+  const said = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, " ").trim();
+  const times = new Map<string, number>();
+  for (const match of sentences) times.set(said(match[0]), (times.get(said(match[0])) ?? 0) + 1);
+  for (const match of sentences) {
+    if (notAStatement(match[0]) || (times.get(said(match[0])) ?? 0) >= 3) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
   }
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }

@@ -1,7 +1,7 @@
 import table from "@/lib/ai/rules/data/skill_relations.json";
 import terminology from "@/lib/ai/rules/data/terminology.json";
 import { DEGREE_WORDS, RELEVANCE_STOPWORDS } from "@/lib/ai/evidence";
-import { NEGATION, disguised, hasNegation, repeatsItself } from "@/lib/ai/rules/profile-fields";
+import { NEGATION, disguised, hasNegation, notAStatement, repeatsItself } from "@/lib/ai/rules/profile-fields";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
 // How a quote relates to a requirement, decided by code from the reviewed table. Authoritative since
@@ -130,7 +130,7 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
 /** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
-  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || saysAbsent(name) || repeatsItself(name) || hasDirectedText(name)) return false;
+  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || saysAbsent(name) || repeatsItself(name) || hasDirectedText(name) || notAStatement(name)) return false;
   // "AWS Certified Developer" is a credential's name; a remark about one ("Terraform (certified)") isn't.
   if (/\bcertified\b/i.test(name) && (name.includes("(") || /\bcertified\s+by\b/i.test(name) || /\bcertified$/i.test(name.trim()))) return false;
   return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|expert|aka|treated|deemed|qualifies)\b/i.test(name);

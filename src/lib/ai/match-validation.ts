@@ -79,15 +79,18 @@ const str = (v: unknown, max: number, field: string, min = 1): string =>
   typeof v === "string" && v.trim().length >= min && v.length <= max ? v : reject(`invalid ${field}`);
 
 const NUMBER_WORDS = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split(" ");
-const NUMBER = `\\d+(?:\\.\\d+)?|${NUMBER_WORDS.join("|")}`;
-const YEAR_UNIT = "(?:years?|yrs?)";
+const TENS: Record<string, number> = { twenty: 20, thirty: 30, forty: 40, fifty: 50 };
+const ONES = "one two three four five six seven eight nine";
+// Longest first, so "twenty-five" isn't read as "five".
+const NUMBER = `\\d+(?:\\.\\d+)?|(?:${Object.keys(TENS).join("|")})[-\\s](?:${ONES.split(" ").join("|")})|thirty|forty|fifty|${NUMBER_WORDS.join("|")}`;
+const YEAR_UNIT = "(?:years?|yrs?|yoe|y)";
 const MONTH_UNIT = "(?:months?|mos?|mths?)";
-const YEARS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+const YEARS = new RegExp(`(?<![\\p{L}\\p{N}.-])(${NUMBER})\\s*(?:\\(\\s*\\d+\\s*\\)\\s*)?(?:\\+|-?\\s*plus)?\\s*(?:or more\\s+)?-?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
 /** The lower end of a range: "2-3 years", "two to three yrs". */
-const YEAR_RANGE = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
-const MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+const YEAR_RANGE = new RegExp(`(?<![\\p{L}\\p{N}.-])(?!(?:twenty|thirty|forty|fifty)[-\\s](?:one|two|three|four|five|six|seven|eight|nine)\\b)(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+const MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.-])(${NUMBER})\\s*(?:\\(\\s*\\d+\\s*\\)\\s*)?(?:\\+|-?\\s*plus)?\\s*(?:or more\\s+)?-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
 /** One amount in two units: "2 yrs 6 mos", "2 years and 6 months". */
-const YEARS_AND_MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*-?\\s*${YEAR_UNIT}\\.?(?:\\s*,|\\s+and)?\\s+(${NUMBER})\\s*-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+const YEARS_AND_MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.-])(${NUMBER})\\s*-?\\s*${YEAR_UNIT}\\.?(?:\\s*,|\\s+and)?\\s+(${NUMBER})\\s*-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
 
 const WORDED_YEARS: [RegExp, number][] = [
   [/\bhalf\s+a\s+decade\b/i, 5],
@@ -99,7 +102,11 @@ const WORDED_YEARS: [RegExp, number][] = [
   [/\b(?:a|an|one)\s+(?:full\s+)?(?:year|yr)\b/i, 1],
 ];
 const numberValue = (raw: string) => {
-  const word = NUMBER_WORDS.indexOf(raw.toLowerCase());
+  const low = raw.toLowerCase();
+  if (low in TENS) return TENS[low];
+  const compound = low.match(/^(twenty|thirty|forty|fifty)[-\s](\w+)$/);
+  if (compound) return TENS[compound[1]] + NUMBER_WORDS.indexOf(compound[2]);
+  const word = NUMBER_WORDS.indexOf(low);
   return word >= 0 ? word : Number(raw);
 };
 // Full-width digits and similar are the same characters to a reader, so they are to the rules.
@@ -125,7 +132,7 @@ export function requiredMonths(text: string): number | null {
 }
 
 /** Asks for time without saying how much ("several years", "long tenure"), so no dates can settle it. */
-const VAGUE_TIME = /\b(?:several|many|multiple|numerous|some|few|various)\s+(?:\w+\s+)?(?:years?|yrs?|decades?)\b|(?:^|[\s,(])years\s+of\b|\b(?:long|significant|extensive|lengthy)\s+tenure\b/i;
+const VAGUE_TIME = /\b(?:several|many|multiple|numerous|some|few|various)\s+(?:\w+\s+)?(?:years?|yrs?|decades?)\b|(?:^|[\s,(])years\s+of\b|\b(?:long|significant|extensive|lengthy)\s+tenure\b|[:(]\s*\d{1,2}\s*\+/i;
 export const unquantifiedTime = (text: string) => requiredMonths(text) === null && VAGUE_TIME.test(plain(text));
 
 /** "Experience with <technology>", with no duration, role, domain, or credential (requirement_text.py). */

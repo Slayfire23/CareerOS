@@ -10,7 +10,7 @@ const LATIN = /\p{Script=Latin}/u;
 const LOOKALIKE = /[\p{Script=Cyrillic}\p{Script=Greek}]/u;
 const MARKUP = /[:;{}<>[\]=≈≡→⇒]/;
 
-const CLAIM = /\b(counts?|counted|equal|equals|equivalent|equivalence|same|treated|regarded|considered|recogni[sz]ed|accepted|approved|verified|validated|confirmed|attested|deemed|qualif(y|ies|ied|ying)|meets?|satisf(y|ies|ied)|substitutes?|interchangeable|instead|lieu|aka|officially|registrar|per|please|trust)\b/i;
+const CLAIM = /\b(counts?|counted|equal|equals|equivalent|equivalence|same|treat|treated|regarded|considered|recogni[sz]ed|accepted|approved|verified|validated|confirmed|attested|deemed|qualif(y|ies|ied|ying)|meets?|satisf(y|ies|ied)|substitutes?|interchangeable|instead|lieu|aka|officially|registrar|per|please|trust)\b/i;
 const NOT_COMPLETED = /\b(candidate|incomplete|unfinished|in[\s-]progress|pursuing|expected|dropped|withdrew|withdrawn|not\s+completed|partial|coursework|some\s+college|abd|audit(ed|ing)?|honorary|self[\s-](awarded|taught|study|studied)|equivalent|unaccredited|never\s+enrolled)\b/i;
 const HONORS = /\((hons?\.?|honou?rs|first\s+class|cum\s+laude|magna\s+cum\s+laude|summa\s+cum\s+laude|distinction|merit)\)/gi;
 
@@ -49,10 +49,15 @@ export function repeatsItself(value: string): boolean {
   return false;
 }
 
+/** Wording that makes a sentence something other than a statement of what the person did: a hypothetical,
+ * a template, an order about what to report, or taking it back. */
+const NOT_A_STATEMENT = /\b(?:hypothetically|imagine|pretend|suppose|fake|fabricated|made[\s-]up|not\s+real(?:ly)?|untrue|not\s+true|just\s+kidding|trust\s+me|as\s+instructed|if\s+asked|say\s+(?:that\s+)?i\b|i\s+did\s+not\s+do\s+(?:it|this|that)|(?:resume|cv)\s+template|(?:example|sample)\s+(?:sentence|bullet|line|resume|cv)|expected\s+(?:result|output)|r[ée]sultat\s+attendu|please\s+(?:record|note|mark|report|state)|(?:the\s+)?(?:ai|model|assistant|system|reviewer|evaluator|screener|recruiter)\s+(?:must|should|shall|will|needs?\s+to)\s+(?:report|record|say|state|mark|note|list|treat|accept))\b/i;
+export const notAStatement = (text: string) => NOT_A_STATEMENT.test(text.normalize("NFKC"));
+
 /** The value carries something other than a name: markup, hidden characters, or claim wording. */
 export function carriesClaim(value: string): boolean {
   const text = value.normalize("NFKC");
-  return disguised(value) || MARKUP.test(text) || CLAIM.test(text) || hasNegation(text) || repeatsItself(text) || hasDirectedText(text);
+  return disguised(value) || MARKUP.test(text) || CLAIM.test(text) || hasNegation(text) || repeatsItself(text) || hasDirectedText(text) || notAStatement(text);
 }
 
 const wordCount = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -113,7 +118,7 @@ const NOT_THE_FULL_ROLE = /\b(intern|internship|trainee|apprentice|shadow\w*|stu
 export const fullRoleTitle = (title: string) => !NOT_THE_FULL_ROLE.test(title.normalize("NFKC"));
 
 /** Words that name a place of work, not what someone does there. */
-const WORKPLACE_NOUN = /(?:^|\s)(home|hospital|clinic|center|centre|society|foundation|association|group|bank|inc|llc|ltd|corp|corporation|company|co|university|college|school|academy|institute|hotel|restaurant|church|agency|firm|office|pharmacy|lab|laboratory|studio|partners)\.?$/i;
+const WORKPLACE_NOUN = /(?:^|\s)(home|hospital|clinic|center|centre|society|foundation|association|group|bank|museum|inc|llc|ltd|corp|corporation|company|co|university|college|school|academy|institute|hotel|restaurant|church|agency|firm|office|pharmacy|lab|laboratory|studio|partners)\.?$/i;
 /** A place named right before the job: the "Nursing Home" of "Nursing Home Kitchen Aide". */
 const WORKPLACE_BEFORE = /^(?:[\p{L}'-]+\s+)+?(?:home|center|centre|society|foundation|hotel|restaurant|clinic)\s+(?=\S)/iu;
 const WORKPLACE_WORDS = /\b(home|hospital|clinic|center|centre|society|foundation|association|group|bank|university|college|school|academy|institute|hotel|restaurant|church|agency|firm|office|pharmacy|lab|laboratory|studio)\b/gi;

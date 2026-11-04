@@ -226,10 +226,24 @@ function listed(request: MatchRequest): Set<string> {
   return listedTerms(names.filter(plainSkillName));
 }
 
+const GRADE = /\b(class|type|level|series|grade|tier|category)\s*[-:]?\s*([a-z0-9]{1,4})\b/gi;
+const RANK = /\b(associate|professional|expert|master|journeyman|apprentice|practitioner|foundational|fundamentals|specialty|universal)\b/gi;
+/** The two name different grades of the same thing: CDL Class A and Class B, Series 6 and 7, Associate and
+ * Professional. Only what's asked can differ: a listing that names no grade says nothing either way. */
+function gradeDiffers(asked: string, listed: string): boolean {
+  const grades = (text: string) => new Map([...text.matchAll(GRADE)].map(m => [m[1].toLowerCase(), m[2].toLowerCase()]));
+  const have = grades(listed);
+  for (const [key, value] of grades(asked)) if (have.has(key) && have.get(key) !== value) return true;
+  const ranks = (text: string) => new Set((text.match(RANK) ?? []).map(r => r.toLowerCase()));
+  const wanted = ranks(asked);
+  const held = ranks(listed);
+  return held.size > 0 && wanted.size > 0 && ![...wanted].some(r => held.has(r));
+}
+
 /** The requirement names this skill exactly, or by a name the reviewed table records as the same
  * technology. Every specific word of the skill's name must be accounted for. */
 function sameSkill(requirementText: string, name: string): boolean {
-  if (!plainSkillName(name)) return false;
+  if (!plainSkillName(name) || gradeDiffers(requirementText, name)) return false;
   const terms = canonicalTerms(name);
   // "SWIFT payment messaging" isn't the Swift language, though the word is the same.
   if ([...terms].some(t => otherSense(requirementText, t) !== otherSense(name, t))) return false;
@@ -333,7 +347,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
+function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+(?:years?|yrs?))/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -345,16 +359,37 @@ function durationField(text: string): { technologies: string[]; rest: string[]; 
   // "As a project manager" names a role, so every word of it counts: a coordinator isn't a manager.
   const role = clause.match(/\bas\s+(?:an?|the)\s+(.+?)(?=\s+(?:for|at|with|in|on|of|who|that)\b|[,.;:]|$)/i)?.[1] ?? "";
   const asRole = words(role).filter(w => !ROLE_ADJECTIVES.has(w)).map(stem);
-  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, roles: rolesForField(clause), asRole };
+  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, allStems: [...new Set(all.map(stem))], roles: rolesForField(clause), asRole };
 }
 const ROLE_ADJECTIVES = new Set("practicing licensed senior junior experienced professional working lead full-time part-time".split(" "));
 const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
+
+/** Job nouns that take their field from the word before them: "Accounting Clerk", "Welding Technician". */
+const GENERIC_JOB = new Set(`manager supervisor director lead head chief foreman specialist technician tech assistant aide clerk officer
+representative rep associate consultant agent analyst engineer developer programmer administrator dba instructor teacher trainer
+driver operator mechanic worker attendant inspector planner estimator installer repairer`.split(/\s+/));
+const JOB_MODIFIER = new Set("sales store shift floor senior staff".split(" "));
+/** The title's head says the field: its last word names it, or a generic job noun follows a word that does. */
+function headShowsField(field: ReturnType<typeof durationField>, part: string): boolean {
+  const tokens = words(part.replace(/\([^)]*\)/g, " ")).filter(w => !/^(i|ii|iii|iv|jr|sr|\d+)$/.test(w));
+  const head = tokens[tokens.length - 1];
+  if (!head) return false;
+  const named = (w: string | undefined) => !!w && field.allStems.includes(stem(w));
+  if (named(head)) return true;
+  if (!GENERIC_JOB.has(head)) return false;
+  // "Retail Sales Associate", "Retail Store Manager": these words say where in the field, not another job.
+  let before = tokens.length - 2;
+  while (before > 0 && JOB_MODIFIER.has(tokens[before])) before--;
+  return named(tokens[before]);
+}
 
 /** How a job title covers the field. Only what the person did counts: an aide at a nursing home isn't
  * nursing. When the requirement is about the setting itself, working there is a lead, never proof. */
 function titleCoverage(field: ReturnType<typeof durationField>, title: string): "full" | "some" | "none" {
   const part = rolePart(title);
   const found = fieldCoverage(field, part);
+  // A pharmacy delivery driver drives; a nurse recruiter recruits. The field has to be the job itself.
+  if (found === "full" && !field.technologies.length && !field.roles.some(r => r.same.some(t => containsPhrase(part, t))) && !headShowsField(field, part)) return "some";
   if (found !== "none" || part === title) return found;
   return workplaceWords(title).map(stem).some(w => field.stems.includes(w)) ? "some" : "none";
 }
@@ -817,7 +852,7 @@ function assessCredential(request: MatchRequest, requirement: MatchRequirement):
   const wanted = credentialTerms(head);
   const names = (text: string) => {
     const have = credentialTerms(text);
-    return wanted.size > 0 && [...wanted].every(t => have.has(t)) && ![...wanted].some(t => otherSense(head, t) !== otherSense(text, t));
+    return wanted.size > 0 && [...wanted].every(t => have.has(t)) && !gradeDiffers(head, text) && ![...wanted].some(t => otherSense(head, t) !== otherSense(text, t));
   };
   const schools = request.evidence.filter(isEducation).filter(e => plainQualification(e.qualification) && names(e.qualification));
   const completed = schools.filter(e => educationStatus(e, request.as_of_month) === "completed");

@@ -35,8 +35,8 @@
   },
   "latency_s": {
     "rules_p50": 0.001,
-    "rules_p95": 0.013,
-    "rules_max": 0.016,
+    "rules_p95": 0.016,
+    "rules_max": 0.019,
     "workflow_p50": 0,
     "workflow_p95": 0,
     "workflow_max": 0
