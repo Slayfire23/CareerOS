@@ -82,21 +82,26 @@ One new local migration: `20261103010000_candidate_clarifications`. It adds one 
 | ESLint | No errors, 1 warning in `tests/eval/run-eval.eval.ts`, a file this milestone didn't change |
 | Next.js unit | 1,484 passed |
 | Integration | 107 passed |
-| Playwright, full run | 28 passed, 2 skipped (Claude, offline), 2 failed |
-| Those 2 failures | Tests still looked for plain "Supported". After updating the label, both passed, but the full suite wasn't rerun |
-| Laptop-off browser tests, AI service stopped | 2 passed, including the question flow |
+| Playwright, first full run | 28 passed, 2 skipped, 2 failed: those tests still looked for plain "Supported", so I updated the label they expect |
+| Playwright, complete rerun after that fix, on `a09d9bf` | **30 passed, 2 skipped, 0 failed** |
+| The 2 skipped | Offline, which needs the AI service stopped (run separately below), and Claude, disabled by default |
+| Laptop-off browser tests, AI service stopped | 2 passed, including the question flow and the offline test |
 | Production build | Passed |
 | Secret scan | Passed (705 files) |
 
 **Not run:** the Claude browser test stays skipped, since paid AI is off, so its updated label is unexercised. Set I wasn't run.
 
-## 6. Next
+## 6. Owner's decisions (November 3, 2026)
+
+- **Set J labeling guide:** approved to change based on the Set I audit, provided the original Set I labels stay unchanged and all changes are documented before the freeze.
+- **Who decides the audit:** the owner will review the 30 items with ChatGPT and return final labels. The owner's labels are the final decision. The report will describe them as owner decisions reviewed with an AI assistant, not as labels made by a person alone.
+- **Hold:** no freeze, Set J, push, merge, deploy, or production migration until the owner returns the audit decisions and explicitly approves proceeding.
+
+## 7. Next
 
 1. You complete the audit.
 2. I report discrepancies separately.
-3. I commit the freeze and written criteria, keeping zero false Supported and zero successful injections.
+3. After your explicit approval, I document any guide changes and commit the freeze and written criteria, keeping zero false Supported and zero successful injections.
 4. An independent agent writes Set J and another labels it blind, committed before any run.
 5. Set J runs once.
 6. Final report, then a stop for your approval.
-
-**Decision to make with your audit:** if your answers show the labeling standard is off, should I change the Set J labeling guide before the freeze? I'd recommend yes, since it's a guide for new labels and doesn't change Set I.
