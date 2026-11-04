@@ -66,11 +66,11 @@ test("rules decide every result, and AI suggestions are kept apart", async ({ pa
 
     const latest = page.getByRole("region", { name: "Latest analysis" });
     await expect(latest.getByText(/Rules \+ AI suggestions \(qwen3:8b\)/)).toBeVisible();
-    await expect(latest.getByRole("heading", { name: "Verified matching results" })).toBeVisible();
+    await expect(latest.getByRole("heading", { name: "Matching results" })).toBeVisible();
     const findings = latest.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 3 }) });
     // A known alternate name is decided by the reviewed table, not by a model.
     const kubernetes = findings.filter({ hasText: "Kubernetes administration" });
-    await expect(kubernetes.getByText("Supported", { exact: true })).toBeVisible();
+    await expect(kubernetes.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
     await expect(kubernetes.getByText("Rules engine: a skill you list, under a known alternate name", { exact: true })).toBeVisible();
     await expect(kubernetes.getByText("K8s", { exact: true })).toBeVisible();
     // Every result names the rule that decided it.
@@ -84,7 +84,7 @@ test("rules decide every result, and AI suggestions are kept apart", async ({ pa
 
     // Suggestions are a separate section that says what it is.
     const suggestions = page.getByRole("region", { name: "AI suggestions" });
-    await expect(suggestions.getByText(/Not verified\. These don.t affect the verified results above\./)).toBeVisible();
+    await expect(suggestions.getByText(/These are only guesses, and they don.t affect the results above\./)).toBeVisible();
 
     // The feedback workflow is unchanged.
     await expect(kubernetes.getByRole("button", { name: /agree/i }).first()).toBeVisible();

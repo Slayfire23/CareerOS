@@ -79,7 +79,7 @@ test("cloud analysis needs consent, runs through the mock provider, and can be w
     await openPage(page, matchUrl);
     await expect(page.getByText(/Claude Sonnet 5\.5 \(Anthropic\) \(claude-sonnet-5-5\/prompt-v1\)/)).toBeVisible();
     const finding = page.getByRole("region", { name: "Latest analysis" }).getByRole("listitem").filter({ hasText: `Proficiency in ${skill}` });
-    await expect(finding.getByText("Supported", { exact: true })).toBeVisible();
+    await expect(finding.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
     await expect(finding.getByText(skill, { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent runs" })).toBeVisible();
 
@@ -89,7 +89,7 @@ test("cloud analysis needs consent, runs through the mock provider, and can be w
     await runForm.getByRole("radio", { name: /Claude Sonnet 5\.5/ }).check();
     await expect(runForm.getByRole("button", { name: /^Run analysis/ })).toBeDisabled();
     // Past results stay visible after withdrawal.
-    await expect(finding.getByText("Supported", { exact: true })).toBeVisible();
+    await expect(finding.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
   } finally {
     await openPage(page, "/dashboard/jobs");
     if (await jobRow.count()) await confirmAction(jobRow.getByRole("button", { name: /^Remove / }));

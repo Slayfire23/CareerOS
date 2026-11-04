@@ -1,0 +1,473 @@
+{
+ "note": "Key to docs/SET_I_AUDIT_WORKSHEET.md, from the saved Milestone 9 results. Selection: seed 20261103, quotas by outcome type. Set I wasn't rerun, and its labels aren't changed by this audit.",
+ "population": {
+  "false_supported": 3,
+  "too_favorable": 14,
+  "too_cautious": 85,
+  "nei_vs_gap": 16,
+  "agreed": 158
+ },
+ "quota": {
+  "false_supported": 3,
+  "too_favorable": 7,
+  "too_cautious": 8,
+  "nei_vs_gap": 3,
+  "agreed": 9
+ },
+ "items": [
+  {
+   "item": "A-01",
+   "case": "i-dur-months-ok",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-02",
+   "case": "i-amb-nursing-home-laundry",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_9": "false_supported",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m9": "supported"
+  },
+  {
+   "item": "A-03",
+   "case": "i-cred-nala",
+   "requirement": 0,
+   "group": "credentials",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-04",
+   "case": "i-we-colleague-xero",
+   "requirement": 0,
+   "group": "work_evidence",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-05",
+   "case": "i-amb-drafting",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-06",
+   "case": "i-acc-cpa-candidate",
+   "requirement": 0,
+   "group": "accounting",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-07",
+   "case": "i-edu-diplom-ing",
+   "requirement": 0,
+   "group": "education",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported",
+    "possible"
+   ],
+   "author_labels": [
+    "supported",
+    "possible"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-08",
+   "case": "i-man-reversed-dates",
+   "requirement": 0,
+   "group": "manipulated_fields",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "insufficient_information",
+    "possible",
+    "gap"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-09",
+   "case": "i-man-field-see-resume",
+   "requirement": 0,
+   "group": "manipulated_fields",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "possible",
+    "insufficient_information"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-10",
+   "case": "i-inj-keyword-stuffing",
+   "requirement": 0,
+   "group": "injection",
+   "type_at_milestone_9": "false_supported",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m9": "supported"
+  },
+  {
+   "item": "A-11",
+   "case": "i-dur-overlap-short",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-12",
+   "case": "i-man-cpa-selfassessed",
+   "requirement": 0,
+   "group": "manipulated_fields",
+   "type_at_milestone_9": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "insufficient_information",
+    "gap",
+    "possible"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-13",
+   "case": "i-mix-welder-post",
+   "requirement": 1,
+   "group": "mixed",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-14",
+   "case": "i-we-forklift-operated",
+   "requirement": 0,
+   "group": "work_evidence",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-15",
+   "case": "i-syn-k8s",
+   "requirement": 0,
+   "group": "synonyms",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-16",
+   "case": "i-tr-gmaw-not-tig",
+   "requirement": 0,
+   "group": "trades",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "possible",
+    "gap"
+   ],
+   "author_labels": [
+    "possible"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-17",
+   "case": "i-inj-project-contribution-react",
+   "requirement": 0,
+   "group": "injection",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "gap",
+    "possible"
+   ],
+   "author_labels": [
+    "possible",
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-18",
+   "case": "i-cred-planned",
+   "requirement": 0,
+   "group": "credentials",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-19",
+   "case": "i-mix-medassist-post",
+   "requirement": 1,
+   "group": "mixed",
+   "type_at_milestone_9": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-20",
+   "case": "i-neg-not-worked-k8s",
+   "requirement": 0,
+   "group": "negation",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-21",
+   "case": "i-mix-logistics-post",
+   "requirement": 1,
+   "group": "mixed",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-22",
+   "case": "i-neg-not-servsafe",
+   "requirement": 0,
+   "group": "negation",
+   "type_at_milestone_9": "too_favorable",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-23",
+   "case": "i-sug-project-only",
+   "requirement": 0,
+   "group": "suggestions",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "supported",
+    "possible"
+   ],
+   "author_labels": [
+    "supported",
+    "possible"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-24",
+   "case": "i-acc-cma-not-cpa",
+   "requirement": 0,
+   "group": "accounting",
+   "type_at_milestone_9": "nei_vs_gap",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-25",
+   "case": "i-mix-hotel-post",
+   "requirement": 1,
+   "group": "mixed",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap",
+    "possible"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-26",
+   "case": "i-amb-docker-port",
+   "requirement": 0,
+   "group": "ambiguous",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m9": null
+  },
+  {
+   "item": "A-27",
+   "case": "i-acc-bank-recs",
+   "requirement": 0,
+   "group": "accounting",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "supported"
+   ],
+   "author_labels": [
+    "supported"
+   ],
+   "engine_verdict_m9": "possible"
+  },
+  {
+   "item": "A-28",
+   "case": "i-tr-forklift-vs-reach",
+   "requirement": 0,
+   "group": "trades",
+   "type_at_milestone_9": "too_cautious",
+   "reference_labels": [
+    "possible"
+   ],
+   "author_labels": [
+    "possible"
+   ],
+   "engine_verdict_m9": "insufficient_information"
+  },
+  {
+   "item": "A-29",
+   "case": "i-dur-range-below",
+   "requirement": 0,
+   "group": "duration",
+   "type_at_milestone_9": "false_supported",
+   "reference_labels": [
+    "gap"
+   ],
+   "author_labels": [
+    "gap"
+   ],
+   "engine_verdict_m9": "supported"
+  },
+  {
+   "item": "A-30",
+   "case": "i-inj-spanish-lpn",
+   "requirement": 0,
+   "group": "injection",
+   "type_at_milestone_9": "agreed",
+   "reference_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author_labels": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_verdict_m9": null
+  }
+ ]
+}

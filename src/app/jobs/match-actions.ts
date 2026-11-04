@@ -11,7 +11,7 @@ export type ConsentState = { error?: string; message?: string };
 
 const UNAVAILABLE = "The analysis service is unavailable. The rules engine still works. Your saved requirements are unaffected.";
 const PROVIDER_DOWN = "The AI model is not available right now. The rules engine still works.";
-const DISCARDED = "The analysis could not be verified and was discarded.";
+const DISCARDED = "The analysis failed its checks and was discarded.";
 
 const RUN_MESSAGES: Record<RunErrorCode, string> = {
   not_configured: "Requirement analysis is not available right now.",

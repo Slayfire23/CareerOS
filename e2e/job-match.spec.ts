@@ -72,7 +72,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
 
     const findings = page.getByRole("region", { name: "Latest analysis" }).getByRole("listitem").filter({ has: page.getByRole("heading", { level: 3 }) });
     const first = findings.filter({ hasText: `Proficiency in ${skill}` });
-    await expect(first.getByText("Supported", { exact: true })).toBeVisible();
+    await expect(first.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
     await expect(first.getByText(skill, { exact: true })).toBeVisible();
     await expect(first.getByRole("link", { name: "Skill", exact: true })).toHaveAttribute("href", "/dashboard/skills");
     const second = findings.filter({ hasText: "Quuxflow administration" });

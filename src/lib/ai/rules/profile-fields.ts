@@ -1,3 +1,5 @@
+import { hasDirectedText } from "@/lib/ai/untrusted-text";
+
 // Typed profile fields are data, not statements. A field that holds a remark or a claim ("Statistics
 // (counts as Computer Science per registrar)", "Python = Scala") isn't a value of that field, so it
 // is never used as evidence. What a person writes about equivalence is never an independently
@@ -21,6 +23,7 @@ export const NEGATION = new RegExp(
     "\\bwithout\\s+(?:any\\s+)?(using|experience|knowledge|exposure|touching|training)\\b",
     "\\b(lacks?|lacking|lacked|unfamiliar\\s+with|inexperienced\\s+(?:with|in)|new\\s+to|(?:have|has)\\s+yet\\s+to|yet\\s+to)\\b",
     "\\b(wants?|hopes?|hoping|plans?|planning|intends?|would\\s+like|looking|aims?|aiming)\\s+to\\s+(learn|try|use|start|explore|study|pick\\s+up)\\b",
+    "\\b(?:would\\s+love|d\\s+love|love|excited|eager|keen|dreams?|dreaming|aspires?|aspiring|wish(?:es)?|looking\\s+forward)\\s+(?:to|of)\\s+(?:\\w+\\s+){0,2}?(?:learn\\w*|try\\w*|use|using|work\\w*|start\\w*|explor\\w*|study\\w*)\\b",
   ].join("|"),
   "gi",
 );
@@ -31,10 +34,25 @@ export function disguised(value: string): boolean {
   return HIDDEN.test(value) || value.split(/\s+/).some(word => LATIN.test(word) && LOOKALIKE.test(word));
 }
 
+const NOT_REPEATED = new Set("a an and the of in on to for with or at by".split(" "));
+/** The same words over and over: a word three times running, or a phrase twice. Nobody writes this for
+ * a reader, and it's the usual way of feeding a keyword filter. */
+export function repeatsItself(value: string): boolean {
+  const tokens = value.normalize("NFKC").toLowerCase().match(/[\p{L}\p{N}+#]+/gu) ?? [];
+  for (let i = 0; i < tokens.length; i++) {
+    if (!NOT_REPEATED.has(tokens[i]) && tokens[i] === tokens[i + 1] && tokens[i] === tokens[i + 2]) return true;
+    for (const size of [2, 3]) {
+      if (i + 2 * size > tokens.length) continue;
+      if (tokens.slice(i, i + size).join(" ") === tokens.slice(i + size, i + 2 * size).join(" ") && !tokens.slice(i, i + size).every(t => NOT_REPEATED.has(t))) return true;
+    }
+  }
+  return false;
+}
+
 /** The value carries something other than a name: markup, hidden characters, or claim wording. */
 export function carriesClaim(value: string): boolean {
   const text = value.normalize("NFKC");
-  return disguised(value) || MARKUP.test(text) || CLAIM.test(text) || hasNegation(text);
+  return disguised(value) || MARKUP.test(text) || CLAIM.test(text) || hasNegation(text) || repeatsItself(text) || hasDirectedText(text);
 }
 
 const wordCount = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
@@ -80,7 +98,7 @@ const DEGREE_DIPLOMA = /\b(graduate|postgraduate|post-graduate|advanced|higher|n
 export const belowDegree = (qualification: string) => BELOW_DEGREE.test(qualification) && !DEGREE_DIPLOMA.test(qualification);
 
 /** A credential listed by name, with words that say it's held rather than planned. */
-const NOT_HELD = /\b(expired|lapsed|pending|booked|scheduled|studying|preparing|planned|planning|enrolled|working\s+toward|in\s+progress|not\s+yet|exam\s+(date|booked)|renewal\s+due|suspended|revoked)\b/i;
+const NOT_HELD = /\b(expired|lapsed|pending|booked|scheduled|studying|preparing|planned|planning|enrolled|working\s+toward|in\s+progress|not\s+yet|exam\s+(date|booked)|renewal\s+due|suspended|revoked|candidate|eligible|aspiring|sitting\s+for|exam\s+\d)\b/i;
 const CREDENTIAL_MARKER = /\b(certified|certification|certificate|licensed|license|licence|card)\b/i;
 const ACRONYM_NOTE = /\(([A-Z0-9+/]{2,8})\)/g;
 export const notHeld = (text: string) => NOT_HELD.test(text.normalize("NFKC"));
@@ -93,6 +111,27 @@ export function plainCredentialName(name: string): boolean {
 /** A title showing the job isn't the full role: "Chief Technology Officer (summer intern)". */
 const NOT_THE_FULL_ROLE = /\b(intern|internship|trainee|apprentice|shadow\w*|student|volunteer|unpaid|assistant\s+to|aspiring|acting|interim\s+intern|emergency\s+permit)\b/i;
 export const fullRoleTitle = (title: string) => !NOT_THE_FULL_ROLE.test(title.normalize("NFKC"));
+
+/** Words that name a place of work, not what someone does there. */
+const WORKPLACE_NOUN = /(?:^|\s)(home|hospital|clinic|center|centre|society|foundation|association|group|bank|inc|llc|ltd|corp|corporation|company|co|university|college|school|academy|institute|hotel|restaurant|church|agency|firm|office|pharmacy|lab|laboratory|studio|partners)\.?$/i;
+/** A place named right before the job: the "Nursing Home" of "Nursing Home Kitchen Aide". */
+const WORKPLACE_BEFORE = /^(?:[\p{L}'-]+\s+)+?(?:home|center|centre|society|foundation|hotel|restaurant|clinic)\s+(?=\S)/iu;
+const WORKPLACE_WORDS = /\b(home|hospital|clinic|center|centre|society|foundation|association|group|bank|university|college|school|academy|institute|hotel|restaurant|church|agency|firm|office|pharmacy|lab|laboratory|studio)\b/gi;
+
+/** The part of a title saying what the person did, without where: "Kitchen Aide, Harbor Nursing Home" is
+ * "Kitchen Aide". "Manager, Accounting" names a specialty, not a place, so it stays whole. */
+export function rolePart(title: string): string {
+  let text = title.normalize("NFKC").trim();
+  text = text.split(/\s+at\s+|\s*@\s*/i)[0].trim();
+  const aside = text.match(/\s*\(([^)]*)\)\s*$/);
+  if (aside && WORKPLACE_NOUN.test(aside[1].trim())) text = text.slice(0, aside.index).trim();
+  const tail = text.match(/^(.+?)(?:\s*,\s*|\s+[-\u2013\u2014|]\s+|\s*\|\s*|\s+for\s+)(.+)$/i);
+  if (tail && WORKPLACE_NOUN.test(tail[2].trim())) text = tail[1].trim();
+  const stripped = text.replace(WORKPLACE_BEFORE, "").trim();
+  return stripped || text || title;
+}
+/** Place-of-work words in a title, for a requirement about the setting itself ("hospital experience"). */
+export const workplaceWords = (title: string) => (title.normalize("NFKC").match(WORKPLACE_WORDS) ?? []).map(w => w.toLowerCase());
 
 /** A job or project title usable as evidence or shown to local AI. */
 export function plainTitle(title: string): boolean {

@@ -57,7 +57,7 @@ test("analysis works with the AI service and Ollama off", async ({ page }) => {
     await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 30000 });
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
-    await expect(findings.filter({ hasText: `Proficiency in ${skill}` }).getByText("Supported", { exact: true })).toBeVisible();
+    await expect(findings.filter({ hasText: `Proficiency in ${skill}` }).getByText("Supported — Self-reported", { exact: true })).toBeVisible();
     await expect(findings.filter({ hasText: "Quuxflow administration" }).getByText("Not enough information", { exact: true })).toBeVisible();
     await expect(page.getByRole("region", { name: "AI suggestions" })).toHaveCount(0);
 
@@ -69,7 +69,7 @@ test("analysis works with the AI service and Ollama off", async ({ page }) => {
       await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 60000 });
       await page.reload();
       await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
-      await expect(findings.filter({ hasText: `Proficiency in ${skill}` }).getByText("Supported", { exact: true })).toBeVisible();
+      await expect(findings.filter({ hasText: `Proficiency in ${skill}` }).getByText("Supported — Self-reported", { exact: true })).toBeVisible();
       await expect(page.getByRole("region", { name: "AI suggestions" }).getByRole("status")).toContainText("Local AI is unavailable right now");
     }
   } finally {

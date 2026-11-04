@@ -10,8 +10,11 @@ export const VERDICTS: Verdict[] = ["supported", "possible", "gap", "insufficien
 export type EvidenceKind = "skill" | "experience" | "education" | "project";
 
 export type SkillEvidence = { id: string; kind: "skill"; name: string; proficiency: string | null };
-export type ExperienceEvidence = { id: string; kind: "experience"; job_title: string; start_month: string; end_month: string | null; description: string | null };
-export type EducationEvidence = { id: string; kind: "education"; qualification: string; field_of_study: string | null; start_month: string; end_month: string | null; description: string | null };
+/** `source`: this came from answering a question about a requirement. Absent means typed into the profile.
+ * Either way it's self-reported: nothing here says anything was independently checked. */
+export type AnswerSource = { source?: "clarification" };
+export type ExperienceEvidence = { id: string; kind: "experience"; job_title: string; start_month: string; end_month: string | null; description: string | null } & AnswerSource;
+export type EducationEvidence = { id: string; kind: "education"; qualification: string; field_of_study: string | null; start_month: string; end_month: string | null; description: string | null } & AnswerSource;
 export type ProjectEvidence = { id: string; kind: "project"; title: string; description: string | null; contribution: string | null; results: string | null; skills: string[] };
 export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | ProjectEvidence;
 
@@ -33,8 +36,8 @@ export type MatchRequest = {
 
 export type EvidenceProfile = {
   technicalSkills: { id: string; name: string; proficiency: string | null }[];
-  professionalExperiences: { id: string; jobTitle: string; startMonth: string; endMonth: string | null; description: string | null }[];
-  educationEntries: { id: string; qualification: string; fieldOfStudy: string | null; startMonth: string; endMonth: string | null; description: string | null }[];
+  professionalExperiences: { id: string; jobTitle: string; startMonth: string; endMonth: string | null; description: string | null; clarifications?: { id: string; detail: string | null }[] }[];
+  educationEntries: { id: string; qualification: string; fieldOfStudy: string | null; startMonth: string; endMonth: string | null; description: string | null; clarifications?: { id: string }[] }[];
   projects: { id: string; title: string; description: string | null; contribution: string | null; results: string | null; skills: string[] }[];
 };
 
@@ -59,8 +62,14 @@ export function buildEvidence(profile: EvidenceProfile): Evidence[] {
     ...profile.professionalExperiences.map((e): ExperienceEvidence => ({
       id: `experience:${e.id}`, kind: "experience", job_title: e.jobTitle.trim(), start_month: e.startMonth, end_month: e.endMonth, description: text(e.description, 5000),
     })),
+    // An answer about a role is its own entry with that role's title and dates, so the same rules read it,
+    // time is never counted twice (overlaps merge), and its source stays separate from what the role says.
+    ...profile.professionalExperiences.flatMap(e => (e.clarifications ?? []).filter(c => c.detail).map((c): ExperienceEvidence => ({
+      id: `experience:${c.id}`, kind: "experience", job_title: e.jobTitle.trim(), start_month: e.startMonth, end_month: e.endMonth, description: text(c.detail, 1000), source: "clarification",
+    }))),
     ...profile.educationEntries.map((e): EducationEvidence => ({
       id: `education:${e.id}`, kind: "education", qualification: e.qualification.trim(), field_of_study: text(e.fieldOfStudy, 200), start_month: e.startMonth, end_month: e.endMonth, description: text(e.description, 5000),
+      ...(e.clarifications?.length ? { source: "clarification" as const } : {}),
     })),
     ...profile.projects.map((p): ProjectEvidence => ({
       id: `project:${p.id}`, kind: "project", title: p.title.trim(), description: text(p.description, 5000), contribution: text(p.contribution, 5000), results: text(p.results, 5000),
@@ -139,6 +148,14 @@ export function citableTexts(item: Evidence): string[] {
     : item.kind === "project" ? [item.title, item.description, item.contribution, item.results, ...item.skills]
     : [item.qualification, item.field_of_study, item.description];
   return fields.filter((f): f is string => !!f);
+}
+
+/** Where cited evidence came from. There's no "verified": CareerOS has no independent check of anything. */
+export type EvidenceOrigin = "profile" | "candidate_answer";
+export function citationOrigin(item: Evidence, quote: string): EvidenceOrigin {
+  if (item.kind === "skill" || item.kind === "project" || item.source !== "clarification") return "profile";
+  // An answer's entry repeats its role's title, which came from the profile.
+  return item.kind === "experience" && quote === item.job_title ? "profile" : "candidate_answer";
 }
 
 export const MIN_QUOTE_CHARS = 3;

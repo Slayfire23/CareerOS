@@ -78,7 +78,7 @@ describe("useful pointers survive, in wording written by code", () => {
   it("an unknown tool name, for review", () => {
     const { suggestions } = check("Kubernetes administration", [skill("Helmsman", 1)], { ...connection(0, id("skill", 1), "Helmsman"), text: "You are fully qualified." } as Pointer);
     expect(suggestions).toEqual([expect.objectContaining({ kind: "alternate_name", knownToRules: false, citation: { evidenceId: id("skill", 1), quote: "Helmsman" } })]);
-    expect(suggestions[0].text).toContain("Not verified");
+    expect(suggestions[0].text).toContain("only a guess");
     expect(suggestions[0].text).not.toContain("qualified");
   });
 

@@ -14,6 +14,7 @@ import {
   currentMonth,
   evidenceFingerprint,
   type AnalysisProvider,
+  type Evidence,
   type MatchRequest,
   type Verdict,
 } from "@/lib/ai/evidence";
@@ -94,8 +95,8 @@ async function ownedEvidenceProfile(userId: string) {
     where: { userId },
     select: {
       technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
-      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true } },
-      educationEntries: { select: { id: true, qualification: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true } },
+      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true, detail: true }, where: { outcome: "ROLE_DETAIL_ADDED" }, orderBy: { id: "asc" } } } },
+      educationEntries: { select: { id: true, qualification: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true }, where: { outcome: "ENTRY_ADDED" } } } },
       projects: { select: { id: true, title: true, description: true, contribution: true, results: true, skills: true } },
     },
   });
@@ -288,6 +289,8 @@ export async function runJobAnalysis(options: {
     fingerprint = evidenceFingerprint(evidence); // always of the unredacted profile
     const requirements = buildRequirements(requirementsList);
     request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence };
+    // Only the rules on this server use an answer's source; the service's strict format has no such field.
+    if (!usesRules) request.evidence = evidence.map(item => (("source" in item) ? (Object.fromEntries(Object.entries(item).filter(([key]) => key !== "source")) as Evidence) : item));
     if (cloud) {
       const redacted = redactForCloud(evidence, requirements, await redactionTerms(user.id, job.company, options.contactEmail ?? null));
       request = { ...request, ...redacted };
@@ -560,10 +563,23 @@ export type AnalysisView = {
 export type CloudStatus = { available: boolean; consentCurrent: boolean };
 export type LocalAiStatus = { available: boolean; model: string | null };
 
+export type ClarificationAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
+
 export async function getAnalysisPageData(supabaseAuthId: string, jobId: string, config: AiConfig, now = new Date()) {
   const user = await ownerOf(supabaseAuthId);
   const job = user && (await ownedJob(user.id, jobId));
   if (!user || !job) return null;
+
+  const [answers, declined, roles] = await Promise.all([
+    prisma.candidateClarification.findMany({
+      where: { userId: user.id, outcome: { not: "DECLINED" } },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: { id: true, requirementText: true, detail: true, outcome: true, createdAt: true, experience: { select: { jobTitle: true } }, education: { select: { qualification: true } } },
+    }),
+    prisma.candidateClarification.findMany({ where: { userId: user.id, savedJobId: job.id, outcome: "DECLINED" }, select: { id: true, requirementText: true } }),
+    prisma.professionalExperience.findMany({ where: { profile: { userId: user.id } }, select: { id: true, jobTitle: true, company: true }, orderBy: { startMonth: "desc" } }),
+  ]);
 
   const since = new Date(now.getTime() - WINDOW_MS);
   const [latest, history, countedToday, profile] = await Promise.all([
@@ -626,5 +642,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     configured: config.enabled,
     cloud,
     localAi,
+    answers: answers.map((a): ClarificationAnswer => ({ id: a.id, requirementText: a.requirementText, detail: a.detail, outcome: a.outcome, createdAt: a.createdAt, roleTitle: a.experience?.jobTitle ?? null, qualification: a.education?.qualification ?? null })),
+    declined,
+    roles: roles.map(r => ({ id: r.id, label: `${r.jobTitle}, ${r.company}` })),
   };
 }

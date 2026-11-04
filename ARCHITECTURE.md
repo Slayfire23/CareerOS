@@ -183,7 +183,8 @@ The rules engine (`src/lib/ai/rules/engine.ts`, `rules-v6`) is the only authorit
 - **Python rules:** frozen at `rules-v5` as a test reference (`tests/fixtures/rules_v5_golden.json`) and refused in production. They are to be deleted after the next evaluation confirms the TypeScript engine.
 - **Milestone 8 (`rules-v7`):** education status is completed, in progress, incomplete, or unknown, and free text can only lower it. Negated clauses and fake audits or scores are untrusted. Years count only in the field asked for. Foreign degrees with no exact counterpart are at most possible.
 - **Milestone 9 (`rules-v9`):** from the owner's review of Set H, a role stating direct use of a technology is Supported, and an explicit statement of not having something is Not supported. Thresholds are at the top of `rules/engine.ts` and in docs/MILESTONE_9_REPORT.md.
-- Results and limitations: docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, and docs/MILESTONE_9_REPORT.md.
+- **Milestone 10 (`rules-v10`):** a question on uncertain results (`rules/clarifications.ts`). Answers are stored in `CandidateClarification`, reach the engine as ordinary evidence with `source: "clarification"`, and are re-read by the rules with no AI service. `Finding.evidenceSources` records where evidence came from, apart from the verdict. Everything is self-reported: there is no verified state. Reviewed alternate names are in `rules/data/terminology.json`.
+- Results and limitations: docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, docs/MILESTONE_9_REPORT.md, and docs/MILESTONE_10_STATUS.md.
 
 ## AI-assisted analysis: rules decide, local AI suggests (Milestone 6, superseded by Milestone 7) - November 2, 2026
 

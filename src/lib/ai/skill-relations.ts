@@ -1,6 +1,8 @@
 import table from "@/lib/ai/rules/data/skill_relations.json";
+import terminology from "@/lib/ai/rules/data/terminology.json";
 import { DEGREE_WORDS, RELEVANCE_STOPWORDS } from "@/lib/ai/evidence";
-import { NEGATION, disguised, hasNegation } from "@/lib/ai/rules/profile-fields";
+import { NEGATION, disguised, hasNegation, repeatsItself } from "@/lib/ai/rules/profile-fields";
+import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
 // How a quote relates to a requirement, decided by code from the reviewed table. Authoritative since
 // Milestone 7; the frozen Python copy is only a test reference. Instructions hidden in job or profile
@@ -22,6 +24,20 @@ const FAMILIES = table.concepts.map(concept => {
     members: new Set(concept.members.map(m => PHRASES.get(m) ?? m)),
   };
 });
+// The reviewed occupational names (docs/TERMINOLOGY_RESEARCH.md): exact phrases only. "same" means another
+// name for it; "related" can only ever give Possible.
+export const TERMINOLOGY_VERSION = terminology.version;
+const TERMINOLOGY_TERMS = new Set<string>(terminology.groups.map(group => group.canonical));
+export const isTerminologyTerm = (term: string) => TERMINOLOGY_TERMS.has(term);
+for (const group of terminology.groups) {
+  PHRASES.set(group.canonical, group.canonical);
+  for (const name of group.same) PHRASES.set(name, group.canonical);
+}
+for (const group of terminology.groups) {
+  if (!group.related.length) continue;
+  for (const name of group.related) if (!PHRASES.has(name)) PHRASES.set(name, name.replaceAll(" ", ""));
+  FAMILIES.push({ terms: new Set([group.canonical]), members: new Set(group.related.map(name => PHRASES.get(name)!)) });
+}
 const LONGEST = Math.max(...[...PHRASES.keys()].map(p => p.split(" ").length));
 const DISTINCT = new Set(table.distinct.map(pair => [...pair].sort().join("\u0000")));
 const DOTNET = /(?<![\p{L}\p{N}_.])\.net(?![\p{L}\p{N}_])/giu;
@@ -114,7 +130,7 @@ export function quoteTerms(quote: string, fieldText?: string | null): Set<string
 /** A skill name is a name: short, with no remark or sentence in it (relations.py). "Bash (also counts
  * as Terraform)" is a claim, so it never counts as a listed skill. */
 export function plainSkillName(name: string): boolean {
-  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || saysAbsent(name)) return false;
+  if (disguised(name) || words(name).length > 6 || /[:;{}<>=≈≡→⇒]/.test(name.normalize("NFKC")) || saysAbsent(name) || repeatsItself(name) || hasDirectedText(name)) return false;
   // "AWS Certified Developer" is a credential's name; a remark about one ("Terraform (certified)") isn't.
   if (/\bcertified\b/i.test(name) && (name.includes("(") || /\bcertified\s+by\b/i.test(name) || /\bcertified$/i.test(name.trim()))) return false;
   return !/\b(counts?|is|are|was|means?|equal|equals|same|equivalent|as|also|verified|approved|expert|aka|treated|deemed|qualifies)\b/i.test(name);
@@ -181,6 +197,52 @@ export function relatedTermInText(requirementText: string, fieldText: string): s
 
 export const isDistinctPair = (a: string, b: string) => DISTINCT.has([a, b].sort().join("\u0000"));
 
+const DUMP_LABEL = /^\W*(?:(?:ats|seo|resume)\s+)?(?:key\s*words?|search\s+terms?|tags?|seo|ats)\s*[:\-\u2013\u2014]/iu;
+const LIST_LABEL = /^\W*(?:skills?|tools?|technolog(?:y|ies)|tech(?:\s+stack)?|stack|software|platforms?|environment|competenc(?:y|ies)|core\s+competenc(?:y|ies)|(?:areas?\s+of\s+)?expertise|proficienc(?:y|ies)|languages?|systems?)(?:\s+used)?\s*[:\-\u2013\u2014]/iu;
+const fragments = (sentence: string) => sentence.split(/\s*[,|/\u2022\u00B7]\s*|\s+-\s+/).map(f => words(f)).filter(f => f.length);
+
+/** A sentence written for a keyword filter rather than a reader: a "Keywords:" label, the same words
+ * over and over, or a list repeating the same first or last word. It's never evidence of anything. */
+export function keywordDump(sentence: string): boolean {
+  const text = sentence.normalize("NFKC");
+  if (DUMP_LABEL.test(text) || repeatsItself(text)) return true;
+  const parts = fragments(text);
+  const most = (values: string[]) => Math.max(0, ...[...new Set(values)].map(v => values.filter(x => x === v).length));
+  if (parts.length >= 3 && most(parts.map(p => p[0])) >= 3 && !parts.some(p => WORK_VERBS.has(p[0]))) return true;
+  if (parts.length >= 4 && most(parts.map(p => p[p.length - 1])) >= 4) return true;
+  // No punctuation at all, and one word three times with no verb: "Tableau admin Tableau support Tableau reports".
+  const all = words(text).filter(w => !GENERIC.has(w));
+  return parts.length === 1 && most(all) >= 3 && !words(text).some(w => WORK_VERBS.has(w));
+}
+
+/** A labelled or long list of names: it may say what was around, not that the person did the work. */
+export function labelledList(sentence: string): boolean {
+  const text = sentence.normalize("NFKC");
+  if (LIST_LABEL.test(text)) return true;
+  const parts = fragments(text);
+  return parts.length >= 6 && !words(text).some(w => WORK_VERBS.has(w));
+}
+
+/** The whole sentence around a position in free text. */
+function sentenceAt(text: string, start: number, end: number): string {
+  const from = text.slice(0, start).search(/[^.!?;\n]*$/);
+  const stop = text.slice(end).search(/[.!?;\n]/);
+  return text.slice(from, stop < 0 ? text.length : end + stop);
+}
+
+const THIRD_PARTY_SUBJECT = /^\W*(?:my|our|the|a|an)\s+(?:\w+\s+)?(?:colleagues?|managers?|boss|supervisors?|coworkers?|co-workers?|teammates?|bookkeepers?|accountants?|vendors?|contractors?|consultants?|leads?|teams?|department|staff|predecessors?|mentors?|clients?|customers?|firms?)\b/i;
+const DONE_BY_OTHERS = /^(?:\S+\s+){0,3}?(?:was|were|is|are|got)\s+(?:\w+\s+)?\w+\s+by\b/i;
+/** The sentence says someone else did it: "My colleague ran Xero", "Xero was run by the finance team". */
+function someoneElsesWork(sentence: string, after: string): boolean {
+  return THIRD_PARTY_SUBJECT.test(sentence) || DONE_BY_OTHERS.test(after.trim());
+}
+
+/** "iOS owners" names people; "Tableau for 300 users" says who the work served, which is still the work. */
+function namesConsumers(after: string[]): boolean {
+  const stop = after.slice(0, 3).findIndex(t => t === "for" || t === "to");
+  return after.slice(0, stop < 0 ? 3 : stop).some(t => CONSUMER_NOUNS.has(t));
+}
+
 /** The text describes a technology as used in work: a work verb shortly before it, or a technical noun
  * or another known technology beside it. "Built Kafka consumers" does; "Kubernetes expertise confirmed"
  * does not. A mention alone is not evidence. */
@@ -194,9 +256,11 @@ export function describesUse(fieldText: string, quote: string): boolean {
     const after = words(fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0]);
     const negative = new Set([...terms].flatMap(t => WORD_NEGATIVE[t] ?? []));
     if ([...before.slice(-4), ...after.slice(0, 4)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
+    const sentence = sentenceAt(fieldText, match.index, match.index + match[0].length);
+    if (keywordDump(sentence) || someoneElsesWork(sentence, fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0])) continue;
     if (before.slice(-5).some(t => WORK_VERBS.has(t))) return true;
     // "Helped iOS and Android owners" names who was helped, not what was used.
-    if (after.slice(0, 3).some(t => CONSUMER_NOUNS.has(t))) continue;
+    if (namesConsumers(after)) continue;
     if ([...before.slice(-3), ...after.slice(0, 3)].some(t => TECH_CONTEXT.has(t) || (VOCABULARY.has(t) && !terms.has(t)))) return true;
   }
   return directUse(fieldText, quote);
@@ -224,9 +288,12 @@ export function directUse(fieldText: string, quote: string, sameOtherSense = fal
     const negative = new Set(sameOtherSense ? [] : [...terms].flatMap(t => WORD_NEGATIVE[t] ?? []));
     if ([...before.slice(-4), ...after.slice(0, 4)].some(t => negative.has(t) && !FUNCTION_WORDS.has(t))) continue;
     if (near.some(t => NOT_WORK.has(t))) continue;
+    // A list of names isn't a statement that the person did the work.
+    const sentence = sentenceAt(fieldText, match.index, match.index + match[0].length);
+    if (keywordDump(sentence) || labelledList(sentence)) continue;
     // Someone else's work: "Sat beside the team that ran Kubernetes".
-    if (SOMEONE_ELSE.test(before.join(" "))) continue;
-    if (after.slice(0, 3).some(t => CONSUMER_NOUNS.has(t))) continue;
+    if (SOMEONE_ELSE.test(before.join(" ")) || someoneElsesWork(sentence, fieldText.slice(match.index + match[0].length).split(/[.!?;\n]\s/)[0])) continue;
+    if (namesConsumers(after)) continue;
     if (near.some(t => STRONG_VERBS.has(t))) return true;
     if (after.slice(0, 2).some(t => WORK_OBJECTS.has(t))) return true;
     if (["over", "via", "using", "with", "on"].includes(before[before.length - 1]) && CARRIERS.has(before[before.length - 2])) return true;

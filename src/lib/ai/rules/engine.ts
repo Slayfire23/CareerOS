@@ -13,7 +13,7 @@ import {
   type SkillEvidence,
   type Verdict,
 } from "@/lib/ai/evidence";
-import { requiredMonths, skillLikeExperience, statedYears, type RuleBasis } from "@/lib/ai/match-validation";
+import { requiredMonths, skillLikeExperience, statedYears, unquantifiedTime, type RuleBasis } from "@/lib/ai/match-validation";
 import { listedTerms, parseRequirement, unverifiableField, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import {
   GENERIC_TERMS,
@@ -30,6 +30,8 @@ import {
   hasOtherSenses,
   hasQualificationWords,
   isCredentialName,
+  isTerminologyTerm,
+  labelledList,
   otherSense,
   rolesForField,
   namesSameDegree,
@@ -46,7 +48,7 @@ import {
   surfaceForms,
   words,
 } from "@/lib/ai/skill-relations";
-import { belowDegree, educationStatus, fieldOfStudyForMatching, fullRoleTitle, hasCredentialMarker, notHeld, plainCredentialName, plainQualification, plainTitle, saysNotCompleted, type EducationStatus } from "@/lib/ai/rules/profile-fields";
+import { belowDegree, educationStatus, fieldOfStudyForMatching, fullRoleTitle, hasCredentialMarker, plainCredentialName, plainQualification, plainTitle, rolePart, saysNotCompleted, workplaceWords, type EducationStatus } from "@/lib/ai/rules/profile-fields";
 import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 
 // The deterministic rules engine, and the only authority for final verdicts. It runs on the Next.js
@@ -64,7 +66,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v9";
+export const RULES_VERSION = "rules-v10";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -74,6 +76,7 @@ const RELATED_TECHNOLOGY = "A related technology, not the same one. Check that i
 const UNVERIFIABLE_FIELD = "Whether your field counts as related can't be confirmed automatically.";
 const CREDENTIAL_NOT_SHOWN = "Listing a skill does not show the certification or license this asks for.";
 const JUDGED_AS_SKILL = "This names a technology with no duration or role, so it was judged as a skill.";
+const TIME_NOT_STATED = "This asks for time without saying how much, so your dates can't settle it.";
 const NEEDS_CONFIRMATION = "This requirement's wording reads partly like instructions or a judgment about how to evaluate it, so it was not assessed. Check it in the job review and confirm it if it is a real requirement; confirming it does not count as evidence that you meet it.";
 const INSTRUCTIONS_IGNORED = "Part of this requirement reads like instructions to an AI or reviewer, or a claim about how it should be judged, so it was ignored. Check its wording in the job review.";
 const INSTRUCTION_TEXT = "This requirement reads like instructions to an AI or reviewer rather than a qualification, so it was not assessed. Check its wording in the job review.";
@@ -86,8 +89,8 @@ const CREDENTIAL_SELF_LISTED = "You list this credential yourself; an employer m
 const NOT_COMPLETED_NOTE = "Your entry says this wasn't completed, so it isn't counted as a degree.";
 const STATUS_UNKNOWN = "Check that this entry says plainly whether the degree was awarded.";
 const EQUIVALENCE_NOT_VERIFIED = "This degree has no exact counterpart in the requirement, and equivalence can't be confirmed automatically.";
-const UNVERIFIED_EVIDENCE = "Some cited evidence could not be verified and was removed.";
-const UNVERIFIED_DURATION = "A stated duration could not be verified against your listed employment.";
+const UNVERIFIED_EVIDENCE = "Some cited text couldn't be found in your profile and was removed.";
+const UNVERIFIED_DURATION = "A stated duration doesn't match your listed employment.";
 
 const notAllItems = (missing: string[]) =>
   `This asks for several things; your listed skills don't show ${missing.slice(0, 3).map(m => `“${m}”`).join("; ")}.`;
@@ -255,7 +258,8 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
     const startsSentence = /(^|[.!?;\n]\s*)$/.test(evidenceText.slice(0, start));
     const plainNoun = startsSentence && requirementText.includes(quote.toLowerCase()) && !/\p{Lu}/u.test(quote.slice(1));
     const namesTechnology = [...canonicalTerms(quote)].some(t => VOCABULARY.has(t)) || (/\p{Lu}/u.test(quote) && !plainNoun);
-    return !namesTechnology || describesUse(evidenceText, quote);
+    // "Tools: Tableau, Excel" says what was around: a lead, though not direct use.
+    return !namesTechnology || describesUse(evidenceText, quote) || labelledList(sentence);
   };
   const find = (phrase: string) => {
     const pattern = new RegExp(`(?<![A-Za-z0-9])${phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z0-9])`, "gi");
@@ -271,7 +275,15 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
       if (quote) return quote;
     }
   }
-  const tokens = requirementText.match(/[A-Za-z][A-Za-z0-9+#.&-]*/g) ?? [];
+  // An occupational name is one thing: "point of sale" says nothing about the word "point" on its own.
+  let remainder = requirementText;
+  for (const term of canonicalTerms(requirementText)) {
+    if (!isTerminologyTerm(term)) continue;
+    for (const form of surfaceForms(term)) {
+      if (form.includes(" ")) remainder = remainder.replace(new RegExp(`(?<![A-Za-z0-9])${form.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z0-9])`, "gi"), " ");
+    }
+  }
+  const tokens = remainder.match(/[A-Za-z][A-Za-z0-9+#.&-]*/g) ?? [];
   for (const size of [2, 1]) {
     for (let i = 0; i + size <= tokens.length; i++) {
       const window = tokens.slice(i, i + size);
@@ -294,7 +306,7 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
 
 /** Words in an experience requirement that don't say which field it means. */
 const NOT_A_FIELD = new Set(`a an and at or of in on to for with as the by from least minimum plus more over
-year years month months decade half experience experienced professional relevant related prior previous
+year years yr yrs month months mo mos mth mths decade decades couple half exp min experience experienced professional relevant related prior previous
 total overall combined progressive solid strong proven demonstrated hands-on work working role roles
 position positions job jobs career field domain background including post-graduate industry
 must have having required preferred ideally be is are you your our we will need needs acting act
@@ -323,7 +335,7 @@ const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.s
 /** The clause stating the duration, without the amount: what the years must relate to. */
 function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
-  const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+years?)/);
+  const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+(?:years?|yrs?))/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
   const technologies = [...canonicalTerms(clause)].filter(t => VOCABULARY.has(t));
   const all = words(clause).filter(w => !NOT_A_FIELD.has(w) && !/^\d/.test(w) && !NUMBER_WORD.test(w));
@@ -337,6 +349,15 @@ function durationField(text: string): { technologies: string[]; rest: string[]; 
 }
 const ROLE_ADJECTIVES = new Set("practicing licensed senior junior experienced professional working lead full-time part-time".split(" "));
 const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
+
+/** How a job title covers the field. Only what the person did counts: an aide at a nursing home isn't
+ * nursing. When the requirement is about the setting itself, working there is a lead, never proof. */
+function titleCoverage(field: ReturnType<typeof durationField>, title: string): "full" | "some" | "none" {
+  const part = rolePart(title);
+  const found = fieldCoverage(field, part);
+  if (found !== "none" || part === title) return found;
+  return workplaceWords(title).map(stem).some(w => field.stems.includes(w)) ? "some" : "none";
+}
 
 /** How well a text names the field: "full" when most of it is named, "some" for part of it. */
 function fieldCoverage(field: ReturnType<typeof durationField>, text: string): "full" | "some" | "none" {
@@ -383,10 +404,9 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
       ? alternatives.map((part, i) => durationField(i ? `${amount} ${part}` : part))
       : [durationField(requirement.text)];
     const field = options[0];
-    const coverage = (text: string) => {
-      const found = options.map(o => fieldCoverage(o, text));
-      return found.includes("full") ? "full" : found.includes("some") ? "some" : "none";
-    };
+    const combine = (found: ("full" | "some" | "none")[]) => (found.includes("full") ? "full" : found.includes("some") ? "some" : "none");
+    const coverage = (text: string) => combine(options.map(o => fieldCoverage(o, text)));
+    const titleCovers = (title: string) => combine(options.map(o => titleCoverage(o, title)));
     // Dates that can't be right say nothing about time, in any field.
     if (roles.every(r => roleMonths(r, asOf) === 0)) {
       return finding(requirement, "insufficient_information", "Your listed role dates can't be right, so this cannot be assessed.", { caveats: [UNREADABLE_DATES, ...caveats] });
@@ -415,9 +435,9 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
     };
     // Technologies the role states it used count like the title naming them; a job title alone can't
     // show a technology, and a description can't show a whole non-technical field.
-    const usedInRole = (r: ExperienceEvidence) => options.some(o => o.technologies.length > 0 && coverage(`${usable(r) ? r.job_title : ""}. ${trustedText(r)}`) === "full"
-      && o.technologies.every(t => canonicalTerms(usable(r) ? r.job_title : "").has(t) || surfaceForms(t).some(form => directUse(trustedText(r), form))));
-    const named = roles.filter(r => (usable(r) && fullRoleTitle(r.job_title) && coverage(r.job_title) === "full") || usedInRole(r));
+    const usedInRole = (r: ExperienceEvidence) => options.some(o => o.technologies.length > 0 && coverage(`${usable(r) ? rolePart(r.job_title) : ""}. ${trustedText(r)}`) === "full"
+      && o.technologies.every(t => canonicalTerms(usable(r) ? rolePart(r.job_title) : "").has(t) || surfaceForms(t).some(form => directUse(trustedText(r), form))));
+    const named = roles.filter(r => (usable(r) && fullRoleTitle(r.job_title) && titleCovers(r.job_title) === "full") || usedInRole(r));
     const describes = (r: ExperienceEvidence) => {
       if (!r.description) return false;
       const spans = untrustedEvidenceSpans(r.description);
@@ -430,7 +450,7 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
       trusted += r.description.slice(cursor);
       return !!sharedTerm(requirement.text, r.description) || options.some(o => o.roles.some(x => x.related.some(t => containsPhrase(trusted, t))));
     };
-    const partly = roles.filter(r => !named.includes(r) && ((usable(r) && coverage(r.job_title) !== "none") || describes(r)));
+    const partly = roles.filter(r => !named.includes(r) && ((usable(r) && titleCovers(r.job_title) !== "none") || describes(r)));
     const cite = (list: ExperienceEvidence[]) => list.map(r => ({ evidence_id: r.id, quote: r.job_title }));
     const credential = hasQualificationWords(requirement.text);
     if (named.length) {
@@ -465,10 +485,14 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
   };
   const shown = roles.filter(r => {
     if (!plainTitle(r.job_title) || !fullRoleTitle(r.job_title) || credential || (!field.technologies.length && !field.stems.length)) return false;
-    if (fieldCoverage(field, r.job_title) === "full" && !field.technologies.length) return true;
-    return field.technologies.length > 0 && fieldCoverage(field, `${r.job_title}. ${trusted(r)}`) === "full"
-      && field.technologies.every(t => canonicalTerms(r.job_title).has(t) || surfaceForms(t).some(form => directUse(trusted(r), form)));
+    if (titleCoverage(field, r.job_title) === "full" && !field.technologies.length) return true;
+    return field.technologies.length > 0 && fieldCoverage(field, `${rolePart(r.job_title)}. ${trusted(r)}`) === "full"
+      && field.technologies.every(t => canonicalTerms(rolePart(r.job_title)).has(t) || surfaceForms(t).some(form => directUse(trusted(r), form)));
   });
+  // "Several years of welding": the role shows the field, but no dates can settle an unstated amount.
+  if (shown.length && unquantifiedTime(requirement.text)) {
+    return finding(requirement, "possible", `Your role as ${unique(shown.map(r => r.job_title)).join(", ")} is in this field, but this doesn't say how much time it asks for.`, { citations: shown.map(r => ({ evidence_id: r.id, quote: r.job_title })), caveats: [TIME_NOT_STATED, ...caveats], basis: "role_description" });
+  }
   if (shown.length) {
     return finding(requirement, "supported", `Your role as ${unique(shown.map(r => r.job_title)).join(", ")} shows this.`, { citations: shown.map(r => ({ evidence_id: r.id, quote: r.job_title })), caveats, basis: "role_description" });
   }
@@ -479,9 +503,13 @@ function assessExperience(request: MatchRequest, requirement: MatchRequirement):
       related.push({ evidence_id: role.id, quote: role.job_title });
       continue;
     }
-    for (const text of [plainTitle(role.job_title) ? role.job_title : "", role.description ?? ""]) {
+    for (const text of [plainTitle(role.job_title) ? rolePart(role.job_title) : "", role.description ?? ""]) {
       const quote = text && sharedTerm(requirement.text, text);
       if (quote) related.push({ evidence_id: role.id, quote });
+    }
+    // Working in the setting a requirement names is a lead ("Hospital experience": a housekeeper at one).
+    if (plainTitle(role.job_title) && !related.some(c => c.evidence_id === role.id) && titleCoverage(field, role.job_title) === "some" && rolePart(role.job_title) !== role.job_title) {
+      related.push({ evidence_id: role.id, quote: role.job_title });
     }
   }
   if (related.length) {
@@ -581,7 +609,7 @@ function skillCaveats(requirementText: string, matched: SkillEvidence[]): string
   const wanted = canonicalTerms(requirementText);
   // "React" inside "React Native": the words match, but the requirement names another technology.
   if (!matched.some(s => [...canonicalTerms(s.name)].every(t => wanted.has(t)))) caveats.push(PART_OF_LONGER_NAME);
-  if (requiredMonths(requirementText) !== null) caveats.push(YEARS_PER_SKILL);
+  if (requiredMonths(requirementText) !== null || unquantifiedTime(requirementText)) caveats.push(YEARS_PER_SKILL);
   if (hasQualificationWords(requirementText)) caveats.push(CREDENTIAL_NOT_SHOWN);
   return caveats;
 }
@@ -685,7 +713,7 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
   if (shownInWork) {
     const others = parts.filter(p => !skills.some(s => sameSkill(p, s.name)) && !inWork(p));
     const citations = shownParts.map(x => ({ evidence_id: x.role.id, quote: x.quote }));
-    const needsMore = others.length > 0 || requiredLevel(requirement.text) !== null || requiredMonths(requirement.text) !== null || hasQualificationWords(requirement.text);
+    const needsMore = others.length > 0 || requiredLevel(requirement.text) !== null || requiredMonths(requirement.text) !== null || unquantifiedTime(requirement.text) || hasQualificationWords(requirement.text);
     if (needsMore) {
       return finding(requirement, "possible", "Your role describes using this, but that alone may not meet everything it asks for.", {
         citations, caveats: [...(others.length ? [notAllItems(others)] : []), ...notes], basis: "described_in_work",
@@ -695,11 +723,11 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
   }
   for (const role of request.evidence.filter(isRole)) {
     if (!role.description) continue;
-    const activity = activityEvidence(requirement.text, role.description, plainTitle(role.job_title) ? role.job_title : "");
+    const activity = activityEvidence(requirement.text, role.description, plainTitle(role.job_title) ? rolePart(role.job_title) : "");
     if (!activity) continue;
     const start = role.description.indexOf(activity.quote);
     if (untrustedEvidenceSpans(role.description).some(([s, e]) => s <= start && start < e)) continue;
-    const supported = activity.level === "supported" && requiredLevel(requirement.text) === null && requiredMonths(requirement.text) === null;
+    const supported = activity.level === "supported" && requiredLevel(requirement.text) === null && requiredMonths(requirement.text) === null && !unquantifiedTime(requirement.text);
     return finding(requirement, supported ? "supported" : "possible", supported ? `Your role as ${role.job_title} describes this work.` : `Your role as ${role.job_title} suggests this. Check that it fits.`, {
       citations: [{ evidence_id: role.id, quote: activity.quote }], caveats: notes, basis: "described_in_work",
     });
@@ -748,7 +776,7 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
     } else if (isRole(item)) {
       // A title naming the technology shows it in use ("Oracle DBA"), and so does a description.
       const wanted = canonicalTerms(asked);
-      const title = plainTitle(item.job_title) && [...quoteTerms(item.job_title, item.job_title)].some(t => wanted.has(t) && VOCABULARY.has(t)) ? item.job_title : null;
+      const title = plainTitle(item.job_title) && [...quoteTerms(rolePart(item.job_title), rolePart(item.job_title))].some(t => wanted.has(t) && VOCABULARY.has(t)) ? item.job_title : null;
       const found = item.description ? inText(item.description) : null;
       const quote = title ?? found?.quote;
       if (quote) {
@@ -778,7 +806,7 @@ hold holds holding have having a an in of and or with comptia isc2 pmi state any
 const credentialTerms = (text: string) => new Set([...canonicalTerms(text)].filter(t => !CREDENTIAL_WORDS.has(t)));
 const HOLDS = /\b(hold|holds|held|holding|licensed|certified|passed|earned|obtained|maintain|maintains)\b/i;
 /** Asks for a credential rather than a skill or a degree. */
-const asksForCredential = (text: string) =>
+export const asksForCredential = (text: string) =>
   !requiredDegreeRank(text) && (/\b(certification|certified|licensed|licence|permit|clearance)\b|(?<!\b(?:ssl|tls)\s)\bcertificate\b|(?<!\bsoftware\s)\blicense\b|(?<!\b(?:credit|debit|gift|graphics|video|sim|sd|network|sound)\s)\bcard\b/i.test(text) || [...canonicalTerms(text)].some(isCredentialName));
 
 /** A credential is shown by a completed education entry or a skill listing naming it as held. Listing the
@@ -857,13 +885,18 @@ function areaIsEmpty(request: MatchRequest, requirement: MatchRequirement): bool
   return !request.evidence.some(e => kinds.includes(e.kind));
 }
 
+const isAnswer = (item: Evidence) => item.kind === "experience" && item.source === "clarification";
+
 /** Rules every finding must obey, however it was produced: citations are verbatim, a positive verdict
  * has evidence, projects are never employment, and a stated duration is one code can verify. */
 export function checkFinding(request: MatchRequest, requirement: MatchRequirement, f: RawFinding, evidence: Map<string, Evidence>): RawFinding {
   let verdict = f.verdict;
   let caveats = [...f.caveats];
-  const citations = f.citations.filter(c => quoteIsVerbatim(evidence.get(c.evidence_id)!, c.quote));
-  if (citations.length < f.citations.length) caveats.push(UNVERIFIED_EVIDENCE);
+  const found = f.citations.filter(c => quoteIsVerbatim(evidence.get(c.evidence_id)!, c.quote));
+  if (found.length < f.citations.length) caveats.push(UNVERIFIED_EVIDENCE);
+  // An answer's entry repeats its role's title: quote that title from the role itself when both are cited.
+  const fromRole = new Set(found.filter(c => !isAnswer(evidence.get(c.evidence_id)!)).map(c => c.quote));
+  const citations = found.filter(c => !isAnswer(evidence.get(c.evidence_id)!) || (evidence.get(c.evidence_id) as ExperienceEvidence).job_title !== c.quote || !fromRole.has(c.quote));
   if ((verdict === "supported" || verdict === "possible") && !citations.length) verdict = "insufficient_information";
 
   if (requirement.category === "Experience" && !skillLikeExperience(qualificationText(requirement.text))) {
@@ -875,8 +908,10 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
     }
   }
 
+  const months = requiredMonths(requirement.text);
   const allowed = new Set([
     ...statedYears(requirement.text),
+    ...(months === null ? [] : [months / 12]),
     Number(formatYears(employmentMonths(request.evidence, request.as_of_month))),
     ...request.evidence.filter(isRole).map(r => Number(formatYears(roleMonths(r, request.as_of_month)))),
   ]);

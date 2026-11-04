@@ -10,13 +10,19 @@ import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
 import type { AiStatus, RuleBasis, Suggestion, SuggestionKind } from "@/lib/ai/match-validation";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
 import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
+import { ClarificationPanel, TakeBackForm } from "@/components/job-clarification";
+import { clarificationFor } from "@/lib/ai/rules/clarifications";
+import terminology from "@/lib/ai/rules/data/terminology.json";
+import type { EvidenceOrigin } from "@/lib/ai/evidence";
 import { CLOUD_MODEL_LABEL, CLOUD_PROVIDER_NAME } from "@/lib/ai/consent";
 import { ButtonLink, Card, EmptyState, LoadingBlock, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Requirement analysis" };
 
 const VERDICT_STYLE: Record<Verdict, { label: string; className: string }> = {
-  supported: { label: "Supported", className: "bg-accent-soft text-accent-text" },
+  // Supported stays the verdict; "Self-reported" says where its evidence came from. Everything in a profile
+  // is self-reported, because CareerOS has no independent verification.
+  supported: { label: "Supported — Self-reported", className: "bg-accent-soft text-accent-text" },
   possible: { label: "Possible", className: "border text-foreground" },
   gap: { label: "Not supported", className: "bg-danger-soft text-danger-text" },
   insufficient_information: { label: "Not enough information", className: "bg-surface-muted text-muted" },
@@ -62,7 +68,11 @@ const FINDING_SOURCE: Record<AiStatus, string> = {
   rejected: "Rules engine (local AI's answer failed verification and was discarded)",
   unavailable: "Rules engine (local AI was unavailable)",
 };
-/** Where each verified result came from. All of these are deterministic rules, never AI. */
+const ORIGIN_NOTE = (sources: EvidenceOrigin[] | undefined) =>
+  sources?.includes("candidate_answer")
+    ? `From ${sources.includes("profile") ? "your profile and " : ""}an answer you gave. Self-reported: CareerOS hasn't independently verified it.`
+    : "From your profile. Self-reported: CareerOS hasn't independently verified it.";
+/** Where each result came from. All of these are deterministic rules, never AI. */
 const RULE_SOURCE: Record<RuleBasis, string> = {
   stated_absent: "Rules engine: your profile says you don't have this",
   listed_skill: "Rules engine: a skill you list",
@@ -102,10 +112,10 @@ function AiSuggestions({ analysis }: { analysis: AnalysisView }) {
   return <section aria-labelledby="suggestions-heading" className="space-y-3 rounded-xl border border-dashed bg-surface-muted p-4 sm:p-5">
     <div className="space-y-1">
       <h3 id="suggestions-heading" className="text-base font-semibold">AI suggestions</h3>
-      <p className="text-sm text-muted">From local AI ({analysis.model ?? "Ollama"}) on CareerOS&apos;s own computer. Not verified. These don&apos;t affect the verified results above. Check each one yourself.</p>
+      <p className="text-sm text-muted">From local AI ({analysis.model ?? "Ollama"}) on CareerOS&apos;s own computer. These are only guesses, and they don&apos;t affect the results above. Check each one yourself.</p>
     </div>
     {analysis.aiAssist === "unavailable" && <p role="status" className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface p-3 text-sm">
-      Local AI is unavailable right now, so AI suggestions may be missing. The verified results above are complete. CareerOS never switches to a paid AI provider instead. Run the analysis again later to get suggestions.
+      Local AI is unavailable right now, so AI suggestions may be missing. The results above are complete. CareerOS never switches to a paid AI provider instead. Run the analysis again later to get suggestions.
     </p>}
     {analysis.aiAssist !== "unavailable" && !groups.length && <p className="text-sm text-muted">No suggestions for this analysis.</p>}
     {groups.map(group => <div key={group.kind} className="space-y-2">
@@ -125,12 +135,14 @@ function VerdictPill({ verdict }: { verdict: Verdict }) {
   return <span className={`inline-block shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${style.className}`}>{style.label}</span>;
 }
 
-function Findings({ analysis, jobId }: { analysis: AnalysisView; jobId: string }) {
+function Findings({ analysis, jobId, roles, declined }: { analysis: AnalysisView; jobId: string; roles: { id: string; label: string }[]; declined: Set<string> }) {
   const requirements = new Map(analysis.requirements.map(r => [r.index, r]));
   return <ol className="space-y-3">
     {analysis.findings.map(finding => {
       const requirement = requirements.get(finding.requirementIndex);
       const feedback = analysis.feedback[String(finding.requirementIndex)];
+      const question = requirement ? clarificationFor(requirement, finding) : null;
+      const aiNote = analysis.suggestions.find(s => s.kind === "profile_gap" && s.requirementIndex === finding.requirementIndex)?.text ?? null;
       return <li key={finding.requirementIndex} className="space-y-3 rounded-xl border bg-surface p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
@@ -148,7 +160,7 @@ function Findings({ analysis, jobId }: { analysis: AnalysisView; jobId: string }
           Needs your confirmation. <Link href={requirementsHref(jobId)} className="font-medium text-accent-text underline">Check this requirement in the job review</Link>, confirm it if it is a real requirement, then run the analysis again.
         </p>}
         {finding.citations.length > 0 && <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted">Evidence from your profile</p>
+          <p className="text-xs font-medium text-muted">Evidence. {ORIGIN_NOTE(finding.evidenceSources)}</p>
           <ul className="space-y-1.5">
             {finding.citations.map(citation => {
               const source = EVIDENCE_SOURCE[citation.evidenceId.split(":")[0] as EvidenceKind];
@@ -162,6 +174,8 @@ function Findings({ analysis, jobId }: { analysis: AnalysisView; jobId: string }
         {finding.caveats.length > 0 && <ul aria-label="Caveats" className="space-y-1 text-xs text-muted">
           {finding.caveats.map(caveat => <li key={caveat}>Note: {caveat}</li>)}
         </ul>}
+        <ClarificationPanel analysisId={analysis.id} current={question && !declined.has(question.requirementText) ? question : null} roles={roles} aiNote={aiNote} />
+        {question && declined.has(question.requirementText) && <p className="text-xs text-muted">You said you don&apos;t have this, so it won&apos;t be asked again for this job.</p>}
         <FeedbackForm analysisId={analysis.id} version={analysis.feedbackVersion} requirementIndex={finding.requirementIndex}
           current={feedback?.choice ?? null} note={feedback?.note ?? null} />
       </li>;
@@ -212,7 +226,7 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       </div>
       <details className="disclosure rounded-lg border p-3 text-sm">
         <summary>What is sent, and where</summary>
-        <p className="text-muted">The rules engine runs on CareerOS&apos;s server and sends nothing to any AI service.{data.localAi.available && ` With AI suggestions, requirements the rules engine did not support are also sent, with your skill names, role titles and descriptions, and projects (no dates or education, and with any remarks or claims removed), to CareerOS's own computer running ${data.localAi.model}. It does not go to an AI company, and it can't change your results.`}{data.cloud.available && ` ${CLOUD_MODEL_LABEL} sends your reviewed requirements, skills, role titles, dates, and descriptions, education, and projects to ${CLOUD_PROVIDER_NAME}, but not your email, name, headline, goals, salary, location, company or school names, links, or resume files. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
+        <p className="text-muted">The rules engine runs on CareerOS&apos;s server and sends nothing to any AI service.{data.localAi.available && ` With AI suggestions, requirements the rules engine did not support are also sent, with your skill names, role titles and descriptions, and projects (no dates or education, and with any remarks or claims removed), to CareerOS's own computer running ${data.localAi.model}. It does not go to an AI company, and it can't change your results.`}{" "}Some alternate names were checked against public sources. {terminology.attribution.onet} {terminology.attribution.esco}{data.cloud.available && ` ${CLOUD_MODEL_LABEL} sends your reviewed requirements, skills, role titles, dates, and descriptions, education, and projects to ${CLOUD_PROVIDER_NAME}, but not your email, name, headline, goals, salary, location, company or school names, links, or resume files. Your profile name, the employer and school names in your profile, this job's company, email addresses, phone numbers, and links are replaced in the text first, but other names you wrote can still be sent.`}</p>
       </details>
     </Card>
 
@@ -238,13 +252,25 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       </ul>
       <p className="text-xs text-muted">Counts describe the findings below. They are not a fit score.</p>
       {latest.provider === "hybrid" && <HybridSummary analysis={latest} />}
-      <h3 className="text-base font-semibold">Verified matching results</h3>
-      <p className="text-sm text-muted">Decided by CareerOS&apos;s deterministic rules from your confirmed profile.</p>
-      <Findings analysis={latest} jobId={job.id} />
+      <h3 className="text-base font-semibold">Matching results</h3>
+      <p className="text-sm text-muted">Decided by CareerOS&apos;s deterministic rules from what you entered in your profile. Nothing here has been independently verified.</p>
+      <Findings analysis={latest} jobId={job.id} roles={data.roles} declined={new Set(data.declined.map(d => d.requirementText))} />
       {latest.provider === "assisted" && <AiSuggestions analysis={latest} />}
     </section> : <EmptyState title="No analysis yet">
       {ready ? "Run an analysis to compare these requirements with your profile." : "Once the requirements are reviewed, you can run an analysis here."}
     </EmptyState>}
+
+    {data.answers.length > 0 && <Card className="space-y-3">
+      <h2 className="text-lg font-semibold">Answers you&apos;ve added</h2>
+      <p className="text-sm text-muted">These are part of your profile and count for every job. They&apos;re self-reported, and you can remove them at any time.</p>
+      <ul className="divide-y text-sm">
+        {data.answers.map(answer => <li key={answer.id} className="space-y-1 py-2">
+          <p className="text-xs font-medium text-muted">Added {dateTime.format(answer.createdAt)} about: {answer.requirementText}</p>
+          <p className="break-words">{answer.detail ?? answer.qualification}{answer.roleTitle && <span className="text-muted"> ({answer.roleTitle})</span>}</p>
+          <TakeBackForm clarificationId={answer.id} label={`answer about ${answer.requirementText}`} />
+        </li>)}
+      </ul>
+    </Card>}
 
     {history.length > 0 && <Card className="space-y-3">
       <h2 className="text-lg font-semibold">Recent runs</h2>

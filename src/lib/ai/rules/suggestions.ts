@@ -120,7 +120,7 @@ export function checkPointer(requirement: MatchRequirement, target: string, poin
   if (words(quote).length > MAX_QUOTE_WORDS) return "long_quote";
   const { allowed, freeText } = quoteSource(cited, quote);
   if (!allowed) return "untrusted_text";
-  if (alreadyCited.has(`${cited.id}\u0000${quote}`)) return "no_new_information"; // the verified result already uses it
+  if (alreadyCited.has(`${cited.id}\u0000${quote}`)) return "no_new_information"; // the result already uses it
 
   const citation: Citation = { evidenceId: cited.id, quote };
   const named = `“${quote}”`;
@@ -145,8 +145,8 @@ export function checkPointer(requirement: MatchRequirement, target: string, poin
   const isName = cited.kind === "skill" || (cited.kind === "project" && cited.skills.includes(quote));
   // Free text must share something with the requirement: a model's hunch alone isn't worth showing.
   if (!isName && ![...found].some(a => [...wanted].some(b => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b.slice(0, 4)) || b.startsWith(a.slice(0, 4))))))) return "no_connection";
-  if (isName) return { ...base, kind: "alternate_name", knownToRules: false, text: `${named} might be another name for this, or related. Not verified, so please review it.` };
-  return { ...base, kind: "relevant_evidence", knownToRules: false, text: `${named} in your profile might be relevant. Not verified, so please review it.` };
+  if (isName) return { ...base, kind: "alternate_name", knownToRules: false, text: `${named} might be another name for this, or related. This is only a guess, so please review it.` };
+  return { ...base, kind: "relevant_evidence", knownToRules: false, text: `${named} in your profile might be relevant. This is only a guess, so please review it.` };
 }
 
 export type CheckedSuggestions = { suggestions: Suggestion[]; rejected: Partial<Record<Rejected, number>> };

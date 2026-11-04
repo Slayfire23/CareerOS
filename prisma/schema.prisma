@@ -26,9 +26,43 @@ model User {
   aiCloudConsentVersion Int?
   aiAnalysisRuns   AiAnalysisRun[]
   jobMatchAnalyses JobMatchAnalysis[]
+  clarifications   CandidateClarification[]
+}
+
+/// ROLE_DETAIL_ADDED: a description of work in one role. ENTRY_ADDED: a typed education or credential
+/// entry. DECLINED: the person said no, which changes no verdict.
+enum ClarificationOutcome {
+  ROLE_DETAIL_ADDED
+  ENTRY_ADDED
+  DECLINED
+}
+
+/// What a person said about a requirement, kept with where it came from. All of it is self-reported:
+/// CareerOS has no independent verification. A role detail is read by the rules like any work description.
+model CandidateClarification {
+  id              String                  @id @default(uuid()) @db.Uuid
+  userId          String                  @db.Uuid
+  /// The job that prompted this. The answer outlives the job: it's about the person, not the posting.
+  savedJobId      String?                 @db.Uuid
+  requirementText String                  @db.VarChar(500)
+  outcome         ClarificationOutcome
+  experienceId    String?                 @db.Uuid
+  educationId     String?                 @db.Uuid
+  detail          String?                 @db.VarChar(1000)
+  createdAt       DateTime                @default(now()) @db.Timestamptz(3)
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedJob        SavedJob?               @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
+  experience      ProfessionalExperience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  education       Education?              @relation(fields: [educationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([savedJobId])
+  @@index([experienceId])
+  @@index([educationId])
 }
 
 model SavedJob {
+ clarifications CandidateClarification[]
  requirements Json @default("[]")
  reviewedDescription String? @db.VarChar(30000)
  reviewVersion Int @default(0)
@@ -101,6 +135,7 @@ model ProfessionalExperience {
  endMonth String? @db.VarChar(7)
  description String? @db.VarChar(5000)
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ clarifications CandidateClarification[]
  @@index([profileId])
 }
 
@@ -114,6 +149,7 @@ model Education {
  fieldOfStudy String? @db.VarChar(100)
  description String? @db.VarChar(5000)
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ clarifications CandidateClarification[]
  @@index([profileId])
 }
 

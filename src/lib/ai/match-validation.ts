@@ -1,11 +1,13 @@
 import {
   VERDICTS,
+  citationOrigin,
   employmentMonths,
   formatYears,
   quoteIsVerbatim,
   roleMonths,
   sharesTerm,
   type Evidence,
+  type EvidenceOrigin,
   type ExperienceEvidence,
   type MatchRequest,
   type Verdict,
@@ -47,6 +49,9 @@ export type Finding = {
   /** The requirement needs the person's confirmation in the job review before it is judged. */
   review?: "needs_confirmation";
   basis?: RuleBasis;
+  /** Where the cited evidence came from, worked out here from the citations. Kept apart from the verdict.
+   * Older stored findings don't have it, and all of it is self-reported. */
+  evidenceSources?: EvidenceOrigin[];
 };
 export type ValidatedMatch = {
   findings: Finding[];
@@ -75,39 +80,58 @@ const str = (v: unknown, max: number, field: string, min = 1): string =>
 
 const NUMBER_WORDS = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split(" ");
 const NUMBER = `\\d+(?:\\.\\d+)?|${NUMBER_WORDS.join("|")}`;
-const YEARS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*years?\\b`, "gi");
-/** The lower end of a range: "2-3 years", "two to three years". */
-const YEAR_RANGE = new RegExp(`\\b(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*years?\\b`, "gi");
+const YEAR_UNIT = "(?:years?|yrs?)";
+const MONTH_UNIT = "(?:months?|mos?|mths?)";
+const YEARS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+/** The lower end of a range: "2-3 years", "two to three yrs". */
+const YEAR_RANGE = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*(?:-|\\u2013|\\u2014|to)\\s*(?:${NUMBER})\\s*\\+?\\s*${YEAR_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+const MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
+/** One amount in two units: "2 yrs 6 mos", "2 years and 6 months". */
+const YEARS_AND_MONTHS = new RegExp(`(?<![\\p{L}\\p{N}.])(${NUMBER})\\s*-?\\s*${YEAR_UNIT}\\.?(?:\\s*,|\\s+and)?\\s+(${NUMBER})\\s*-?\\s*${MONTH_UNIT}(?![\\p{L}\\p{N}])`, "giu");
 
-const WORDED_YEARS: [RegExp, number][] = [[/\b(?:a|one)\s+decade\b/i, 10], [/\bone\s+and\s+a\s+half\s+years?\b/i, 1.5], [/\btwo\s+and\s+a\s+half\s+years?\b/i, 2.5]];
-
-export function statedYears(text: string): number[] {
-  const found = [...text.matchAll(YEARS), ...text.matchAll(YEAR_RANGE)].map(m => {
-    const raw = m[1].toLowerCase();
-    const word = NUMBER_WORDS.indexOf(raw);
-    return word >= 0 ? word : Number(raw);
-  });
-  for (const [pattern, years] of WORDED_YEARS) if (pattern.test(text)) found.push(years);
-  return found;
-}
-
-const MONTHS = new RegExp(`\\b(${NUMBER})\\s*\\+?\\s*(?:or more\\s+)?-?\\s*months?\\b`, "gi");
+const WORDED_YEARS: [RegExp, number][] = [
+  [/\bhalf\s+a\s+decade\b/i, 5],
+  [/(?<!half\s)\b(?:a|one)\s+decade\b/i, 10],
+  [/\btwo\s+decades\b/i, 20],
+  [/\bone\s+and\s+a\s+half\s+(?:years?|yrs?)\b/i, 1.5],
+  [/\btwo\s+and\s+a\s+half\s+(?:years?|yrs?)\b/i, 2.5],
+  [/\ba\s+couple\s+(?:of\s+)?(?:years?|yrs?)\b/i, 2],
+  [/\b(?:a|an|one)\s+(?:full\s+)?(?:year|yr)\b/i, 1],
+];
 const numberValue = (raw: string) => {
   const word = NUMBER_WORDS.indexOf(raw.toLowerCase());
   return word >= 0 ? word : Number(raw);
 };
+// Full-width digits and similar are the same characters to a reader, so they are to the rules.
+const plain = (text: string) => text.normalize("NFKC");
+
+export function statedYears(text: string): number[] {
+  const normalized = plain(text);
+  const combined = [...normalized.matchAll(YEARS_AND_MONTHS)].map(m => numberValue(m[1]) + numberValue(m[2]) / 12);
+  const rest = normalized.replace(YEARS_AND_MONTHS, " ");
+  const found = [...combined, ...[...rest.matchAll(YEARS), ...rest.matchAll(YEAR_RANGE)].map(m => numberValue(m[1]))];
+  for (const [pattern, years] of WORDED_YEARS) if (pattern.test(rest)) found.push(years);
+  return found;
+}
 
 /** The shortest duration a requirement states, in months ("2-3 years" -> 24, "six months" -> 6). */
 export function requiredMonths(text: string): number | null {
-  const found = [...statedYears(text).map(y => y * 12), ...[...text.matchAll(MONTHS)].map(m => numberValue(m[1]))];
-  if (/\bhalf\s+a\s+year\b/i.test(text)) found.push(6);
+  const normalized = plain(text);
+  const found = statedYears(normalized).map(y => Math.round(y * 12));
+  found.push(...[...normalized.replace(YEARS_AND_MONTHS, " ").matchAll(MONTHS)].map(m => numberValue(m[1])));
+  if (/\bhalf\s+a\s+year\b/i.test(normalized)) found.push(6);
+  // "half a year" also reads as "a year" above; the shortest amount is the one meant.
   return found.length ? Math.min(...found) : null;
 }
+
+/** Asks for time without saying how much ("several years", "long tenure"), so no dates can settle it. */
+const VAGUE_TIME = /\b(?:several|many|multiple|numerous|some|few|various)\s+(?:\w+\s+)?(?:years?|yrs?|decades?)\b|(?:^|[\s,(])years\s+of\b|\b(?:long|significant|extensive|lengthy)\s+tenure\b/i;
+export const unquantifiedTime = (text: string) => requiredMonths(text) === null && VAGUE_TIME.test(plain(text));
 
 /** "Experience with <technology>", with no duration, role, domain, or credential (requirement_text.py). */
 export function skillLikeExperience(text: string): boolean {
   // "Experience as the administrator for Linux servers" asks about a role, not just a tool.
-  return statedYears(text).length === 0 && !hasQualificationWords(text) && !namesEmployment(text) && !/\bas\s+(a|an|the)\b/i.test(text) && technologyTerms(text).size > 0;
+  return requiredMonths(text) === null && !unquantifiedTime(text) && !hasQualificationWords(text) && !namesEmployment(text) && !/\bas\s+(a|an|the)\b/i.test(text) && technologyTerms(text).size > 0;
 }
 
 /** Local AI may only look at skill requirements, never hard qualifications (hybrid_checks.py). */
@@ -115,7 +139,7 @@ export function semanticEligible(requirement: MatchRequest["requirements"][numbe
   const skill = requirement.category === "Skills" || requirement.category === "Other"
     || (requirement.category === "Experience" && skillLikeExperience(requirement.text));
   return skill
-    && statedYears(requirement.text).length === 0
+    && requiredMonths(requirement.text) === null
     && !hasQualificationWords(requirement.text)
     && !hasDirectedText(requirement.text);
 }
@@ -261,13 +285,15 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     if (needsReview && usesRules && !review) reject("a requirement that needs confirmation was not flagged");
     if (review && !needsReview) reject("review flag on a requirement that does not need confirmation");
 
-    const requirementYears = new Set(statedYears(requirement.text));
+    const months = requiredMonths(requirement.text);
+    const requirementYears = new Set([...statedYears(requirement.text), ...(months === null ? [] : [months / 12])]);
     for (const years of statedYears(explanation)) {
       // 0.05 tolerance absorbs rounding differences between Python and JavaScript.
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }) };
+    const evidenceSources = [...new Set(citations.map(c => citationOrigin(evidence.get(c.evidenceId)!, c.quote)))];
+    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }), evidenceSources };
   });
   if (seen.size !== requirements.size) reject("a requirement has no finding");
 

@@ -1,0 +1,52 @@
+{
+  "_comment": "Bounded, versioned alternate names for occupational skills, each checked by hand against a public source on 2026-11-03. Exact phrases only: no fuzzy matching, and 'related' can only ever give Possible. Written as the shared tokenizer produces them (see skill_relations.json). Adapted by CareerOS, not copied wholesale: USDOL/ETA and the European Commission have not approved, endorsed, or tested this mapping. See docs/TERMINOLOGY_RESEARCH.md.",
+  "version": "terminology-v1",
+  "attribution": {
+    "onet": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
+    "esco": "This service uses the ESCO classification of the European Commission, in an adapted version."
+  },
+  "groups": [
+    {
+      "canonical": "phlebotomy",
+      "same": ["venipuncture", "venepuncture"],
+      "related": ["blood collection"],
+      "sources": ["http://data.europa.eu/esco/skill/0646be77-a425-40da-8577-f77d1198c67f", "https://www.onetonline.org/link/summary/31-9097.00"]
+    },
+    {
+      "canonical": "drywallfinishing",
+      "same": ["drywall finishing", "sheetrock finishing", "drywall taping"],
+      "related": ["drywall"],
+      "sources": ["https://www.onetonline.org/link/summary/47-2082.00"]
+    },
+    {
+      "canonical": "drywall",
+      "same": ["sheetrock", "wallboard"],
+      "related": [],
+      "sources": ["https://www.onetonline.org/link/summary/47-2081.00"]
+    },
+    {
+      "canonical": "ekg",
+      "same": ["electrocardiogram", "electrocardiograms"],
+      "related": [],
+      "sources": ["https://www.onetonline.org/link/details/29-2031.00"]
+    },
+    {
+      "canonical": "forklift",
+      "same": ["fork lift", "fork truck", "lift truck", "forklift operation", "forklift operating", "lift truck operation"],
+      "related": [],
+      "sources": ["https://www.onetonline.org/link/summary/53-7051.00"]
+    },
+    {
+      "canonical": "pointofsale",
+      "same": ["point of sale", "point of sale software", "pos software", "pos system", "pos systems"],
+      "related": [],
+      "sources": ["https://www.onetonline.org/link/details/41-2011.00"]
+    },
+    {
+      "canonical": "emr",
+      "same": ["electronic medical record", "electronic medical records", "emr software"],
+      "related": [],
+      "sources": ["https://www.onetonline.org/link/details/29-2031.00"]
+    }
+  ]
+}

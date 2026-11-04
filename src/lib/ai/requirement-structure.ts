@@ -1,5 +1,5 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
-import { canonicalTerms, GENERIC_TERMS, VOCABULARY, negatedSpans } from "@/lib/ai/skill-relations";
+import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
 
 // A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
@@ -164,6 +164,10 @@ export function untrustedEvidenceSpans(text: string): Span[] {
     }
   }
   for (const span of negatedSpans(text)) spans.set(span.join(":"), span);
+  // A sentence written for a keyword filter: nothing in it is a statement about the work.
+  for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
+    if (keywordDump(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+  }
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 
