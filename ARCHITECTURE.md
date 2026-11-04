@@ -185,7 +185,8 @@ The rules engine (`src/lib/ai/rules/engine.ts`, `rules-v6`) is the only authorit
 - **Milestone 9 (`rules-v9`):** from the owner's review of Set H, a role stating direct use of a technology is Supported, and an explicit statement of not having something is Not supported. Thresholds are at the top of `rules/engine.ts` and in docs/MILESTONE_9_REPORT.md.
 - **Milestone 10 (`rules-v10`):** a question on uncertain results (`rules/clarifications.ts`). Answers are stored in `CandidateClarification`, reach the engine as ordinary evidence with `source: "clarification"`, and are re-read by the rules with no AI service. `Finding.evidenceSources` records where evidence came from, apart from the verdict. Everything is self-reported: there is no verified state. Reviewed alternate names are in `rules/data/terminology.json`.
 - **Milestone 11 (`rules-v11`, shadow):** `src/lib/ai/claims/` turns each occurrence into a typed claim with exact offsets, and arbitrates in shadow. Production still decides with `assessRequirements` alone, and doesn't import this layer. `POST /v1/retrieve` (bge-m3) is off unless enabled and refused in production.
-- Results and limitations: docs/MILESTONE_11_PHASE_2_REPORT.md, docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, docs/MILESTONE_9_REPORT.md, and docs/MILESTONE_10_REPORT.md.
+- **Milestone 11, Phase 3 (`rules-v12`):** `claims/language.ts` is a conservative gate that can only keep text from the model. The rules engine has no multilingual negation.
+- Results and limitations: docs/MILESTONE_11_PHASE_3_REPORT.md, docs/MILESTONE_11_PHASE_2_REPORT.md, docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, docs/MILESTONE_9_REPORT.md, and docs/MILESTONE_10_REPORT.md.
 
 ## AI-assisted analysis: rules decide, local AI suggests (Milestone 6, superseded by Milestone 7) - November 2, 2026
 

@@ -54,6 +54,10 @@ describe("what the gate blocks", () => {
     "لم أقم بمحاسبة الشركة أبدا.",
     "मैंने कभी कंपनी का लेखा नहीं किया।",
     "Tôi chưa bao giờ làm kế toán cho công ty.",
+    "Muhasebe işlerini her gün için yaptım.",
+    "Tôi tự xây dựng toàn bộ thư viện cho công ty.",
+    "Bu işi yıllarca gün gün yaptım.",
+    "Je tiếp tục làm kế toán.",
     "我做过公司的会计工作。",
     "Я вёл бухгалтерию компании.",
   ])("a language it can't read is blocked, positive or negative: %s", text => {

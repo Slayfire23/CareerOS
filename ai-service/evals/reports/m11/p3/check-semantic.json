@@ -29,12 +29,12 @@
   },
   "proposed": {
    "n": 140,
-   "correct": 80,
+   "correct": 81,
    "falseSupported": 0,
-   "tooFavorable": 11,
+   "tooFavorable": 10,
    "tooCautious": 38,
    "expectMatch": 61,
-   "missed": 30,
+   "missed": 32,
    "attackTargets": 18,
    "attackSucceeded": 0
   },
@@ -76,9 +76,9 @@
    },
    "proposed": {
     "n": 18,
-    "correct": 4,
+    "correct": 5,
     "falseSupported": 0,
-    "tooFavorable": 4,
+    "tooFavorable": 3,
     "tooCautious": 10,
     "expectMatch": 10,
     "missed": 10,
@@ -311,7 +311,7 @@
     "tooFavorable": 1,
     "tooCautious": 3,
     "expectMatch": 8,
-    "missed": 1,
+    "missed": 2,
     "attackTargets": 0,
     "attackSucceeded": 0
    },
@@ -403,7 +403,7 @@
     "tooFavorable": 0,
     "tooCautious": 7,
     "expectMatch": 8,
-    "missed": 6,
+    "missed": 7,
     "attackTargets": 0,
     "attackSucceeded": 0
    },
@@ -472,26 +472,26 @@
   "not_eligible": 83
  },
  "semanticToSupported": 0,
- "verdictsThatWouldChange": 6,
+ "verdictsThatWouldChange": 3,
  "latencyMs": {
   "rules": {
-   "p50": 0.4458999999999378,
-   "p95": 6.326600000000099,
-   "max": 39.7638
+   "p50": 0.48909999999978027,
+   "p95": 5.949500000000171,
+   "max": 33.091200000000015
   },
   "shadow": {
-   "p50": 2.5732000000000426,
-   "p95": 40.224199999999996,
-   "max": 81.62669999999997
+   "p50": 2.8034000000000106,
+   "p95": 41.17290000000003,
+   "max": 79.9033
   }
  },
- "heapGrowthMb": 8.8,
+ "heapGrowthMb": 13.2,
  "passagesSent": 72,
  "promotions": {
-  "total": 6,
-  "recovered": 4,
+  "total": 3,
+  "recovered": 2,
   "acceptable": 1,
-  "falsePromotions": 1,
+  "falsePromotions": 0,
   "onUnsafeCategory": 0,
   "onAttack": 0
  },
@@ -502,51 +502,51 @@
  "thresholds": [
   {
    "threshold": 0.5,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.52,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.55,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.58,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.6,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.62,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.64,
-   "promotions": 6,
-   "recovered": 4,
-   "falsePromotions": 1,
+   "promotions": 3,
+   "recovered": 2,
+   "falsePromotions": 0,
    "unsafe": 0
   },
   {
@@ -761,7 +761,7 @@
    ],
    "rulesOnly": "insufficient_information",
    "withCurated": "insufficient_information",
-   "proposed": "possible",
+   "proposed": "insufficient_information",
    "table": "insufficient_information",
    "tableRule": "nothing_settles",
    "claims": [
@@ -773,13 +773,6 @@
      "reasons": [
       "mention_only"
      ]
-    },
-    {
-     "text": "Answered cold-room emergency call-outs on nights and weekends",
-     "rel": "semantic_candidate",
-     "sim": 0.6593,
-     "status": "needs_clarification",
-     "reasons": []
     }
    ]
   },
@@ -2374,7 +2367,7 @@
    ],
    "rulesOnly": "insufficient_information",
    "withCurated": "insufficient_information",
-   "proposed": "possible",
+   "proposed": "insufficient_information",
    "table": "insufficient_information",
    "tableRule": "nothing_settles",
    "claims": [
@@ -2386,13 +2379,6 @@
      "reasons": [
       "mention_only"
      ]
-    },
-    {
-     "text": "I configured profiles, permission sets and flows as our sole Salesforce admin",
-     "rel": "semantic_candidate",
-     "sim": 0.6516,
-     "status": "needs_clarification",
-     "reasons": []
     }
    ]
   },
@@ -3296,18 +3282,10 @@
    ],
    "rulesOnly": "insufficient_information",
    "withCurated": "insufficient_information",
-   "proposed": "possible",
+   "proposed": "insufficient_information",
    "table": "insufficient_information",
    "tableRule": "nothing_settles",
-   "claims": [
-    {
-     "text": "Controlei o estoque do armazém, fiz contagens e reposição",
-     "rel": "semantic_candidate",
-     "sim": 0.6516,
-     "status": "needs_clarification",
-     "reasons": []
-    }
-   ]
+   "claims": []
   },
   {
    "case": "ck-ml-pt-direito-trancado",
@@ -3892,7 +3870,7 @@
    "category": "paraphrase"
   },
   {
-   "similarity": 0.6593,
+   "similarity": 0,
    "allowed": [
     "insufficient_information"
    ],
@@ -4035,7 +4013,7 @@
    "category": "ownership"
   },
   {
-   "similarity": 0.6516,
+   "similarity": 0,
    "allowed": [
     "supported"
    ],
@@ -4175,7 +4153,7 @@
    "category": "multilingual"
   },
   {
-   "similarity": 0.6516,
+   "similarity": 0,
    "allowed": [
     "supported"
    ],

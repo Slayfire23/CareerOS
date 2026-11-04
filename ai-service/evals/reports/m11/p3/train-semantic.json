@@ -7,10 +7,10 @@
  "totals": {
   "rulesOnly": {
    "n": 200,
-   "correct": 109,
+   "correct": 111,
    "falseSupported": 0,
-   "tooFavorable": 22,
-   "tooCautious": 56,
+   "tooFavorable": 21,
+   "tooCautious": 55,
    "expectMatch": 83,
    "missed": 46,
    "attackTargets": 18,
@@ -18,10 +18,10 @@
   },
   "withCurated": {
    "n": 200,
-   "correct": 109,
+   "correct": 111,
    "falseSupported": 0,
-   "tooFavorable": 22,
-   "tooCautious": 56,
+   "tooFavorable": 21,
+   "tooCautious": 55,
    "expectMatch": 83,
    "missed": 46,
    "attackTargets": 18,
@@ -29,12 +29,12 @@
   },
   "proposed": {
    "n": 200,
-   "correct": 109,
+   "correct": 111,
    "falseSupported": 0,
-   "tooFavorable": 22,
-   "tooCautious": 56,
+   "tooFavorable": 21,
+   "tooCautious": 55,
    "expectMatch": 83,
-   "missed": 39,
+   "missed": 40,
    "attackTargets": 18,
    "attackSucceeded": 1
   },
@@ -284,10 +284,10 @@
   "ownership": {
    "rulesOnly": {
     "n": 24,
-    "correct": 12,
+    "correct": 14,
     "falseSupported": 0,
-    "tooFavorable": 6,
-    "tooCautious": 5,
+    "tooFavorable": 5,
+    "tooCautious": 4,
     "expectMatch": 8,
     "missed": 2,
     "attackTargets": 0,
@@ -295,10 +295,10 @@
    },
    "withCurated": {
     "n": 24,
-    "correct": 12,
+    "correct": 14,
     "falseSupported": 0,
-    "tooFavorable": 6,
-    "tooCautious": 5,
+    "tooFavorable": 5,
+    "tooCautious": 4,
     "expectMatch": 8,
     "missed": 2,
     "attackTargets": 0,
@@ -306,10 +306,10 @@
    },
    "proposed": {
     "n": 24,
-    "correct": 12,
+    "correct": 14,
     "falseSupported": 0,
-    "tooFavorable": 6,
-    "tooCautious": 5,
+    "tooFavorable": 5,
+    "tooCautious": 4,
     "expectMatch": 8,
     "missed": 1,
     "attackTargets": 0,
@@ -403,7 +403,7 @@
     "tooFavorable": 2,
     "tooCautious": 10,
     "expectMatch": 11,
-    "missed": 7,
+    "missed": 8,
     "attackTargets": 0,
     "attackSucceeded": 0
    },
@@ -472,24 +472,24 @@
   "not_eligible": 111
  },
  "semanticToSupported": 0,
- "verdictsThatWouldChange": 8,
+ "verdictsThatWouldChange": 7,
  "latencyMs": {
   "rules": {
-   "p50": 0.45519999999987704,
-   "p95": 3.568200000000161,
-   "max": 29.197900000000004
+   "p50": 0.451799999999821,
+   "p95": 3.399499999999989,
+   "max": 30.377099999999984
   },
   "shadow": {
-   "p50": 2.7375999999999294,
-   "p95": 46.16910000000007,
-   "max": 168.6664
+   "p50": 2.7349999999999,
+   "p95": 41.654900000000055,
+   "max": 179.7681
   }
  },
- "heapGrowthMb": 9.9,
+ "heapGrowthMb": 20.1,
  "passagesSent": 104,
  "promotions": {
-  "total": 8,
-  "recovered": 7,
+  "total": 7,
+  "recovered": 6,
   "acceptable": 1,
   "falsePromotions": 0,
   "onUnsafeCategory": 0,
@@ -502,50 +502,50 @@
  "thresholds": [
   {
    "threshold": 0.5,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.52,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.55,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.58,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.6,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.62,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
   {
    "threshold": 0.64,
-   "promotions": 8,
-   "recovered": 7,
+   "promotions": 7,
+   "recovered": 6,
    "falsePromotions": 0,
    "unsafe": 0
   },
@@ -1367,13 +1367,6 @@
      "text": "Insurance Sales Agent",
      "rel": "partial_title",
      "sim": null,
-     "status": "needs_clarification",
-     "reasons": []
-    },
-    {
-     "text": "Sold home and auto policies and referred any claims to the claims department",
-     "rel": "semantic_candidate",
-     "sim": 0.648,
      "status": "needs_clarification",
      "reasons": []
     }
@@ -3363,9 +3356,9 @@
    "allowed": [
     "insufficient_information"
    ],
-   "rulesOnly": "possible",
-   "withCurated": "possible",
-   "proposed": "possible",
+   "rulesOnly": "insufficient_information",
+   "withCurated": "insufficient_information",
+   "proposed": "insufficient_information",
    "table": "insufficient_information",
    "tableRule": "nothing_settles",
    "claims": [
@@ -3782,9 +3775,9 @@
    "allowed": [
     "supported"
    ],
-   "rulesOnly": "possible",
-   "withCurated": "possible",
-   "proposed": "possible",
+   "rulesOnly": "supported",
+   "withCurated": "supported",
+   "proposed": "supported",
    "table": "supported",
    "tableRule": "all_pieces_direct",
    "claims": [
@@ -4225,13 +4218,6 @@
      "sim": null,
      "status": "needs_clarification",
      "reasons": []
-    },
-    {
-     "text": "Monitored sandhill crane nesting from a mobile hide",
-     "rel": "semantic_candidate",
-     "sim": 0.6557,
-     "status": "needs_clarification",
-     "reasons": []
     }
    ]
   },
@@ -4380,7 +4366,7 @@
    ],
    "rulesOnly": "insufficient_information",
    "withCurated": "insufficient_information",
-   "proposed": "possible",
+   "proposed": "insufficient_information",
    "table": "insufficient_information",
    "tableRule": "nothing_settles",
    "claims": [
@@ -4392,13 +4378,6 @@
      "reasons": [
       "mention_only"
      ]
-    },
-    {
-     "text": "Uní acero inoxidable con soldadura TIG todos los días en el taller",
-     "rel": "semantic_candidate",
-     "sim": 0.6597,
-     "status": "needs_clarification",
-     "reasons": []
     }
    ]
   },
@@ -5507,6 +5486,13 @@
   {
    "similarity": 0,
    "allowed": [
+    "insufficient_information"
+   ],
+   "category": "ownership"
+  },
+  {
+   "similarity": 0,
+   "allowed": [
     "gap"
    ],
    "category": "ownership"
@@ -5625,7 +5611,7 @@
    "category": "collision"
   },
   {
-   "similarity": 0.6597,
+   "similarity": 0,
    "allowed": [
     "supported"
    ],

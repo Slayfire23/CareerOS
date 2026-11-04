@@ -302,7 +302,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Milestone 10 (frozen e4a68e0, rules-v10): safety fixes, clarification workflow with "Supported — Self-reported", terminology prototype, the owner's Set I audit. See docs/MILESTONE_10_REPORT.md.
 - [ ] Criteria not met on untouched Set J (236 cases, AI-written, AI-labeled blind): 62.6% accuracy, 1 false "supported" of 254, 2 of 32 injections reaching Possible, 51% of legitimate matches missed. Not tuned.
 - [x] Milestone 11, Phase 2: typed evidence layer and bge-m3 retrieval in shadow, occurrence fix in production (rules-v11), curated layer. See docs/MILESTONE_11_PHASE_2_REPORT.md.
-- [ ] Semantic promotion held: "Je ne connais pas Python" bypassed the English-only negation check in shadow. Waiting on the owner's decisions and two review packets before Phase 3.
+- [x] Milestone 11, Phase 3: rules-v12 fixes for six false Supported patterns, a conservative language gate, shadow-layer corrections. See docs/MILESTONE_11_PHASE_3_REPORT.md.
+- [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
 - [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

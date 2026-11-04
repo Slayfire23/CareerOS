@@ -46,10 +46,12 @@ export function plainLanguage(text: string): GatedLanguage | null {
   if (tokens.length < 3) return null;
   const score = new Map<GatedLanguage, number>();
   for (const language of Object.keys(STOPWORDS) as GatedLanguage[]) score.set(language, tokens.filter(t => STOPWORDS[language].has(t)).length);
-  for (const [language, pattern] of HINTS) if (pattern.test(value)) score.set(language, score.get(language)! + 2);
-  const ranked = [...score.entries()].sort((a, b) => b[1] - a[1]);
+  // Letters only break a tie. Several other languages use ü, ç, or ê, so a letter alone proves nothing.
+  const ranked = [...score.entries()].sort((a, b) => b[1] - a[1] || Number(HINTS.some(([l, p]) => l === b[0] && p.test(value))) - Number(HINTS.some(([l, p]) => l === a[0] && p.test(value))));
   const [first, second] = ranked;
-  if (first[1] >= 2 && first[1] > second[1]) return first[0];
+  const hinted = (language: GatedLanguage) => HINTS.some(([l, p]) => l === language && p.test(value));
+  if (first[1] >= 2 && (first[1] > second[1] || (hinted(first[0]) && !hinted(second[0])))) return first[0];
+  if (first[1] >= 2) return null;
   // A fragment such as "Tuned kitchen workflows": English only if it has no other language's letters and
   // says what was done with an English work verb.
   const ascii = /^[\x00-\x7F]*$/.test(value);
