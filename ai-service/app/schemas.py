@@ -273,3 +273,30 @@ class SuggestResponse(Strict):
     ai_assist: Literal["used", "unavailable"]
     pointers: list[Pointer]
     usage: Usage | None = None
+
+
+class RetrieveText(Strict):
+    id: str = Field(min_length=1, max_length=20, pattern=r"^[qp]\d+$")
+    text: str = Field(min_length=1, max_length=1000)
+
+
+class RetrieveRequest(Strict):
+    """Shadow retrieval: opaque ids and short texts that already passed Next.js's checks, and nothing else."""
+
+    request_id: UUID
+    queries: list[RetrieveText] = Field(min_length=1, max_length=50)
+    passages: list[RetrieveText] = Field(min_length=1, max_length=200)
+    top_k: int = Field(ge=1, le=5)
+
+
+class RetrieveScore(Strict):
+    query_id: str
+    passage_id: str
+    similarity: float
+
+
+class RetrieveResponse(Strict):
+    request_id: UUID
+    model: str
+    status: Literal["used", "unavailable"]
+    scores: list[RetrieveScore]

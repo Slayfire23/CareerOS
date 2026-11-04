@@ -230,11 +230,20 @@ export function sentenceAt(text: string, start: number, end: number): string {
   return text.slice(from, stop < 0 ? text.length : end + stop);
 }
 
+const SOMEONE_ELSE_SENTENCE = /\b(?:beside|alongside|next to|shadow\w*|observ\w*)\b|\b(?:team|teams|group|groups|colleagues?|coworkers?|co-workers?|staff|engineers?|vendors?|contractors?|consultants?|someone|department)\s+(?:that|who|which)\b/i;
 const THIRD_PARTY_SUBJECT = /^\W*(?:my|our|the|a|an)\s+(?:\w+\s+)?(?:colleagues?|managers?|boss|supervisors?|coworkers?|co-workers?|teammates?|bookkeepers?|accountants?|vendors?|contractors?|consultants?|leads?|teams?|department|staff|predecessors?|mentors?|clients?|customers?|firms?)\b/i;
 const DONE_BY_OTHERS = /^(?:\S+\s+){0,3}?(?:was|were|is|are|got)\s+(?:\w+\s+)?\w+\s+by\b/i;
 /** The sentence says someone else did it: "My colleague ran Xero", "Xero was run by the finance team". */
 function someoneElsesWork(sentence: string, after: string): boolean {
   return THIRD_PARTY_SUBJECT.test(sentence) || DONE_BY_OTHERS.test(after.trim());
+}
+/** Where a sentence says someone else did it, as offsets within the sentence. */
+export function thirdPartyCue(sentence: string, after: string): [number, number] | null {
+  const subject = sentence.match(THIRD_PARTY_SUBJECT);
+  if (subject) return [subject.index ?? 0, (subject.index ?? 0) + subject[0].length];
+  const other = sentence.match(SOMEONE_ELSE_SENTENCE);
+  if (other) return [other.index ?? 0, (other.index ?? 0) + other[0].length];
+  return DONE_BY_OTHERS.test(after.trim()) ? [0, sentence.length] : null;
 }
 
 /** "iOS owners" names people; "Tableau for 300 users" says who the work served, which is still the work. */

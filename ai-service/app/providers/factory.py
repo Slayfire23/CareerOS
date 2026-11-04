@@ -23,6 +23,10 @@ def build_provider(settings: Settings, name: str) -> MatchProvider:
         from app.providers.assisted import AssistedProvider
 
         return AssistedProvider(settings)
+    if name == "embedding":
+        from app.providers.embedding import EmbeddingProvider
+
+        return EmbeddingProvider(settings)
     if name == "hybrid":
         from app.providers.hybrid import HybridProvider
 

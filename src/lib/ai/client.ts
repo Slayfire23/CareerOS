@@ -79,6 +79,8 @@ export const callSuggestService = (
   timeoutMs: number = SUGGEST_TIMEOUT_MS,
 ) => post(config, "/v1/suggest", request.request_id, request, fetchImpl, timeoutMs);
 
+export const postSigned = (...args: Parameters<typeof post>) => post(...args);
+
 async function post(
   config: { serviceUrl: string; secret: string },
   path: string,

@@ -232,7 +232,7 @@ const GRADE = /\b(class|type|level|series|grade|tier|category)\s*[-:]?\s*([a-z0-
 const RANK = /\b(associate|professional|expert|master|journeyman|apprentice|practitioner|foundational|fundamentals|specialty|universal)\b/gi;
 /** The two name different grades of the same thing: CDL Class A and Class B, Series 6 and 7, Associate and
  * Professional. Only what's asked can differ: a listing that names no grade says nothing either way. */
-function gradeDiffers(asked: string, listed: string): boolean {
+export function gradeDiffers(asked: string, listed: string): boolean {
   const grades = (text: string) => new Map([...text.matchAll(GRADE)].map(m => [m[1].toLowerCase(), m[2].toLowerCase()]));
   const have = grades(listed);
   for (const [key, value] of grades(asked)) if (have.has(key) && have.get(key) !== value) return true;
@@ -349,7 +349,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
+export function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+(?:years?|yrs?))/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -387,7 +387,7 @@ function headShowsField(field: ReturnType<typeof durationField>, part: string): 
 
 /** How a job title covers the field. Only what the person did counts: an aide at a nursing home isn't
  * nursing. When the requirement is about the setting itself, working there is a lead, never proof. */
-function titleCoverage(field: ReturnType<typeof durationField>, title: string): "full" | "some" | "none" {
+export function titleCoverage(field: ReturnType<typeof durationField>, title: string): "full" | "some" | "none" {
   const part = rolePart(title);
   const found = fieldCoverage(field, part);
   // A pharmacy delivery driver drives; a nurse recruiter recruits. The field has to be the job itself.
@@ -846,6 +846,12 @@ hold holds holding have having a an in of and or with comptia isc2 pmi state any
 const credentialTerms = (text: string) => new Set([...canonicalTerms(text)].filter(t => !CREDENTIAL_WORDS.has(t)));
 const HOLDS = /\b(hold|holds|held|holding|licensed|certified|passed|earned|obtained|maintain|maintains)\b/i;
 /** Asks for a credential rather than a skill or a degree. */
+/** Every specific term asked for appears in this text. */
+export const covers = (piece: string, text: string) => {
+  const have = canonicalTerms(text);
+  return [...canonicalTerms(piece)].every(t => have.has(t));
+};
+
 export const asksForCredential = (text: string) =>
   !requiredDegreeRank(text) && (/\b(certification|certified|licensed|licence|permit|clearance)\b|(?<!\b(?:ssl|tls)\s)\bcertificate\b|(?<!\bsoftware\s)\blicense\b|(?<!\b(?:credit|debit|gift|graphics|video|sim|sd|network|sound)\s)\bcard\b/i.test(text) || [...canonicalTerms(text)].some(isCredentialName));
 

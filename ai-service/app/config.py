@@ -12,11 +12,11 @@ from urllib.parse import urlsplit
 from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-ProviderName = Literal["rules", "fake", "anthropic", "ollama", "hybrid", "assisted"]
-PROVIDER_NAMES: tuple[str, ...] = ("rules", "fake", "anthropic", "ollama", "hybrid", "assisted")
+ProviderName = Literal["rules", "fake", "anthropic", "ollama", "hybrid", "assisted", "embedding"]
+PROVIDER_NAMES: tuple[str, ...] = ("rules", "fake", "anthropic", "ollama", "hybrid", "assisted", "embedding")
 # Run on CareerOS-controlled hardware and cost nothing. "assisted" is the rules engine (the only
 # authority for verdicts) plus Ollama suggestions. "hybrid" is retired.
-LOCAL_PROVIDERS = frozenset({"rules", "fake", "ollama", "hybrid", "assisted"})
+LOCAL_PROVIDERS = frozenset({"rules", "fake", "ollama", "hybrid", "assisted", "embedding"})
 # Only this model is approved (decision D1). Changing it needs a reviewed code change.
 ApprovedAnthropicModel = Literal["claude-sonnet-5-5"]
 # Local models approved for this hardware (RTX 5060 Laptop, 8 GB). Adding one needs review.
@@ -64,6 +64,8 @@ class Settings(BaseSettings):
     ollama_num_ctx: int = Field(default=8_192, ge=4_096, le=32_768)
     ollama_num_predict: int = Field(default=3_072, ge=512, le=8_192)
     ollama_keep_alive: str = Field(default="30m", pattern=r"^\d+[smh]$")
+    # Shadow retrieval only. A local model, reachable only through ollama_url.
+    embedding_model: Literal["bge-m3"] = "bge-m3"
     ollama_queue_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
 
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
@@ -77,10 +79,12 @@ class Settings(BaseSettings):
         enabled = self.enabled_providers
         if not enabled or not enabled <= set(PROVIDER_NAMES):
             raise ValueError(
-                "AI_PROVIDERS must list one or more of: rules, fake, anthropic, ollama, hybrid, assisted."
+                "AI_PROVIDERS must list one or more of: rules, fake, anthropic, ollama, hybrid, assisted, embedding."
             )
         if self.environment == "production" and "fake" in enabled:
             raise ValueError("The fake provider is for tests only and cannot run in production.")
+        if self.environment == "production" and "embedding" in enabled:
+            raise ValueError("Shadow retrieval isn't approved for production.")
         if self.environment == "production" and enabled & {"hybrid", "ollama", "rules"}:
             raise ValueError(
                 "Next.js decides verdicts in production; this service may only run assisted or anthropic."

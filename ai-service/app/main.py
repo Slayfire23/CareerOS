@@ -20,7 +20,7 @@ from app.errors import ServiceError, error_body, install_error_handlers
 from app.matching.service import run_match
 from app.providers.base import MatchProvider
 from app.providers.factory import build_providers
-from app.schemas import MatchRequest, MatchResponse, SuggestRequest, SuggestResponse
+from app.schemas import MatchRequest, MatchResponse, RetrieveRequest, RetrieveResponse, SuggestRequest, SuggestResponse
 from app.security import (
     REQUEST_ID_HEADER,
     ReplayStore,
@@ -140,6 +140,23 @@ def create_app(
         if bridge is None:
             raise ServiceError(400, "provider_not_enabled", "AI suggestions are not enabled.")
         return await bridge.suggest(payload)
+
+    @app.post("/v1/retrieve", response_model=RetrieveResponse)
+    async def retrieve(request: Request) -> RetrieveResponse:
+        body = await verify_signed_request(request, settings, store, started_at)
+        try:
+            payload = RetrieveRequest.model_validate_json(body)
+        except ValidationError as exc:
+            fields = sorted({".".join(str(p) for p in err["loc"]) or "body" for err in exc.errors()})[:10]
+            raise ServiceError(422, "invalid_request", f"Invalid fields: {', '.join(fields)}") from None
+        if str(payload.request_id) != request.headers.get(REQUEST_ID_HEADER, "").lower():
+            raise ServiceError(
+                400, "request_id_mismatch", "Body request_id must match the signed request id."
+            )
+        embedding = providers.get("embedding")
+        if embedding is None:
+            raise ServiceError(400, "provider_not_enabled", "Shadow retrieval is not enabled.")
+        return await embedding.retrieve(payload)
 
     @app.exception_handler(Exception)
     async def unexpected(_: Request, exc: Exception) -> JSONResponse:
