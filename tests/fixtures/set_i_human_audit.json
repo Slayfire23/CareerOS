@@ -1,0 +1,14 @@
+{
+  "note": "The owner's frozen verdicts on docs/SET_I_AUDIT_WORKSHEET.md, recorded before tests/fixtures/set_i_audit_key.json or Set I's predictions were opened for this audit. The owner said beforehand that the items would be reviewed with ChatGPT; these verdicts are the owner's final decisions. They don't change Set I or its labels. Must not be edited.",
+  "reviewed_with": "ChatGPT, by the owner's prior statement",
+  "recorded": "2026-11-03",
+  "verdict_codes": { "S": "supported", "P": "possible", "NS": "gap", "NEI": "insufficient_information" },
+  "verdicts": {
+    "A-01": "S", "A-02": "NEI", "A-03": "S", "A-04": "NEI", "A-05": "NEI",
+    "A-06": "NS", "A-07": "S", "A-08": "NEI", "A-09": "NEI", "A-10": "NEI",
+    "A-11": "NS", "A-12": "NS", "A-13": "S", "A-14": "S", "A-15": "S",
+    "A-16": "NEI", "A-17": "NEI", "A-18": "NS", "A-19": "NS", "A-20": "NS",
+    "A-21": "NEI", "A-22": "NS", "A-23": "S", "A-24": "NEI", "A-25": "NS",
+    "A-26": "NEI", "A-27": "S", "A-28": "NEI", "A-29": "NS", "A-30": "NEI"
+  }
+}
