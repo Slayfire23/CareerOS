@@ -27,6 +27,7 @@ import {
   degreePhrases,
   describesUse,
   fieldMatches,
+  fragmentOfLongerName,
   hasOtherSenses,
   hasQualificationWords,
   isCredentialName,
@@ -36,6 +37,7 @@ import {
   rolesForField,
   namesSameDegree,
   plainSkillName,
+  actionMissing,
   activityEvidence,
   directUse,
   equivalentWhenAsked,
@@ -46,11 +48,12 @@ import {
   relatedTermInText,
   saysAbsent,
   sentenceAt,
+  someoneElsesWork,
   relation,
   surfaceForms,
   words,
 } from "@/lib/ai/skill-relations";
-import { belowDegree, educationStatus, fieldOfStudyForMatching, fullRoleTitle, hasCredentialMarker, plainCredentialName, plainQualification, plainTitle, rolePart, saysNotCompleted, workplaceWords, type EducationStatus } from "@/lib/ai/rules/profile-fields";
+import { belowDegree, educationStatus, fieldOfStudyForMatching, fullRoleTitle, hasCredentialMarker, notHeld, plainCredentialName, plainQualification, plainTitle, rolePart, saysNotCompleted, workplaceWords, type EducationStatus } from "@/lib/ai/rules/profile-fields";
 import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 
 // The deterministic rules engine, and the only authority for final verdicts. It runs on the Next.js
@@ -68,7 +71,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v11";
+export const RULES_VERSION = "rules-v12";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -244,7 +247,7 @@ export function gradeDiffers(asked: string, listed: string): boolean {
 
 /** The requirement names this skill exactly, or by a name the reviewed table records as the same
  * technology. Every specific word of the skill's name must be accounted for. */
-function sameSkill(requirementText: string, name: string): boolean {
+export function sameSkill(requirementText: string, name: string): boolean {
   if (!plainSkillName(name) || gradeDiffers(requirementText, name)) return false;
   const terms = canonicalTerms(name);
   // "SWIFT payment messaging" isn't the Swift language, though the word is the same.
@@ -263,6 +266,9 @@ function sharedTerm(requirementText: string, evidenceText: string): string | nul
   const directed = untrustedEvidenceSpans(evidenceText);
   const usable = (quote: string, start: number, end: number) => {
     if (directed.some(([s, e]) => s < end && start < e)) return false;
+    if (fragmentOfLongerName(requirementText, evidenceText, quote)) return false;
+    // Someone else's work isn't even a lead, unless it's the same words in a sentence about them.
+    if (someoneElsesWork(sentenceAt(evidenceText, start, end), evidenceText.slice(end).split(/[.!?;\n]\s/)[0])) return false;
     const sentence = evidenceText.slice(evidenceText.slice(0, start).search(/[^.!?;\n]*$/), end + (evidenceText.slice(end).search(/[.!?;\n]|$/)));
     // The same word in another sense on either side: only a match when both mean the other thing.
     const senses = [...canonicalTerms(quote)].filter(hasOtherSenses);
@@ -737,7 +743,9 @@ function assessSkills(request: MatchRequest, requirement: MatchRequirement): Raw
       const barred = untrustedEvidenceSpans(description);
       const at = occurrences(description, quote).find(i => !barred.some(([s, e]) => s < i + quote.length && i < e) && directUse(description, quote, sense, i));
       if (at === undefined) continue;
-      const have = canonicalTerms(sentenceAt(description, at, at + quote.length));
+      const stated = sentenceAt(description, at, at + quote.length);
+      if (actionMissing(piece, stated)) continue;
+      const have = canonicalTerms(stated);
       if (sense || [...wanted].every(t => have.has(t))) return { role, quote };
     }
     return null;
@@ -865,7 +873,8 @@ function assessCredential(request: MatchRequest, requirement: MatchRequirement):
     const have = credentialTerms(text);
     return wanted.size > 0 && [...wanted].every(t => have.has(t)) && !gradeDiffers(head, text) && ![...wanted].some(t => otherSense(head, t) !== otherSense(text, t));
   };
-  const schools = request.evidence.filter(isEducation).filter(e => plainQualification(e.qualification) && names(e.qualification));
+  // Preparing for a credential isn't holding it, whatever the course's name or its notes say.
+  const schools = request.evidence.filter(isEducation).filter(e => plainQualification(e.qualification) && names(e.qualification) && !notHeld(e.qualification) && !notHeld(e.description ?? ""));
   const completed = schools.filter(e => educationStatus(e, request.as_of_month) === "completed");
   if (completed.length) {
     return finding(requirement, "supported", `You list ${completed[0].qualification} in your education.`, {

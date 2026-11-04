@@ -4,7 +4,7 @@ import { CURATED_VERSION, curatedFor } from "@/lib/ai/claims/curated";
 import { check, checkAssertion, checkCredential, checkDuration, checkOwnership, checkSense, looksLikeList, screenText } from "@/lib/ai/claims/checks";
 import type { ClaimCheck, EvidenceClaim, RejectionReason, RelationshipKind, RequirementFrame, SourceField, UncertaintyReason } from "@/lib/ai/claims/types";
 import { fieldValue } from "@/lib/ai/claims/validate";
-import { covers, durationField, titleCoverage } from "@/lib/ai/rules/engine";
+import { covers, durationField, sameSkill, titleCoverage } from "@/lib/ai/rules/engine";
 import { TERMINOLOGY_VERSION, VOCABULARY, canonicalTerms, directUse, occurrences, relation, sentenceAt, surfaceForms, words } from "@/lib/ai/skill-relations";
 import { fullRoleTitle, plainTitle, rolePart } from "@/lib/ai/rules/profile-fields";
 
@@ -48,6 +48,16 @@ function formsFor(piece: string): Form[] {
   return [...forms.values()].sort((a, b) => b.form.length - a.form.length);
 }
 
+/** Every term of a longer requirement sits close together in the sentence. */
+function termsClose(piece: string, line: string): boolean {
+  const wanted = [...canonicalTerms(piece)].filter(t => !STOP.has(t));
+  if (wanted.length < 2) return true;
+  const tokens = words(line);
+  const places = wanted.map(t => tokens.indexOf(t)).filter(i => i >= 0);
+  if (places.length < wanted.length) return true; // terms named another way are judged elsewhere
+  return Math.max(...places) - Math.min(...places) <= wanted.length + 2;
+}
+
 const claimId = (frame: RequirementFrame, ref: FieldRef, start: number, end: number, kind: string) =>
   `clm_${createHash("sha256").update(`${frame.requirementId}\u0000${ref.item.id}\u0000${ref.field}\u0000${ref.itemIndex}\u0000${start}\u0000${end}\u0000${kind}`, "utf8").digest("hex").slice(0, 16)}`;
 
@@ -76,7 +86,7 @@ function build(frame: RequirementFrame, ref: FieldRef, start: number, end: numbe
   const rejectionReasons = checks.filter((c): c is ClaimCheck & { reason: RejectionReason } => !c.passed && c.check !== "all_pieces" && c.check !== "level" && c.reason !== null).map(c => c.reason);
   const uncertainties = [...(options.uncertainties ?? []), ...checks.filter(c => !c.passed && (c.check === "all_pieces" || c.check === "level")).map(c => c.reason as UncertaintyReason)];
   const semantic = form.kind === "semantic_candidate";
-  const status = rejectionReasons.length ? "rejected" : semantic || form.kind === "curated_related" || uncertainties.length ? "needs_clarification" : "valid";
+  const status = rejectionReasons.length ? "rejected" : semantic || form.kind === "curated_related" || form.kind === "partial_title" || uncertainties.length ? "needs_clarification" : "valid";
   return {
     schemaVersion: "claim-v1",
     claimId: claimId(frame, ref, start, end, form.kind),
@@ -120,6 +130,10 @@ function textClaims(request: MatchRequest, frame: RequirementFrame): EvidenceCla
               if (looksLikeList(ref.value, start, end)) extra.push(check("direct", "mention_only"));
             }
             const named = form.kind === "curated_equivalent" || form.kind === "curated_related";
+            // The engine's own reading of a listed skill: "Go (board game)" isn't the language.
+            if (ref.field === "name" && !credential && !named && !sameSkill(piece, ref.value)) extra.push({ check: "all_pieces", passed: false, reason: "part_of_requirement" });
+            // Words scattered through a sentence aren't the phrase: "butter churn" and "ran analysis".
+            if ((ref.field === "description" || ref.field === "contribution" || ref.field === "results") && !named && !termsClose(piece, line)) extra.push({ check: "all_pieces", passed: false, reason: "part_of_requirement" });
             if (!named && !covers(piece, ref.field === "description" || ref.field === "contribution" || ref.field === "results" ? line : ref.value)) {
               extra.push({ check: "all_pieces", passed: false, reason: "part_of_requirement" });
             }
@@ -145,10 +159,11 @@ function employmentClaims(request: MatchRequest, frame: RequirementFrame): Evide
   const claims = roles.flatMap((role): EvidenceClaim[] => {
     const found = plainTitle(role.job_title) ? titleCoverage(field, role.job_title) : "none";
     const coverage = found === "full" && !fullRoleTitle(role.job_title) ? "some" : found;
-    if (coverage === "none" && !words(role.job_title).some(w => field.allStems.some(s => w.startsWith(s)))) return [];
+    // Only the engine's own reading of the title counts: a shared first few letters isn't a lead.
+    if (coverage === "none") return [];
     const ref: FieldRef = { item: role, field: "job_title", itemIndex: null, value: role.job_title };
     const part = rolePart(role.job_title);
-    const form: Form = { form: role.job_title, kind: coverage === "full" ? "exact" : "curated_related", sourceId: null, tableVersion: null, target: frame.qualificationText };
+    const form: Form = { form: role.job_title, kind: coverage === "full" ? "exact" : "partial_title", sourceId: null, tableVersion: null, target: frame.qualificationText };
     const dates = roleMonths(role, request.as_of_month) === 0 ? "impossible_dates" : null;
     const checks = [check("duration", dates ?? (coverage === "full" || !inField.length ? reason : null))];
     if (coverage !== "full" && part !== role.job_title) checks.push(check("sense", "workplace_name"));

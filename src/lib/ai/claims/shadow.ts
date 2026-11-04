@@ -32,6 +32,7 @@ export async function shadowAssess(request: MatchRequest, retrieve: Retrieve | n
       withCurated,
       proposed: proposedVerdict(withCurated, frame, claims),
       semanticStatus: semantic.status,
+      gateBlocked: semantic.blocked,
     };
   });
   return { results, invalidClaims, model: semantic.model };

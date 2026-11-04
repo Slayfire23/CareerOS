@@ -1,9 +1,10 @@
 import type { Evidence } from "@/lib/ai/evidence";
 import { employmentMonths, roleMonths, type ExperienceEvidence } from "@/lib/ai/evidence";
+import { foreignNegation, otherPersonInAnyLanguage, plainLanguage } from "@/lib/ai/claims/language";
 import { untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { gradeDiffers } from "@/lib/ai/rules/engine";
 import { disguised, educationStatus, notAStatement, notHeld, plainCredentialName, plainQualification, plainTitle, rolePart } from "@/lib/ai/rules/profile-fields";
-import { VOCABULARY, canonicalTerms, keywordDump, labelledList, negatedSpans, ordinaryMeaning, otherSense, plainSkillName, quoteTerms, saysAbsent, sentenceAt, surfaceForms, thirdPartyCue, words } from "@/lib/ai/skill-relations";
+import { canonicalTerms, fragmentOfLongerName, keywordDump, labelledList, negatedSpans, ordinaryMeaning, otherSense, plainSkillName, quoteTerms, saysAbsent, sentenceAt, thirdPartyCue } from "@/lib/ai/skill-relations";
 import { directedSpans } from "@/lib/ai/untrusted-text";
 import type { ClaimCheck, Holder, Modality, Polarity, RejectionReason, SourceField } from "@/lib/ai/claims/types";
 
@@ -42,29 +43,28 @@ export function checkAssertion(value: string, field: SourceField, start: number,
     return { polarity: "positive", modality: "stated", cueSpan: null, reason: null };
   }
   const span = negatedSpans(value).find(([s, e]) => s < end && start < e);
-  if (!span) return { polarity: "positive", modality: "stated", cueSpan: null, reason: null };
+  if (!span) {
+    // Another language's negative: "Je ne connais pas Python". A warning word is enough to stop calling it positive.
+    const sentence = sentenceAt(value, start, end);
+    if (plainLanguage(sentence) !== "en" && foreignNegation(sentence)) return { polarity: "negative", modality: "stated", cueSpan: null, reason: "negated" };
+    return { polarity: "positive", modality: "stated", cueSpan: null, reason: null };
+  }
   const clause = value.slice(span[0], span[1]);
   if (WISH.test(clause)) return { polarity: "uncertain", modality: "wish", cueSpan: span, reason: "wish_or_plan" };
   if (PLAN.test(clause)) return { polarity: "uncertain", modality: "planned", cueSpan: span, reason: "wish_or_plan" };
   return { polarity: "negative", modality: "stated", cueSpan: span, reason: "negated" };
 }
 
-/** A clause opening with someone else as its subject: "Our engineers wrote the SQL", "My brother runs". */
-const OTHER_SUBJECT = /^\W*(?:our|my|the|his|her|their)\s+(?:\w+\s+)?(?:engineers?|developers?|technicians?|nurses?|doctors?|brother|sister|father|mother|son|daughter|wife|husband|spouse|uncle|aunt|cousin|friend|dad|mom|partner|neighbou?r|roommate|boss)\b/i;
-
 /** Whose work this is. Unknown only when the text gives no way to tell. */
 export function checkOwnership(value: string, field: SourceField, start: number, end: number): { holder: Holder; cueSpan: [number, number] | null } {
   if (STRUCTURED.has(field)) return { holder: "candidate", cueSpan: null };
   const from = value.slice(0, start).search(/[^.!?;\n]*$/);
-  const subject = value.slice(from, end).match(OTHER_SUBJECT);
-  if (subject) return { holder: "third_party", cueSpan: [from, from + subject[0].length] };
+  const sentence = sentenceAt(value, start, end);
+  if (!/^[\x00-\x7F]*$/.test(sentence) && otherPersonInAnyLanguage(sentence)) return { holder: "third_party", cueSpan: [from, from + sentence.length] };
   const cue = thirdPartyCue(sentenceAt(value, start, end), value.slice(end).split(/[.!?;\n]\s/)[0]);
   if (cue) return { holder: "third_party", cueSpan: [from + cue[0], from + cue[1]] };
   return { holder: "candidate", cueSpan: null };
 }
-
-/** The word is only part of how the requirement names one known thing. */
-const aliasOfLonger = (asked: string, quote: string) => [...canonicalTerms(asked)].some(term => VOCABULARY.has(term) && surfaceForms(term).some(form => form.includes(" ") && words(form).includes(quote)));
 
 /** Whether a word found here means what the requirement means. */
 export function checkSense(asked: string, value: string, quote: string, field: SourceField, title: string | null): RejectionReason | null {
@@ -73,8 +73,7 @@ export function checkSense(asked: string, value: string, quote: string, field: S
     if (!STRUCTURED.has(field) && ordinaryMeaning(value, term)) return "other_sense";
   }
   if (!STRUCTURED.has(field) && !quoteTerms(quote, value).size) return "other_sense";
-  // A short other name of a longer one, in plain lower case: "brass rails" isn't Ruby on Rails.
-  if (!STRUCTURED.has(field) && /^\p{Ll}+$/u.test(quote) && aliasOfLonger(asked, quote)) return "other_sense";
+  if (!STRUCTURED.has(field) && fragmentOfLongerName(asked, value, quote)) return "other_sense";
   if (field === "job_title" && title && !rolePart(title).toLowerCase().includes(quote.toLowerCase())) return "workplace_name";
   return null;
 }

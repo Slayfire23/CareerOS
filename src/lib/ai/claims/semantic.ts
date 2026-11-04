@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Evidence, MatchRequest } from "@/lib/ai/evidence";
 import { check, checkAssertion, checkOwnership, screenText } from "@/lib/ai/claims/checks";
 import { fieldsOf } from "@/lib/ai/claims/extract";
+import { semanticGate } from "@/lib/ai/claims/language";
 import type { EvidenceClaim, RequirementFrame, SourceField } from "@/lib/ai/claims/types";
 import { citationOrigin } from "@/lib/ai/evidence";
 import { canonicalTerms, isKnownTechnology, relation } from "@/lib/ai/skill-relations";
@@ -10,8 +11,8 @@ import { canonicalTerms, isKnownTechnology, relation } from "@/lib/ai/skill-rela
 // and scores, so it can't write a citation: code holds the offsets. Requirements about credentials,
 // education, or an amount of time are never sent, so similarity can't touch them.
 
-// Chosen on the training split only, before the check split was opened: 8 helped, 0 harmed there.
-export const SIMILARITY_THRESHOLD = Number(process.env.M11_SIMILARITY_THRESHOLD ?? 0.64);
+// Chosen on seen development data before the newest sealed split was opened: 8 recovered, 0 false promotions.
+export const SIMILARITY_THRESHOLD = Number(process.env.M11_SIMILARITY_THRESHOLD ?? 0.66);
 export const MAX_PASSAGES = 200;
 export const TOP_K = 3;
 const FREE_TEXT: ReadonlySet<SourceField> = new Set(["description", "contribution", "results"]);
@@ -24,7 +25,7 @@ export type RetrieveResponse = { request_id: string; model: string; status: "use
 export const semanticAllowed = (frame: RequirementFrame) => (frame.kind === "skill" || frame.kind === "employment") && frame.requiredMonths === null && !frame.timeUnstated;
 
 /** Sentences that passed screening, assertion, and ownership. Dates, education, and rejected text stay here. */
-export function passagesFrom(request: MatchRequest): Passage[] {
+export function passagesFrom(request: MatchRequest, blocked: Partial<Record<string, number>> = {}): Passage[] {
   const passages: Passage[] = [];
   for (const item of request.evidence) {
     if (item.kind === "education") continue;
@@ -36,6 +37,11 @@ export function passagesFrom(request: MatchRequest): Passage[] {
         const start = match.index + match[0].indexOf(trimmed);
         const end = start + trimmed.length;
         if (screenText(ref.value, ref.field, start, end) || checkAssertion(ref.value, ref.field, start, end).reason || checkOwnership(ref.value, ref.field, start, end).holder !== "candidate") continue;
+        const gate = semanticGate(trimmed);
+        if (gate) {
+          blocked[gate] = (blocked[gate] ?? 0) + 1;
+          continue;
+        }
         passages.push({ id: `p${passages.length}`, text: trimmed, item, field: ref.field, itemIndex: ref.itemIndex, start, end });
         if (passages.length >= MAX_PASSAGES) return passages;
       }
@@ -50,25 +56,26 @@ export function namesDifferentThing(asked: string, passage: string): boolean {
   return [...canonicalTerms(passage)].some(term => isKnownTechnology(term) && !wanted.includes(term) && relation(asked, term) === "related");
 }
 
-export type SemanticOutcome = { status: "used" | "unavailable" | "not_eligible"; byFrame: Map<number, EvidenceClaim[]>; model: string | null };
+export type SemanticOutcome = { status: "used" | "unavailable" | "not_eligible"; byFrame: Map<number, EvidenceClaim[]>; model: string | null; blocked: Partial<Record<string, number>> };
 
 /** Asks for candidates and makes each surviving one a claim at Possible at most. Any failure means no
  * candidates and nothing else changes. */
 export async function semanticClaims(request: MatchRequest, frames: RequirementFrame[], retrieve: Retrieve | null, threshold = SIMILARITY_THRESHOLD): Promise<SemanticOutcome> {
   const eligible = frames.filter(semanticAllowed);
   const byFrame = new Map<number, EvidenceClaim[]>();
-  if (!retrieve) return { status: "unavailable", byFrame, model: null };
-  if (!eligible.length) return { status: "not_eligible", byFrame, model: null };
-  const passages = passagesFrom(request);
-  if (!passages.length) return { status: "not_eligible", byFrame, model: null };
+  const blocked: Partial<Record<string, number>> = {};
+  if (!retrieve) return { status: "unavailable", byFrame, model: null, blocked };
+  if (!eligible.length) return { status: "not_eligible", byFrame, model: null, blocked };
+  const passages = passagesFrom(request, blocked);
+  if (!passages.length) return { status: "not_eligible", byFrame, model: null, blocked };
   const requestId = randomUUID();
   let reply: RetrieveResponse;
   try {
     reply = await retrieve({ request_id: requestId, queries: eligible.map(f => ({ id: `q${f.index}`, text: f.qualificationText })), passages: passages.map(p => ({ id: p.id, text: p.text })), top_k: TOP_K });
   } catch {
-    return { status: "unavailable", byFrame, model: null };
+    return { status: "unavailable", byFrame, model: null, blocked };
   }
-  if (reply.request_id !== requestId || reply.status !== "used") return { status: "unavailable", byFrame, model: null };
+  if (reply.request_id !== requestId || reply.status !== "used") return { status: "unavailable", byFrame, model: null, blocked };
   const passageById = new Map(passages.map(p => [p.id, p]));
   const frameById = new Map(eligible.map(f => [`q${f.index}`, f]));
   for (const score of reply.scores) {
@@ -80,7 +87,7 @@ export async function semanticClaims(request: MatchRequest, frames: RequirementF
     list.push(semanticClaim(frame, passage, score.similarity, reply.model, different));
     byFrame.set(frame.index, list);
   }
-  return { status: "used", byFrame, model: reply.model };
+  return { status: "used", byFrame, model: reply.model, blocked };
 }
 
 function semanticClaim(frame: RequirementFrame, passage: Passage, similarity: number, model: string, different: boolean): EvidenceClaim {

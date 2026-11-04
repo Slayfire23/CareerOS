@@ -1,7 +1,7 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
 import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
-import { notAStatement } from "@/lib/ai/rules/profile-fields";
+import { notAStatement, templateText } from "@/lib/ai/rules/profile-fields";
 
 // A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
 // is only a test reference. Only what is requested (the head and its listed alternatives) can earn credit; later required
@@ -171,6 +171,12 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   }
   // A hypothetical, a template, or an order about what to report, including one taken back in an aside.
   // The same sentence three times over is written for a filter, not a reader.
+  // A template is no one's experience, so a field holding one can't count at all, even beside its own
+  // plausible sentences. Quoted words are someone else's unless they're a short name.
+  if (templateText(text)) spans.set(`0:${text.length}`, [0, text.length]);
+  for (const match of text.matchAll(/["“”«»]([^"“”«»]{20,})["“”«»]|(?<![\p{L}\p{N}])'([^']{20,})'(?![\p{L}\p{N}])/gu)) {
+    spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+  }
   const sentences = [...text.matchAll(/[^.!?\n]+[.!?\n]?/g)];
   const said = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}+#]+/gu, " ").trim();
   const times = new Map<string, number>();

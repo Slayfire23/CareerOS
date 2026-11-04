@@ -41,7 +41,7 @@ export type ClaimSource = {
 export type Holder = "candidate" | "third_party" | "unknown";
 export type Polarity = "positive" | "negative" | "uncertain";
 export type Modality = "stated" | "planned" | "wish" | "hypothetical" | "pending" | "expired" | "in_progress" | "not_a_statement";
-export type RelationshipKind = "exact" | "alias" | "curated_equivalent" | "curated_related" | "semantic_candidate" | "none";
+export type RelationshipKind = "exact" | "alias" | "curated_equivalent" | "curated_related" | "partial_title" | "semantic_candidate" | "none";
 
 export type CheckName = "span_verbatim" | "screen" | "ownership" | "assertion" | "sense" | "direct" | "credential" | "duration" | "level" | "all_pieces" | "semantic_scope";
 export type RejectionReason =
@@ -82,4 +82,6 @@ export type ShadowResult = {
   /** withCurated, plus semantic evidence moving Not enough information to Possible, if ever approved. */
   proposed: Verdict;
   semanticStatus: "used" | "unavailable" | "not_eligible";
+  /** Text kept from the model, and why. Never sent, and never evidence. */
+  gateBlocked: Partial<Record<string, number>>;
 };

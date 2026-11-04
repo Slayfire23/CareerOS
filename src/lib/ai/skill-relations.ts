@@ -45,6 +45,7 @@ const AMBIGUOUS = new Set(table.ambiguous);
 const TECH_CONTEXT = new Set(table.tech_context);
 const EMPLOYMENT_WORDS = new Set(table.employment_words);
 const WORK_VERBS = new Set<string>(table.work_verbs);
+export const WORK_VERB_WORDS: ReadonlySet<string> = WORK_VERBS;
 const CONSUMER_NOUNS = new Set<string>((table as unknown as { consumer_nouns: string[] }).consumer_nouns);
 /** Every technology and concept term the table knows, in canonical form. */
 export const VOCABULARY = new Set<string>([...PHRASES.values(), ...FAMILIES.flatMap(f => [...f.terms, ...f.members])]);
@@ -231,19 +232,43 @@ export function sentenceAt(text: string, start: number, end: number): string {
 }
 
 const SOMEONE_ELSE_SENTENCE = /\b(?:beside|alongside|next to|shadow\w*|observ\w*)\b|\b(?:team|teams|group|groups|colleagues?|coworkers?|co-workers?|staff|engineers?|vendors?|contractors?|consultants?|someone|department)\s+(?:that|who|which)\b/i;
+/** A clause opening with someone else as its subject: "Our engineers wrote the SQL", "My brother runs". */
+const OTHER_SUBJECT = /^\W*(?:our|my|the|his|her|their)\s+(?:\w+\s+)?(?:engineers?|developers?|technicians?|nurses?|doctors?|lawyers?|brother|sister|father|mother|son|daughter|wife|husband|spouse|uncle|aunt|cousin|friend|dad|mom|partner|neighbou?r|roommate)\b/i;
 const THIRD_PARTY_SUBJECT = /^\W*(?:my|our|the|a|an)\s+(?:\w+\s+)?(?:colleagues?|managers?|boss|supervisors?|coworkers?|co-workers?|teammates?|bookkeepers?|accountants?|vendors?|contractors?|consultants?|leads?|teams?|department|staff|predecessors?|mentors?|clients?|customers?|firms?)\b/i;
 const DONE_BY_OTHERS = /^(?:\S+\s+){0,3}?(?:was|were|is|are|got)\s+(?:\w+\s+)?\w+\s+by\b/i;
 /** The sentence says someone else did it: "My colleague ran Xero", "Xero was run by the finance team". */
-function someoneElsesWork(sentence: string, after: string): boolean {
-  return THIRD_PARTY_SUBJECT.test(sentence) || DONE_BY_OTHERS.test(after.trim());
+export function someoneElsesWork(sentence: string, after: string): boolean {
+  return THIRD_PARTY_SUBJECT.test(sentence) || OTHER_SUBJECT.test(sentence) || DONE_BY_OTHERS.test(after.trim());
 }
 /** Where a sentence says someone else did it, as offsets within the sentence. */
 export function thirdPartyCue(sentence: string, after: string): [number, number] | null {
-  const subject = sentence.match(THIRD_PARTY_SUBJECT);
+  const subject = sentence.match(THIRD_PARTY_SUBJECT) ?? sentence.match(OTHER_SUBJECT);
   if (subject) return [subject.index ?? 0, (subject.index ?? 0) + subject[0].length];
   const other = sentence.match(SOMEONE_ELSE_SENTENCE);
   if (other) return [other.index ?? 0, (other.index ?? 0) + other[0].length];
   return DONE_BY_OTHERS.test(after.trim()) ? [0, sentence.length] : null;
+}
+
+/** A word that's only part of how the requirement names one known thing, in plain lower case, with nothing
+ * technical beside it: "brass rails" isn't Ruby on Rails, though "Rails" and "rails apps" may be. */
+export function fragmentOfLongerName(asked: string, fieldText: string, quote: string): boolean {
+  if (!/^\p{Ll}+$/u.test(quote)) return false;
+  const named = [...canonicalTerms(asked)].some(term => VOCABULARY.has(term) && surfaceForms(term).some(form => form.includes(" ") && words(form).includes(quote)));
+  return named && !hasTechContext(fieldText, quote);
+}
+
+/** Generic words that still say what was done. "Grant writing" asks for writing: reading grant applications
+ * isn't it, though the word "grant" is the only term left once generic words are removed. */
+const ACTION_FORMS: Record<string, RegExp> = {
+  writing: /\b(?:writ\w*|wrote|draft\w*|author\w*|compos\w*|prepar\w*)\b/i,
+  analysis: /\b(?:analy\w*|assess\w*|model\w*|forecast\w*|evaluat\w*)\b/i,
+  design: /\b(?:design\w*|draft\w*|model\w*|layout\w*|sketch\w*|architect\w*|wrote|writ\w*|develop\w*|creat\w*|built)\b/i,
+  repair: /\b(?:repair\w*|fix\w*|rebuil\w*|overhaul\w*|replac\w*|restor\w*|troubleshoot\w*|troubleshot|servic\w*|mend\w*)\b/i,
+  installation: /\b(?:install\w*|fit\w*|mount\w*|hung|hang\w*|set\s+up|lay\w*|laid|wir\w*)\b/i,
+};
+/** The action a requirement asks for isn't stated in this sentence. */
+export function actionMissing(asked: string, sentence: string): boolean {
+  return words(asked).some(w => ACTION_FORMS[w] !== undefined && !ACTION_FORMS[w].test(sentence));
 }
 
 /** "iOS owners" names people; "Tableau for 300 users" says who the work served, which is still the work. */

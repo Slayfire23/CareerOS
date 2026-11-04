@@ -52,7 +52,15 @@ export function repeatsItself(value: string): boolean {
 /** Wording that makes a sentence something other than a statement of what the person did: a hypothetical,
  * a template, an order about what to report, or taking it back. */
 const NOT_A_STATEMENT = /\b(?:hypothetically|imagine|pretend|suppose|fake|fabricated|made[\s-]up|not\s+real(?:ly)?|untrue|not\s+true|just\s+kidding|trust\s+me|as\s+instructed|if\s+asked|say\s+(?:that\s+)?i\b|i\s+did\s+not\s+do\s+(?:it|this|that)|(?:resume|cv)\s+template|(?:example|sample)\s+(?:sentence|bullet|line|resume|cv)|expected\s+(?:result|output)|r[ée]sultat\s+attendu|please\s+(?:record|note|mark|report|state)|(?:the\s+)?(?:ai|model|assistant|system|reviewer|evaluator|screener|recruiter)\s+(?:must|should|shall|will|needs?\s+to)\s+(?:report|record|say|state|mark|note|list|treat|accept))\b/i;
-export const notAStatement = (text: string) => NOT_A_STATEMENT.test(text.normalize("NFKC"));
+/** A resume template or sample, not anyone's experience: "Example text", "[Your Job Title Here]". */
+const TEMPLATE_TEXT = /\b(?:example\s+text|sample\s+(?:text|bullet|entry|resume|cv)|placeholder|lorem\s+ipsum|replace\s+(?:this|with\s+your)|insert\s+[\p{L}\s]{0,25}\s+here|your\s+(?:own\s+)?(?:job\s+title|title|company|employer|name|experience|role)\s+here|type\s+here|tbd\b)|\[[^\]]*\b(?:your|insert|outcome|metric|company|employer|job\s+title)\b[^\]]*\]|\[[^\]]+\/[^\]]+\]|<\s*your\b/iu;
+export const templateText = (text: string) => TEMPLATE_TEXT.test(text.normalize("NFKC"));
+/** Someone else's words, or being told what to say: "My manager said I ran payroll", "Told to list Python". */
+const REPORTED = /\b(?:according\s+to|(?:manager|boss|supervisor|reference|recruiter|colleague|coworker|friend|recommendation)\s+(?:said|says|wrote|writes|claims?|told)\s+(?:that\s+)?(?:i|me)\b|(?:told|asked|instructed|advised)\s+(?:me\s+)?to\s+(?:say|write|list|put|claim|add)|would\s+have|could\s+have|if\s+i\s+had|in\s+theory|supposedly|allegedly)\b/i;
+export const notAStatement = (text: string) => {
+  const value = text.normalize("NFKC");
+  return NOT_A_STATEMENT.test(value) || REPORTED.test(value) || templateText(value);
+};
 
 /** The value carries something other than a name: markup, hidden characters, or claim wording. */
 export function carriesClaim(value: string): boolean {
@@ -103,7 +111,7 @@ const DEGREE_DIPLOMA = /\b(graduate|postgraduate|post-graduate|advanced|higher|n
 export const belowDegree = (qualification: string) => BELOW_DEGREE.test(qualification) && !DEGREE_DIPLOMA.test(qualification);
 
 /** A credential listed by name, with words that say it's held rather than planned. */
-const NOT_HELD = /\b(expired|lapsed|pending|booked|scheduled|studying|preparing|planned|planning|enrolled|working\s+toward|in\s+progress|not\s+yet|exam\s+(date|booked)|renewal\s+due|suspended|revoked|candidate|eligible|aspiring|sitting\s+for|exam\s+\d)\b/i;
+const NOT_HELD = /\b(expired|lapsed|pending|booked|scheduled|studying|preparing|preparation|planned|planning|enrolled|working\s+toward|in\s+progress|not\s+yet|exam\s+(date|booked)|renewal\s+due|suspended|revoked|candidate|eligible|aspiring|sitting\s+for|exam\s+\d|exam\s+prep|prep\s+course|review\s+course|practice\s+(?:test|exam)|study\s+guide|not\s+(?:yet\s+)?(?:certified|licensed))\b/i;
 const CREDENTIAL_MARKER = /\b(certified|certification|certificate|licensed|license|licence|card)\b/i;
 const ACRONYM_NOTE = /\(([A-Z0-9+/]{2,8})\)/g;
 export const notHeld = (text: string) => NOT_HELD.test(text.normalize("NFKC"));

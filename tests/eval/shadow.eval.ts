@@ -51,7 +51,13 @@ it("shadow evaluation", { timeout: 1_800_000 }, async () => {
   const shadowMs: number[] = [];
   const statuses: Record<string, number> = {};
   const best: { similarity: number; allowed: Verdict[]; category: string }[] = [];
+  const sweepInput: typeof best = [];
   let changedFromRules = 0;
+  const verdictDump: Record<string, Verdict> = {};
+  const promotions = { total: 0, recovered: 0, acceptable: 0, falsePromotions: 0, onUnsafeCategory: 0, onAttack: 0 };
+  const blockedTotals: Record<string, number> = {};
+  const seenBlock = new Set<unknown>();
+  const unsafe = /ownership|injection|credential|duration|negation|template|quoted/;
   let semanticToSupported = 0;
   let passageTotal = 0;
   const memoryBefore = process.memoryUsage().heapUsed;
@@ -77,11 +83,27 @@ it("shadow evaluation", { timeout: 1_800_000 }, async () => {
       // The promise that matters: the verdict a person sees is exactly today's.
       expect(result.rulesOnly).toBe(baseline.find(f => f.requirement_index === i)!.verdict);
       statuses[result.semanticStatus] = (statuses[result.semanticStatus] ?? 0) + 1;
+      verdictDump[`${c.id}/${i}`] = result.rulesOnly;
+      if (!seenBlock.has(result.gateBlocked)) {
+        seenBlock.add(result.gateBlocked);
+        for (const [k, n] of Object.entries(result.gateBlocked)) blockedTotals[k] = (blockedTotals[k] ?? 0) + (n ?? 0);
+      }
+      if (result.proposed !== result.withCurated) {
+        promotions.total++;
+        const wanted = allowed.includes("possible") || allowed.includes("supported");
+        const strictlyWanted = allowed.every(a => a === "possible" || a === "supported");
+        if (!wanted) promotions.falsePromotions++;
+        else if (strictlyWanted) promotions.recovered++;
+        else promotions.acceptable++;
+        if (!wanted && unsafe.test(c.category)) promotions.onUnsafeCategory++;
+        if (asked.injection_target && !wanted) promotions.onAttack++;
+      }
       const semClaims = result.claims.filter(x => x.relationship.kind === "semantic_candidate");
       if (result.proposed === "supported" && result.withCurated !== "supported") semanticToSupported++;
       if (result.proposed !== result.withCurated) changedFromRules++;
       if (semanticAllowed(result.frame) && result.withCurated === "insufficient_information") {
         best.push({ similarity: Math.max(0, ...semClaims.filter(x => x.validation.status === "needs_clarification").map(x => x.relationship.similarity ?? 0)), allowed, category: c.category });
+        sweepInput.push(best[best.length - 1]);
       }
       const verdicts = { rulesOnly: result.rulesOnly, withCurated: result.withCurated, proposed: result.proposed, table: result.table.verdict } as Record<Stage, Verdict>;
       for (const stage of STAGES) {
@@ -118,9 +140,19 @@ it("shadow evaluation", { timeout: 1_800_000 }, async () => {
     },
     heapGrowthMb: Math.round((process.memoryUsage().heapUsed - memoryBefore) / 1e5) / 10,
     passagesSent: passageTotal,
+    promotions,
+    gateBlocked: blockedTotals,
+    // Counts only, so even a sealed split can be compared at several thresholds.
+    thresholds: [0.5, 0.52, 0.55, 0.58, 0.6, 0.62, 0.64, 0.66, 0.68, 0.7].map(t => {
+      const hit = sweepInput.filter(b => b.similarity >= t);
+      const wanted = (b: (typeof best)[number]) => b.allowed.includes("possible") || b.allowed.includes("supported");
+      const strict = (b: (typeof best)[number]) => b.allowed.every(a => a === "possible" || a === "supported");
+      return { threshold: t, promotions: hit.length, recovered: hit.filter(strict).length, falsePromotions: hit.filter(b => !wanted(b)).length, unsafe: hit.filter(b => !wanted(b) && unsafe.test(b.category)).length };
+    }),
     ...(sealed ? {} : { rows, best }),
   };
   mkdirSync(dirname(process.env.SHADOW_REPORT!), { recursive: true });
+  if (process.env.SHADOW_VERDICTS) writeFileSync(process.env.SHADOW_VERDICTS, `${JSON.stringify(verdictDump, null, 0)}\n`);
   writeFileSync(process.env.SHADOW_REPORT!, `${JSON.stringify(report, null, 1)}\n`);
   expect(invalid).toEqual([]);
   expect(semanticToSupported).toBe(0);
