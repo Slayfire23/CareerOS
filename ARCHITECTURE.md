@@ -182,7 +182,8 @@ The rules engine (`src/lib/ai/rules/engine.ts`, `rules-v6`) is the only authorit
 - **Typed fields (`rules/profile-fields.ts`):** a field holding a remark, claim, markup, hidden characters, or look-alike letters isn't evidence. "Supported" can rest only on a clean listed skill or qualification.
 - **Python rules:** frozen at `rules-v5` as a test reference (`tests/fixtures/rules_v5_golden.json`) and refused in production. They are to be deleted after the next evaluation confirms the TypeScript engine.
 - **Milestone 8 (`rules-v7`):** education status is completed, in progress, incomplete, or unknown, and free text can only lower it. Negated clauses and fake audits or scores are untrusted. Years count only in the field asked for. Foreign degrees with no exact counterpart are at most possible.
-- Results and limitations: docs/MILESTONE_7_REPORT.md and docs/MILESTONE_8_REPORT.md.
+- **Milestone 9 (`rules-v9`):** from the owner's review of Set H, a role stating direct use of a technology is Supported, and an explicit statement of not having something is Not supported. Thresholds are at the top of `rules/engine.ts` and in docs/MILESTONE_9_REPORT.md.
+- Results and limitations: docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, and docs/MILESTONE_9_REPORT.md.
 
 ## AI-assisted analysis: rules decide, local AI suggests (Milestone 6, superseded by Milestone 7) - November 2, 2026
 

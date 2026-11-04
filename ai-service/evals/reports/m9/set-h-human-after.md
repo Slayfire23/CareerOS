@@ -1,4 +1,4 @@
-# Set H: engine against human decisions (rules-v9, cfa37d4, with uncommitted changes)
+# Set H: engine against human decisions (rules-v9, 9eac678)
 
 Set H is development data. These figures don't show how the engine performs on new cases.
 
