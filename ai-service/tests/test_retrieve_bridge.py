@@ -1,4 +1,4 @@
-"""Shadow retrieval: signed, returns only ids and scores, makes no decisions, off in production. Fictional data."""
+"""Shadow retrieval: signed, ids and scores only, no decisions, off in production. Fictional data."""
 
 import json
 import uuid
