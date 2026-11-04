@@ -1,6 +1,6 @@
 # Milestone 11, Phase 2: Typed Evidence and Shadow Semantics
 
-November 4, 2026. Branch `milestone-3-ai-matching`. Local commits only: nothing was pushed, merged, or deployed, no production migration ran, no paid API was used, and no candidate information left this computer. **Semantic matching isn't enabled for anyone.**
+November 3, 2026. Branch `milestone-3-ai-matching`. Local commits only: nothing was pushed, merged, or deployed, no production migration ran, no paid API was used, and no candidate information left this computer. **Semantic matching isn't enabled for anyone.**
 
 ## Result
 
@@ -211,7 +211,7 @@ The Ruby jeweler resembles Set J's failure. Agents told not to read the reposito
 |---|---|
 | Next.js unit | 1,634 passed |
 | Integration | 107 passed |
-| Python, ruff | {{PY}} |
+| Python, ruff | 512 passed, clean |
 | TypeScript | Clean |
 | ESLint | No errors, 1 warning in `tests/eval/run-eval.eval.ts`, unchanged |
 | Playwright, complete run | 30 passed, 2 skipped, 0 failed |
