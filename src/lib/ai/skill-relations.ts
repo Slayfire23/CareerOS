@@ -247,17 +247,23 @@ const OPENS_ON_SOMEONE = /^\W*(?:our|his|her|their|another|they|she|he|my\s+(?:\
 const OPENS_ON_THE = /^\W*the\b/i;
 const OWN_CLAUSE = /(?:[,:;]\s*|\b(?:and|so|then|but|while|when|where|before|after)\s+)(?=(?:i|we)(?:['’](?:ve|m|d))?\s)/iu;
 const THEIR_CLAUSE = /(?:[,:]\s*|\b(?:and|but|so|then|while|because|after)\s+)(?=(?:they|she|he)\s+\p{L})/iu;
+const DOES_IT = "did|does|do|handled|handles|ran|runs|wrote|writes|took|takes|managed|manages|installed|installs|built|builds|owned|owns|fixed|fixes|signed|signs|filed|files|made|makes|performed|performs|completed|completes";
+/** Someone named as doing something, at the start: "Luis did the wiring", "A contractor did the move". */
+const OPENS_ON_AGENT = new RegExp(`^\\W*(?:\\p{Lu}\\p{Ll}+|(?:a|an|the|our|my|their|his|her)\\s+[\\p{L}-]+(?:\\s+[\\p{L}-]+){0,2})\\s+(?:${DOES_IT})\\b`, "u");
+/** The same partway through: "I did the framing and Luis did the wiring". */
+const AGENT_CLAUSE = new RegExp(`(?:[,;:]\\s*(?:and\\s+|but\\s+|while\\s+)?|\\s(?:and|but|while|whereas)\\s+)(?=(?:\\p{Lu}\\p{Ll}+|(?:a|an|the|our|my|their|his|her)\\s+[\\p{L}-]+(?:\\s+[\\p{L}-]+){0,2})\\s+(?:${DOES_IT})\\b)`, "u");
 /** The part of a sentence about this person, or null when there's none. `strict` also treats an opening
  * "The ..." as someone else, for answers. Resume bullets often open that way about the work itself. */
 export function ownSpan(sentence: string, strict = false): [number, number] | null {
   let start = 0;
-  if (OPENS_ON_SOMEONE.test(sentence) || (strict && OPENS_ON_THE.test(sentence))) {
+  if (OPENS_ON_SOMEONE.test(sentence) || (strict && (OPENS_ON_THE.test(sentence) || OPENS_ON_AGENT.test(sentence)))) {
     const own = OWN_CLAUSE.exec(sentence);
     if (!own) return null;
     start = own.index + own[0].length;
   }
-  const theirs = THEIR_CLAUSE.exec(sentence.slice(start));
-  const end = theirs ? start + theirs.index : sentence.length;
+  const rest = sentence.slice(start);
+  const cuts = [THEIR_CLAUSE.exec(rest)?.index, strict ? AGENT_CLAUSE.exec(rest)?.index : undefined].filter((v): v is number => v !== undefined);
+  const end = cuts.length ? start + Math.min(...cuts) : sentence.length;
   return end > start ? [start, end] : null;
 }
 

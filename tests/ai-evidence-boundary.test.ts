@@ -6,6 +6,7 @@ vi.mock("server-only", () => ({}));
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { buildEvidence, evidenceFingerprint, type Evidence, type MatchRequest, type MatchRequirement } from "@/lib/ai/evidence";
 import { answerStatements, evidenceForAi, evidenceForRules } from "@/lib/ai/evidence-boundary";
+import { readFollowUpReply } from "@/lib/ai/interpretation";
 import { validateMatchResponse } from "@/lib/ai/match-validation";
 import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import { applyAnswers, groupsFor, needsCredentialEntry, readAnswer, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
@@ -185,6 +186,54 @@ describe("leading people isn't shown by working in the field", () => {
   });
   it("time in the field doesn't show it either", () => {
     expect(led("Line Cook", "3 years leading a kitchen team")).not.toBe("supported");
+  });
+});
+
+describe("who did the work", () => {
+  it.each([
+    ["delegated, the blocker", "Data migration", "A contractor we hired did the data migration; I gave him the logins."],
+    ["delegated, paid", "Locksmithing", "I paid a locksmith to do the locksmithing on all forty doors."],
+    ["delegated, had someone", "Roof repair", "I had the crew do the roof repair while I ordered the shingles."],
+    ["delegated, asked", "Payroll", "I asked our bookkeeper to run payroll every other Friday."],
+    ["delegated, handed off", "Grant writing", "I delegated grant writing to an intern and proofread the drafts."],
+    ["delegated, brought in", "Penetration testing", "I brought in a firm for penetration testing each spring."],
+    ["supervised", "Welding", "I supervised the welding on the east line and signed the logs."],
+    ["supervised, oversaw", "Tile setting", "I oversaw tile setting on three floors of the hotel."],
+    ["approved", "Budget forecasting", "I approved the budget forecasting the analysts prepared each quarter."],
+    ["assisted", "Wound care", "I assisted the nurse with wound care on the morning rounds."],
+    ["assisted, handed", "Tile setting", "I handed tiles to the setter during tile setting all week."],
+    ["assisted, gave access", "Salesforce", "I gave her the logins for Salesforce on her first day."],
+    ["observed", "Open heart surgery", "I observed open heart surgery from the gallery during my rotation."],
+    ["observed, shadowed", "Mediation", "I shadowed a senior attorney through mediation for a year."],
+    ["mixed, other does what's asked", "Wiring", "I did the framing and Luis did the wiring on every house."],
+    ["mixed, reverse order", "Wiring", "Luis did the wiring and I did the framing on every house."],
+    ["mixed, comma", "Bookkeeping", "I run the front desk, and our accountant handles the bookkeeping."],
+  ])("%s isn't doing it: %s / %s", (_kind, text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
+  });
+
+  it.each([
+    ["mixed, own part is what's asked", "Framing", "I did the framing and Luis did the wiring on every house."],
+    ["mixed, own part second", "Framing", "Luis did the wiring and I did the framing on every house."],
+    ["own work, naming who it's for", "Payroll", "I run payroll for the crew every other Friday."],
+    ["giving a patient something", "Medication administration", "I gave him the medication administration record and did medication administration on each round."],
+    ["a person is the object", "Wound care", "I did wound care for her after every surgery."],
+    ["contractor as the customer", "Invoice processing", "I did invoice processing for our contractors every week."],
+  ])("%s still counts: %s / %s", (_kind, text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
+  });
+
+  it.each([
+    ["supervising, when that's asked", "Supervising a welding crew", "I supervised a welding crew of eight on the east line."],
+    ["hiring, when that's asked", "Hiring seasonal staff", "I hired seasonal staff for all three stores each spring."],
+    ["assisting, when that's asked", "Assisting in surgical procedures", "I assisted in surgical procedures three days a week."],
+  ])("%s counts: %s", (_kind, text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
+  });
+
+  it("the delegated reply no longer passes as a reply", () => {
+    const r = readFollowUpReply(req("Data migration"), "I moved the customer tables", "A contractor we hired did the actual move; I gave him the logins.");
+    expect(r.outcome).toBe("unresolved");
   });
 });
 

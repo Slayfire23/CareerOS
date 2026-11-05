@@ -115,7 +115,7 @@ function clearedBy(fact: CheckedFact, answer: string, statements: Statement[]): 
   for (let at = answer.indexOf(fact.action); at >= 0; at = answer.indexOf(fact.action, at + 1)) {
     const end = at + fact.action.length;
     const s = statements.find(x => x.start <= at && end <= x.start + x.text.length);
-    if (!s || s.subject !== "self" || s.act === "says_little" || s.exposureOnly) return null;
+    if (!s || s.subject !== "self" || s.act === "says_little" || s.exposureOnly || s.ownership !== "performed") return null;
     found ??= s;
   }
   return found;
@@ -218,7 +218,7 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   const statements = answerStatements(value).filter(s => !AFFIRMS.test(s.text));
   // Every sentence with something to say has to clear. One that doesn't takes back what the rest claims.
   if (statements.length < sentences.length) return unresolved("undercuts_itself");
-  const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly);
+  const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly && s.ownership === "performed");
   if (!own.length) return unresolved("no_own_work");
   const asked = new Set(words(`${text} ${quoted}`));
   const added = new Set(own.flatMap(s => words(s.readable)).filter(w => !asked.has(w) && !SAYS_NOTHING.has(w)));

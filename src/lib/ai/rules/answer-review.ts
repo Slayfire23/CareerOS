@@ -60,8 +60,14 @@ const hasPhrase = (sentence: string, phrase: string) => {
 };
 
 const statesDoing = (s: Statement) => s.subject === "self" && !s.exposureOnly;
+const ASKS_TO_OVERSEE = /\b(?:oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|hir\w+|recruit\w*|delegat\w+|approv\w+|vendor|contractor|procure\w*)\b/i;
+const ASKS_TO_ASSIST = /\b(?:assist\w*|support\w*|help\w*)\b/i;
+/** Overseeing or helping counts only where that's what's asked. Otherwise someone else did the work. */
+const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece));
 
-function readPiece(piece: string, statements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
+function readPiece(piece: string, allStatements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
+  // When helping is what's asked, saying you helped is saying you did it.
+  const statements = allStatements.filter(s => ownedFor(piece, s)).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
   const groups = GROUPS.filter(g => askedBy(piece, g));
   let lead: string | null = null;
   for (const s of statements) {

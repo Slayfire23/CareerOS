@@ -37,7 +37,7 @@ const SOMEONE_ELSE_MIDWAY = /\bthe\s+[\p{L}-]+\s+(?:does|do|handles?|runs?|owns?
 const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|\bgo(?:es)?\s+(?:through|to)\s+(?:\p{Lu}|our|the|their|another)|\b(?:bring\s+in|brought\s+in|hire|hired|pay|paid|use|used|outsource\s+to|contract\s+with)\s+(?:an?\s+)?(?:outside\s+|external\s+|third[-\s]party\s+)?(?:firm|agency|vendor|contractor|consultant|company)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
 
 /** What can come before "I" and only set the scene: "Each morning I...", "When reports slow down I...". */
-const FRAMING = /^\W*(?:when|whenever|before|after|once|if|as|at|in|on|for|during|since|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
+const FRAMING = /^\W*(?:over|through|throughout|across|under|per|around|near|about|when|whenever|before|after|once|if|as|at|in|on|for|during|since|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
 const SUBJECT_AT = /(?:^|[^\p{L}'’])(?:i|we)(?:['’](?:ve|m|d|ll))?\s/iu;
 const FIRST_PERSON = /(?:^|[^\p{L}'’])(i|we)(?:['’](ve|m|d|ll))?\s+(.+)$/iu;
 const AUXILIARY = new Set("have has had am is are was were be been being also always usually often regularly routinely personally just then still currently mostly mainly primarily now daily weekly really actually definitely".split(" "));
@@ -48,6 +48,13 @@ assist assisted support supported around get got go went see saw seen hear heard
 involved exposure touch touched years year months experience knowledge`.split(/\s+/));
 const WORKED = new Set(["worked", "work", "works", "working"]);
 const OWNS_IT = /\b(?:responsible\s+for|in\s+charge\s+of)\b/i;
+
+/** Arranging for it to be done, or overseeing it. That's work, but not the work itself, unless that's what's asked. */
+const OVERSAW = /\b(?:oversaw|oversee|oversees|overseeing|supervised|supervise|supervises|supervising|signed\s+off|approved|approve|approves|delegated|delegate|delegates|hired|hire|hires|contracted|subcontracted|outsourced|brought\s+in|called\s+in|farmed\s+out|assigned|assign|assigns|tasked|directed|direct|directs|managed\s+(?:the\s+|our\s+|a\s+)?(?:[\p{L}-]+\s+)?(?:team|teams|crew|crews|people|staff|vendors?|contractors?|consultants?)|coordinated\s+(?:the\s+|our\s+|with\s+(?:the\s+|our\s+)?)?(?:[\p{L}-]+\s+)?(?:contractors?|vendors?|crews?|teams?|consultants?)|(?:had|got|have|get)\s+(?:[\p{L}-]+\s+){1,4}?(?:to\s+)?(?:do|did|handle|handled|run|ran|fix|fixed|install|installed|build|built|write|wrote|file|filed|take\s+care)|(?:paid|pay|asked|ask|told|tell)\s+(?:[\p{L}-]+\s+){1,4}?to\s+\p{L}+)\b/iu;
+/** Helping someone who does it, or handing things over. */
+const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisting|supported|support|supports|supporting|handed|hand|hands|passed|pass\s+(?:him|her|them|the)|fetched|fetch|held\s+the|hold\s+the|gave\s+(?:him|her|them)\s+(?:the|my|our|a|an)\s+(?:[\p{L}-]+\s+)?(?:logins?|access|keys?|files?|specs?|tools?|passwords?|credentials?|paperwork|list|numbers?|data)|set\s+(?:him|her|them)\s+up|prepped\s+for|tagged\s+along|stocked|sweep|swept)\b/iu;
+/** Who did what the sentence describes. */
+export type Ownership = "performed" | "oversaw" | "assisted";
 
 export type Statement = {
   text: string;
@@ -60,6 +67,7 @@ export type Statement = {
   exposureOnly: boolean;
   /** The text without what it says about others. Read this, and quote `text`. */
   readable: string;
+  ownership: Ownership;
 };
 
 function readAct(sentence: string): { subject: Statement["subject"]; act: Statement["act"] } {
@@ -111,14 +119,22 @@ export function answerStatements(detail: string): Statement[] {
     // thing isn't the part saying what was done. Only the clause with the person in it counts.
     const own = whole.slice(span[0]);
     const subject = SUBJECT_AT.exec(own);
-    if (subject && subject.index > 0 && !FRAMING.test(own)) span[0] += subject.index + subject[0].search(/\p{L}/u);
+    if (subject && subject.index > 0 && !FRAMING.test(own)) {
+      // "A contractor we hired did the move": the "we" here belongs to the contractor's description. Only
+      // a clause of the person's own, set apart, can stand by itself.
+      if (!/(?:[,;:]\s*(?:and\s+|so\s+|then\s+|but\s+)?|\b(?:and|so|then|but)\s+)$/i.test(own.slice(0, subject.index + 1))) continue;
+      span[0] += subject.index + subject[0].search(/\p{L}/u);
+    }
     const text = whole.slice(span[0], span[1]).trim();
     const start = wholeStart + whole.indexOf(text, span[0]);
     const end = start + text.length;
     if (text.length < 3 || barred.some(([s, e]) => s < end && start < e)) continue;
     if (ownNegative(whole) || HYPOTHETICAL.test(ownClauses(whole)) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
     if (someoneElsesWork(text, text)) continue;
-    out.push({ text, start, ...readAct(text), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text) });
+    // Judged on the first clause: "I build the screens, and I hand them to engineering" is doing the work.
+    const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
+    const ownership: Ownership = OVERSAW.test(firstClause) ? "oversaw" : ASSISTED.test(firstClause) ? "assisted" : "performed";
+    out.push({ text, start, ...readAct(text), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text), ownership });
   }
   return out;
 }
