@@ -1,6 +1,6 @@
 # Milestone 11, Phase 5: Production Fixes and Local Shadow Evaluation
 
-November 5, 2026. Branch `milestone-3-ai-matching`, now `rules-v15`. Local commits only: nothing was pushed, merged, or deployed, and no migration was added or run. `CLARIFICATION_REVIEW_ENABLED` and the new `INTERPRETATION_SHADOW_ENABLED` are off by default, semantic promotion stays disabled, Set K wasn't run, and no answer left this machine.
+November 4, 2026. Branch `milestone-3-ai-matching`, now `rules-v15`. Local commits only: nothing was pushed, merged, or deployed, and no migration was added or run. `CLARIFICATION_REVIEW_ENABLED` and the new `INTERPRETATION_SHADOW_ENABLED` are off by default, semantic promotion stays disabled, Set K wasn't run, and no answer left this machine.
 
 ## Result
 
@@ -30,7 +30,7 @@ November 5, 2026. Branch `milestone-3-ai-matching`, now `rules-v15`. Local commi
 | Invalid citations | 0 | 0 |
 | Latency: median, 95th percentile, max | 3.9, 6.2, 7.4 s | 3.9, 6.3, 7.4 s |
 
-The false Supported came from the production reader: "...hung the backer board, then quit before a single tile went on. Not for me." Before the fix, that could reach a real person using the flagged review or the question flow.
+The false Supported came from the production reader: "...hung the backer board, then quit before a single tile went on. Not for me." Before the fix, it would have shown as Supported — Self-reported in either workflow. No real user has this review, and the question flow isn't deployed with these changes.
 
 | After fixes | Dev split | Check split |
 |---|---:|---:|
@@ -67,7 +67,7 @@ The first run and post-fix round also added work handed off in new phrasings, su
 | "Spun up a sample project in Flutter one weekend..." | Possible → Not enough information | Yes |
 | "I track supply spending ... hand the numbers up to the director, who sets the budget" | Possible → Not enough information | **A loss, arguably.** It's related work, and "budget" appeared only in the director's clause. Its label accepted Possible |
 
-Eight refusals also changed, six of them new refusals of injected or abandoned text, and one honest answer is no longer refused. On the spent Phase 4 check split, recovered qualifications went from 28 to 27, and accepted labels from 91 to 90.
+Eight refusals also changed: mostly injected or abandoned text now refused, or refused with a better message, and honest answers such as the cold-calling one above no longer refused. On the spent Phase 4 check split, recovered qualifications went from 28 to 27, and accepted labels from 91 to 90.
 
 **Both workflows:** the same reader serves both. Integration tests run in both, and the browser suites ran as listed below.
 
@@ -101,7 +101,7 @@ Written in `src/lib/ai/interpretation.ts`, tested, and **evaluated only. Nothing
 
 1. **No independent evidence.** Both splits came from one author, you haven't reviewed the labels, and both are now spent. 60 answers is small.
 2. **A contradictory reply still passes:** "A contractor we hired did the actual move; I gave him the logins." It's shadow-only today, but it would reach Possible if connected. I found this last and didn't fix it, so that the record stays honest about what a final pattern misses.
-3. **Word lists keep missing things.** Each new split has found new phrasings. The first run found 5 such errors here, and a second look at offline numbers found 3 more. Offline, these patterns are all that stands between an answer and a verdict, and offline is how hosted CareerOS would run.
+3. **Word lists keep missing things.** Each new split has found new phrasings. The first run found 5 such errors here, and a second look at offline numbers found 4 more. Offline, these patterns are all that stands between an answer and a verdict, and offline is how hosted CareerOS would run.
 4. **The model isn't reliable alone.** It was fooled by 4 of 5 injections and read 13 unsafe answers as done. Code stopped them all after fixes, and one before.
 5. **Honest loss remains.** 2 of 14 paraphrases weren't recognized, and 1 or 2 good replies per split were refused. A fully non-English answer gets no credit, by design.
 6. **No user interface or wiring exists for follow-ups** (rule 8).
