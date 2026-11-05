@@ -2,6 +2,7 @@ import "server-only";
 import type { AiConfig } from "@/lib/ai/config";
 import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
+import { shadowInterpret } from "@/lib/ai/interpretation-shadow";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, clarificationFor, entryProblem, type Clarification } from "@/lib/ai/rules/clarifications";
@@ -79,7 +80,9 @@ export async function addRoleDetail(options: { supabaseAuthId: string; analysisI
   })).catch(() => null);
   if (saved === "rate_limited") return { ok: false, error: "rate_limited" };
   if (!saved) return { ok: false, error: "save_failed" };
-  return reevaluate(options.supabaseAuthId, asked, options.config, now);
+  const result = await reevaluate(options.supabaseAuthId, asked, options.config, now);
+  void shadowInterpret({ config: options.config, userId: asked.userId, clarificationId: saved.id, jobId: asked.jobId, requirementText: asked.question.requirementText, answer: options.detail.trim() });
+  return result;
 }
 
 /** A credential or qualification the person typed, saved as an ordinary education entry that points here. */
@@ -130,6 +133,7 @@ export async function editRoleDetail(options: { supabaseAuthId: string; clarific
   if (problem) return { ok: false, error: "invalid", message: problem };
   const saved = await prisma.candidateClarification.update({ where: { id: row.id }, data: { detail: options.detail.trim() }, select: { id: true } }).catch(() => null);
   if (!saved) return { ok: false, error: "save_failed" };
+  void shadowInterpret({ config: options.config, userId: row.userId, clarificationId: row.id, jobId: row.savedJobId, requirementText: row.requirementText, answer: options.detail.trim() });
   const run = row.savedJobId ? await runJobAnalysis({ supabaseAuthId: options.supabaseAuthId, jobId: row.savedJobId, provider: "rules", config: options.config, now }).catch(() => null) : null;
   if (!run?.ok) return { ok: true, before: "insufficient_information", after: null, evidenceSources: undefined };
   const fresh = await prisma.jobMatchAnalysis.findFirst({ where: { id: run.analysisId, userId: row.userId }, select: { requirements: true, findings: true } });

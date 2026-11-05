@@ -5,7 +5,7 @@ import { expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { callLocalModel, decideInterpretation } from "@/lib/ai/claims/interpret";
+import { callLocalModel, decideInterpretation } from "@/lib/ai/interpretation";
 import type { Evidence, MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
 import { readAnswer } from "@/lib/ai/rules/answer-review";
 import { assessRequirements } from "@/lib/ai/rules/engine";

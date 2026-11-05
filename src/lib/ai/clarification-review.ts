@@ -3,6 +3,7 @@ import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
+import { shadowInterpret } from "@/lib/ai/interpretation-shadow";
 import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, entryProblem } from "@/lib/ai/rules/clarifications";
 import { RULES_VERSION } from "@/lib/ai/rules/engine";
@@ -108,7 +109,9 @@ export async function confirmWithDetail(options: Scope & { analysisId: string; q
   }).catch(() => null);
   if (saved === "rate_limited") return { ok: false, error: "rate_limited" };
   if (!saved) return { ok: false, error: "save_failed" };
-  return recheck(options, question.userId, question.jobId, saved.id, question.key, "CONFIRMED");
+  const checked = await recheck(options, question.userId, question.jobId, saved.id, question.key, "CONFIRMED");
+  void shadowInterpret({ config: options.config, userId: question.userId, clarificationId: saved.id, jobId: question.jobId, requirementText: question.requirement.text, answer: options.detail.trim() });
+  return checked;
 }
 
 export async function confirmWithEntry(options: Scope & { analysisId: string; questionKey: string; entry: ReturnType<typeof parseEducation> }): Promise<ReviewResult> {
@@ -188,7 +191,9 @@ export async function correctAnswer(options: Scope & { clarificationId: string; 
   }).catch(() => null);
   if (saved === "rate_limited") return { ok: false, error: "rate_limited" };
   if (!saved) return { ok: false, error: "save_failed" };
-  return old.savedJobId ? recheck(options, old.userId, old.savedJobId, saved.id, old.questionKey, "CORRECTED") : { ok: true, changes: [] };
+  const checked: ReviewResult = old.savedJobId ? await recheck(options, old.userId, old.savedJobId, saved.id, old.questionKey, "CORRECTED") : { ok: true, changes: [] };
+  void shadowInterpret({ config: options.config, userId: old.userId, clarificationId: saved.id, jobId: old.savedJobId, requirementText: old.requirementText, answer: options.detail.trim() });
+  return checked;
 }
 
 /** Stops counting at once, everywhere: evidence reads active answers only, and stored results citing it are

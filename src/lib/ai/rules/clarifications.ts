@@ -2,7 +2,7 @@ import { answerLanguage } from "@/lib/ai/answer-language";
 import { requiredMonths, unquantifiedTime, type Finding } from "@/lib/ai/match-validation";
 import { answerUntrustedSpans } from "@/lib/ai/requirement-structure";
 import { asksForCredential } from "@/lib/ai/rules/engine";
-import { disguised, hasNegation, plainQualification } from "@/lib/ai/rules/profile-fields";
+import { disguised, plainQualification, statesNotDoing } from "@/lib/ai/rules/profile-fields";
 import { GENERIC_TERMS, keywordDump, labelledList, technologyTerms, words } from "@/lib/ai/skill-relations";
 import { hasDirectedText, qualificationText } from "@/lib/ai/untrusted-text";
 import { DETAIL_MAX } from "@/lib/ai/rules/clarification-limits";
@@ -93,6 +93,7 @@ export function answerProblem(detail: string, requirementText: string): string |
   if (disguised(text)) return "This contains hidden or look-alike characters. Type it plainly.";
   // Kept as written and left unresolved, however it reads: the checks below only understand English, and
   // can't count words in a script without spaces.
+  if (hasDirectedText(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   const language = answerLanguage(text);
   if (language === "other" || language === "mixed") return null;
   const looksLikeList = keywordDump(text) || labelledList(text);
@@ -103,7 +104,7 @@ export function answerProblem(detail: string, requirementText: string): string |
   const specific = all.filter(w => !SAYS_NOTHING.has(w) && !GENERIC_TERMS.has(w) && !asked.has(w));
   if (all.length < MIN_WORDS || specific.length < MIN_SPECIFIC_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (PRAISE.test(text) && all.length < PRAISE_ONLY_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
-  if (hasNegation(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
+  if (statesNotDoing(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
   if (answerUntrustedSpans(text).length) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   return null;
 }

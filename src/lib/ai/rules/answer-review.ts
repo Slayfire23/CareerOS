@@ -6,7 +6,7 @@ import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
 import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import type { RawFinding } from "@/lib/ai/rules/engine";
-import { actionMissing, canonicalTerms, containsPhrase, fragmentOfLongerName, GENERIC_TERMS, hasQualificationWords, isKnownTechnology, ordinaryMeaning, otherSense, relation, requiredSkillLevel, words } from "@/lib/ai/skill-relations";
+import { actionMissing, canonicalTerms, containsPhrase, fragmentOfLongerName, GENERIC_TERMS, hasQualificationWords, isKnownTechnology, ordinaryMeaning, otherSense, relation, requiredSkillLevel, withoutPaperworkUses, words } from "@/lib/ai/skill-relations";
 import { qualificationText } from "@/lib/ai/untrusted-text";
 
 // Reads a person's answer to a question about one requirement. It only ever adds to what the rules found,
@@ -32,7 +32,7 @@ export const specificTerms = (text: string) => [...canonicalTerms(text)].filter(
 
 /** A credential or license has to be named, with who issued it. A sentence can't show one. */
 const NAMES_A_CREDENTIAL = /\b(?:certif\w*|licen[cs]\w*|permit|clearance|credential|registered|chartered|board[-\s]certified|cert)\b/i;
-export const needsCredentialEntry = (text: string) => NAMES_A_CREDENTIAL.test(text) || hasQualificationWords(text);
+export const needsCredentialEntry = (text: string) => NAMES_A_CREDENTIAL.test(withoutPaperworkUses(text)) || hasQualificationWords(text);
 /** Time comes only from role titles and dates. */
 export const asksForTime = (text: string) => requiredMonths(text) !== null || unquantifiedTime(text);
 
@@ -67,7 +67,7 @@ function readPiece(piece: string, statements: Statement[], options: ReadOptions)
   for (const s of statements) {
     if (s.act === "says_little") continue;
     for (const group of groups) {
-      if (!group.descriptions.some(d => hasPhrase(s.text, d)) && !verbBeforeObject(s.text, group)) continue;
+      if (!group.descriptions.some(d => hasPhrase(s.readable, d)) && !verbBeforeObject(s.readable, group)) continue;
       // Until the owner has reviewed it, a table entry can only say this looks related.
       if ((group.status === OWNER_APPROVED || options.assumeApproved) && statesDoing(s)) return { level: 2, quote: s.text, sourceId: group.source };
       lead ??= s.text;
@@ -76,12 +76,13 @@ function readPiece(piece: string, statements: Statement[], options: ReadOptions)
   const wanted = specificTerms(piece);
   for (const s of statements) {
     if (!wanted.length || s.act === "says_little") continue;
-    const have = new Set([...canonicalTerms(s.text)].flatMap(t => [t, stem(t)]));
+    // Only what the person's own clause says: "people who never touched payroll" says nothing about payroll.
+    const have = new Set([...canonicalTerms(s.readable)].flatMap(t => [t, stem(t)]));
     const found = wanted.filter(t => have.has(t) || have.has(stem(t)));
     // A word that's only part of a longer name, in plain lower case: "steel rails" isn't Ruby on Rails.
-    const fragment = (s.text.match(/\p{L}+/gu) ?? []).some(w => wanted.some(t => canonicalTerms(w).has(t)) && fragmentOfLongerName(piece, s.text, w));
-    if (fragment || found.some(t => otherSense(piece, t) !== otherSense(s.text, t) || ordinaryMeaning(s.text, t))) continue;
-    if (found.length === wanted.length && !actionMissing(piece, s.text) && statesDoing(s)) return { level: 2, quote: s.text, sourceId: null };
+    const fragment = (s.readable.match(/\p{L}+/gu) ?? []).some(w => wanted.some(t => canonicalTerms(w).has(t)) && fragmentOfLongerName(piece, s.readable, w));
+    if (fragment || found.some(t => otherSense(piece, t) !== otherSense(s.readable, t) || ordinaryMeaning(s.readable, t))) continue;
+    if (found.length === wanted.length && !actionMissing(piece, s.readable) && statesDoing(s)) return { level: 2, quote: s.text, sourceId: null };
     // "Worked with vendors" isn't a lead on negotiating vendor contracts, though "worked with Kafka" names the thing.
     if (found.length && (s.act === "concrete" || found.length === wanted.length)) lead ??= s.text;
   }

@@ -542,7 +542,18 @@ const REQUIRED_LEVELS: [number, RegExp][] = [
 ];
 export const PROFICIENCY_RANK: Record<string, number> = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
-export const hasQualificationWords = (text: string) => QUALIFICATION_WORDS.test(text);
+const CREDENTIAL_NOUN = "clearances?|permits?|permitting|licen[cs]es?|licen[cs]ing|certificates?|certifications?|registrations?";
+const PAPERWORK_NOUN = "documentation|documents?|paperwork|processing|applications?|filings?|tracking|renewals?|management|administration|compliance|coordination|procedures?|requests?|intake|audits?|records?|packets?|forms?|submissions?";
+const PAPERWORK_USES = [
+  new RegExp(`\\b(?:${CREDENTIAL_NOUN})\\s+(?:[\\p{L}-]+\\s+)?(?:${PAPERWORK_NOUN})\\b`, "giu"),
+  new RegExp(`\\b(?:processing|filing|tracking|preparing|issuing|pulling|submitting|managing|administering|renewing|reviewing|auditing|handling)\\s+(?:[\\p{L}-]+\\s+){0,3}?(?:${CREDENTIAL_NOUN})\\b`, "giu"),
+  /\bcertificates?\s+of\s+(?:insurance|occupancy|origin|compliance|analysis|conformance)\b/giu,
+  /\b(?:customs|freight|cargo|shipment|port|border|import|export|site|land|title)\s+clearance\b/giu,
+  /\b(?:registered|certified)\s+mail\b/giu,
+];
+/** "Customs clearance documentation" and "Filing building permits" are work. Nothing here asks anyone to hold anything. */
+export const withoutPaperworkUses = (text: string) => PAPERWORK_USES.reduce((value, pattern) => value.replace(pattern, " "), text);
+export const hasQualificationWords = (text: string) => QUALIFICATION_WORDS.test(withoutPaperworkUses(text));
 
 /** The skill level a requirement asks for (3 advanced, 2 intermediate), or null. */
 export function requiredSkillLevel(text: string): number | null {

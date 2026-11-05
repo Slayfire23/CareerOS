@@ -1,7 +1,7 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
 import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans, opensOnNamedOther, ownSpan } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
-import { notAStatement, templateText } from "@/lib/ai/rules/profile-fields";
+import { notAStatement, statesNotDoing, templateText } from "@/lib/ai/rules/profile-fields";
 
 // A structured reading of each requirement. Authoritative since Milestone 7; the frozen Python copy
 // is only a test reference. Only what is requested (the head and its listed alternatives) can earn credit; later required
@@ -201,7 +201,12 @@ export function answerUntrustedSpans(text: string): Span[] {
     const segment = text.slice(s, e);
     if (PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) spans.set(`${s}:${e}`, [s, e]);
   }
-  for (const span of negatedSpans(text)) spans.set(span.join(":"), span);
+  // A negative about someone else ("clients who never paid") doesn't bar the person's own work beside it.
+  const sentences = [...text.matchAll(/[^.!?;\n]+/g)];
+  for (const span of negatedSpans(text)) {
+    const sentence = sentences.find(m => m.index <= span[0] && span[0] < m.index + m[0].length);
+    if (!sentence || statesNotDoing(sentence[0])) spans.set(span.join(":"), span);
+  }
   for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
     if (keywordDump(match[0]) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
   }

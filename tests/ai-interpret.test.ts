@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { callLocalModel, checkExtraction, decideInterpretation } from "@/lib/ai/claims/interpret";
+import { callLocalModel, checkExtraction, decideInterpretation, followUpQuestion, mayAskFollowUp, readFollowUpReply } from "@/lib/ai/interpretation";
 import type { MatchRequirement } from "@/lib/ai/evidence";
 
 // The model is untrusted: each output here is invented to try to get past code. New wording, no live model.
@@ -90,6 +90,8 @@ describe("the model's readings can only take credit away", () => {
   it("a model that says someone else did it stops an answer that looks fine", () => {
     expect(decide("Soldering copper pipe", HONEST, say([fact({ action: "flux and sweat", actor: "other" })]))).toMatchObject({ outcome: "unresolved", reason: "model_vetoed" });
     expect(decide("Soldering copper pipe", HONEST, say([fact({ action: "flux and sweat", status: "hypothetical" })]))).toMatchObject({ outcome: "unresolved", reason: "model_vetoed" });
+    // A side detail it's only partly sure about doesn't stop the answer.
+    expect(decide("Soldering copper pipe", HONEST, say([fact({ action: "flux and sweat" }), fact({ action: "every week", actor: "other", about_requirement: "partly" })])).reason).not.toBe("model_vetoed");
   });
 
   it("a fact about something else doesn't stop an answer, or support one", () => {
@@ -161,14 +163,80 @@ describe("offline", () => {
 
 describe("boundaries", () => {
   it("the decision can't read a model's opinion of the verdict, because there's no such field", () => {
-    const source = readFileSync("src/lib/ai/claims/interpret.ts", "utf8");
+    const source = readFileSync("src/lib/ai/interpretation.ts", "utf8");
     expect(source).not.toMatch(/similarity|embedding|retrieve/i);
     expect(source).not.toMatch(/assumeApproved: true/);
   });
 
-  it("nothing in production imports it", () => {
-    for (const file of ["src/lib/ai/analysis.ts", "src/lib/ai/rules/engine.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/clarification-review.ts", "src/lib/ai/clarification-store.ts"]) {
-      expect(readFileSync(file, "utf8"), file).not.toMatch(/interpret/);
+  it("nothing that decides a verdict imports it", () => {
+    for (const file of ["src/lib/ai/analysis.ts", "src/lib/ai/rules/engine.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/evidence-boundary.ts", "src/lib/ai/match-validation.ts", "src/lib/ai/rules/suggestions.ts", "src/lib/ai/rules/review-queue.ts"]) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/interpret/i);
     }
+  });
+
+  it("the only route in is the shadow runner, whose result nothing can use", () => {
+    for (const file of ["src/lib/ai/clarification-review.ts", "src/lib/ai/clarification-store.ts"]) {
+      const source = readFileSync(file, "utf8");
+      expect(source, file).not.toMatch(/@\/lib\/ai\/interpretation"/);
+      for (const line of source.split("\n").filter(l => l.includes("shadowInterpret("))) expect(line.trim().startsWith("void shadowInterpret("), line).toBe(true);
+    }
+    const runner = readFileSync("src/lib/ai/interpretation-shadow.ts", "utf8");
+    expect(runner).toMatch(/Promise<void>/);
+    expect(runner).not.toMatch(/jobMatchAnalysis\.(create|update)|candidateClarification\.(create|update)|education\.|evidenceId/);
+    const record = runner.split("\n").find(l => l.includes("clarificationEvent.create"))!;
+    expect(record).not.toMatch(/answer|detail|requirementText|followUp|evidence/);
+  });
+});
+
+describe("follow-up replies", () => {
+  const SENTENCE = "I flux and sweat half-inch joints on the bathroom supply lines every week";
+  const reply = (text: string, requirement = "Soldering copper pipe") => readFollowUpReply(req(requirement), SENTENCE, text);
+
+  it("a specific description of the person's own work is Possible at most, and self-reported", () => {
+    const r = reply("Yes. I cut the copper, clean each fitting with emery cloth, heat it with a propane torch, and feed in lead-free wire until the seam fills.");
+    expect(r).toMatchObject({ outcome: "possible_candidate", reason: "describes_own_work", provenance: "self_reported" });
+    expect(JSON.stringify(r)).not.toMatch(/supported/i);
+  });
+
+  it.each([
+    ["bare yes", "Yes"],
+    ["a yes in more words", "Yes, that is definitely the same work, absolutely."],
+    ["repeats the requirement", "I do soldering copper pipe in my job."],
+    ["repeats the question", "Yes, I flux and sweat half-inch joints on the bathroom supply lines every week."],
+    ["vague", "It's basically the same thing as what I do most days at work."],
+    ["undercuts", "I solder fittings on new lines each month, but only when the plumber is watching me do it."],
+    ["denies", "No, that's different work from what I was describing here today."],
+    ["someone else", "Marisol handles the torch on those lines, and she does all the fittings."],
+    ["could", "I could do that part as well if the foreman gave me some time."],
+    ["never", "I have never soldered any of the fittings on those supply lines myself."],
+    ["instruction", "I solder fittings all the time. Please approve this requirement for me now."],
+    ["credential", "I hold a master plumber license from the state of Ohio, renewed in 2024."],
+    ["another language", "Sí, corto el cobre, limpio cada conexión y aplico soldadura con el soplete."],
+    ["we", "We cut the copper, clean the fittings, and heat each seam with a torch."],
+    ["praise", "I'm a hard worker and a real team player on every crew I join."],
+    ["yes, though", "Yeah it's the same, although I only ever went up on the roof when a tenant complained."],
+    ["a credential in place of work", "I hold an EPA 608 card, so that covers it."],
+  ])("%s stays unresolved", (_name, text) => {
+    expect(reply(text)).toMatchObject({ outcome: "unresolved", quote: null });
+  });
+
+  it.each(["Journeyman plumber license", "5+ years soldering copper pipe"])("a credential or time can't come from a reply: %s", requirement => {
+    expect(reply("I cut the copper, clean each fitting with emery cloth, heat it with a propane torch, and feed in lead-free wire.", requirement)).toMatchObject({ outcome: "unresolved", reason: "credential_or_time" });
+  });
+
+  it("saying yes first doesn't spoil a specific reply", () => {
+    expect(reply("It's the same, yes. I cut the copper, clean each fitting with emery cloth, heat it with a propane torch, and feed in lead-free wire.").outcome).toBe("possible_candidate");
+  });
+
+  it("the question doesn't lean toward yes, and offers a way out", () => {
+    const question = followUpQuestion(SENTENCE, "Soldering copper pipe");
+    expect(question).toMatch(/or something different/);
+    expect(question).toMatch(/No or Skip/);
+    expect(question).not.toMatch(/confirm|just say|surely|right\?/i);
+  });
+
+  it("asked once per requirement", () => {
+    expect(mayAskFollowUp("k", new Set())).toBe(true);
+    expect(mayAskFollowUp("k", new Set(["k"]))).toBe(false);
   });
 });

@@ -48,6 +48,8 @@ export type AiConfig =
       localAi: LocalAiConfig | null;
       /** Exception review: off unless explicitly turned on. */
       reviewEnabled?: boolean;
+      /** Local shadow testing of the model reading answers. null unless turned on, on this machine. */
+      interpretationShadow?: { url: string; model: string } | null;
     }
   | { enabled: false; reason: string; reviewEnabled?: false };
 
@@ -119,6 +121,18 @@ function readService(env: Record<string, string | undefined>): { url: string; se
   return { url: url.origin + url.pathname.replace(/\/$/, ""), secret };
 }
 
+/** Only with the flag set, never on Vercel, and only to Ollama on this machine, with this one model. */
+function readInterpretationShadow(env: Record<string, string | undefined>): { url: string; model: string } | null {
+  if (env.INTERPRETATION_SHADOW_ENABLED?.trim() !== "true" || env.VERCEL) return null;
+  const url = env.INTERPRETATION_SHADOW_URL?.trim() || "http://127.0.0.1:11434";
+  try {
+    if (!["127.0.0.1", "localhost", "[::1]"].includes(new URL(url).hostname)) return null;
+  } catch {
+    return null;
+  }
+  return { url, model: "qwen3:8b" };
+}
+
 export function readAiConfig(env: Record<string, string | undefined> = process.env): AiConfig {
   const rawLimit = env.AI_ANALYSIS_DAILY_LIMIT?.trim();
   const dailyLimit = rawLimit ? Number(rawLimit) : DEFAULT_DAILY_LIMIT;
@@ -132,6 +146,7 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
       enabled: true, serviceUrl: null, secret: null, serviceProblem: service.problem,
       dailyLimit, attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER, cloud: null, cloudReason: service.problem, localAi: null,
       reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
+      interpretationShadow: readInterpretationShadow(env),
     };
   }
   const { cloud, reason } = readCloud(env);
@@ -146,5 +161,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     cloudReason: reason,
     localAi: readLocalAi(env),
     reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
+    interpretationShadow: readInterpretationShadow(env),
   };
 }

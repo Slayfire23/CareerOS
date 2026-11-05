@@ -16,6 +16,14 @@ const MORE_DIRECTED = [
   /\bas\s+(?:the|an?)\s+(?:ai|assistant|reviewer|model|screener)\b(?!\s+(?:to|for|manager|coach))/i,
   /\b(?:please|kindly)\s+(?:approve|accept|pass|qualify|credit|mark|count|confirm)\b/i,
   /\bapprove\s+(?:this|the|my|me)\b/i,
+  /\b(?:reviewer|recruiter|hiring|screener|screening|grader|evaluator)\s+(?:note|override|message|instructions?)\b/i,
+  /\baccept\s+(?:this|my|the)\s+(?:answer|response|candidate|application|applicant|claim)\b/i,
+  /\b(?:do\s+not|don['’]t)\s+(?:ask|flag|escalate|question)\b/i,
+  /\b(?:candidate|applicant|answer|requirement|person)\b[^.]{0,40}\b(?:cleared|approved|vetted|verified|satisfied)\b/i,
+  /\b(?:no|without)\s+(?:further|additional|more)\s+(?:review|questions?|checks?|verification)\b/i,
+  /\bclose\s+(?:this|the)\s+review\b/i,
+  /\bto\s+whoever\s+(?:reads|is\s+reading|reviews)\b/i,
+  /<<[^>]*>>/,
 ];
 const DIRECTED = [...patterns.evaluator_directed.map(p => new RegExp(p, "i")), ...MORE_DIRECTED];
 

@@ -62,7 +62,7 @@ function readSentence(sentence: string): Reading {
 
 /** "en" only when every sentence long enough to judge is plainly English, and at least one is. */
 export function answerLanguage(text: string): AnswerLanguage {
-  const readings = (text.match(/[^.!?;:\n]+/g) ?? []).map(readSentence).filter(r => r !== "too_short");
+  const readings = (text.match(/[^.!?;\n]+/g) ?? []).map(readSentence).filter(r => r !== "too_short");
   if (!readings.length) return "unknown";
   const english = readings.filter(r => r === "en").length;
   if (english === readings.length) return "en";

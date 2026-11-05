@@ -29,6 +29,24 @@ export const NEGATION = new RegExp(
 );
 export const hasNegation = (text: string) => new RegExp(NEGATION.source, "i").test(text);
 
+const LEADING_OTHER = /^[^,;:]*?(?:[,;:]\s*(?:and\s+|so\s+|then\s+)?|\s+(?:so|and|then)\s+)(?=(?:i|we)(?:['’]\p{L}+)?\s)/iu;
+const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
+/** A sentence without what it says about others: "customers can't log in, so I reset their accounts", "who
+ * never bought from us". A negative left over is the person's own. An opening that negates ("Not once...") stays. */
+export function ownClauses(sentence: string): string {
+  const lead = LEADING_OTHER.exec(sentence);
+  const keepLead = !lead || /\b(?:i|we|my)\b/i.test(lead[0]) || /^\W*(?:no|not|never|nor|neither|hardly|without|nothing)\b/i.test(lead[0]);
+  return (keepLead ? sentence : sentence.slice(lead[0].length)).replace(SIDE_CLAUSE, " ");
+}
+const PLAIN_NEGATIVE = /\b(?:no|not|never|none|without|nothing|cannot|neither|nor)\b|n['’]t\b/i;
+/** The person says they didn't: strict about any plain negative, but only in their own clauses. */
+export const ownNegative = (sentence: string) => {
+  const own = ownClauses(sentence);
+  return PLAIN_NEGATIVE.test(own) || hasNegation(own);
+};
+/** The same, only for the phrasing that means not having done something. Any sentence of a longer text. */
+export const statesNotDoing = (text: string) => (text.match(/[^.!?;\n]+/g) ?? []).some(sentence => hasNegation(ownClauses(sentence)));
+
 /** Invisible characters, or a word mixing Latin letters with look-alikes from another alphabet. */
 export function disguised(value: string): boolean {
   return HIDDEN.test(value) || value.split(/\s+/).some(word => LATIN.test(word) && LOOKALIKE.test(word));
@@ -58,7 +76,7 @@ export const templateText = (text: string) => TEMPLATE_TEXT.test(text.normalize(
 /** Someone else's words, or being told what to say: "My manager said I ran payroll", "Told to list Python". */
 const REPORTED = /\b(?:according\s+to|(?:manager|boss|supervisor|reference|recruiter|colleague|coworker|friend|recommendation)\s+(?:said|says|wrote|writes|claims?|told)\s+(?:that\s+)?(?:i|me)\b|(?:told|asked|instructed|advised)\s+(?:me\s+)?to\s+(?:say|write|list|put|claim|add)|would\s+have|could\s+have|if\s+i\s+had|in\s+theory|supposedly|allegedly)\b/i;
 /** Started, but it never became the work: "dropped it before I ever wrote a script". No negative word in sight. */
-const NEVER_HAPPENED = /\b(?:(?:dropped|abandoned|scrapped|shelved|ditched)\s+(?:it|that|this|them)\b|before\s+(?:i|we)\s+(?:ever|even|really|actually|could|got\s+to)\b|gave\s+up\s+on\b|ended\s+up\s+(?:not|dropping|going\s+with|using\s+(?:something|another))\b|fell\s+through\b|(?:project|plan|idea|rollout|pilot)\s+(?:was|got)\s+(?:cancel+ed|scrapped|shelved|dropped)\b)/i;
+const NEVER_HAPPENED = /\b(?:(?:dropped|abandoned|scrapped|shelved|ditched)\s+(?:it|that|this|them)\b|before\s+(?:i|we)\s+(?:ever|even|really|actually|could|got\s+to)\b|gave\s+up\b|ended\s+up\s+(?:not|dropping|going\s+with|using\s+(?:something|another))\b|fell\s+through\b|clicked\s+around\b|played\s+around\b|messed\s+around\b|poked\s+around\b|dabbled\b|tinkered\b|(?:project|plan|idea|rollout|pilot)\s+(?:was|got)\s+(?:cancel+ed|scrapped|shelved|dropped)\b)/i;
 /** Would or could, for a person: it says what might happen, not what did. */
 const CONDITIONAL = /\b(?:i\s+(?:could|would|might)\b|would\s+be\s+able\b|if\s+(?:needed|required|asked)\b|(?:am|i['’]m)\s+willing\s+to\b)/i;
 export const notAStatement = (text: string) => {

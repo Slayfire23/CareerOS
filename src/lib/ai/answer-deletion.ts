@@ -37,6 +37,7 @@ export async function purgeAnswers(tx: Tx, userId: string, rows: Row[]) {
   await scrubAnalyses(tx, userId, rows);
   const ids = rows.map(r => r.id);
   const educationIds = rows.map(c => c.educationId).filter((v): v is string => !!v);
+  await tx.clarificationEvent.deleteMany({ where: { userId, clarificationId: { in: ids }, action: { startsWith: "SHADOW_" } } });
   await tx.clarificationEvent.updateMany({ where: { userId, clarificationId: { in: ids } }, data: { requirementText: null, questionKey: null, verdictBefore: null, verdictAfter: null, savedJobId: null } });
   await tx.candidateClarification.deleteMany({ where: { id: { in: ids }, userId } });
   if (educationIds.length) await tx.education.deleteMany({ where: { id: { in: educationIds }, profile: { userId } } });

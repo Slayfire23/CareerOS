@@ -2,14 +2,16 @@ import { answerLanguage } from "@/lib/ai/answer-language";
 import type { MatchRequirement, Verdict } from "@/lib/ai/evidence";
 import { answerStatements, type Statement } from "@/lib/ai/evidence-boundary";
 import { asksForTime, needsCredentialEntry, readAnswer } from "@/lib/ai/rules/answer-review";
+import { answerProblem } from "@/lib/ai/rules/clarifications";
+import { hasQualificationWords, words } from "@/lib/ai/skill-relations";
 import { hasDirectedText, qualificationText } from "@/lib/ai/untrusted-text";
 
-// Proof of concept, in shadow. A local model reads what a person says they did, and code decides what that's
-// worth. The model's output is an untrusted suggestion: every quoted span must be in the answer, its readings
-// can only take credit away, and its opinion that two things are related is never enough to change anything.
-// No production code imports this (tests/ai-claims.test.ts), and it stores nothing.
+// In shadow. A local model reads what a person says they did, and code decides what that's worth. The model's
+// output is an untrusted suggestion: every quoted span must be in the answer, its readings can only take credit
+// away, and its opinion that two things are related is never enough to change anything. Nothing that decides a
+// verdict imports this. See interpretation-shadow.ts for the one place it runs, and only when turned on.
 
-export const INTERPRET_VERSION = "interpret-v2";
+export const INTERPRET_VERSION = "interpret-v3";
 
 const ACTORS = ["self", "team", "other", "unclear"] as const;
 const STATUSES = ["done", "not_done", "stopped", "planned", "hypothetical", "quoted", "unclear"] as const;
@@ -159,7 +161,7 @@ export function decideInterpretation(requirement: MatchRequirement, answer: stri
 
   // The model's readings can only take credit away. A fact about this work that it reads as someone else's,
   // or not done, stops the answer, including what the rules would have made of it.
-  if (checked?.facts.some(f => f.about !== "no" && (f.actor === "other" || f.status !== "done"))) return result("unresolved", "model_vetoed", {}, checked);
+  if (checked?.facts.some(f => f.about === "yes" && (f.actor === "other" || f.status !== "done"))) return result("unresolved", "model_vetoed", {}, checked);
   // What the rules make of it needs no model at all, so a missing model loses nothing.
   const reading = readAnswer(requirement, answer, options);
   const quoted = reading.quote ? [{ start: answer.indexOf(reading.quote), end: answer.indexOf(reading.quote) + reading.quote.length, text: reading.quote }] : [];
@@ -178,9 +180,50 @@ export function decideInterpretation(requirement: MatchRequirement, answer: stri
   const statement = clearedBy(fact, answer, statements)!;
   return result("follow_up", "only_the_model_says_so", {
     evidence: usable.map(f => ({ start: f.start, end: f.end, text: f.action })),
-    followUp: `You said “${statement.text}”. Does that work include this: “${text}”? If so, say what you did that matches it, using its name if you can.`,
+    followUp: followUpQuestion(statement.text, text),
     equivalenceCandidate: { requirement: text, action: fact.action, object: fact.object },
   }, checked);
+}
+
+/** Asks once, either way: it doesn't suggest which answer is wanted, and code writes every word but the two quotes. */
+export const followUpQuestion = (sentence: string, requirement: string) => `You said “${sentence}”. Is that the same work as “${requirement}”, or something different? If it's the same, describe what you personally did. If it's different, or you'd rather not say, you can choose No or Skip.`;
+
+/** One question per requirement, ever: answered, denied, or skipped, it doesn't come back. */
+export const mayAskFollowUp = (key: string, alreadyAsked: ReadonlySet<string>) => !alreadyAsked.has(key);
+
+export type ReplyReason = "not_english" | "instruction_in_reply" | "credential_or_time" | "says_no" | "not_specific" | "undercuts_itself" | "no_own_work" | "repeats_the_question" | "describes_own_work";
+export type ReplyReading = { outcome: "possible_candidate" | "unresolved"; reason: ReplyReason; quote: string | null; provenance: "self_reported" };
+
+const SAYS_NO = /^\W*(?:no|nope|not\s+really|different|it['’]?s\s+different|that['’]?s\s+different|something\s+different)\b/i;
+const AFFIRMS = /^\W*(?:(?:yes|yeah|yep|it|it['’]s|its|is|that|that['’]s|the|same|work|right|correct|exactly)\W*)+$/i;
+/** Offering a credential for the work: a reply can't show one, and it isn't a description of doing anything. */
+const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket)\b|\b(?:covers|counts\s+for)\s+(?:it|that|this)\b/i;
+const UNDERCUTS = /\b(?:although|though)\s+i\b|\bonly\s+(?:ever|when|if)\b|\bbut\s+(?:only|mostly|just|really|honestly|mainly)\b|\b(?:sort|kind)\s+of\b|\bi\s+(?:guess|think|suppose|believe)\b|\bnot\s+sure\b|\bprobably\b|\bmaybe\b|\bmore\s+or\s+less\b|\bpretty\s+much\b|\bbasically\b|\bessentially\b/i;
+const NEW_WORDS_NEEDED = 3;
+const SAYS_NOTHING = new Set(words("yes yeah yep same work i i've we my our the a an and or of to in on at for with it this that these those is was are were be been did do does done have has had what you said also just always every each day week month year"));
+
+/** What code makes of a reply to a follow-up. Never Supported, since only a model connected it to the
+ * requirement. The person has to say what they did themselves: no yes, no echo, nothing it takes back. */
+export function readFollowUpReply(requirement: MatchRequirement, quoted: string, reply: string): ReplyReading {
+  const unresolved = (reason: ReplyReason): ReplyReading => ({ outcome: "unresolved", reason, quote: null, provenance: "self_reported" });
+  const text = qualificationText(requirement.text).trim();
+  const value = reply.trim();
+  if (needsCredentialEntry(text) || asksForTime(text) || hasQualificationWords(value) || OFFERS_CREDENTIAL.test(value)) return unresolved("credential_or_time");
+  if (answerLanguage(value) !== "en") return unresolved("not_english");
+  if (hasDirectedText(value)) return unresolved("instruction_in_reply");
+  if (SAYS_NO.test(value)) return unresolved("says_no");
+  if (answerProblem(value, `${text} ${quoted}`)) return unresolved("not_specific");
+  if (UNDERCUTS.test(value)) return unresolved("undercuts_itself");
+  const sentences = (value.match(/[^.!?;\n]+/g) ?? []).filter(s => words(s).length > 2 && !AFFIRMS.test(s));
+  const statements = answerStatements(value);
+  // Every sentence with something to say has to clear. One that doesn't takes back what the rest claims.
+  if (statements.length < sentences.length) return unresolved("undercuts_itself");
+  const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly);
+  if (!own.length) return unresolved("no_own_work");
+  const asked = new Set(words(`${text} ${quoted}`));
+  const added = new Set(own.flatMap(s => words(s.readable)).filter(w => !asked.has(w) && !SAYS_NOTHING.has(w)));
+  if (added.size < NEW_WORDS_NEEDED) return unresolved("repeats_the_question");
+  return { outcome: "possible_candidate", reason: "describes_own_work", quote: own[0].text, provenance: "self_reported" };
 }
 
 export type ModelCall = { raw: string | null; ms: number; error: string | null; promptTokens: number | null; outputTokens: number | null };

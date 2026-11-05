@@ -43,6 +43,7 @@ import {
   directUse,
   equivalentWhenAsked,
   negatedSpans,
+  withoutPaperworkUses,
   occurrences,
   ordinaryMeaning,
   quoteTerms,
@@ -72,7 +73,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v14";
+export const RULES_VERSION = "rules-v15";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -870,8 +871,10 @@ export const covers = (piece: string, text: string) => {
   return [...canonicalTerms(piece)].every(t => have.has(t));
 };
 
-export const asksForCredential = (text: string) =>
-  !requiredDegreeRank(text) && (/\b(certification|certified|licensed|licence|permit|clearance)\b|(?<!\b(?:ssl|tls)\s)\bcertificate\b|(?<!\bsoftware\s)\blicense\b|(?<!\b(?:credit|debit|gift|graphics|video|sim|sd|network|sound)\s)\bcard\b/i.test(text) || [...canonicalTerms(text)].some(isCredentialName));
+export const asksForCredential = (raw: string) => {
+  const text = withoutPaperworkUses(raw);
+  return  !requiredDegreeRank(text) && (/\b(certification|certified|licensed|licence|permit|clearance)\b|(?<!\b(?:ssl|tls)\s)\bcertificate\b|(?<!\bsoftware\s)\blicense\b|(?<!\b(?:credit|debit|gift|graphics|video|sim|sd|network|sound)\s)\bcard\b/i.test(text) || [...canonicalTerms(text)].some(isCredentialName));
+};
 
 /** A credential is shown by a completed education entry or a skill listing naming it as held. Listing the
  * skill behind it, holding a related job, or a credential that's expired or pending never shows it. */
