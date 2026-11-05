@@ -16,7 +16,7 @@ const decide = (text: string, category: MatchRequirement["category"], evidence: 
 };
 
 it("is a new rules version", () => {
-  expect(RULES_VERSION).toBe("rules-v12");
+  expect(RULES_VERSION).toBe("rules-v13");
 });
 
 describe("someone else's work", () => {

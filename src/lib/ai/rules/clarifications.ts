@@ -1,5 +1,6 @@
+import { foreignDirected } from "@/lib/ai/claims/language";
 import { requiredMonths, unquantifiedTime, type Finding } from "@/lib/ai/match-validation";
-import { untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
+import { answerUntrustedSpans } from "@/lib/ai/requirement-structure";
 import { asksForCredential } from "@/lib/ai/rules/engine";
 import { disguised, hasNegation, plainQualification } from "@/lib/ai/rules/profile-fields";
 import { GENERIC_TERMS, keywordDump, labelledList, technologyTerms, words } from "@/lib/ai/skill-relations";
@@ -72,8 +73,11 @@ export function clarificationFor(requirement: MatchRequirement, finding: Finding
   };
 }
 
-const MIN_WORDS = 6;
+const MIN_WORDS = 5;
 const MIN_SPECIFIC_WORDS = 3;
+/** Praise, with little else beside it, says how someone seems and not what they did. */
+const PRAISE = /\b(?:people\s+person|team\s+player|hard[-\s]work(?:er|ing)|(?:quick|fast)\s+learner|go[-\s]getter|self[-\s]starter|get\s+along|love\s+me)\b/i;
+const PRAISE_ONLY_WORDS = 14;
 /** Words that say nothing about what was done. */
 const SAYS_NOTHING = new Set(`yes yeah yep y sure ok okay definitely absolutely of course i i've ive me my we our us you this that these those it its
 is am are was were be been being have has had do did done does can could will would should a an the and or but so to in on at for from by with as
@@ -92,8 +96,9 @@ export function answerProblem(detail: string, requirementText: string): string |
   const specific = all.filter(w => !SAYS_NOTHING.has(w) && !GENERIC_TERMS.has(w) && !asked.has(w));
   if (all.length < MIN_WORDS || specific.length < MIN_SPECIFIC_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (keywordDump(text) || labelledList(text)) return "Write this as a sentence about what you did, not a list of terms.";
-  if (hasNegation(text)) return "This reads as not having done it, or wanting to. Add details only for work you've done.";
-  if (untrustedEvidenceSpans(text).length) return "Describe only your own work. Remarks about how this should be judged can't be used.";
+  if (PRAISE.test(text) && all.length < PRAISE_ONLY_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
+  if (hasNegation(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
+  if (answerUntrustedSpans(text).length || foreignDirected(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   return null;
 }
 

@@ -71,7 +71,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v12";
+export const RULES_VERSION = "rules-v13";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -200,6 +200,8 @@ export type RawFinding = {
   review?: "needs_confirmation";
   basis: RuleBasis;
   method?: "rules";
+  /** What the rules said before an answer, kept beside the verdict it led to. */
+  rules_only_verdict?: Verdict;
 };
 
 const unique = <T,>(items: T[]) => [...new Set(items)];
@@ -235,6 +237,9 @@ const GRADE = /\b(class|type|level|series|grade|tier|category)\s*[-:]?\s*([a-z0-
 const RANK = /\b(associate|professional|expert|master|journeyman|apprentice|practitioner|foundational|fundamentals|specialty|universal)\b/gi;
 /** The two name different grades of the same thing: CDL Class A and Class B, Series 6 and 7, Associate and
  * Professional. Only what's asked can differ: a listing that names no grade says nothing either way. */
+/** The grades and ranks named in a text, for telling "Class A" from "Class B". */
+export const gradeTokens = (text: string) => [...[...text.matchAll(GRADE)].map(m => `${m[1]}:${m[2]}`.toLowerCase()), ...(text.match(RANK) ?? []).map(r => r.toLowerCase())].sort();
+
 export function gradeDiffers(asked: string, listed: string): boolean {
   const grades = (text: string) => new Map([...text.matchAll(GRADE)].map(m => [m[1].toLowerCase(), m[2].toLowerCase()]));
   const have = grades(listed);
@@ -1010,8 +1015,9 @@ const countVerdicts = (findings: RawFinding[]) => {
 };
 
 /** The engine's result in the service response format, so the same independent validator checks it. */
-export function rulesResponse(request: MatchRequest, source: { provider: "rules" | "assisted"; model: string | null; methodVersion: string }) {
-  const findings = assessRequirements(request).map(f => (source.provider === "assisted" ? { ...f, method: "rules" as const } : f));
+export function rulesResponse(request: MatchRequest, source: { provider: "rules" | "assisted"; model: string | null; methodVersion: string }, adjust?: (findings: RawFinding[]) => RawFinding[]) {
+  const assessed = assessRequirements(request);
+  const findings = (adjust ? adjust(assessed) : assessed).map(f => (source.provider === "assisted" ? { ...f, method: "rules" as const } : f));
   return {
     request_id: request.request_id,
     findings,

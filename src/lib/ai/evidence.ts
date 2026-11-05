@@ -19,12 +19,15 @@ export type ProjectEvidence = { id: string; kind: "project"; title: string; desc
 export type Evidence = SkillEvidence | ExperienceEvidence | EducationEvidence | ProjectEvidence;
 
 /** `confirmed`: the person confirmed in the job review that a flagged requirement is real (never evidence). */
+export type LinkedAnswerRecord = { action: "confirm"; questionKey: string; evidenceId: string; detail: string } | { action: "deny"; questionKey: string };
 export type MatchRequirement = { index: number; text: string; category: Requirement["category"]; priority: Requirement["priority"]; confirmed?: true };
 /** "assisted" is the rules engine, the only authority for verdicts, plus local AI suggestions. "hybrid"
  * is retired: it let local AI raise a verdict. It remains so stored analyses still display. */
 export type AnalysisProvider = "rules" | "anthropic" | "ollama" | "hybrid" | "assisted";
 export type TokenBudget = { max_input_tokens: number; max_output_tokens: number };
 export type MatchRequest = {
+  /** Exception review only, and only for the rules on this server: a person's active answers. */
+  linked_answers?: LinkedAnswerRecord[];
   request_id: string;
   provider: AnalysisProvider;
   /** Cloud providers only: the token bounds Next.js reserved budget for. */
@@ -81,8 +84,10 @@ export function buildEvidence(profile: EvidenceProfile): Evidence[] {
 }
 
 /** SHA-256 of the evidence; a different value means the profile changed since an analysis. */
-export function evidenceFingerprint(evidence: Evidence[]): string {
-  return createHash("sha256").update(JSON.stringify(evidence), "utf8").digest("hex");
+export function evidenceFingerprint(evidence: Evidence[], answers: { questionKey: string; action: string }[] = []): string {
+  // Unchanged when there are no answers, so older analyses aren't marked out of date.
+  const body = answers.length ? { evidence, answers: answers.map(a => `${a.action}:${a.questionKey}`).sort() } : evidence;
+  return createHash("sha256").update(JSON.stringify(body), "utf8").digest("hex");
 }
 
 export function buildRequirements(requirements: Requirement[]): MatchRequirement[] {

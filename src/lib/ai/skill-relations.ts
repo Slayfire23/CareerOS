@@ -253,7 +253,8 @@ export function thirdPartyCue(sentence: string, after: string): [number, number]
  * technical beside it: "brass rails" isn't Ruby on Rails, though "Rails" and "rails apps" may be. */
 export function fragmentOfLongerName(asked: string, fieldText: string, quote: string): boolean {
   if (!/^\p{Ll}+$/u.test(quote)) return false;
-  const named = [...canonicalTerms(asked)].some(term => VOCABULARY.has(term) && surfaceForms(term).some(form => form.includes(" ") && words(form).includes(quote)));
+  // A word that is the thing's own name ("forklift", "react") isn't a fragment of anything.
+  const named = [...canonicalTerms(asked)].some(term => term !== quote && VOCABULARY.has(term) && surfaceForms(term).some(form => form.includes(" ") && words(form).includes(quote)));
   return named && !hasTechContext(fieldText, quote);
 }
 

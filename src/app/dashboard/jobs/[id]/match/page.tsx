@@ -11,6 +11,7 @@ import type { AiStatus, RuleBasis, Suggestion, SuggestionKind } from "@/lib/ai/m
 import { requirementsHref, SECTIONS } from "@/lib/sections";
 import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
 import { ClarificationPanel, TakeBackForm } from "@/components/job-clarification";
+import { AnswerControls, ReviewQuestions } from "@/components/job-review-panel";
 import { clarificationFor } from "@/lib/ai/rules/clarifications";
 import terminology from "@/lib/ai/rules/data/terminology.json";
 import type { EvidenceOrigin } from "@/lib/ai/evidence";
@@ -74,6 +75,8 @@ const ORIGIN_NOTE = (sources: EvidenceOrigin[] | undefined) =>
     : "From your profile. Self-reported: CareerOS hasn't independently verified it.";
 /** Where each result came from. All of these are deterministic rules, never AI. */
 const RULE_SOURCE: Record<RuleBasis, string> = {
+  candidate_answer: "Rules engine: reading your answer to a question",
+  candidate_denied: "Rules engine: your answer says you don't have this",
   stated_absent: "Rules engine: your profile says you don't have this",
   listed_skill: "Rules engine: a skill you list",
   alternate_name: "Rules engine: a skill you list, under a known alternate name",
@@ -130,12 +133,42 @@ function AiSuggestions({ analysis }: { analysis: AnalysisView }) {
   </section>;
 }
 
-function VerdictPill({ verdict }: { verdict: Verdict }) {
+function VerdictPill({ verdict, answered }: { verdict: Verdict; answered?: boolean }) {
   const style = VERDICT_STYLE[verdict];
-  return <span className={`inline-block shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${style.className}`}>{style.label}</span>;
+  const label = answered && verdict !== "supported" && verdict !== "insufficient_information" ? `${style.label} — Self-reported` : style.label;
+  return <span className={`inline-block shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${style.className}`}>{label}</span>;
 }
 
-function Findings({ analysis, jobId, roles, declined }: { analysis: AnalysisView; jobId: string; roles: { id: string; label: string }[]; declined: Set<string> }) {
+function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnType<typeof getAnalysisPageData>>>; analysisId: string }) {
+  const review = data.review!;
+  const { queue } = review;
+  const remaining = queue.questions.length + queue.notShown;
+  return <section aria-labelledby="review-heading" className="space-y-3 rounded-xl border bg-surface-muted p-4 sm:p-5">
+    <h3 id="review-heading" className="text-base font-semibold">What CareerOS couldn&apos;t establish</h3>
+    <p className="text-sm">{queue.settled} of {queue.total} settled from your profile and answers. {remaining === 0 ? "No questions right now." : `${remaining === 1 ? "1 question" : `${remaining} questions`} for the rest.`}{queue.suppressedByEarlierAnswers > 0 && ` ${queue.suppressedByEarlierAnswers} not asked again, because you've already answered.`}</p>
+    <p className="text-xs text-muted">Answers are self-reported, and CareerOS doesn&apos;t independently verify them. You can leave any of these as Not enough information.</p>
+    {review.changes.length > 0 && <div className="space-y-1">
+      <h4 className="text-sm font-semibold">Changed by your answers</h4>
+      <ul className="space-y-1 text-sm">
+        {review.changes.map((c, i) => <li key={`${c.requirementText}-${i}`}>{c.requirementText}: {VERDICT_STYLE[c.before as Verdict]?.label ?? c.before} → {VERDICT_STYLE[c.after as Verdict]?.label ?? c.after}</li>)}
+      </ul>
+    </div>}
+    <ReviewQuestions analysisId={analysisId} questions={queue.questions} roles={data.roles} />
+    {queue.notShown > 0 && <p className="text-sm text-muted">{queue.notShown} more not shown, to keep this short. They appear as you answer these.</p>}
+    {review.answers.length > 0 && <div className="space-y-2">
+      <h4 className="text-sm font-semibold">Your answers</h4>
+      <ul className="divide-y text-sm">
+        {review.answers.map(a => <li key={a.id} className="space-y-1 py-2">
+          <p className="text-xs font-medium text-muted">{dateTime.format(a.createdAt)} · {a.requirementText}{a.status === "REVOKED" ? " · Revoked, no longer counts" : ""}</p>
+          <p className="break-words">{a.outcome === "DENIED" ? "You said you don't have this." : a.detail ?? a.qualification}{a.roleTitle && <span className="text-muted"> ({a.roleTitle})</span>}</p>
+          <AnswerControls clarificationId={a.id} detail={a.outcome === "ROLE_DETAIL_ADDED" ? a.detail : null} label={`answer about ${a.requirementText}`} status={a.status} />
+        </li>)}
+      </ul>
+    </div>}
+  </section>;
+}
+
+function Findings({ analysis, jobId, roles, declined, review }: { analysis: AnalysisView; jobId: string; roles: { id: string; label: string }[]; declined: Set<string>; review: boolean }) {
   const requirements = new Map(analysis.requirements.map(r => [r.index, r]));
   return <ol className="space-y-3">
     {analysis.findings.map(finding => {
@@ -149,7 +182,7 @@ function Findings({ analysis, jobId, roles, declined }: { analysis: AnalysisView
             <p className="text-xs font-medium text-muted">Requirement {finding.requirementIndex + 1} · {requirement?.priority} · {requirement?.category}</p>
             <h3 className="break-words font-semibold">{requirement?.text}</h3>
           </div>
-          <VerdictPill verdict={finding.verdict} />
+          <VerdictPill verdict={finding.verdict} answered={finding.evidenceSources?.includes("candidate_answer")} />
         </div>
         {finding.aiStatus && <p className={`text-xs font-medium ${finding.method === "local_ai" ? "text-accent-text" : "text-muted"}`}>
           {FINDING_SOURCE[finding.aiStatus]}
@@ -174,8 +207,9 @@ function Findings({ analysis, jobId, roles, declined }: { analysis: AnalysisView
         {finding.caveats.length > 0 && <ul aria-label="Caveats" className="space-y-1 text-xs text-muted">
           {finding.caveats.map(caveat => <li key={caveat}>Note: {caveat}</li>)}
         </ul>}
-        <ClarificationPanel analysisId={analysis.id} current={question && !declined.has(question.requirementText) ? question : null} roles={roles} aiNote={aiNote} />
-        {question && declined.has(question.requirementText) && <p className="text-xs text-muted">You said you don&apos;t have this, so it won&apos;t be asked again for this job.</p>}
+        {!review && <ClarificationPanel analysisId={analysis.id} current={question && !declined.has(question.requirementText) ? question : null} roles={roles} aiNote={aiNote} />}
+        {finding.rulesOnlyVerdict && <p className="text-xs text-muted">From the rules alone, before your answer: {VERDICT_STYLE[finding.rulesOnlyVerdict].label}.</p>}
+        {!review && question && declined.has(question.requirementText) && <p className="text-xs text-muted">You said you don&apos;t have this, so it won&apos;t be asked again for this job.</p>}
         <FeedbackForm analysisId={analysis.id} version={analysis.feedbackVersion} requirementIndex={finding.requirementIndex}
           current={feedback?.choice ?? null} note={feedback?.note ?? null} />
       </li>;
@@ -254,13 +288,14 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       {latest.provider === "hybrid" && <HybridSummary analysis={latest} />}
       <h3 className="text-base font-semibold">Matching results</h3>
       <p className="text-sm text-muted">Decided by CareerOS&apos;s deterministic rules from what you entered in your profile. Nothing here has been independently verified.</p>
-      <Findings analysis={latest} jobId={job.id} roles={data.roles} declined={new Set(data.declined.map(d => d.requirementText))} />
+      {data.review && <ReviewSection data={data} analysisId={latest.id} />}
+      <Findings analysis={latest} jobId={job.id} roles={data.roles} declined={new Set(data.declined.map(d => d.requirementText))} review={!!data.review} />
       {latest.provider === "assisted" && <AiSuggestions analysis={latest} />}
     </section> : <EmptyState title="No analysis yet">
       {ready ? "Run an analysis to compare these requirements with your profile." : "Once the requirements are reviewed, you can run an analysis here."}
     </EmptyState>}
 
-    {data.answers.length > 0 && <Card className="space-y-3">
+    {!data.review && data.answers.length > 0 && <Card className="space-y-3">
       <h2 className="text-lg font-semibold">Answers you&apos;ve added</h2>
       <p className="text-sm text-muted">These are part of your profile and count for every job. They&apos;re self-reported, and you can remove them at any time.</p>
       <ul className="divide-y text-sm">

@@ -16,12 +16,15 @@ import {
   type AnalysisProvider,
   type Evidence,
   type MatchRequest,
+  type MatchRequirement,
   type Verdict,
 } from "@/lib/ai/evidence";
 import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
+import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
+import { buildReviewQueue, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
 // Server-side analysis workflow. Every function takes the verified Supabase user id and scopes
@@ -95,12 +98,25 @@ async function ownedEvidenceProfile(userId: string) {
     where: { userId },
     select: {
       technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
-      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true, detail: true }, where: { outcome: "ROLE_DETAIL_ADDED" }, orderBy: { id: "asc" } } } },
-      educationEntries: { select: { id: true, qualification: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true }, where: { outcome: "ENTRY_ADDED" } } } },
+      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true, detail: true }, where: { outcome: "ROLE_DETAIL_ADDED", status: "ACTIVE" }, orderBy: { id: "asc" } } } },
+      educationEntries: { select: { id: true, qualification: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true }, where: { outcome: "ENTRY_ADDED", status: "ACTIVE" } } } },
       projects: { select: { id: true, title: true, description: true, contribution: true, results: true, skills: true } },
     },
   });
 }
+
+/** A person's active answers, for the rules only. */
+async function activeAnswers(userId: string): Promise<LinkedAnswer[]> {
+  const rows = await prisma.candidateClarification.findMany({
+    where: { userId, status: "ACTIVE", questionKey: { not: null }, outcome: { in: ["ROLE_DETAIL_ADDED", "DENIED"] } },
+    select: { id: true, questionKey: true, coveredKeys: true, outcome: true, detail: true },
+  });
+  return rows.flatMap(r => [...new Set([r.questionKey!, ...r.coveredKeys])].map((key): LinkedAnswer => (r.outcome === "DENIED"
+    ? { action: "deny", questionKey: key }
+    : { action: "confirm", questionKey: key, evidenceId: `experience:${r.id}`, detail: r.detail ?? "" })));
+}
+
+const reviewKeyFor = (r: MatchRequirement) => keyForRequirement(r);
 
 /** Personal and company values to remove from free text before it goes to a cloud provider. */
 async function redactionTerms(userId: string, jobCompany: string, contactEmail: string | null): Promise<RedactionTerms> {
@@ -157,6 +173,7 @@ async function reserveRun(options: {
   dailyLimit: number;
   attemptLimit: number;
   now: Date;
+  isRecheck?: boolean;
 }): Promise<Reservation> {
   const { userId, cloud, now } = options;
   return prisma.$transaction(async tx => {
@@ -171,10 +188,12 @@ async function reserveRun(options: {
       WHERE "userId" = ${userId}::uuid AND "status" = 'STARTED' AND "startedAt" < ${new Date(now.getTime() - STALE_RUN_MS)}`;
 
     const since = new Date(now.getTime() - WINDOW_MS);
-    const counted = await tx.aiAnalysisRun.count({ where: { userId, startedAt: { gt: since }, countsTowardLimit: true } });
-    if (counted >= options.dailyLimit) return { ok: false, error: "rate_limited" };
-    const attempts = await tx.aiAnalysisRun.count({ where: { userId, startedAt: { gt: since } } });
-    if (attempts >= options.attemptLimit) return { ok: false, error: "attempts_exceeded" };
+    if (!options.isRecheck) {
+      const counted = await tx.aiAnalysisRun.count({ where: { userId, startedAt: { gt: since }, countsTowardLimit: true, isRecheck: false } });
+      if (counted >= options.dailyLimit) return { ok: false, error: "rate_limited" };
+      const attempts = await tx.aiAnalysisRun.count({ where: { userId, startedAt: { gt: since }, isRecheck: false } });
+      if (attempts >= options.attemptLimit) return { ok: false, error: "attempts_exceeded" };
+    }
 
     if (cloud) {
       const amount = options.reservation;
@@ -192,6 +211,8 @@ async function reserveRun(options: {
         startedAt: now,
         billingState: cloud ? "RESERVED" : "NONE",
         reservedMicroUsd: cloud ? options.reservation : 0,
+        isRecheck: options.isRecheck === true,
+        countsTowardLimit: !options.isRecheck,
       },
       select: { id: true },
     });
@@ -243,6 +264,8 @@ export async function runJobAnalysis(options: {
   contactEmail?: string | null;
   fetchImpl?: typeof fetch;
   now?: Date;
+  /** A rules-only recheck after a person's answer: outside the analysis limits. */
+  recheck?: boolean;
 }): Promise<RunResult> {
   const { config } = options;
   const provider = options.provider ?? "rules";
@@ -283,12 +306,14 @@ export async function runJobAnalysis(options: {
   let request: MatchRequest;
   let fingerprint: string;
   let reservation = 0;
+  let linked: LinkedAnswer[] = [];
   try {
     const requirementsList: Requirement[] = validateRequirements(job.requirements);
     const evidence = buildEvidence(profile);
-    fingerprint = evidenceFingerprint(evidence); // always of the unredacted profile
+    linked = config.reviewEnabled && usesRules ? await activeAnswers(user.id) : [];
+    fingerprint = evidenceFingerprint(evidence, linked); // always of the unredacted profile
     const requirements = buildRequirements(requirementsList);
-    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence };
+    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}) };
     // Only the rules on this server use an answer's source; the service's strict format has no such field.
     if (!usesRules) request.evidence = evidence.map(item => (("source" in item) ? (Object.fromEntries(Object.entries(item).filter(([key]) => key !== "source")) as Evidence) : item));
     if (cloud) {
@@ -314,6 +339,7 @@ export async function runJobAnalysis(options: {
     dailyLimit: config.dailyLimit,
     attemptLimit: config.attemptLimit,
     now,
+    isRecheck: options.recheck === true && provider === "rules",
   });
   if (!reserved.ok) return { ok: false, error: reserved.error };
   const run = { id: reserved.runId, userId: user.id, cloud };
@@ -403,7 +429,8 @@ async function analyzeWithRules(options: {
   const methodVersion = assisted ? `assisted/${RULES_VERSION}+${model}/${ASSIST_PROMPT_VERSION}` : RULES_VERSION;
   let validated;
   try {
-    const body = rulesResponse(request, { provider, model, methodVersion });
+    const answers = request.linked_answers ?? [];
+    const body = rulesResponse(request, { provider, model, methodVersion }, answers.length ? findings => applyAnswers(request, findings, answers, reviewKeyFor) : undefined);
     // The same independent checks as any other result, on the same format.
     validated = validateMatchResponse(request, JSON.parse(JSON.stringify(body)), { provider, model });
   } catch (error) {
@@ -565,6 +592,23 @@ export type LocalAiStatus = { available: boolean; model: string | null };
 
 export type ClarificationAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
 
+export type ReviewAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; status: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
+export type ReviewPageData = { queue: ReviewQueue; answers: ReviewAnswer[]; changes: { requirementText: string; before: string; after: string; at: Date }[] };
+
+/** Masks results resting on an answer that no longer counts, so a revocation takes effect everywhere at once,
+ * even for a job not yet run again. */
+function maskRevoked(view: AnalysisView, revokedEvidence: ReadonlySet<string>, activeDenials: ReadonlySet<string>): AnalysisView {
+  const findings = view.findings.map(f => {
+    const requirement = view.requirements.find(r => r.index === f.requirementIndex);
+    const lapsedDenial = f.basis === "candidate_denied" && requirement && !activeDenials.has(reviewKeyFor(requirement));
+    if (!lapsedDenial && !f.citations.some(c => revokedEvidence.has(c.evidenceId))) return f;
+    return { ...f, verdict: "insufficient_information" as Verdict, explanation: "This relied on an answer you revoked. Run the analysis again.", citations: [], caveats: [], evidenceSources: [] };
+  });
+  const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
+  for (const f of findings) verdictCounts[f.verdict]++;
+  return { ...view, findings, verdictCounts };
+}
+
 export async function getAnalysisPageData(supabaseAuthId: string, jobId: string, config: AiConfig, now = new Date()) {
   const user = await ownerOf(supabaseAuthId);
   const job = user && (await ownedJob(user.id, jobId));
@@ -599,7 +643,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   let currentFingerprint: string | null = null;
   try {
-    currentFingerprint = profile ? evidenceFingerprint(buildEvidence(profile)) : null;
+    currentFingerprint = profile ? evidenceFingerprint(buildEvidence(profile), config.reviewEnabled ? await activeAnswers(user.id) : []) : null;
   } catch {
     currentFingerprint = null;
   }
@@ -623,6 +667,34 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     },
   };
 
+  let shown = view;
+  let review: ReviewPageData | null = null;
+  if (config.reviewEnabled) {
+    const rows = await prisma.candidateClarification.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: { id: true, requirementText: true, detail: true, outcome: true, status: true, createdAt: true, questionKey: true, coveredKeys: true, evidenceId: true, savedJobId: true, experience: { select: { jobTitle: true } }, education: { select: { qualification: true } } },
+    });
+    const keysOf = (r: (typeof rows)[number]) => [r.questionKey!, ...r.coveredKeys];
+    const answered = new Set(rows.filter(r => r.status === "ACTIVE" && r.questionKey && r.outcome !== "SKIPPED" && r.outcome !== "DECLINED").flatMap(keysOf));
+    const skipped = new Set(rows.filter(r => r.outcome === "SKIPPED" && r.savedJobId === job.id && r.questionKey).flatMap(keysOf));
+    const revokedEvidence = new Set(rows.filter(r => r.status !== "ACTIVE" && r.evidenceId).map(r => r.evidenceId!));
+    const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey).flatMap(keysOf));
+    if (view) shown = maskRevoked(view, revokedEvidence, activeDenials);
+    const events = await prisma.clarificationEvent.findMany({
+      where: { userId: user.id, savedJobId: job.id, verdictBefore: { not: null }, verdictAfter: { not: null } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { requirementText: true, verdictBefore: true, verdictAfter: true, createdAt: true },
+    });
+    review = {
+      queue: shown ? buildReviewQueue(shown.requirements, shown.findings, answered, skipped) : { questions: [], notShown: 0, settled: 0, total: 0, suppressedByEarlierAnswers: 0 },
+      answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null })),
+      changes: events.map(e => ({ requirementText: e.requirementText ?? "", before: e.verdictBefore!, after: e.verdictAfter!, at: e.createdAt })),
+    };
+  }
+
   const cloud: CloudStatus = {
     available: Boolean(config.enabled && config.cloud?.allowedUserIds.has(user.id)),
     consentCurrent: hasCurrentCloudConsent(user),
@@ -635,7 +707,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
   return {
     job: { id: job.id, title: job.title, company: job.company },
     readiness: jobReadiness(job),
-    latest: view,
+    latest: shown,
+    review,
     history,
     remainingToday: config.enabled ? Math.max(0, config.dailyLimit - countedToday) : 0,
     dailyLimit: config.enabled ? config.dailyLimit : 0,

@@ -32,8 +32,8 @@ export type FindingMethod = "rules" | "local_ai";
 export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
 export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
 /** Which deterministic rule decided a finding (shown as where the result came from). */
-export type RuleBasis = "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
-export const RULE_BASES: RuleBasis[] = ["stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
+export type RuleBasis = "candidate_answer" | "candidate_denied" | "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
+export const RULE_BASES: RuleBasis[] = ["candidate_answer", "candidate_denied", "stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
 export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
 /** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
 export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
@@ -52,6 +52,8 @@ export type Finding = {
   /** Where the cited evidence came from, worked out here from the citations. Kept apart from the verdict.
    * Older stored findings don't have it, and all of it is self-reported. */
   evidenceSources?: EvidenceOrigin[];
+  /** What the rules said before a person's answer. Absent when no answer changed anything. */
+  rulesOnlyVerdict?: Verdict;
 };
 export type ValidatedMatch = {
   findings: Finding[];
@@ -282,7 +284,11 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       if (verdict === "supported" && !kinds.includes("experience")) reject("project or non-employment evidence used as employment");
       if (kinds.includes("project") && !caveats.includes(PROJECT_NOT_EMPLOYMENT)) reject("project cited without the employment caveat");
     }
-    if (verdict === "gap" && areaIsEmpty(request, requirement)) reject("gap claimed for an empty profile area");
+    // Someone saying they don't have something needs no profile entry, and only comes from their own answer.
+    const denied = f.basis === "candidate_denied";
+    if (denied && (verdict !== "gap" || !request.linked_answers?.some(a => a.action === "deny"))) reject("a denial without a person's answer");
+    if (f.basis === "candidate_answer" && !citations.some(c => evidence.get(c.evidenceId)?.kind === "experience" && citationOrigin(evidence.get(c.evidenceId)!, c.quote) === "candidate_answer")) reject("an answer's result must cite that answer");
+    if (verdict === "gap" && !denied && areaIsEmpty(request, requirement)) reject("gap claimed for an empty profile area");
 
     // A requirement that needs confirmation is never judged automatically, whatever produced it.
     const review = f.review === undefined || f.review === null ? undefined : f.review === "needs_confirmation" ? "needs_confirmation" as const : reject("invalid review flag");
@@ -299,8 +305,9 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    const evidenceSources = [...new Set(citations.map(c => citationOrigin(evidence.get(c.evidenceId)!, c.quote)))];
-    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }), evidenceSources };
+    const evidenceSources = denied ? (["candidate_answer"] as EvidenceOrigin[]) : [...new Set(citations.map(c => citationOrigin(evidence.get(c.evidenceId)!, c.quote)))];
+    const rulesOnlyVerdict = VERDICTS.includes(f.rules_only_verdict as Verdict) ? (f.rules_only_verdict as Verdict) : undefined;
+    return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }), evidenceSources, ...(rulesOnlyVerdict && { rulesOnlyVerdict }) };
   });
   if (seen.size !== requirements.size) reject("a requirement has no finding");
 

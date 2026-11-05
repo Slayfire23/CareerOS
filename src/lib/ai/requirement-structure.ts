@@ -187,6 +187,23 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 
+/** The same, for a person's answer to a question. Naming "every assessment" or "the application" isn't a
+ * remark about being judged when someone is describing their work, so a bare reference doesn't count here. */
+export function answerUntrustedSpans(text: string): Span[] {
+  const spans = new Map<string, Span>();
+  for (const span of directedSpans(text)) spans.set(span.join(":"), span);
+  for (const [s, e] of segments(text)) {
+    const segment = text.slice(s, e);
+    if (PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) spans.set(`${s}:${e}`, [s, e]);
+  }
+  for (const span of negatedSpans(text)) spans.set(span.join(":"), span);
+  for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
+    if (keywordDump(match[0]) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+  }
+  if (templateText(text)) spans.set(`0:${text.length}`, [0, text.length]);
+  return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+}
+
 /** For the job review, which doesn't know the profile: true whenever the analysis could flag this
  * requirement for any profile, so the person can always confirm what the analysis asks about. */
 export const mayNeedConfirmation = (text: string) =>

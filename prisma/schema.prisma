@@ -27,6 +27,7 @@ model User {
   aiAnalysisRuns   AiAnalysisRun[]
   jobMatchAnalyses JobMatchAnalysis[]
   clarifications   CandidateClarification[]
+  clarificationEvents ClarificationEvent[]
 }
 
 /// ROLE_DETAIL_ADDED: a description of work in one role. ENTRY_ADDED: a typed education or credential
@@ -35,6 +36,33 @@ enum ClarificationOutcome {
   ROLE_DETAIL_ADDED
   ENTRY_ADDED
   DECLINED
+  DENIED
+  SKIPPED
+}
+
+enum ClarificationStatus {
+  ACTIVE
+  SUPERSEDED
+  REVOKED
+}
+
+/// Append-only audit trail for answers. Never holds an answer's words, so it survives permanent deletion.
+model ClarificationEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @db.Uuid
+  clarificationId String?  @db.Uuid
+  savedJobId      String?  @db.Uuid
+  action          String   @db.VarChar(20)
+  questionKey     String?  @db.VarChar(64)
+  requirementText String?  @db.VarChar(500)
+  verdictBefore   String?  @db.VarChar(30)
+  verdictAfter    String?  @db.VarChar(30)
+  rulesVersion    String   @db.VarChar(40)
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([savedJobId, createdAt])
 }
 
 /// What a person said about a requirement, kept with where it came from. All of it is self-reported:
@@ -49,16 +77,26 @@ model CandidateClarification {
   experienceId    String?                 @db.Uuid
   educationId     String?                 @db.Uuid
   detail          String?                 @db.VarChar(1000)
+  /// Stays the same however a reviewed name writes the question, so it isn't asked again.
+  questionKey     String?                 @db.VarChar(64)
+  /// Other questions the same answer covers, when one question grouped several requirements.
+  coveredKeys     String[]                @default([])
+  status          ClarificationStatus     @default(ACTIVE)
+  supersedesId    String?                 @db.Uuid
+  /// The id citations use, kept so stored results can be masked after a revocation.
+  evidenceId      String?                 @db.VarChar(60)
+  revokedAt       DateTime?               @db.Timestamptz(3)
   createdAt       DateTime                @default(now()) @db.Timestamptz(3)
   user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedJob        SavedJob?               @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
   experience      ProfessionalExperience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
-  education       Education?              @relation(fields: [educationId], references: [id], onDelete: Cascade)
+  education       Education?              @relation(fields: [educationId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@index([savedJobId])
   @@index([experienceId])
   @@index([educationId])
+  @@index([userId, questionKey, status])
 }
 
 model SavedJob {
@@ -192,6 +230,8 @@ model AiAnalysisRun {
   savedJobId String?          @db.Uuid
   status     AiAnalysisStatus @default(STARTED)
   provider   String           @db.VarChar(40)
+  /// A rules-only recheck after an answer: free, and outside the analysis limits.
+  isRecheck  Boolean          @default(false)
   /// Machine-readable code only (e.g. "service_unavailable"), never message text.
   errorCode  String?          @db.VarChar(60)
   startedAt  DateTime         @default(now()) @db.Timestamptz(3)

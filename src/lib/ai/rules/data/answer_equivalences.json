@@ -1,0 +1,1402 @@
+{
+ "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, never fuzzy or semantic. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
+ "version": "answer-equivalences-v1",
+ "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
+ "groups": [
+  {
+   "canonical": "phlebotomy",
+   "asks": [
+    "phlebotomy",
+    "venipuncture",
+    "venepuncture",
+    "blood draws",
+    "drawing blood"
+   ],
+   "descriptions": [
+    "drew blood",
+    "draw blood",
+    "draws blood",
+    "drawing blood",
+    "blood draws",
+    "drew samples of blood"
+   ],
+   "related": [
+    "blood samples",
+    "labeled the tubes"
+   ],
+   "verbs": [
+    "draw",
+    "draws",
+    "drew",
+    "drawing",
+    "collect",
+    "collects",
+    "collected",
+    "collecting"
+   ],
+   "objects": [
+    "blood"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 31-9097.00 Phlebotomists",
+   "source_task": "Draw blood from veins by vacuum tube, syringe, or butterfly venipuncture methods."
+  },
+  {
+   "canonical": "bookkeeping",
+   "asks": [
+    "bookkeeping",
+    "general ledger",
+    "ledger maintenance"
+   ],
+   "descriptions": [
+    "kept the ledgers",
+    "kept the ledger",
+    "kept the books",
+    "maintained the ledger",
+    "maintained ledgers",
+    "posted journal entries",
+    "posted entries to the ledger",
+    "posted to the ledger"
+   ],
+   "related": [
+    "recorded receipts",
+    "filed invoices"
+   ],
+   "verbs": [
+    "keep",
+    "keeps",
+    "kept",
+    "post",
+    "posts",
+    "posted",
+    "maintain",
+    "maintains",
+    "maintained"
+   ],
+   "objects": [
+    "ledger ledgers books",
+    "journal entries"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
+   "source_task": "Transfer details from separate journals to general ledgers or data processing sheets."
+  },
+  {
+   "canonical": "payroll",
+   "asks": [
+    "payroll",
+    "payroll processing",
+    "process payroll",
+    "run payroll"
+   ],
+   "descriptions": [
+    "calculated wages",
+    "computed wages",
+    "prepared paychecks",
+    "processed paychecks",
+    "issued paychecks",
+    "cut paychecks",
+    "ran paychecks",
+    "ran payroll"
+   ],
+   "related": [
+    "collected timesheets",
+    "tracked timesheets",
+    "entered timesheets"
+   ],
+   "verbs": [
+    "prepare",
+    "prepares",
+    "prepared",
+    "process",
+    "processes",
+    "processed",
+    "issue",
+    "issues",
+    "issued",
+    "calculate",
+    "calculates",
+    "calculated",
+    "compute",
+    "computed",
+    "cut",
+    "cuts"
+   ],
+   "objects": [
+    "paychecks wages"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-3051.00 Payroll and Timekeeping Clerks",
+   "source_task": "Process and issue employee paychecks and statements of earnings and deductions."
+  },
+  {
+   "canonical": "accountspayable",
+   "asks": [
+    "accounts payable"
+   ],
+   "descriptions": [
+    "paid vendor invoices",
+    "paid supplier invoices",
+    "processed vendor invoices",
+    "processed supplier invoices",
+    "paid vendors",
+    "ran payment batches",
+    "matched invoices to purchase orders"
+   ],
+   "related": [
+    "filed invoices"
+   ],
+   "verbs": [
+    "pay",
+    "pays",
+    "paid",
+    "process",
+    "processes",
+    "processed"
+   ],
+   "objects": [
+    "vendor invoices",
+    "supplier invoices",
+    "vendors"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
+   "source_task": "Match order forms with invoices, and record the necessary information."
+  },
+  {
+   "canonical": "accountsreceivable",
+   "asks": [
+    "accounts receivable",
+    "a/r"
+   ],
+   "descriptions": [
+    "billed customers",
+    "sent customer invoices",
+    "issued customer invoices",
+    "collected overdue accounts",
+    "collected overdue payments",
+    "chased overdue invoices",
+    "posted customer payments"
+   ],
+   "related": [
+    "answered billing questions"
+   ],
+   "verbs": [
+    "bill",
+    "bills",
+    "billed",
+    "invoice",
+    "invoices",
+    "invoiced",
+    "collect",
+    "collects",
+    "collected",
+    "chase",
+    "chases",
+    "chased"
+   ],
+   "objects": [
+    "customers",
+    "overdue accounts",
+    "overdue invoices",
+    "overdue payments"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-3011.00 Bill and Account Collectors",
+   "source_task": "Locate and monitor overdue accounts, using computers and a variety of automated systems."
+  },
+  {
+   "canonical": "bankreconciliation",
+   "asks": [
+    "bank reconciliation",
+    "bank reconciliations"
+   ],
+   "descriptions": [
+    "reconciled bank statements",
+    "reconciled the bank statements",
+    "reconciled accounts to the bank",
+    "reconciled accounts to the bank statements",
+    "matched bank statements"
+   ],
+   "related": [],
+   "verbs": [
+    "reconcile",
+    "reconciles",
+    "reconciled",
+    "match",
+    "matches",
+    "matched"
+   ],
+   "objects": [
+    "bank statement",
+    "bank statements",
+    "statement activity"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-3021.00 Billing and Posting Clerks",
+   "source_task": "Compare previously prepared bank statements with canceled checks and reconcile discrepancies."
+  },
+  {
+   "canonical": "medicationadministration",
+   "asks": [
+    "medication administration",
+    "administer medications",
+    "administering medications",
+    "administer medication",
+    "medication passes"
+   ],
+   "descriptions": [
+    "gave medications",
+    "gave medication",
+    "administered medications",
+    "administered medication",
+    "passed medications",
+    "gave injections",
+    "gave oral and injectable"
+   ],
+   "related": [
+    "ordered medications"
+   ],
+   "verbs": [
+    "give",
+    "gives",
+    "gave",
+    "administer",
+    "administers",
+    "administered",
+    "pass",
+    "passes",
+    "passed"
+   ],
+   "objects": [
+    "medication medications injections meds"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 29-1141.00 Registered Nurses",
+   "source_task": "Administer medications to patients and monitor patients for reactions or side effects."
+  },
+  {
+   "canonical": "vitalsigns",
+   "asks": [
+    "vital signs",
+    "taking vitals"
+   ],
+   "descriptions": [
+    "took vitals",
+    "took vital signs",
+    "recorded vitals",
+    "recorded vital signs",
+    "took blood pressure",
+    "measured blood pressure",
+    "checked blood pressure"
+   ],
+   "related": [],
+   "verbs": [
+    "take",
+    "takes",
+    "took",
+    "record",
+    "records",
+    "recorded",
+    "measure",
+    "measures",
+    "measured",
+    "check",
+    "checks",
+    "checked"
+   ],
+   "objects": [
+    "vitals vital signs",
+    "blood pressure"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
+   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+  },
+  {
+   "canonical": "woundcare",
+   "asks": [
+    "wound care"
+   ],
+   "descriptions": [
+    "dressed wounds",
+    "changed dressings",
+    "changed wound dressings",
+    "cleaned wounds",
+    "cleaned and dressed wounds"
+   ],
+   "related": [],
+   "verbs": [
+    "dress",
+    "dresses",
+    "dressed",
+    "change",
+    "changes",
+    "changed",
+    "clean",
+    "cleans",
+    "cleaned"
+   ],
+   "objects": [
+    "wounds dressings"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 29-2061.00 Licensed Practical and Licensed Vocational Nurses",
+   "source_task": "Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massag"
+  },
+  {
+   "canonical": "drywallfinishing",
+   "asks": [
+    "drywall finishing"
+   ],
+   "descriptions": [
+    "taped and mudded",
+    "taped joints",
+    "taped drywall joints",
+    "applied joint compound",
+    "sanded and finished drywall"
+   ],
+   "related": [
+    "hung drywall",
+    "hung sheetrock"
+   ],
+   "verbs": [
+    "tape",
+    "tapes",
+    "taped",
+    "mud",
+    "muds",
+    "mudded",
+    "sand",
+    "sands",
+    "sanded",
+    "finish",
+    "finishes",
+    "finished"
+   ],
+   "objects": [
+    "drywall sheetrock"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 47-2082.00 Tapers",
+   "source_task": "Press paper tape over joints to embed tape into sealing compound and to seal joints."
+  },
+  {
+   "canonical": "forkliftoperation",
+   "asks": [
+    "forklift operation",
+    "forklift operating",
+    "forklift driving",
+    "operate a forklift",
+    "operating a forklift"
+   ],
+   "descriptions": [
+    "drove a forklift",
+    "operated a forklift",
+    "drove forklifts",
+    "operated forklifts",
+    "drove a lift truck",
+    "operated a lift truck",
+    "ran a forklift"
+   ],
+   "related": [
+    "loaded trucks by hand"
+   ],
+   "verbs": [
+    "drive",
+    "drives",
+    "drove",
+    "operate",
+    "operates",
+    "operated",
+    "run",
+    "runs",
+    "ran"
+   ],
+   "objects": [
+    "forklift forklifts",
+    "lift truck",
+    "fork truck",
+    "reach truck"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 53-7051.00 Industrial Truck and Tractor Operators",
+   "source_task": "Move controls to drive gasoline- or electric-powered trucks, cars, or tractors and transport materials between loading, processing, and storage areas."
+  },
+  {
+   "canonical": "brakerepair",
+   "asks": [
+    "brake repair",
+    "brake system repair",
+    "brake service"
+   ],
+   "descriptions": [
+    "replaced brake pads",
+    "replaced brake rotors",
+    "changed brake pads",
+    "relined brakes",
+    "repaired brakes",
+    "rebuilt brake calipers"
+   ],
+   "related": [
+    "ordered brake parts"
+   ],
+   "verbs": [
+    "replace",
+    "replaces",
+    "replaced",
+    "change",
+    "changes",
+    "changed",
+    "repair",
+    "repairs",
+    "repaired",
+    "rebuild",
+    "rebuilds",
+    "rebuilt",
+    "reline",
+    "relines",
+    "relined"
+   ],
+   "objects": [
+    "brake pads",
+    "brake rotors",
+    "brakes",
+    "brake calipers"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+   "source_task": "Follow checklists to ensure all important parts are examined, including belts, hoses, steering systems, spark plugs, brake and fuel systems, wheel bearings, and other potentially t"
+  },
+  {
+   "canonical": "cashhandling",
+   "asks": [
+    "cash handling",
+    "handling cash"
+   ],
+   "descriptions": [
+    "balanced the register",
+    "balanced the till",
+    "counted the register",
+    "counted the till",
+    "handled cash",
+    "counted cash",
+    "reconciled the cash drawer"
+   ],
+   "related": [],
+   "verbs": [
+    "balance",
+    "balances",
+    "balanced",
+    "count",
+    "counts",
+    "counted",
+    "handle",
+    "handles",
+    "handled"
+   ],
+   "objects": [
+    "register till cash",
+    "cash drawer"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 41-2011.00 Cashiers",
+   "source_task": "Receive payment by cash, check, credit cards, vouchers, or automatic debits."
+  },
+  {
+   "canonical": "customerservice",
+   "asks": [
+    "customer service",
+    "customer support"
+   ],
+   "descriptions": [
+    "resolved customer complaints",
+    "handled customer complaints",
+    "answered customer questions",
+    "helped customers with",
+    "resolved customer issues"
+   ],
+   "related": [],
+   "verbs": [
+    "resolve",
+    "resolves",
+    "resolved",
+    "handle",
+    "handles",
+    "handled",
+    "answer",
+    "answers",
+    "answered"
+   ],
+   "objects": [
+    "customer complaints",
+    "customer questions",
+    "customer issues",
+    "guest complaints",
+    "guest issues"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-4051.00 Customer Service Representatives",
+   "source_task": "Resolve customers' service or billing complaints by performing activities such as exchanging merchandise, refunding money, or adjusting bills."
+  },
+  {
+   "canonical": "cyclecounting",
+   "asks": [
+    "cycle counting",
+    "cycle counts",
+    "inventory counting",
+    "stock counts"
+   ],
+   "descriptions": [
+    "counted stock",
+    "counted inventory",
+    "did stock counts",
+    "ran cycle counts",
+    "took inventory",
+    "performed stock counts"
+   ],
+   "related": [],
+   "verbs": [
+    "count",
+    "counts",
+    "counted"
+   ],
+   "objects": [
+    "stock inventory",
+    "cycle counts",
+    "the walk-in"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-5071.00 Shipping, Receiving, and Inventory Clerks",
+   "source_task": "Requisition and store shipping materials and supplies to maintain inventory of stock."
+  },
+  {
+   "canonical": "orderpicking",
+   "asks": [
+    "order picking",
+    "picking orders",
+    "pick orders"
+   ],
+   "descriptions": [
+    "picked orders",
+    "pulled orders",
+    "picked customer orders",
+    "filled orders from the shelves"
+   ],
+   "related": [],
+   "verbs": [
+    "pick",
+    "picks",
+    "picked",
+    "pull",
+    "pulls",
+    "pulled",
+    "fill",
+    "fills",
+    "filled"
+   ],
+   "objects": [
+    "orders"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 53-7065.00 Stockers and Order Fillers",
+   "source_task": "Read orders to ascertain catalog numbers, sizes, colors, and quantities of merchandise."
+  },
+  {
+   "canonical": "appointmentscheduling",
+   "asks": [
+    "appointment scheduling",
+    "patient scheduling",
+    "schedule appointments",
+    "scheduling appointments"
+   ],
+   "descriptions": [
+    "booked appointments",
+    "scheduled appointments",
+    "booked patient appointments",
+    "scheduled patient visits"
+   ],
+   "related": [],
+   "verbs": [
+    "book",
+    "books",
+    "booked",
+    "schedule",
+    "schedules",
+    "scheduled"
+   ],
+   "objects": [
+    "appointments",
+    "patient visits"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-6013.00 Medical Secretaries and Administrative Assistants",
+   "source_task": "Schedule and confirm patient diagnostic appointments, surgeries, or medical consultations."
+  },
+  {
+   "canonical": "dataentry",
+   "asks": [
+    "data entry"
+   ],
+   "descriptions": [
+    "keyed records",
+    "keyed in records",
+    "entered records",
+    "typed records into",
+    "entered data into"
+   ],
+   "related": [],
+   "verbs": [
+    "key",
+    "keys",
+    "keyed",
+    "enter",
+    "enters",
+    "entered",
+    "type",
+    "types",
+    "typed"
+   ],
+   "objects": [
+    "records data"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-9021.00 Data Entry Keyers",
+   "source_task": "Locate and correct data entry errors, or report them to supervisors."
+  },
+  {
+   "canonical": "lessonplanning",
+   "asks": [
+    "lesson planning",
+    "develop lesson plans",
+    "lesson plans"
+   ],
+   "descriptions": [
+    "wrote lesson plans",
+    "prepared lesson plans",
+    "planned lessons",
+    "planned weekly lessons",
+    "wrote weekly lessons"
+   ],
+   "related": [],
+   "verbs": [
+    "write",
+    "writes",
+    "wrote",
+    "prepare",
+    "prepares",
+    "prepared",
+    "plan",
+    "plans",
+    "planned"
+   ],
+   "objects": [
+    "lessons",
+    "lesson plans"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 25-2021.00 Elementary School Teachers, Except Special Education",
+   "source_task": "Establish clear objectives for all lessons, units, and projects and communicate those objectives to students."
+  },
+  {
+   "canonical": "legalresearch",
+   "asks": [
+    "legal research"
+   ],
+   "descriptions": [
+    "researched case law",
+    "researched statutes",
+    "researched precedents",
+    "looked up case law"
+   ],
+   "related": [],
+   "verbs": [
+    "research",
+    "researches",
+    "researched"
+   ],
+   "objects": [
+    "case law",
+    "statutes precedents"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
+   "source_task": "Gather and analyze research data, such as statutes, decisions, and legal articles, codes, and documents."
+  },
+  {
+   "canonical": "contractdrafting",
+   "asks": [
+    "contract drafting",
+    "draft contracts",
+    "drafting contracts",
+    "draft commercial contracts"
+   ],
+   "descriptions": [
+    "drafted contracts",
+    "wrote contracts",
+    "drafted agreements",
+    "prepared contracts"
+   ],
+   "related": [
+    "filed contracts"
+   ],
+   "verbs": [
+    "draft",
+    "drafts",
+    "drafted",
+    "write",
+    "writes",
+    "wrote",
+    "prepare",
+    "prepares",
+    "prepared"
+   ],
+   "objects": [
+    "contracts agreements"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 23-1011.00 Lawyers",
+   "source_task": "Prepare, draft, and review legal documents, such as wills, deeds, patent applications, mortgages, leases, and contracts."
+  },
+  {
+   "canonical": "recruiting",
+   "asks": [
+    "recruiting",
+    "recruitment",
+    "candidate screening"
+   ],
+   "descriptions": [
+    "interviewed applicants",
+    "interviewed candidates",
+    "screened applicants",
+    "screened resumes",
+    "screened candidates"
+   ],
+   "related": [],
+   "verbs": [
+    "interview",
+    "interviews",
+    "interviewed",
+    "screen",
+    "screens",
+    "screened"
+   ],
+   "objects": [
+    "applicants candidates resumes"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 13-1071.00 Human Resources Specialists",
+   "source_task": "Review employment applications and job orders to match applicants with job requirements."
+  },
+  {
+   "canonical": "teamsupervision",
+   "asks": [
+    "team supervision",
+    "supervise a team",
+    "supervising staff",
+    "staff supervision",
+    "team leadership"
+   ],
+   "descriptions": [
+    "supervised staff",
+    "supervised a team",
+    "supervised a crew",
+    "led a team",
+    "led a crew",
+    "managed a team of",
+    "managed a crew"
+   ],
+   "related": [
+    "member of a"
+   ],
+   "verbs": [
+    "supervise",
+    "supervises",
+    "supervised",
+    "lead",
+    "leads",
+    "led",
+    "manage",
+    "manages",
+    "managed"
+   ],
+   "objects": [
+    "staff team crew"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-1011.00 First-Line Supervisors of Office and Administrative Support Workers",
+   "source_task": "Supervise the work of office, administrative, or customer service employees to ensure adherence to quality standards, deadlines, and proper procedures, correcting errors or problem"
+  },
+  {
+   "canonical": "budgeting",
+   "asks": [
+    "budgeting",
+    "budget preparation",
+    "prepare budgets",
+    "budget management"
+   ],
+   "descriptions": [
+    "prepared budgets",
+    "prepared the budget",
+    "built the budget",
+    "managed the budget",
+    "drew up the budget"
+   ],
+   "related": [
+    "collected receipts"
+   ],
+   "verbs": [
+    "prepare",
+    "prepares",
+    "prepared",
+    "build",
+    "builds",
+    "built",
+    "manage",
+    "manages",
+    "managed"
+   ],
+   "objects": [
+    "budget budgets"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 13-2031.00 Budget Analysts",
+   "source_task": "Analyze monthly department budgeting and accounting reports to maintain expenditure controls."
+  },
+  {
+   "canonical": "oilchanges",
+   "asks": [
+    "oil changes",
+    "lube service"
+   ],
+   "descriptions": [
+    "changed oil",
+    "changed the oil",
+    "did oil changes",
+    "performed oil changes"
+   ],
+   "related": [],
+   "verbs": [
+    "change",
+    "changes",
+    "changed",
+    "drain",
+    "drains",
+    "drained"
+   ],
+   "objects": [
+    "oil"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+   "source_task": "Perform routine and scheduled maintenance services, such as oil changes, lubrications, and tune-ups."
+  },
+  {
+   "canonical": "wheelalignment",
+   "asks": [
+    "wheel alignment",
+    "wheel alignments"
+   ],
+   "descriptions": [
+    "aligned wheels",
+    "did alignments",
+    "performed alignments"
+   ],
+   "related": [],
+   "verbs": [],
+   "objects": [],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+   "source_task": "Align wheels, axles, frames, torsion bars, and steering mechanisms of automobiles, using special alignment equipment and wheel-balancing machines."
+  },
+  {
+   "canonical": "pipefitting",
+   "asks": [
+    "pipefitting",
+    "pipe fitting"
+   ],
+   "descriptions": [
+    "threaded pipe",
+    "cut and threaded pipe",
+    "fitted pipe",
+    "installed process piping"
+   ],
+   "related": [],
+   "verbs": [
+    "thread",
+    "threads",
+    "threaded",
+    "fit",
+    "fits",
+    "fitted",
+    "install",
+    "installs",
+    "installed"
+   ],
+   "objects": [
+    "pipe piping"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 47-2152.00 Plumbers, Pipefitters, and Steamfitters",
+   "source_task": "Assemble pipe sections, tubing, or fittings, using couplings, clamps, screws, bolts, cement, plastic solvent, caulking, or soldering, brazing, or welding equipment."
+  },
+  {
+   "canonical": "patientintake",
+   "asks": [
+    "patient intake",
+    "patient check-in",
+    "patient registration"
+   ],
+   "descriptions": [
+    "checked in patients",
+    "registered patients",
+    "took patient histories",
+    "recorded patient histories",
+    "roomed patients"
+   ],
+   "related": [],
+   "verbs": [
+    "register",
+    "registers",
+    "registered",
+    "room",
+    "rooms",
+    "roomed"
+   ],
+   "objects": [
+    "patients"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
+   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+  },
+  {
+   "canonical": "vehiclemaintenance",
+   "asks": [
+    "routine vehicle maintenance",
+    "vehicle maintenance",
+    "preventive maintenance on vehicles"
+   ],
+   "descriptions": [
+    "oil and filter"
+   ],
+   "related": [],
+   "verbs": [
+    "rotate",
+    "rotates",
+    "rotated",
+    "replace",
+    "replaces",
+    "replaced",
+    "swap",
+    "swaps",
+    "swapped"
+   ],
+   "objects": [
+    "tires"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+   "source_task": "Perform routine and scheduled maintenance services, such as oil changes, lubrications, and tune-ups."
+  },
+  {
+   "canonical": "monthendclose",
+   "asks": [
+    "month-end close",
+    "month end close",
+    "managing the month-end close"
+   ],
+   "descriptions": [
+    "closed the books",
+    "closed the month",
+    "ran the month-end close"
+   ],
+   "related": [],
+   "verbs": [
+    "close",
+    "closes",
+    "closed",
+    "run",
+    "runs",
+    "ran"
+   ],
+   "objects": [
+    "the books",
+    "the month",
+    "month-end"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 13-2011.00 Accountants and Auditors",
+   "source_task": "Prepare, examine, or analyze accounting records, financial statements, or other financial reports to assess accuracy, completeness, and conformance to reporting and procedural stan"
+  },
+  {
+   "canonical": "ivmedications",
+   "asks": [
+    "iv medications",
+    "administering iv medications",
+    "intravenous medications"
+   ],
+   "descriptions": [
+    "started ivs",
+    "hung iv"
+   ],
+   "related": [],
+   "verbs": [
+    "hang",
+    "hangs",
+    "hung",
+    "start",
+    "starts",
+    "started",
+    "push",
+    "pushes",
+    "pushed"
+   ],
+   "objects": [
+    "ivs piggybacks",
+    "iv",
+    "peripheral lines"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 29-1141.03 Critical Care Nurses",
+   "source_task": "Administer medications intravenously, by injection, orally, through gastric tubes, or by other methods."
+  },
+  {
+   "canonical": "discovery",
+   "asks": [
+    "discovery responses",
+    "preparing discovery responses",
+    "responding to discovery"
+   ],
+   "descriptions": [
+    "answered interrogatories",
+    "responded to discovery"
+   ],
+   "related": [],
+   "verbs": [
+    "draft",
+    "drafts",
+    "drafted",
+    "answer",
+    "answers",
+    "answered",
+    "prepare",
+    "prepares",
+    "prepared"
+   ],
+   "objects": [
+    "interrogatories",
+    "document demands",
+    "document requests"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
+   "source_task": "Prepare, edit, or review legal documents, including legislation, briefs, pleadings, appeals, wills, contracts, and real estate closing statements."
+  },
+  {
+   "canonical": "routedispatch",
+   "asks": [
+    "route dispatching",
+    "driver routes",
+    "coordinating driver routes",
+    "routing and scheduling",
+    "route planning",
+    "dispatching"
+   ],
+   "descriptions": [
+    "assigned drivers",
+    "dispatched drivers",
+    "dispatched trucks",
+    "planned delivery routes"
+   ],
+   "related": [],
+   "verbs": [
+    "assign",
+    "assigns",
+    "assigned",
+    "dispatch",
+    "dispatches",
+    "dispatched",
+    "plan",
+    "plans",
+    "planned"
+   ],
+   "objects": [
+    "drivers trucks routes"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-5032.00 Dispatchers, Except Police, Fire, and Ambulance",
+   "source_task": "Schedule or dispatch workers, work crews, equipment, or service vehicles to appropriate locations, according to customer requests, specifications, or needs, using radios or telepho"
+  },
+  {
+   "canonical": "travelbooking",
+   "asks": [
+    "business travel",
+    "booking business travel",
+    "travel arrangements"
+   ],
+   "descriptions": [
+    "booked flights",
+    "booked travel",
+    "arranged travel"
+   ],
+   "related": [],
+   "verbs": [
+    "book",
+    "books",
+    "booked",
+    "find",
+    "finds",
+    "found",
+    "arrange",
+    "arranges",
+    "arranged"
+   ],
+   "objects": [
+    "flights hotels travel"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 43-6014.00 Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",
+   "source_task": "Arrange conference, meeting, or travel reservations for office personnel."
+  },
+  {
+   "canonical": "coldcalling",
+   "asks": [
+    "cold calling",
+    "outbound prospecting",
+    "prospecting"
+   ],
+   "descriptions": [
+    "made cold calls",
+    "cold called",
+    "make cold calls"
+   ],
+   "related": [],
+   "verbs": [
+    "make",
+    "makes",
+    "made"
+   ],
+   "objects": [
+    "cold calls"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 41-9041.00 Telemarketers",
+   "source_task": "Contact businesses or private individuals by telephone to solicit sales for goods or services, or to request donations for charitable causes."
+  },
+  {
+   "canonical": "pretrip",
+   "asks": [
+    "pre-trip inspections",
+    "pre trip inspections",
+    "completing pre-trip inspections",
+    "vehicle inspections"
+   ],
+   "descriptions": [
+    "inspected the truck",
+    "inspected my truck",
+    "walked around the rig"
+   ],
+   "related": [],
+   "verbs": [
+    "inspect",
+    "inspects",
+    "inspected",
+    "check",
+    "checks",
+    "checked"
+   ],
+   "objects": [
+    "the truck",
+    "my truck",
+    "the rig",
+    "the trailer"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 53-3032.00 Heavy and Tractor-Trailer Truck Drivers",
+   "source_task": "Check vehicles to ensure that mechanical, safety, and emergency equipment is in good working order."
+  },
+  {
+   "canonical": "ductwork",
+   "asks": [
+    "ductwork installation",
+    "installing ductwork",
+    "installing residential ductwork",
+    "duct installation"
+   ],
+   "descriptions": [
+    "installed ductwork",
+    "hung ductwork",
+    "ran ductwork"
+   ],
+   "related": [],
+   "verbs": [
+    "hang",
+    "hangs",
+    "hung",
+    "install",
+    "installs",
+    "installed",
+    "run",
+    "runs",
+    "ran"
+   ],
+   "objects": [
+    "ductwork ducts duct",
+    "sheet metal trunks",
+    "flex runs"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 47-2211.00 Sheet Metal Workers",
+   "source_task": "Fabricate ducts for high efficiency heating, ventilating, and air conditioning (HVAC) systems to maximize efficiency of systems."
+  },
+  {
+   "canonical": "claimrejections",
+   "asks": [
+    "insurance claim rejections",
+    "claim rejections",
+    "resolving insurance claim rejections",
+    "insurance claims",
+    "handle insurance claims"
+   ],
+   "descriptions": [
+    "resubmitted claims",
+    "fixed rejected claims",
+    "appealed denied claims"
+   ],
+   "related": [],
+   "verbs": [
+    "fix",
+    "fixes",
+    "fixed",
+    "resubmit",
+    "resubmits",
+    "resubmitted",
+    "appeal",
+    "appeals",
+    "appealed"
+   ],
+   "objects": [
+    "claims",
+    "rejected claims",
+    "denied claims"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 29-2052.00 Pharmacy Technicians",
+   "source_task": "Prepare and process medical insurance claim forms and records."
+  },
+  {
+   "canonical": "blueprintreading",
+   "asks": [
+    "blueprint reading",
+    "reading blueprints",
+    "read blueprints"
+   ],
+   "descriptions": [
+    "read blueprints",
+    "read drawings",
+    "worked from blueprints",
+    "worked from drawings"
+   ],
+   "related": [],
+   "verbs": [
+    "read",
+    "reads",
+    "follow",
+    "follows",
+    "followed"
+   ],
+   "objects": [
+    "blueprints drawings"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 47-2111.00 Electricians",
+   "source_task": "Prepare sketches or follow blueprints to determine the location of wiring or equipment and to ensure conformance to building and safety codes."
+  },
+  {
+   "canonical": "conduit",
+   "asks": [
+    "conduit bending",
+    "conduit installation",
+    "conduit bending and installation"
+   ],
+   "descriptions": [
+    "bent conduit",
+    "ran conduit",
+    "installed conduit",
+    "bent emt",
+    "shaped emt"
+   ],
+   "related": [],
+   "verbs": [
+    "bend",
+    "bends",
+    "bent",
+    "run",
+    "runs",
+    "ran",
+    "install",
+    "installs",
+    "installed",
+    "shape",
+    "shapes",
+    "shaped"
+   ],
+   "objects": [
+    "conduit"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 47-2111.00 Electricians",
+   "source_task": "Place conduit, pipes, or tubing, inside designated partitions, walls, or other concealed areas, and pull insulated wires or cables through the conduit to complete circuits between "
+  },
+  {
+   "canonical": "nonconformance",
+   "asks": [
+    "non-conformance reports",
+    "nonconformance reports",
+    "writing non-conformance reports"
+   ],
+   "descriptions": [
+    "wrote up defects",
+    "quarantined parts",
+    "quarantine the parts",
+    "documented defects"
+   ],
+   "related": [],
+   "verbs": [
+    "tag",
+    "tags",
+    "tagged",
+    "quarantine",
+    "quarantines",
+    "quarantined",
+    "document",
+    "documents",
+    "documented"
+   ],
+   "objects": [
+    "defects",
+    "failed parts"
+   ],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 51-9061.00 Inspectors, Testers, Sorters, Samplers, and Weighers",
+   "source_task": "Discard or reject products, materials, or equipment not meeting specifications."
+  },
+  {
+   "canonical": "mentalhealth",
+   "asks": [
+    "crisis intervention"
+   ],
+   "descriptions": [
+    "de-escalated patients",
+    "de-escalated clients"
+   ],
+   "related": [],
+   "verbs": [],
+   "objects": [],
+   "status": "source_checked",
+   "source": "O*NET 31.0 task statement, 21-1014.00 Mental Health Counselors",
+   "source_task": "Perform crisis interventions to help ensure the safety of the patients and others."
+  }
+ ]
+}

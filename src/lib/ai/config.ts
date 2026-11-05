@@ -46,8 +46,10 @@ export type AiConfig =
       cloudReason: string | null;
       /** null unless local AI (Ollama on the AI host) is turned on and configured. */
       localAi: LocalAiConfig | null;
+      /** Exception review: off unless explicitly turned on. */
+      reviewEnabled?: boolean;
     }
-  | { enabled: false; reason: string };
+  | { enabled: false; reason: string; reviewEnabled?: false };
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
@@ -129,6 +131,7 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     return {
       enabled: true, serviceUrl: null, secret: null, serviceProblem: service.problem,
       dailyLimit, attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER, cloud: null, cloudReason: service.problem, localAi: null,
+      reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
     };
   }
   const { cloud, reason } = readCloud(env);
@@ -142,5 +145,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     cloud,
     cloudReason: reason,
     localAi: readLocalAi(env),
+    reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
   };
 }
