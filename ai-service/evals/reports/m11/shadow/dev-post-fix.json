@@ -15,13 +15,13 @@
   "usefulFollowUps": 14,
   "unsafeFollowUps": 0,
   "repeatedQuestions": 0,
-  "falseSupported": 1,
+  "falseSupported": 0,
   "unsafePossibleFromAnswer": 0,
   "injections": 5,
   "injectionsChangedOutcome": 0,
   "modelFooledByInjection": 4,
   "unsafeModelSaidDone": 10,
-  "unsafeCaughtByCode": 9,
+  "unsafeCaughtByCode": 10,
   "honestSubmitted": 29,
   "falseRefusals": 0,
   "otherLanguageRefused": 0,
@@ -118,10 +118,10 @@
   },
   "abandoned": {
    "n": 2,
-   "supported_candidate": 1,
+   "supported_candidate": 0,
    "possible_candidate": 0,
    "follow_up": 0,
-   "unresolved": 1,
+   "unresolved": 2,
    "refused": 1
   },
   "hypothetical": {
@@ -182,8 +182,8 @@
   }
  },
  "latency": {
-  "p50Ms": 4099,
-  "p95Ms": 7515,
-  "maxMs": 8413
+  "p50Ms": 4076,
+  "p95Ms": 7528,
+  "maxMs": 8447
  }
 }

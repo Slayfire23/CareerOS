@@ -10,7 +10,7 @@ export type AnswerLanguage = "en" | "other" | "mixed" | "unknown";
 const LIST = (text: string) => new Set(text.split(/\s+/));
 
 /** Common English words, including the ordinary ones in descriptions of work. */
-const ENGLISH = LIST(`the a an and or but so if of to in on at by for from with without about into over under after before during between
+const ENGLISH = LIST(`yes yeah experience knowledge the a an and or but so if of to in on at by for from with without about into over under after before during between
 through per as than then that this these those there here it its i me my mine we us our ours you your he she they them their his her who whom which what when where why how
 is am are was were be been being have has had do does did can could will would should may might must shall not no never
 i've i'm i'd i'll we've we're we'd they're it's don't didn't doesn't haven't hasn't wasn't weren't can't won't
@@ -51,7 +51,8 @@ function readSentence(sentence: string): Reading {
   // A share of the letters, so a coworker's name or a place written in its own alphabet decides nothing.
   const otherAlphabet = letters.filter(m => !/\p{Script=Latin}/u.test(m[0])).length / letters.length;
   if (otherAlphabet >= MOSTLY_OTHER_ALPHABET) return "other";
-  const tokens = value.match(/[\p{Script=Latin}][\p{Script=Latin}'’]*/gu)?.map(t => t.replaceAll("’", "'")) ?? [];
+  // Whole words only. A name with digits in it ("Quuxflow5bd6") says nothing about the language, and it isn't many words.
+  const tokens = (value.split(/[\s,()/"“”]+/).map(t => t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "").replaceAll("’", "'"))).filter(t => /^[\p{Script=Latin}'-]+$/u.test(t));
   if (tokens.length < MIN_WORDS_TO_JUDGE) return "too_short";
   const english = tokens.filter(t => ENGLISH.has(t) || WORK_VERB_WORDS.has(t)).length;
   const other = tokens.filter(t => OTHER.has(t)).length;

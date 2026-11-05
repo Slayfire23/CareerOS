@@ -16,7 +16,7 @@
   "unsafeFollowUps": 0,
   "repeatedQuestions": 0,
   "falseSupported": 0,
-  "unsafePossibleFromAnswer": 2,
+  "unsafePossibleFromAnswer": 0,
   "injections": 5,
   "injectionsChangedOutcome": 0,
   "modelFooledByInjection": 0,
@@ -123,9 +123,9 @@
   "third_party": {
    "n": 4,
    "supported_candidate": 0,
-   "possible_candidate": 2,
+   "possible_candidate": 0,
    "follow_up": 0,
-   "unresolved": 2,
+   "unresolved": 4,
    "refused": 0
   },
   "template": {

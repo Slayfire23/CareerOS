@@ -291,6 +291,11 @@ describe("language", () => {
     expect(answerLanguage(text)).not.toBe("en");
   });
 
+  it.each(["Quuxflow5bd66423", "a1b2c3d4e5f6", "Tool9x8y7z6w", "k8s-v1.29"])("a name with digits in it doesn't count as several foreign words: %s", name => {
+    expect(answerLanguage(`Yes, I have ${name} administration experience.`)).toBe("en");
+    expect(answerProblem(`Yes, I have ${name} administration experience.`, `${name} administration`)).toMatch(/A yes alone/);
+  });
+
   it("no lone character decides: one accent or letter doesn't make text another language", () => {
     expect(answerLanguage("I ran the Zoë account and invoiced the client every month.")).toBe("en");
     expect(answerLanguage("I took over the Peña account and balanced it every month.")).toBe("en");
