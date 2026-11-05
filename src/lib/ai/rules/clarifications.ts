@@ -93,9 +93,11 @@ export function answerProblem(detail: string, requirementText: string): string |
   if (disguised(text)) return "This contains hidden or look-alike characters. Type it plainly.";
   // Kept as written and left unresolved, however it reads: the checks below only understand English, and
   // can't count words in a script without spaces.
-  if (hasDirectedText(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   const language = answerLanguage(text);
-  if (language === "other" || language === "mixed") return null;
+  if (language === "other") return null;
+  // An English instruction inside a mixed answer is turned away. Everything else in it is only unread.
+  if (language !== "unknown" && hasDirectedText(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
+  if (language === "mixed") return null;
   const looksLikeList = keywordDump(text) || labelledList(text);
   if (looksLikeList && (language === "en" || /^[\x00-\x7F]*$/.test(text))) return "Write this as a sentence about what you did, not a list of terms.";
   if (language === "unknown" && (looksLikeList || words(text).length >= MIN_WORDS)) return null;
