@@ -307,6 +307,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [ ] Not safe to enable. On the sealed check: 1 false Supported from a negated answer, third-party, vague, and injected answers reaching Possible, 7 of 9 attacks saved, 0 of 29 paraphrases at Supported. Blockers are listed in the report. Not tuned.
 - [x] Phase 4 safety remediation (rules-v14): saved-answer bypass closed, shared evidence boundary, English-only answer reading, table can't grant Supported until approved. See docs/MILESTONE_11_PHASE_4_REMEDIATION_REPORT.md.
 - [ ] Still not ready to enable: no independent evidence, honest paraphrases 0 of 18 on both new splits, hosted retention unverified.
+- [x] Milestone 11, Phase 5 design and shadow proof of concept: a local model reads answers, and code decides what that's worth. See docs/MILESTONE_11_PHASE_5_DESIGN.md. Not integrated.
+- [ ] Owner decisions on Phase 5: what a follow-up reply may do, whether the local model may read answers, and fixing the production reader findings.
 - [ ] Owner sign-off on the 42 equivalence groups (docs/EQUIVALENCE_REVIEW_PACKET.md); none are owner-reviewed yet.
 - [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
