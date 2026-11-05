@@ -146,7 +146,7 @@ for (const [name, config, remove] of [
 }
 
 it("an answer deleted while the model reads it leaves no record", async () => {
-  let release = (_: Response) => {};
+  let release: (value: Response) => void = () => {};
   vi.spyOn(globalThis, "fetch").mockImplementation(() => new Promise(resolve => { release = resolve; }));
   const a = await account(off);
   await addRoleDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, requirementIndex: 0, experienceId: a.role.id, detail: ANSWER, config: off });

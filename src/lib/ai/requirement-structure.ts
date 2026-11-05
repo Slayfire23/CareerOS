@@ -1,5 +1,5 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
-import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans, opensOnNamedOther, ownSpan } from "@/lib/ai/skill-relations";
+import { canonicalTerms, GENERIC_TERMS, VOCABULARY, HANDED_OFF, keywordDump, negatedSpans, opensOnNamedOther, ownSpan } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
 import { notAStatement, statesNotDoing, templateText } from "@/lib/ai/rules/profile-fields";
 
@@ -182,7 +182,7 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   const times = new Map<string, number>();
   for (const match of sentences) times.set(said(match[0]), (times.get(said(match[0])) ?? 0) + 1);
   for (const match of sentences) {
-    if (notAStatement(match[0]) || (times.get(said(match[0])) ?? 0) >= 3 || opensOnNamedOther(match[0].trim())) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    if (notAStatement(match[0]) || (times.get(said(match[0])) ?? 0) >= 3 || opensOnNamedOther(match[0].trim()) || HANDED_OFF.test(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
     // Someone else's part of a sentence is theirs, even with the person's own part after it.
     const own = ownSpan(match[0].trim());
     const offset = match[0].length - match[0].trimStart().length;

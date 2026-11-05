@@ -261,6 +261,8 @@ export function ownSpan(sentence: string, strict = false): [number, number] | nu
   return end > start ? [start, end] : null;
 }
 
+/** The work sits with someone else: "belongs to the platform squad", "happens on my colleague's side". */
+export const HANDED_OFF = /\bbelongs?\s+to\b|\bhappens?\s+on\s+(?:my|our|the|their)\b/i;
 /** Past forms that don't end in -ed, at the start of a line about the work. */
 export const IRREGULAR_PAST = new Set("kept drove ran wrote built made led taught drew sold bought held sent set cut spent paid took gave found told did met read bent hung dug fit won rode swept laid put began shot stood understood".split(" "));
 /** A person or department doing it, named first, with no "I" anywhere: "Marcy administers Salesforce",
@@ -543,13 +545,14 @@ const REQUIRED_LEVELS: [number, RegExp][] = [
 export const PROFICIENCY_RANK: Record<string, number> = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
 
 const CREDENTIAL_NOUN = "clearances?|permits?|permitting|licen[cs]es?|licen[cs]ing|certificates?|certifications?|registrations?";
-const PAPERWORK_NOUN = "documentation|documents?|paperwork|processing|applications?|filings?|tracking|renewals?|management|administration|compliance|coordination|procedures?|requests?|intake|audits?|records?|packets?|forms?|submissions?";
+const PAPERWORK_NOUN = "verifications?|documentation|documents?|paperwork|processing|applications?|filings?|tracking|renewals?|management|administration|compliance|coordination|procedures?|requests?|intake|audits?|records?|packets?|forms?|submissions?";
 const PAPERWORK_USES = [
   new RegExp(`\\b(?:${CREDENTIAL_NOUN})\\s+(?:[\\p{L}-]+\\s+)?(?:${PAPERWORK_NOUN})\\b`, "giu"),
   new RegExp(`\\b(?:processing|filing|tracking|preparing|issuing|pulling|submitting|managing|administering|renewing|reviewing|auditing|handling)\\s+(?:[\\p{L}-]+\\s+){0,3}?(?:${CREDENTIAL_NOUN})\\b`, "giu"),
   /\bcertificates?\s+of\s+(?:insurance|occupancy|origin|compliance|analysis|conformance)\b/giu,
   /\b(?:customs|freight|cargo|shipment|port|border|import|export|site|land|title)\s+clearance\b/giu,
   /\b(?:registered|certified)\s+mail\b/giu,
+  /\bregistered\s+agent\b/giu,
 ];
 /** "Customs clearance documentation" and "Filing building permits" are work. Nothing here asks anyone to hold anything. */
 export const withoutPaperworkUses = (text: string) => PAPERWORK_USES.reduce((value, pattern) => value.replace(pattern, " "), text);

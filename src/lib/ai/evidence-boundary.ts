@@ -2,7 +2,7 @@ import { answerLanguage } from "@/lib/ai/answer-language";
 import type { Evidence } from "@/lib/ai/evidence";
 import { answerUntrustedSpans, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { notAStatement, ownClauses, ownNegative } from "@/lib/ai/rules/profile-fields";
-import { IRREGULAR_PAST, keywordDump, labelledList, opensOnNamedOther, ownSpan, someoneElsesWork, WORK_VERB_WORDS } from "@/lib/ai/skill-relations";
+import { HANDED_OFF, IRREGULAR_PAST, keywordDump, labelledList, opensOnNamedOther, ownSpan, someoneElsesWork, WORK_VERB_WORDS } from "@/lib/ai/skill-relations";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
 // The one place text is cleared before it can count. Resume and profile text goes through the checks that
@@ -27,12 +27,13 @@ export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRu
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plainly a brief try, however it's described: a weekend, a sample, a trial, a look around, then gone. */
-const BRIEF_TRY = /\b(?:one|last|over\s+a)\s+weekend\b|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends)\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends)\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
 /** Trying something is related to doing it, at most. */
 const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
 /** Being in the room isn't doing it, and starting and stopping isn't either. */
 const NOT_DOING = /\b(?:attended|read\s+about|heard\s+about|learned\s+about|watched|observed|shadowed|sat\s+in|had\s+a\s+go|gave\s+it\s+a\s+(?:go|try|shot)|got\s+part\s*way|partway\s+through|handed\s+it\s+off|outside\s+my\s+scope)\b/i;
 /** Someone else's work, in the passive: "handled by our billing office", "is outsourced". */
+const SOMEONE_ELSE_MIDWAY = /\bthe\s+[\p{L}-]+\s+(?:does|do|handles?|runs?|owns?|manages?)\b/iu;
 const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|\bgo(?:es)?\s+(?:through|to)\s+(?:\p{Lu}|our|the|their|another)|\b(?:bring\s+in|brought\s+in|hire|hired|pay|paid|use|used|outsource\s+to|contract\s+with)\s+(?:an?\s+)?(?:outside\s+|external\s+|third[-\s]party\s+)?(?:firm|agency|vendor|contractor|consultant|company)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
 
 /** What can come before "I" and only set the scene: "Each morning I...", "When reports slow down I...". */
@@ -97,13 +98,13 @@ export function answerStatements(detail: string): Statement[] {
   // An answer with an instruction in it gets no credit at all, however good the rest looks.
   if (answerLanguage(detail) !== "en" || hasDirectedText(detail)) return [];
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
-  if (BRIEF_TRY.test(detail) || /\bgave\s+up\b/i.test(detail)) return [];
+  if (BRIEF_TRY.test(detail) || /\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\bnot\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b/i.test(detail)) return [];
   const barred = untrustedSpans(detail, "answer");
   const out: Statement[] = [];
   for (const match of detail.matchAll(/[^.!?;\n]+/g)) {
     const whole = match[0].trim();
     const wholeStart = match.index + match[0].indexOf(whole);
-    if (DONE_ELSEWHERE.test(whole) || opensOnNamedOther(whole, true)) continue;
+    if (HANDED_OFF.test(whole) || DONE_ELSEWHERE.test(whole) || opensOnNamedOther(whole, true) || (!SUBJECT_AT.test(whole) && SOMEONE_ELSE_MIDWAY.test(whole))) continue;
     const span = ownSpan(whole, true);
     if (!span) continue;
     // "Property claims keep the office busy, and I've picked up a good sense of it": the part naming the
@@ -115,7 +116,7 @@ export function answerStatements(detail: string): Statement[] {
     const start = wholeStart + whole.indexOf(text, span[0]);
     const end = start + text.length;
     if (text.length < 3 || barred.some(([s, e]) => s < end && start < e)) continue;
-    if (ownNegative(whole) || HYPOTHETICAL.test(whole) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
+    if (ownNegative(whole) || HYPOTHETICAL.test(ownClauses(whole)) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
     if (someoneElsesWork(text, text)) continue;
     out.push({ text, start, ...readAct(text), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text) });
   }

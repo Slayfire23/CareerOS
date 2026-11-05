@@ -216,12 +216,20 @@ describe("follow-up replies", () => {
     ["praise", "I'm a hard worker and a real team player on every crew I join."],
     ["yes, though", "Yeah it's the same, although I only ever went up on the roof when a tenant complained."],
     ["a credential in place of work", "I hold an EPA 608 card, so that covers it."],
+    ["an exam in place of work", "I passed the bar in Ohio, which answers it."],
+    ["only presses the button", "Yes, same, but I only press cycle start on what the engineer loads for me."],
+    ["takes it back", "Yes that's me, though really the audit vendor did all that and I only skimmed their summary."],
+    ["only part", "Only some of it. I paired with them twice a week and reviewed their pull requests."],
   ])("%s stays unresolved", (_name, text) => {
     expect(reply(text)).toMatchObject({ outcome: "unresolved", quote: null });
   });
 
   it.each(["Journeyman plumber license", "5+ years soldering copper pipe"])("a credential or time can't come from a reply: %s", requirement => {
     expect(reply("I cut the copper, clean each fitting with emery cloth, heat it with a propane torch, and feed in lead-free wire.", requirement)).toMatchObject({ outcome: "unresolved", reason: "credential_or_time" });
+  });
+
+  it("a no-show isn't a no", () => {
+    expect(reply("Yes it's the same. I set the pacing at 25 covers per half hour and overbooked based on our no-show history for the room.", "Reservation management").outcome).toBe("possible_candidate");
   });
 
   it("saying yes first doesn't spoil a specific reply", () => {

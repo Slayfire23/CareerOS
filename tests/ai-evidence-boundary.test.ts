@@ -46,6 +46,9 @@ const UNSAFE: [string, string, string][] = [
   ["third party, pronoun", "Snowflake", "She loads everything into Snowflake on Fridays."],
   ["third party, goes to someone", "Pharmacy compounding", "Compounding at our pharmacy goes to Denise in the back room. I'm up front on the register."],
   ["third party, hired out", "Penetration testing", "We bring in an outside firm for penetration testing once a year, and I forward their report to leadership."],
+  ["third party, belongs to", "Release management", "Release management belongs to the platform squad next to us. They tell us when a build is coming."],
+  ["third party, mid-sentence", "Anesthesia monitoring", "In my OR the CRNA does anesthesia monitoring. I'm at the back table passing instruments."],
+  ["third party, on their side", "Driver development", "Driver development happens on my colleague's side of the house. I only use the headers."],
   ["third party, goes through", "Salesforce", "Salesforce changes go through Hollis Partners and their admin group."],
   ["third party, gets done by", "Pipe fitting", "Pipe fitting gets done by the crew. Ramon sets it up and then it moves along."],
   ["negated", "Terraform", "I haven't written any Terraform, only read it in code reviews."],
@@ -53,6 +56,8 @@ const UNSAFE: [string, string, string][] = [
   ["abandoned", "Appium", "We trialed Appium for a week but dropped it before I ever wrote a script."],
   ["abandoned, other words", "Datadog", "We started a Datadog rollout, and the pilot was cancelled before I got to it."],
   ["abandoned, gave up", "iOS development", "Started an iOS development side project in Swift a while back and gave up after the login screen."],
+  ["abandoned, quit", "Tile setting", "I took on a small bathroom tile setting job, hung the backer board, then quit before a single tile went on. Not for me."],
+  ["abandoned, stopped there", "Cabinet installation", "I began a cabinet installation at my sister's place, got the old boxes pulled out, and stopped there."],
   ["abandoned, had a go", "Grant writing", "Had a go at one grant writing project, got partway through and handed it off."],
   ["only attended", "Grant writing", "Attended the first morning of a grant writing seminar and then left at lunch."],
   ["hypothetical", "Grafana", "I could set up Grafana dashboards if needed, it looks easy to pick up."],
@@ -214,11 +219,12 @@ describe("the four production findings", () => {
     ["Trial preparation", "I prepare trial binders and witness files for each hearing the partners take."],
     ["Excel", "Once the month closes I build the variance report in Excel for the controller."],
     ["Salesforce", "Over the weekend shift I administered Salesforce for our call center."],
+    ["Data migration", "I did the data migration over a weekend cutover, writing the transformation scripts myself."],
   ])("real work with a similar-sounding word still counts: %s", (text, detail) => {
     expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
   });
 
-  it.each(["Customs clearance documentation", "Filing building permits", "Software license management", "Tracking certificates of insurance", "Business license renewals", "Registered mail handling", "Permit applications"])("%s is work, not a credential", text => {
+  it.each(["Professional license verification", "Registered agent filings", "Customs clearance documentation", "Filing building permits", "Software license management", "Tracking certificates of insurance", "Business license renewals", "Registered mail handling", "Permit applications"])("%s is work, not a credential", text => {
     expect(needsCredentialEntry(text)).toBe(false);
     expect(asksForCredential(text)).toBe(false);
     expect(hasQualificationWords(text)).toBe(false);
@@ -236,6 +242,7 @@ describe("the four production findings", () => {
     ["Tableau", "I build Tableau dashboards for the sales VPs, and redo the charts whenever they can't read them at a glance."],
     ["Zendesk", "Customers can't log in, so I reset their accounts in Zendesk every morning."],
     ["Cold calling", "I work a list of companies who've never bought from us, and I do cold calling every day."],
+    ["Pediatric vaccinations", "I give pediatric vaccinations all day long, including to kids who won't sit still and parents who don't want to stay."],
     ["Invoice matching", "At month end I did invoice matching against the POs, then chased down whatever didn't line up."],
     ["Boiler maintenance", "When the boilers won't fire I do boiler maintenance on the burner and the controls."],
   ])("a negative about someone else doesn't reject the person's own work: %s", (text, detail) => {
