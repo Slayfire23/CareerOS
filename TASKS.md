@@ -305,7 +305,9 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Milestone 11, Phase 3: rules-v12 fixes for six false Supported patterns, a conservative language gate, shadow-layer corrections. See docs/MILESTONE_11_PHASE_3_REPORT.md.
 - [x] Milestone 11, Phase 4 (rules-v13): clarification-first review behind `CLARIFICATION_REVIEW_ENABLED`, off by default. See docs/MILESTONE_11_PHASE_4_REPORT.md.
 - [ ] Not safe to enable. On the sealed check: 1 false Supported from a negated answer, third-party, vague, and injected answers reaching Possible, 7 of 9 attacks saved, 0 of 29 paraphrases at Supported. Blockers are listed in the report. Not tuned.
-- [ ] Owner sign-off on the 42 equivalence groups; none are owner-reviewed yet.
+- [x] Phase 4 safety remediation (rules-v14): saved-answer bypass closed, shared evidence boundary, English-only answer reading, table can't grant Supported until approved. See docs/MILESTONE_11_PHASE_4_REMEDIATION_REPORT.md.
+- [ ] Still not ready to enable: no independent evidence, honest paraphrases 0 of 18 on both new splits, hosted retention unverified.
+- [ ] Owner sign-off on the 42 equivalence groups (docs/EQUIVALENCE_REVIEW_PACKET.md); none are owner-reviewed yet.
 - [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
 - [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000, 20261103010000, 20261104010000. Needs approval.

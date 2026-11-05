@@ -15,7 +15,6 @@ import {
   currentMonth,
   evidenceFingerprint,
   type AnalysisProvider,
-  type Evidence,
   type MatchRequest,
   type MatchRequirement,
   type Verdict,

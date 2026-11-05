@@ -91,9 +91,13 @@ export function answerProblem(detail: string, requirementText: string): string |
   const text = detail.trim();
   if (text.length > DETAIL_MAX) return `Keep this to ${DETAIL_MAX} characters.`;
   if (disguised(text)) return "This contains hidden or look-alike characters. Type it plainly.";
-  if (keywordDump(text) || labelledList(text)) return "Write this as a sentence about what you did, not a list of terms.";
-  // Kept as written and left unresolved, however it reads: the checks below only understand English.
-  if (answerLanguage(text) !== "en" && words(text).length >= MIN_WORDS) return null;
+  // Kept as written and left unresolved, however it reads: the checks below only understand English, and
+  // can't count words in a script without spaces.
+  const language = answerLanguage(text);
+  if (language === "other" || language === "mixed") return null;
+  const looksLikeList = keywordDump(text) || labelledList(text);
+  if (looksLikeList && (language === "en" || /^[\x00-\x7F]*$/.test(text))) return "Write this as a sentence about what you did, not a list of terms.";
+  if (language === "unknown" && (looksLikeList || words(text).length >= MIN_WORDS)) return null;
   const all = words(text);
   const asked = new Set(words(requirementText));
   const specific = all.filter(w => !SAYS_NOTHING.has(w) && !GENERIC_TERMS.has(w) && !asked.has(w));

@@ -268,7 +268,7 @@ export const IRREGULAR_PAST = new Set("kept drove ran wrote built made led taugh
  * `strict` is for answers. */
 export function opensOnNamedOther(sentence: string, strict = false): boolean {
   if (/(?:^|[^\p{L}'’])(?:[Ii]|[Ww]e)(?:['’]\p{L}+)?\s/u.test(sentence)) return false;
-  const match = sentence.match(/^\W*(\p{Lu}[\p{L}'’-]*)\s+(?:(?:at|in|from|of)\s+(?:\p{L}+\s+){1,3})?(\p{Ll}{3,}[^s\W]s)\b(\s+(?:the|all|those|these|that|them|it|our|my|every|any)\b)?/u);
+  const match = sentence.match(/^\W*(\p{Lu}[\p{L}'’-]*)\s+(?:(?:at|in|from|of)\s+(?:\p{L}+\s+){1,3})?(\p{Ll}{2,}[^s\W]s)\b(\s+(?:the|all|those|these|that|them|it|our|my|every|any)\b)?/u);
   if (!match) return false;
   // Resume fragments read like this ("Internal services over gRPC"), so a profile needs the clearer form.
   if (!strict && !match[3]) return false;

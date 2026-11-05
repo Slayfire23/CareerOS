@@ -115,6 +115,7 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
     await page.locator("summary", { hasText: "Edit" }).first().click();
     await editing.getByLabel("Your answer").fill(original);
     await editing.getByRole("button", { name: "Save and check again", exact: true }).click();
+    await expect(editing.getByRole("status")).toContainText("Saved to your profile");
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
     await expect(finding.getByText("Supported — Self-reported", { exact: true })).toBeVisible();

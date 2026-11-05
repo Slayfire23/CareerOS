@@ -21,27 +21,28 @@ export const isAnswerEvidence = (item: Evidence) => item.kind === "experience" &
 /** What the rules engine may read. Answers reach a verdict only through the answer reader. */
 export const evidenceForRules = (evidence: Evidence[]) => evidence.filter(item => !isAnswerEvidence(item));
 /** What any AI provider may receive: no answers, and no field that says where something came from. */
-export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRules(evidence).map(item => {
-  if (!("source" in item)) return item;
-  const { source: _source, ...rest } = item;
-  return rest as Evidence;
-});
+export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRules(evidence)
+  .map(item => ("source" in item ? (Object.fromEntries(Object.entries(item).filter(([key]) => key !== "source")) as Evidence) : item));
 
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plain English negatives anywhere in a sentence. Stricter than the profile check, on purpose. */
 const NEGATIVE = /\b(?:no|not|never|none|without|nothing|cannot|neither|nor)\b|n['’]t\b/i;
-/** Seeing or trying something is related to doing it, at most. */
-const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|read\s+about|heard\s+about|learned\s+about|watched|observed|shadowed|attended|sat\s+in|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
+/** Trying something is related to doing it, at most. */
+const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
+/** Being in the room isn't doing it, and starting and stopping isn't either. */
+const NOT_DOING = /\b(?:attended|read\s+about|heard\s+about|learned\s+about|watched|observed|shadowed|sat\s+in|had\s+a\s+go|gave\s+it\s+a\s+(?:go|try|shot)|got\s+part\s*way|partway\s+through|handed\s+it\s+off|outside\s+my\s+scope)\b/i;
 /** Someone else's work, in the passive: "handled by our billing office", "is outsourced". */
-const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent)\s+by\s+(?:our|the|my|their|a|an|another|someone|other)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/i;
+const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|\bgo(?:es)?\s+through\s+(?:\p{Lu}|our|the|their|another)|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
 
-const OWN_CLAUSE_AFTER = /(?:[,:;]\s*|\b(?:and|so|then|but|while|when|where|before|after)\s+)(?=(?:i|we)(?:['’](?:ve|m|d))?\s)/iu;
+/** What can come before "I" and only set the scene: "Each morning I...", "When reports slow down I...". */
+const FRAMING = /^\W*(?:when|whenever|before|after|once|if|as|at|in|on|for|during|since|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
+const SUBJECT_AT = /(?:^|[^\p{L}'’])(?:i|we)(?:['’](?:ve|m|d|ll))?\s/iu;
 const FIRST_PERSON = /(?:^|[^\p{L}'’])(i|we)(?:['’](ve|m|d|ll))?\s+(.+)$/iu;
 const AUXILIARY = new Set("have has had am is are was were be been being also always usually often regularly routinely personally just then still currently mostly mainly primarily now daily weekly really actually definitely".split(" "));
 const BE = new Set("am is are was were be been being".split(" "));
 /** Verbs and words that say someone's near a thing, not what they did with it. */
-const SAYS_LITTLE = new Set(`know knew understand understood like love enjoy want wish hope think believe feel seem seems look looked looking try tried care deal dealt help helped helps
+const SAYS_LITTLE = new Set(`yes yeah yep sure definitely absolutely plenty had has have know knew understand understood like love enjoy want wish hope think believe feel seem seems look looked looking try tried care deal dealt help helped helps
 assist assisted support supported around get got go went see saw seen hear heard done familiar experienced good great strong real a an the my our some lots lot plenty many
 involved exposure touch touched years year months experience knowledge`.split(/\s+/));
 const WORKED = new Set(["worked", "work", "works", "working"]);
@@ -66,8 +67,8 @@ function readAct(sentence: string): { subject: Statement["subject"]; act: Statem
     if (WORKED.has(head)) return { subject: "self", act: "worked" };
     if (SAYS_LITTLE.has(head)) return { subject: "self", act: "says_little" };
     if (WORK_VERB_WORDS.has(head) || IRREGULAR_PAST.has(head) || /(?:ed|ing)$/.test(head)) return { subject: "self", act: "concrete" };
-    // "Excel is a real strength" describes the thing, not any work on it.
-    if (tokens.slice(1, 5).some(t => BE.has(t))) return { subject: "unclear", act: "says_little" };
+    // "Excel is a real strength" describes the thing, not any work on it. "Solid Excel background" says less.
+    if (tokens.slice(1, 5).some(t => BE.has(t)) || /\b(?:experience|background|familiarity|knowledge)\b/i.test(sentence)) return { subject: "unclear", act: "says_little" };
     return { subject: "unclear", act: "concrete" };
   }
   const subject = first[1].toLowerCase() === "i" ? "self" : "team";
@@ -100,15 +101,16 @@ export function answerStatements(detail: string): Statement[] {
     if (DONE_ELSEWHERE.test(whole) || opensOnNamedOther(whole, true)) continue;
     const span = ownSpan(whole, true);
     if (!span) continue;
-    // "Patching is so critical and I keep a close eye on it": the part that names the thing isn't the part
-    // saying what was done. Only the clause with the person in it counts.
-    const describing = /^\W*(?:[\p{L}'’-]+\s+){1,4}(?:is|are|was|were)\b/iu.test(whole.slice(span[0])) ? OWN_CLAUSE_AFTER.exec(whole.slice(span[0])) : null;
-    if (describing) span[0] += describing.index + describing[0].length;
+    // "Property claims keep the office busy, and I've picked up a good sense of it": the part naming the
+    // thing isn't the part saying what was done. Only the clause with the person in it counts.
+    const own = whole.slice(span[0]);
+    const subject = SUBJECT_AT.exec(own);
+    if (subject && subject.index > 0 && !FRAMING.test(own)) span[0] += subject.index + subject[0].search(/\p{L}/u);
     const text = whole.slice(span[0], span[1]).trim();
     const start = wholeStart + whole.indexOf(text, span[0]);
     const end = start + text.length;
     if (text.length < 3 || barred.some(([s, e]) => s < end && start < e)) continue;
-    if (NEGATIVE.test(whole) || hasNegation(whole) || HYPOTHETICAL.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
+    if (NEGATIVE.test(whole) || hasNegation(whole) || HYPOTHETICAL.test(whole) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
     if (someoneElsesWork(text, text)) continue;
     out.push({ text, start, ...readAct(text), exposureOnly: EXPOSURE.test(whole) });
   }
