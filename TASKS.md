@@ -308,7 +308,8 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Phase 4 safety remediation (rules-v14): saved-answer bypass closed, shared evidence boundary, English-only answer reading, table can't grant Supported until approved. See docs/MILESTONE_11_PHASE_4_REMEDIATION_REPORT.md.
 - [ ] Still not ready to enable: no independent evidence, honest paraphrases 0 of 18 on both new splits, hosted retention unverified.
 - [x] Milestone 11, Phase 5 design and shadow proof of concept: a local model reads answers, and code decides what that's worth. See docs/MILESTONE_11_PHASE_5_DESIGN.md. Not integrated.
-- [ ] Owner decisions on Phase 5: what a follow-up reply may do, whether the local model may read answers, and fixing the production reader findings.
+- [x] Phase 5 production fixes (rules-v15) and local shadow run behind INTERPRETATION_SHADOW_ENABLED, off by default. See docs/MILESTONE_11_PHASE_5_SHADOW_REPORT.md.
+- [ ] Follow-up flow: reply rules are written and evaluated, but no question is shown and no reply reaches a verdict. Needs approval, a fix for a known contradictory reply, and a new evaluation.
 - [ ] Owner sign-off on the 42 equivalence groups (docs/EQUIVALENCE_REVIEW_PACKET.md); none are owner-reviewed yet.
 - [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.

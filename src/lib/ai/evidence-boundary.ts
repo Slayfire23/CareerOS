@@ -8,7 +8,7 @@ import { hasDirectedText } from "@/lib/ai/untrusted-text";
 // The one place text is cleared before it can count. Resume and profile text goes through the checks that
 // apply to it; an answer goes through those and more, because it's written in reply to a question and could
 // otherwise be shaped to fit one. An answer is never ordinary role text: the engine doesn't read it, no AI
-// provider receives it, and it's read again from scratch on every analysis, so what was saved earlier gets
+// provider receives it (local shadow testing has its own route, and decides nothing), and it's read again from scratch on every analysis, so what was saved earlier gets
 // no standing from having been saved.
 
 export type TextOrigin = "profile" | "answer";
