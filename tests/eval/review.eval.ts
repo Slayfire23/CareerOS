@@ -29,10 +29,15 @@ const expand = (short: string) => `${short.split(":")[0]}:00000000-0000-4000-800
 const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] ?? 0;
 const RANK: Record<Verdict, number> = { insufficient_information: 0, gap: 0, possible: 1, supported: 2 };
 const matched = (v: Verdict) => v === "supported" || v === "possible";
+// REVIEW_MODE=off: the question flow, with no denial. REVIEW_APPROVED=1: as if the owner approved every group.
+const FLAG_OFF = process.env.REVIEW_MODE === "off";
+const OPTIONS = { assumeApproved: process.env.REVIEW_APPROVED === "1" };
+const UNSAFE = new Set(["third_party", "negated", "abandoned", "hypothetical", "quoted_instruction", "injection", "vague", "vague_confirmation"]);
+const NOT_READ = new Set(["non_english_honest", "mixed_language"]);
 
 function run(requirements: MatchRequirement[], evidence: Evidence[], answers: LinkedAnswer[], asOf: string) {
   const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: asOf, requirements, evidence, ...(answers.length ? { linked_answers: answers } : {}) };
-  const body = rulesResponse(request, { provider: "rules", model: null, methodVersion: RULES_VERSION }, f => applyAnswers(request, f, answers, keyForRequirement));
+  const body = rulesResponse(request, { provider: "rules", model: null, methodVersion: RULES_VERSION }, f => applyAnswers(request, f, answers, keyForRequirement, OPTIONS));
   return validateMatchResponse(request, JSON.parse(JSON.stringify(body)), { provider: "rules", model: null }).findings;
 }
 
@@ -47,6 +52,7 @@ it("review evaluation", { timeout: 300_000 }, () => {
     truly: 0, trulyMissedBefore: 0, recoveredPossibleOrBetter: 0, recoveredSupported: 0, stillMissed: 0,
     questionsTotal: 0, questionsFirstScreen: [] as number[], answeredQuestions: 0, questionsResolved: 0, questionsMovedToSupportedOrNot: 0,
     honestSubmitted: 0, honestRefused: 0, vagueSubmitted: 0, vagueAccepted: 0, attacks: 0, attacksMovedVerdict: 0, attacksSaved: 0,
+    unsafeMoved: 0, unsafeToSupported: 0, injectionsMoved: 0, otherLanguageMoved: 0, otherLanguageRefused: 0, honestLegit: 0, honestRecoveredPossibleOrBetter: 0, honestRecoveredSupported: 0, profileVerdictsChanged: 0,
     invalidCitations: 0, repeatsPossible: 0, repeatsAvoided: 0, repeatsAskedAnyway: 0, differentQuestions: 0, wronglySuppressed: 0, notAskedOverLimit: 0,
   };
   const byType: Record<string, { n: number; acceptable: number; supported: number; falseSupported: number; before: number }> = {};
@@ -80,7 +86,9 @@ it("review evaluation", { timeout: 300_000 }, () => {
       }
       t.answeredQuestions++;
       const honest = scripted.type.startsWith("honest");
-      if (scripted.action === "deny") {
+      if (scripted.action === "deny" && FLAG_OFF) {
+        covered.forEach(k => skipped.add(k));
+      } else if (scripted.action === "deny") {
         covered.forEach(k => { answers.push({ action: "deny", questionKey: k }); answered.add(k); });
       } else if (scripted.credential) {
         const problem = entryProblem(scripted.credential.qualification, asOf, scripted.credential.end_month);
@@ -99,6 +107,7 @@ it("review evaluation", { timeout: 300_000 }, () => {
         const role = evidence.find(e => e.id === (scripted.experience_id ? expand(scripted.experience_id) : "")) ?? evidence.find(e => e.kind === "experience");
         if (problem || !role || role.kind !== "experience") {
           if (honest && problem) t.honestRefused++;
+          if (NOT_READ.has(scripted.type) && problem) t.otherLanguageRefused++;
           if (!sealed && honest && problem) rows.push({ refused: job.id, detail, problem });
           covered.forEach(k => skipped.add(k));
         } else {
@@ -141,6 +150,17 @@ it("review evaluation", { timeout: 300_000 }, () => {
           if (a === "supported") t.recoveredSupported++;
           if (!matched(a)) t.stillMissed++;
         }
+      }
+      if (r.answer && UNSAFE.has(r.answer.type) && RANK[a] > RANK[b]) {
+        t.unsafeMoved++;
+        if (a === "supported") t.unsafeToSupported++;
+        if (r.answer.type === "injection") t.injectionsMoved++;
+      }
+      if (r.answer && NOT_READ.has(r.answer.type) && a !== b) t.otherLanguageMoved++;
+      if (r.answer?.type.startsWith("honest")) {
+        t.honestLegit++;
+        if (matched(a)) t.honestRecoveredPossibleOrBetter++;
+        if (a === "supported") t.honestRecoveredSupported++;
       }
       if (r.answer?.type === "injection") {
         t.attacks++;

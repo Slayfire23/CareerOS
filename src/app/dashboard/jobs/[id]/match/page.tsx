@@ -10,7 +10,8 @@ import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
 import type { AiStatus, RuleBasis, Suggestion, SuggestionKind } from "@/lib/ai/match-validation";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
 import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
-import { ClarificationPanel, TakeBackForm } from "@/components/job-clarification";
+import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
+import { ClarificationPanel, EditAnswerForm, TakeBackForm } from "@/components/job-clarification";
 import { AnswerControls, ReviewQuestions } from "@/components/job-review-panel";
 import { clarificationFor } from "@/lib/ai/rules/clarifications";
 import terminology from "@/lib/ai/rules/data/terminology.json";
@@ -161,6 +162,7 @@ function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnT
         {review.answers.map(a => <li key={a.id} className="space-y-1 py-2">
           <p className="text-xs font-medium text-muted">{dateTime.format(a.createdAt)} · {a.requirementText}{a.status === "REVOKED" ? " · Revoked, no longer counts" : ""}</p>
           <p className="break-words">{a.outcome === "DENIED" ? "You said you don't have this." : a.detail ?? a.qualification}{a.roleTitle && <span className="text-muted"> ({a.roleTitle})</span>}</p>
+          {a.detail && a.status === "ACTIVE" && answerLanguage(a.detail) !== "en" && <p className="text-xs text-muted">{LANGUAGE_NOTE}</p>}
           <AnswerControls clarificationId={a.id} detail={a.outcome === "ROLE_DETAIL_ADDED" ? a.detail : null} label={`answer about ${a.requirementText}`} status={a.status} />
         </li>)}
       </ul>
@@ -297,11 +299,13 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
 
     {!data.review && data.answers.length > 0 && <Card className="space-y-3">
       <h2 className="text-lg font-semibold">Answers you&apos;ve added</h2>
-      <p className="text-sm text-muted">These are part of your profile and count for every job. They&apos;re self-reported, and you can remove them at any time.</p>
+      <p className="text-sm text-muted">Each counts only for the requirement it answers, on any job. They&apos;re self-reported, and you can edit or delete them at any time.</p>
       <ul className="divide-y text-sm">
         {data.answers.map(answer => <li key={answer.id} className="space-y-1 py-2">
           <p className="text-xs font-medium text-muted">Added {dateTime.format(answer.createdAt)} about: {answer.requirementText}</p>
           <p className="break-words">{answer.detail ?? answer.qualification}{answer.roleTitle && <span className="text-muted"> ({answer.roleTitle})</span>}</p>
+          {answer.detail && answerLanguage(answer.detail) !== "en" && <p className="text-xs text-muted">{LANGUAGE_NOTE}</p>}
+          {answer.detail && <EditAnswerForm clarificationId={answer.id} detail={answer.detail} label={`answer about ${answer.requirementText}`} />}
           <TakeBackForm clarificationId={answer.id} label={`answer about ${answer.requirementText}`} />
         </li>)}
       </ul>

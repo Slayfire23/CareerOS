@@ -1,5 +1,5 @@
 import structure from "@/lib/ai/rules/data/requirement_structure.json";
-import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans } from "@/lib/ai/skill-relations";
+import { canonicalTerms, GENERIC_TERMS, VOCABULARY, keywordDump, negatedSpans, opensOnNamedOther, ownSpan } from "@/lib/ai/skill-relations";
 import { directedSpans, evaluatorDirected, segments } from "@/lib/ai/untrusted-text";
 import { notAStatement, templateText } from "@/lib/ai/rules/profile-fields";
 
@@ -182,7 +182,12 @@ export function untrustedEvidenceSpans(text: string): Span[] {
   const times = new Map<string, number>();
   for (const match of sentences) times.set(said(match[0]), (times.get(said(match[0])) ?? 0) + 1);
   for (const match of sentences) {
-    if (notAStatement(match[0]) || (times.get(said(match[0])) ?? 0) >= 3) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    if (notAStatement(match[0]) || (times.get(said(match[0])) ?? 0) >= 3 || opensOnNamedOther(match[0].trim())) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    // Someone else's part of a sentence is theirs, even with the person's own part after it.
+    const own = ownSpan(match[0].trim());
+    const offset = match[0].length - match[0].trimStart().length;
+    if (!own) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    else if (own[0] > 0) spans.set(`${match.index}:${match.index + offset + own[0]}`, [match.index, match.index + offset + own[0]]);
   }
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
@@ -201,6 +206,10 @@ export function answerUntrustedSpans(text: string): Span[] {
     if (keywordDump(match[0]) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
   }
   if (templateText(text)) spans.set(`0:${text.length}`, [0, text.length]);
+  // Quoted words are someone else's, as they are in a profile.
+  for (const match of text.matchAll(/["“”«»]([^"“”«»]{20,})["“”«»]|(?<![\p{L}\p{N}])'([^']{20,})'(?![\p{L}\p{N}])/gu)) {
+    spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+  }
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 

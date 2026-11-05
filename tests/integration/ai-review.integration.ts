@@ -41,8 +41,8 @@ async function account(requirements: { text: string; category: string }[], confi
 const latest = (userId: string, jobId: string) => prisma.jobMatchAnalysis.findFirstOrThrow({ where: { userId, savedJobId: jobId }, orderBy: { createdAt: "desc" } });
 const findings = async (userId: string, jobId: string) => (await latest(userId, jobId)).findings as Finding[];
 const key = (text: string) => questionKey(text, "work_detail");
-const P = [{ text: "Phlebotomy", category: "Skills" }];
-const HONEST = "Drew blood from about 20 patients each morning using vacuum tubes.";
+const P = [{ text: "Salesforce", category: "Skills" }];
+const HONEST = "Administered Salesforce for 80 sales staff across three offices.";
 
 beforeAll(() => {
   expect(process.env.DATABASE_URL).toBe(TEST_DATABASE_URL);
@@ -60,16 +60,16 @@ it("the workflow end to end: question, answer, recheck, verdict, evidence, with 
   const fetchSpy = vi.spyOn(globalThis, "fetch");
   const a = await account(P);
   let page = await getAnalysisPageData(a.id, a.job.id, on);
-  expect(page!.review!.queue.questions[0].requirementTexts).toEqual(["Phlebotomy"]);
+  expect(page!.review!.queue.questions[0].requirementTexts).toEqual(["Salesforce"]);
 
-  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
-  expect(result).toMatchObject({ ok: true, changes: [{ text: "Phlebotomy", before: "insufficient_information", after: "supported" }] });
+  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
+  expect(result).toMatchObject({ ok: true, changes: [{ text: "Salesforce", before: "insufficient_information", after: "supported" }] });
   expect(fetchSpy).not.toHaveBeenCalled();
   fetchSpy.mockRestore();
 
   const [f] = await findings(a.user.id, a.job.id);
   expect(f).toMatchObject({ verdict: "supported", basis: "candidate_answer", rulesOnlyVerdict: "insufficient_information", evidenceSources: ["candidate_answer"] });
-  expect(f.citations[0].quote).toContain("Drew blood");
+  expect(f.citations[0].quote).toContain("Administered Salesforce");
 
   page = await getAnalysisPageData(a.id, a.job.id, on);
   expect(page!.review!.queue.questions).toEqual([]);
@@ -81,14 +81,14 @@ it("the workflow end to end: question, answer, recheck, verdict, evidence, with 
 
 it("a bare yes saves nothing", async () => {
   const a = await account(P);
-  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: "Yes", config: on });
+  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: "Yes", config: on });
   expect(result).toMatchObject({ ok: false, error: "invalid" });
   expect(await prisma.candidateClarification.count({ where: { userId: a.user.id } })).toBe(0);
 });
 
 it("deny gives Not supported, correcting replaces it, and revoking goes back", async () => {
   const a = await account(P);
-  await denyQuestion({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), config: on });
+  await denyQuestion({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), config: on });
   expect((await findings(a.user.id, a.job.id))[0]).toMatchObject({ verdict: "gap", basis: "candidate_denied", evidenceSources: ["candidate_answer"] });
   const denial = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, outcome: "DENIED" } });
   expect((await revokeAnswer({ supabaseAuthId: a.id, clarificationId: denial.id, config: on })).ok).toBe(true);
@@ -97,7 +97,7 @@ it("deny gives Not supported, correcting replaces it, and revoking goes back", a
 
 it("edits take effect at once, and the earlier version stops counting", async () => {
   const a = await account(P);
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
   const first = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id } });
   const result = await correctAnswer({ supabaseAuthId: a.id, clarificationId: first.id, detail: "Greeted visitors and answered phones at the front desk.", config: on });
   expect(result.ok).toBe(true);
@@ -107,8 +107,8 @@ it("edits take effect at once, and the earlier version stops counting", async ()
 
 it("a revoked answer stops counting everywhere at once, even on a job not run again", async () => {
   const a = await account(P);
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
-  const second = await addJob(a.user.id, a.id, [{ text: "Venipuncture", category: "Skills" }]);
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
+  const second = await addJob(a.user.id, a.id, [{ text: "Salesforce", category: "Skills" }]);
   expect((await findings(a.user.id, second.job.id))[0].verdict).toBe("supported");
 
   const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id } });
@@ -122,11 +122,11 @@ it("a revoked answer stops counting everywhere at once, even on a job not run ag
 
 it("permanent deletion removes the words and every stored copy, keeping only an event without them", async () => {
   const a = await account(P);
-  const WORDS = "Drew blood from about 20 patients each morning at Zebrafish Clinic.";
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: WORDS, config: on });
-  await addJob(a.user.id, a.id, [{ text: "Venipuncture", category: "Skills" }]);
+  const WORDS = "Administered Salesforce from about 20 patients each morning at Zebrafish Clinic.";
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: WORDS, config: on });
+  await addJob(a.user.id, a.id, [{ text: "Salesforce CRM", category: "Skills" }]);
   const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id } });
-  await correctAnswer({ supabaseAuthId: a.id, clarificationId: row.id, detail: "Drew blood from patients on every shift, about Zebrafish tests.", config: on });
+  await correctAnswer({ supabaseAuthId: a.id, clarificationId: row.id, detail: "Administered Salesforce from patients on every shift, about Zebrafish tests.", config: on });
   const active = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
 
   expect(await deleteAnswerPermanently({ supabaseAuthId: a.id, clarificationId: active.id, config: on })).toBe(true);
@@ -152,9 +152,9 @@ it("deleting a credential answer removes the entry it made", async () => {
 });
 
 it("a question isn't asked again on another job, under another reviewed name", async () => {
-  const a = await account(P);
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
-  const second = await addJob(a.user.id, a.id, [{ text: "Venipuncture", category: "Skills" }, { text: "Payroll", category: "Skills" }]);
+  const a = await account([{ text: "PostgreSQL", category: "Skills" }]);
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("PostgreSQL"), experienceId: a.role.id, detail: "I tuned PostgreSQL queries for the billing reports every month.", config: on });
+  const second = await addJob(a.user.id, a.id, [{ text: "Postgres", category: "Skills" }, { text: "Payroll", category: "Skills" }]);
   const page = await getAnalysisPageData(a.id, second.job.id, on);
   expect(page!.review!.queue.questions.map(q => q.requirementTexts)).toEqual([["Payroll"]]);
   expect(page!.latest!.findings[0].verdict).toBe("supported");
@@ -171,7 +171,7 @@ it("one answer covers each requirement in a grouped question, judged separately"
 
 it("skipping changes nothing, and stops the question for this job only", async () => {
   const a = await account(P);
-  await skipQuestion({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), config: on });
+  await skipQuestion({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), config: on });
   expect((await getAnalysisPageData(a.id, a.job.id, on))!.review!.queue.questions).toEqual([]);
   expect((await findings(a.user.id, a.job.id))[0].verdict).toBe("insufficient_information");
   const second = await addJob(a.user.id, a.id, P);
@@ -180,11 +180,11 @@ it("skipping changes nothing, and stops the question for this job only", async (
 
 it("no account can answer, correct, revoke, or delete for another", async () => {
   const a = await account(P);
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
   const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id } });
   const b = await account(P);
-  expect(await confirmWithDetail({ supabaseAuthId: b.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: b.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "not_found" });
-  expect(await confirmWithDetail({ supabaseAuthId: b.id, analysisId: b.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "not_found" });
+  expect(await confirmWithDetail({ supabaseAuthId: b.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: b.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "not_found" });
+  expect(await confirmWithDetail({ supabaseAuthId: b.id, analysisId: b.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "not_found" });
   expect(await correctAnswer({ supabaseAuthId: b.id, clarificationId: row.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "not_found" });
   expect(await revokeAnswer({ supabaseAuthId: b.id, clarificationId: row.id, config: on })).toMatchObject({ ok: false, error: "not_found" });
   expect(await deleteAnswerPermanently({ supabaseAuthId: b.id, clarificationId: row.id, config: on })).toBe(false);
@@ -195,41 +195,41 @@ it("no account can answer, correct, revoke, or delete for another", async () => 
 it("the answer limit holds under concurrent requests, deleting doesn't reset it, and revoking still works", async () => {
   const a = await account(P);
   await prisma.clarificationEvent.createMany({ data: Array.from({ length: ANSWER_DAILY_LIMIT - 1 }, () => ({ userId: a.user.id, action: "CONFIRMED", rulesVersion: "test" })) });
-  const results = await Promise.all([1, 2, 3].map(() => confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on })));
+  const results = await Promise.all([1, 2, 3].map(() => confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on })));
   expect(results.filter(r => r.ok)).toHaveLength(1);
   const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
   // At the limit, someone can still fix a mistake.
-  expect((await correctAnswer({ supabaseAuthId: a.id, clarificationId: row.id, detail: "Drew blood from about 12 patients on the morning shift.", config: on })).ok).toBe(true);
+  expect((await correctAnswer({ supabaseAuthId: a.id, clarificationId: row.id, detail: "Administered Salesforce from about 12 patients on the morning shift.", config: on })).ok).toBe(true);
   const current = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
   expect((await revokeAnswer({ supabaseAuthId: a.id, clarificationId: current.id, config: on })).ok).toBe(true);
   await deleteAnswerPermanently({ supabaseAuthId: a.id, clarificationId: current.id, config: on });
   const fresh = await latest(a.user.id, a.job.id);
-  expect(await confirmWithDetail({ supabaseAuthId: a.id, analysisId: fresh.id, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "rate_limited" });
+  expect(await confirmWithDetail({ supabaseAuthId: a.id, analysisId: fresh.id, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on })).toMatchObject({ ok: false, error: "rate_limited" });
 });
 
 it("rechecks don't use the daily analysis limit", async () => {
   const limited = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "1", CLARIFICATION_REVIEW_ENABLED: "true" });
   const a = await account(P);
-  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: limited });
+  const result = await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: limited });
   expect(result).toMatchObject({ ok: true, changes: [{ after: "supported" }] });
   expect(await prisma.aiAnalysisRun.count({ where: { userId: a.user.id, isRecheck: true, countsTowardLimit: false } })).toBe(1);
 });
 
-it("with the flag off, nothing is available, and verdicts ignore linked answers", async () => {
+it("with the flag off, the review isn't available, and a saved answer is read by the answer reader only", async () => {
   const a = await account(P, off);
-  expect(await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: off })).toMatchObject({ ok: false, error: "disabled" });
+  expect(await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: off })).toMatchObject({ ok: false, error: "disabled" });
   expect((await getAnalysisPageData(a.id, a.job.id, off))!.review).toBeNull();
-  // An answer saved while the flag was on is still ordinary evidence with it off, read by the ordinary rules only.
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
+  // The same rules read an answer saved while the flag was on.
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
   await runJobAnalysis({ supabaseAuthId: a.id, jobId: a.job.id, provider: "rules", config: off });
-  expect((await findings(a.user.id, a.job.id))[0].verdict).toBe("insufficient_information");
+  expect((await findings(a.user.id, a.job.id))[0]).toMatchObject({ verdict: "supported", basis: "candidate_answer" });
 });
 
 it("the event table denies browser access, and an event outlives its answer", async () => {
   const a = await account(P);
   const rows = await prisma.$queryRaw<{ relrowsecurity: boolean }[]>`SELECT relrowsecurity FROM pg_class WHERE relname = 'ClarificationEvent'`;
   expect(rows[0].relrowsecurity).toBe(true);
-  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Phlebotomy"), experienceId: a.role.id, detail: HONEST, config: on });
+  await confirmWithDetail({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key("Salesforce"), experienceId: a.role.id, detail: HONEST, config: on });
   const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id } });
   await prisma.professionalExperience.delete({ where: { id: a.role.id } });
   expect(await prisma.candidateClarification.count({ where: { id: row.id } })).toBe(0);

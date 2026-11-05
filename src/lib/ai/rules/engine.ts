@@ -13,6 +13,7 @@ import {
   type SkillEvidence,
   type Verdict,
 } from "@/lib/ai/evidence";
+import { evidenceForRules } from "@/lib/ai/evidence-boundary";
 import { requiredMonths, skillLikeExperience, statedYears, unquantifiedTime, type RuleBasis } from "@/lib/ai/match-validation";
 import { listedTerms, parseRequirement, unverifiableField, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import {
@@ -71,7 +72,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v13";
+export const RULES_VERSION = "rules-v14";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -360,7 +361,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-export function durationField(text: string): { technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
+export function durationField(text: string): { leads: boolean; technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+(?:years?|yrs?))/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -372,8 +373,11 @@ export function durationField(text: string): { technologies: string[]; rest: str
   // "As a project manager" names a role, so every word of it counts: a coordinator isn't a manager.
   const role = clause.match(/\bas\s+(?:an?|the)\s+(.+?)(?=\s+(?:for|at|with|in|on|of|who|that)\b|[,.;:]|$)/i)?.[1] ?? "";
   const asRole = words(role).filter(w => !ROLE_ADJECTIVES.has(w)).map(stem);
-  return { technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, allStems: [...new Set(all.map(stem))], roles: rolesForField(clause), asRole };
+  return { leads: LEADS_PEOPLE.test(clause), technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, allStems: [...new Set(all.map(stem))], roles: rolesForField(clause), asRole };
 }
+/** Asking to lead people. Working in the field doesn't show that: a line cook isn't leading the kitchen. */
+const LEADS_PEOPLE = /\b(?:lead(?:s|ing)?|manag(?:e|es|ing)|supervis(?:e|es|ing)|direct(?:s|ing)?|oversee(?:s|ing)?|head(?:s|ing)?|run(?:s|ning)?|coach(?:es|ing)?)\b.*\b(?:team|teams|crew|crews|staff|department|kitchen|shift|shifts|store|group|people|employees|reports|workers|technicians|nurses|associates)\b|\b(?:team|crew|staff|people|shift)\s+(?:leadership|lead|supervision|management)\b/i;
+const LEADS_BY_TITLE = /\b(?:manager|mgr|supervisor|lead|leader|head|chief|foreman|forewoman|director|captain|superintendent|principal|owner|sous|executive|charge|vp|president|coordinator)\b/i;
 const ROLE_ADJECTIVES = new Set("practicing licensed senior junior experienced professional working lead full-time part-time".split(" "));
 const NUMBER_WORD = /^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)$/;
 
@@ -401,6 +405,7 @@ function headShowsField(field: ReturnType<typeof durationField>, part: string): 
 export function titleCoverage(field: ReturnType<typeof durationField>, title: string): "full" | "some" | "none" {
   const part = rolePart(title);
   const found = fieldCoverage(field, part);
+  if (found === "full" && field.leads && !LEADS_BY_TITLE.test(part)) return "some";
   // A pharmacy delivery driver drives; a nurse recruiter recruits. The field has to be the job itself.
   if (found === "full" && !field.technologies.length && !field.roles.some(r => r.same.some(t => containsPhrase(part, t))) && !headShowsField(field, part)) return "some";
   if (found !== "none" || part === title) return found;
@@ -945,8 +950,6 @@ function areaIsEmpty(request: MatchRequest, requirement: MatchRequirement): bool
   return !request.evidence.some(e => kinds.includes(e.kind));
 }
 
-const isAnswer = (item: Evidence) => item.kind === "experience" && item.source === "clarification";
-
 /** Rules every finding must obey, however it was produced: citations are verbatim, a positive verdict
  * has evidence, projects are never employment, and a stated duration is one code can verify. */
 export function checkFinding(request: MatchRequest, requirement: MatchRequirement, f: RawFinding, evidence: Map<string, Evidence>): RawFinding {
@@ -954,9 +957,7 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
   let caveats = [...f.caveats];
   const found = f.citations.filter(c => quoteIsVerbatim(evidence.get(c.evidence_id)!, c.quote));
   if (found.length < f.citations.length) caveats.push(UNVERIFIED_EVIDENCE);
-  // An answer's entry repeats its role's title: quote that title from the role itself when both are cited.
-  const fromRole = new Set(found.filter(c => !isAnswer(evidence.get(c.evidence_id)!)).map(c => c.quote));
-  const citations = found.filter(c => !isAnswer(evidence.get(c.evidence_id)!) || (evidence.get(c.evidence_id) as ExperienceEvidence).job_title !== c.quote || !fromRole.has(c.quote));
+  const citations = found;
   if ((verdict === "supported" || verdict === "possible") && !citations.length) verdict = "insufficient_information";
 
   if (requirement.category === "Experience" && !skillLikeExperience(qualificationText(requirement.text))) {
@@ -996,7 +997,9 @@ export function checkFinding(request: MatchRequest, requirement: MatchRequiremen
 }
 
 /** Decide every requirement. Pure and synchronous: no network, no database, no clock. */
-export function assessRequirements(request: MatchRequest): RawFinding[] {
+export function assessRequirements(fullRequest: MatchRequest): RawFinding[] {
+  // Answers never reach these rules as role text. They count only through the answer reader.
+  const request = { ...fullRequest, evidence: evidenceForRules(fullRequest.evidence) };
   const evidence = new Map(request.evidence.map(e => [e.id, e]));
   const terms = listed(request);
   return request.requirements

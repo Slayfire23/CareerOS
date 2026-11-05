@@ -101,8 +101,26 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
 
     await shot("3-supported-self-reported", finding);
     await shot("4-answers-you-added", page.getByRole("heading", { name: "Answers you've added" }).locator(".."));
-    // Taking the answer back removes the evidence, and the rules no longer support it.
-    await page.getByRole("button", { name: new RegExp(`^Remove answer about ${tool}`) }).click();
+    // An answer in another language is kept and explained, it stops counting, and it can be edited back.
+    const editing = page.getByRole("form", { name: new RegExp(`^Edit answer about ${tool}`) });
+    await page.locator("summary", { hasText: "Edit" }).first().click();
+    const original = await editing.getByLabel("Your answer").inputValue();
+    await editing.getByLabel("Your answer").fill(`Administro ${tool} para ochenta vendedores en tres oficinas de la empresa cada semana.`);
+    await editing.getByRole("button", { name: "Save and check again", exact: true }).click();
+    await expect(editing.getByRole("status")).toContainText("can only read answers written fully in English");
+    await page.reload();
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(page.getByText("can only read answers written fully in English", { exact: false }).first()).toBeVisible();
+    await expect(finding.getByText("Supported — Self-reported", { exact: true })).toHaveCount(0);
+    await page.locator("summary", { hasText: "Edit" }).first().click();
+    await editing.getByLabel("Your answer").fill(original);
+    await editing.getByRole("button", { name: "Save and check again", exact: true }).click();
+    await page.reload();
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expect(finding.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
+
+    // Taking the answer back removes the evidence and its stored copies, and the rules no longer support it.
+    await page.getByRole("button", { name: new RegExp(`^Delete permanently answer about ${tool}`) }).click();
     await expect(page.getByRole("heading", { name: "Answers you've added" })).toHaveCount(0);
     await expect(page.getByText("This analysis is out of date", { exact: false })).toBeVisible();
     await page.getByRole("button", { name: "Run analysis again", exact: true }).click();

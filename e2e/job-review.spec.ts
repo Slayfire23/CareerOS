@@ -37,7 +37,7 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     const add = page.getByRole("form", { name: "Add job", exact: true });
     await add.getByLabel("Job title", { exact: true }).fill("Phlebotomist");
     await add.getByLabel("Company", { exact: true }).fill(company);
-    await add.getByLabel("Job description", { exact: true }).fill("Requirements:\n- Phlebotomy skills\n- Payroll skills");
+    await add.getByLabel("Job description", { exact: true }).fill("Requirements:\n- Salesforce skills\n- Payroll skills");
     await add.getByRole("button", { name: "Save job", exact: true }).click();
     await expect(add.getByRole("status")).toHaveText("Job saved.");
 
@@ -61,11 +61,11 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     const section = page.getByRole("region", { name: "What CareerOS couldn't establish" });
     await expect(section.getByText("2 questions for the rest.", { exact: false })).toBeVisible();
     await expect(section.getByText("doesn't independently verify", { exact: false })).toBeVisible();
-    const phlebotomy = section.getByRole("listitem", { name: /^Question/ }).filter({ hasText: "Phlebotomy" });
+    const salesforce = section.getByRole("listitem", { name: /^Question/ }).filter({ hasText: "Salesforce" });
 
     // Yes opens an empty form. A vague answer is turned away, and what was typed stays.
-    await phlebotomy.getByRole("button", { name: "Yes, add details", exact: true }).click();
-    const form = phlebotomy.getByRole("form", { name: "Your answer" });
+    await salesforce.getByRole("button", { name: "Yes, add details", exact: true }).click();
+    const form = salesforce.getByRole("form", { name: "Your answer" });
     await expect(form.getByLabel("What did you do?", { exact: true })).toHaveValue("");
     await form.getByLabel("Which role?", { exact: true }).selectOption({ label: `Clinic Assistant, ${company}` });
     await form.getByLabel("What did you do?", { exact: true }).fill("Yes, I have this.");
@@ -73,16 +73,16 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     await expect(form.getByRole("alert")).toContainText("A yes alone can't be used.");
     await expect(form.getByLabel("What did you do?", { exact: true })).toHaveValue("Yes, I have this.");
 
-    // A specific answer, in words that never say phlebotomy.
-    await form.getByLabel("What did you do?", { exact: true }).fill("I drew blood from about 20 patients each morning using vacuum tubes.");
+    // A specific answer that says what was done.
+    await form.getByLabel("What did you do?", { exact: true }).fill("I administered Salesforce for 80 sales staff across three offices.");
     await form.getByRole("button", { name: "Save and check again", exact: true }).click();
-    await expect(section.getByText(/Phlebotomy skills: Not enough information → Supported — Self-reported/)).toBeVisible();
+    await expect(section.getByText(/Salesforce skills: Not enough information → Supported — Self-reported/)).toBeVisible();
 
     await openPage(page, matchUrl);
-    const finding = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Phlebotomy skills", level: 3 }) });
+    const finding = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "Salesforce skills", level: 3 }) });
     await expect(finding.getByText("Supported — Self-reported", { exact: true })).toBeVisible();
     await expect(finding.getByText("From an answer you gave. Self-reported: CareerOS hasn't independently verified it.", { exact: false })).toBeVisible();
-    await expect(finding.getByText("I drew blood from about 20 patients each morning using vacuum tubes", { exact: false })).toBeVisible();
+    await expect(finding.getByText("I administered Salesforce for 80 sales staff across three offices", { exact: false })).toBeVisible();
     await expect(finding.getByText("From the rules alone, before your answer: Not enough information.", { exact: false })).toBeVisible();
 
     // Deny the other. It's Not supported, labeled as self-reported.
@@ -92,13 +92,13 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     await expect(payrollFinding.getByText("Not supported — Self-reported", { exact: true })).toBeVisible();
 
     // Revoke goes back at once. Deleting removes the answer from the page.
-    await page.getByRole("button", { name: /^Revoke answer about Phlebotomy/ }).click();
+    await page.getByRole("button", { name: /^Revoke answer about Salesforce/ }).click();
     await expect(finding.getByText("Not enough information", { exact: true })).toBeVisible();
-    await expect(finding.getByText("I drew blood", { exact: false })).toHaveCount(0);
+    await expect(finding.getByText("I administered Salesforce", { exact: false })).toHaveCount(0);
     await openPage(page, matchUrl);
-    await page.getByRole("button", { name: /^Delete permanently answer about Phlebotomy/ }).click();
+    await page.getByRole("button", { name: /^Delete permanently answer about Salesforce/ }).click();
     await page.getByRole("button", { name: "Yes, delete permanently", exact: true }).click();
-    await expect(page.getByText("I drew blood", { exact: false })).toHaveCount(0);
+    await expect(page.getByText("I administered Salesforce", { exact: false })).toHaveCount(0);
     await page.getByRole("button", { name: /^Revoke answer about Payroll/ }).click();
     await expect(payrollFinding.getByText("Not enough information", { exact: true })).toBeVisible();
     await openPage(page, matchUrl);

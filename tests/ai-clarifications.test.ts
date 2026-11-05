@@ -6,6 +6,8 @@ vi.mock("server-only", () => ({}));
 import terminology from "@/lib/ai/rules/data/terminology.json";
 import skillTable from "@/lib/ai/rules/data/skill_relations.json";
 import { buildEvidence, citationOrigin, evidenceFingerprint, type Evidence, type MatchRequest, type MatchRequirement } from "@/lib/ai/evidence";
+import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
+import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 import { validateMatchResponse, type Finding } from "@/lib/ai/match-validation";
 import { answerProblem, clarificationFor, entryProblem } from "@/lib/ai/rules/clarifications";
 import { RULES_VERSION, assessRequirements, rulesResponse } from "@/lib/ai/rules/engine";
@@ -95,7 +97,12 @@ describe("what counts as a specific answer", () => {
 
 describe("the same rules read an answer", () => {
   const asked = requirement("Salesforce");
-  const answered = (detail: string) => decide(asked, buildEvidence(profile(detail)));
+  const answered = (detail: string) => {
+    const evidence = buildEvidence(profile(detail));
+    const answers: LinkedAnswer[] = [{ action: "confirm", questionKey: keyForRequirement(asked), evidenceId: `experience:${uuid(2)}`, detail }];
+    const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: "2026-11", requirements: [asked], evidence, linked_answers: answers };
+    return validateMatchResponse(request, JSON.parse(JSON.stringify(rulesResponse(request, { provider: "rules", model: null, methodVersion: RULES_VERSION }, f => applyAnswers(request, f, answers, keyForRequirement)))), { provider: "rules", model: null }).findings[0];
+  };
 
   it("a specific answer that states the work can reach Supported, and says where it came from", () => {
     const f = answered("Administered Salesforce for 80 sales staff across three offices.");

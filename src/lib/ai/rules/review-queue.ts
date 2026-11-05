@@ -49,14 +49,15 @@ export type ReviewQuestion = {
 };
 export type ReviewQueue = { questions: ReviewQuestion[]; notShown: number; settled: number; total: number; suppressedByEarlierAnswers: number };
 
-const COMMON_FIRST_WORDS = new Set("patient customer client project data team quality office staff sales account budget food safety legal medical technical general field".split(" "));
+const COMMON_FIRST_WORDS = new Set("patient customer client project data team quality office staff sales account budget food safety legal medical technical general field experience knowledge strong proficiency proficient familiarity familiar ability understanding prior proven demonstrated advanced basic excellent solid current valid state".split(" "));
 /** A specific named thing two requirements share, so one question can cover them ("Epic EHR", "Epic charting"). */
 function sharedThing(a: string, b: string): boolean {
   const named = (text: string) => [...canonicalTerms(text)].filter(t => VOCABULARY.has(t));
   if (named(a).some(t => named(b).includes(t))) return true;
   const first = (text: string) => text.trim().split(/\s+/)[0] ?? "";
   const [fa, fb] = [first(a), first(b)];
-  return fa === fb && /^\p{Lu}/u.test(fa) && fa.length > 2 && !COMMON_FIRST_WORDS.has(fa.toLowerCase());
+  // "Experience with Kafka" and "Experience with Angular" are two questions: a No to one isn't a No to both.
+  return fa === fb && /^\p{Lu}/u.test(fa) && fa.length > 2 && !COMMON_FIRST_WORDS.has(fa.toLowerCase()) && !/ing$/i.test(fa);
 }
 
 const QUESTION: Partial<Record<ClarificationKind, (asked: string) => string>> = {

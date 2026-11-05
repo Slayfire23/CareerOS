@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useActionState, useId, useState } from "react";
-import { answerNo, answerWithEntry, answerWithRoleDetail, takeBackAnswer, type ClarificationState } from "@/app/jobs/clarification-actions";
+import { answerNo, answerWithEntry, answerWithRoleDetail, editAnswer, takeBackAnswer, type ClarificationState } from "@/app/jobs/clarification-actions";
 import type { Clarification } from "@/lib/ai/rules/clarifications";
 import { DETAIL_MAX } from "@/lib/ai/rules/clarification-limits";
 import { SECTIONS } from "@/lib/sections";
@@ -110,11 +110,26 @@ export function ClarificationPanel({ analysisId, current, roles, aiNote }: {
   </section>;
 }
 
+export function EditAnswerForm({ clarificationId, detail, label }: { clarificationId: string; detail: string; label: string }) {
+  const [state, action, pending] = useActionState(editAnswer, {} as ClarificationState);
+  return <details className="space-y-2">
+    <summary className="cursor-pointer text-sm font-medium text-accent-text">Edit<span className="sr-only"> {label}</span></summary>
+    <form action={action} aria-label={`Edit ${label}`} className="space-y-2 pt-2">
+      <input type="hidden" name="clarificationId" value={clarificationId} />
+      <label className="label">Your answer
+        <textarea name="detail" rows={3} maxLength={DETAIL_MAX} className="field" defaultValue={detail} />
+      </label>
+      <button type="submit" className="btn btn-primary btn-sm" disabled={pending}>Save and check again</button>
+      <Status state={state} />
+    </form>
+  </details>;
+}
+
 export function TakeBackForm({ clarificationId, label }: { clarificationId: string; label: string }) {
   const [state, action, pending] = useActionState(takeBackAnswer, {} as ClarificationState);
   return <form action={action} className="inline-flex flex-wrap items-center gap-2">
     <input type="hidden" name="clarificationId" value={clarificationId} />
-    <button type="submit" className="btn btn-secondary btn-sm" disabled={pending}>Remove<span className="sr-only"> {label}</span></button>
+    <button type="submit" className="btn btn-secondary btn-sm" disabled={pending}>Delete permanently<span className="sr-only"> {label}</span></button>
     <Status state={state} />
   </form>;
 }

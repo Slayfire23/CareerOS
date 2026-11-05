@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
 import { confirmWithDetail, confirmWithEntry, correctAnswer, deleteAnswerPermanently, denyQuestion, revokeAnswer, skipQuestion, type ReviewResult } from "@/lib/ai/clarification-review";
 import { readAiConfig } from "@/lib/ai/config";
 import { parseEducation } from "@/lib/education";
@@ -37,7 +38,7 @@ export async function reviewConfirmDetail(_previous: ReviewState, form: FormData
   if (!user) return { error: EXPIRED };
   const [analysisId, questionKey, experienceId, detail] = ["analysisId", "questionKey", "experienceId", "detail"].map(k => one(form, k));
   if (!analysisId || !questionKey || !experienceId || detail === null) return { error: "Choose a role and say what you did." };
-  return reply(await confirmWithDetail({ supabaseAuthId: user.id, analysisId, questionKey, experienceId, detail, config: readAiConfig() }), "Saved as self-reported, and checked again.");
+  return reply(await confirmWithDetail({ supabaseAuthId: user.id, analysisId, questionKey, experienceId, detail, config: readAiConfig() }), answerLanguage(detail) === "en" ? "Saved as self-reported, and checked again." : LANGUAGE_NOTE);
 }
 
 export async function reviewConfirmEntry(_previous: ReviewState, form: FormData): Promise<ReviewState> {
@@ -79,7 +80,7 @@ export async function reviewCorrect(_previous: ReviewState, form: FormData): Pro
   const clarificationId = one(form, "clarificationId");
   const detail = one(form, "detail");
   if (!clarificationId || detail === null) return { error: ERRORS.invalid };
-  return reply(await correctAnswer({ supabaseAuthId: user.id, clarificationId, detail, config: readAiConfig() }), "Corrected, and checked again.");
+  return reply(await correctAnswer({ supabaseAuthId: user.id, clarificationId, detail, config: readAiConfig() }), answerLanguage(detail) === "en" ? "Corrected, and checked again." : LANGUAGE_NOTE);
 }
 
 export async function reviewRevoke(_previous: ReviewState, form: FormData): Promise<ReviewState> {

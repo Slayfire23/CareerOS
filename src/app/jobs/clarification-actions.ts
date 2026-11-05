@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { addEducationEntry, addRoleDetail, declineClarification, removeClarification, type ClarificationResult } from "@/lib/ai/clarification-store";
+import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
+import { addEducationEntry, addRoleDetail, declineClarification, editRoleDetail, removeClarification, type ClarificationResult } from "@/lib/ai/clarification-store";
 import { readAiConfig } from "@/lib/ai/config";
 import type { Verdict } from "@/lib/ai/evidence";
 import { parseEducation } from "@/lib/education";
@@ -45,7 +46,18 @@ export async function answerWithRoleDetail(_previous: ClarificationState, form: 
   const experienceId = one(form, "experienceId");
   const detail = one(form, "detail");
   if (!analysisId || !experienceId || detail === null) return { error: "Choose a role and say what you did." };
-  return reply(await addRoleDetail({ supabaseAuthId: user.id, analysisId, requirementIndex: Number(one(form, "requirementIndex")), experienceId, detail, config: readAiConfig() }));
+  const state = reply(await addRoleDetail({ supabaseAuthId: user.id, analysisId, requirementIndex: Number(one(form, "requirementIndex")), experienceId, detail, config: readAiConfig() }));
+  return state.message && answerLanguage(detail) !== "en" ? { message: LANGUAGE_NOTE } : state;
+}
+
+export async function editAnswer(_previous: ClarificationState, form: FormData): Promise<ClarificationState> {
+  const user = await signedInUser();
+  if (!user) return { error: EXPIRED };
+  const clarificationId = one(form, "clarificationId");
+  const detail = one(form, "detail");
+  if (!clarificationId || detail === null) return { error: ERRORS.not_found };
+  const state = reply(await editRoleDetail({ supabaseAuthId: user.id, clarificationId, detail, config: readAiConfig() }));
+  return state.message && answerLanguage(detail) !== "en" ? { message: LANGUAGE_NOTE } : state;
 }
 
 export async function answerWithEntry(_previous: ClarificationState, form: FormData): Promise<ClarificationState> {
@@ -76,5 +88,5 @@ export async function takeBackAnswer(_previous: ClarificationState, form: FormDa
   const clarificationId = one(form, "clarificationId");
   if (!clarificationId || !(await removeClarification({ supabaseAuthId: user.id, clarificationId }))) return { error: ERRORS.not_found };
   revalidatePath("/dashboard", "layout");
-  return { message: "Answer removed. Run the analysis again to update the results." };
+  return { message: "Answer deleted. Run the analysis again to update the results." };
 }

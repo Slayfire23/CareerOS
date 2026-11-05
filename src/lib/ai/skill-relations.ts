@@ -240,6 +240,43 @@ const DONE_BY_OTHERS = /^(?:\S+\s+){0,3}?(?:was|were|is|are|got)\s+(?:\w+\s+)?\w
 export function someoneElsesWork(sentence: string, after: string): boolean {
   return THIRD_PARTY_SUBJECT.test(sentence) || OTHER_SUBJECT.test(sentence) || DONE_BY_OTHERS.test(after.trim());
 }
+
+// A sentence opening on someone else is about them. Only a clause of the person's own, after it, counts:
+// "Our order lookup was slow, so I added indexes". A clause of theirs at the end is cut off.
+const OPENS_ON_SOMEONE = /^\W*(?:our|his|her|their|another|they|she|he|my\s+(?:\p{L}+\s+)?(?:lead|boss|manager|supervisor|coworker|co-worker|colleague|team|partner|assistant|associate))\b/iu;
+const OPENS_ON_THE = /^\W*the\b/i;
+const OWN_CLAUSE = /(?:[,:;]\s*|\b(?:and|so|then|but|while|when|where|before|after)\s+)(?=(?:i|we)(?:['’](?:ve|m|d))?\s)/iu;
+const THEIR_CLAUSE = /(?:[,:]\s*|\b(?:and|but|so|then|while|because|after)\s+)(?=(?:they|she|he)\s+\p{L})/iu;
+/** The part of a sentence about this person, or null when there's none. `strict` also treats an opening
+ * "The ..." as someone else, for answers. Resume bullets often open that way about the work itself. */
+export function ownSpan(sentence: string, strict = false): [number, number] | null {
+  let start = 0;
+  if (OPENS_ON_SOMEONE.test(sentence) || (strict && OPENS_ON_THE.test(sentence))) {
+    const own = OWN_CLAUSE.exec(sentence);
+    if (!own) return null;
+    start = own.index + own[0].length;
+  }
+  const theirs = THEIR_CLAUSE.exec(sentence.slice(start));
+  const end = theirs ? start + theirs.index : sentence.length;
+  return end > start ? [start, end] : null;
+}
+
+/** Past forms that don't end in -ed, at the start of a line about the work. */
+export const IRREGULAR_PAST = new Set("kept drove ran wrote built made led taught drew sold bought held sent set cut spent paid took gave found told did met read bent hung dug fit won rode swept laid put began shot stood understood".split(" "));
+/** A person or department doing it, named first, with no "I" anywhere: "Marcy administers Salesforce",
+ * "Accounting handles the books". A work line opening on its verb ("Prepared paychecks") isn't one.
+ * `strict` is for answers. */
+export function opensOnNamedOther(sentence: string, strict = false): boolean {
+  if (/(?:^|[^\p{L}'’])(?:[Ii]|[Ww]e)(?:['’]\p{L}+)?\s/u.test(sentence)) return false;
+  const match = sentence.match(/^\W*(\p{Lu}[\p{L}'’-]*)\s+(?:(?:at|in|from|of)\s+(?:\p{L}+\s+){1,3})?(\p{Ll}{3,}[^s\W]s)\b(\s+(?:the|all|those|these|that|them|it|our|my|every|any)\b)?/u);
+  if (!match) return false;
+  // Resume fragments read like this ("Internal services over gRPC"), so a profile needs the clearer form.
+  if (!strict && !match[3]) return false;
+  const head = match[1].toLowerCase();
+  if (IRREGULAR_PAST.has(head) || WORK_VERBS.has(head) || /(?:ed|es)$/.test(head)) return false;
+  return !/ing$/.test(head) || !!match[3];
+}
+
 /** Where a sentence says someone else did it, as offsets within the sentence. */
 export function thirdPartyCue(sentence: string, after: string): [number, number] | null {
   const subject = sentence.match(THIRD_PARTY_SUBJECT) ?? sentence.match(OTHER_SUBJECT);

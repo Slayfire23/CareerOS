@@ -57,9 +57,13 @@ const TEMPLATE_TEXT = /\b(?:example\s+text|sample\s+(?:text|bullet|entry|resume|
 export const templateText = (text: string) => TEMPLATE_TEXT.test(text.normalize("NFKC"));
 /** Someone else's words, or being told what to say: "My manager said I ran payroll", "Told to list Python". */
 const REPORTED = /\b(?:according\s+to|(?:manager|boss|supervisor|reference|recruiter|colleague|coworker|friend|recommendation)\s+(?:said|says|wrote|writes|claims?|told)\s+(?:that\s+)?(?:i|me)\b|(?:told|asked|instructed|advised)\s+(?:me\s+)?to\s+(?:say|write|list|put|claim|add)|would\s+have|could\s+have|if\s+i\s+had|in\s+theory|supposedly|allegedly)\b/i;
+/** Started, but it never became the work: "dropped it before I ever wrote a script". No negative word in sight. */
+const NEVER_HAPPENED = /\b(?:(?:dropped|abandoned|scrapped|shelved|ditched)\s+(?:it|that|this|them)\b|before\s+(?:i|we)\s+(?:ever|even|really|actually|could|got\s+to)\b|gave\s+up\s+on\b|ended\s+up\s+(?:not|dropping|going\s+with|using\s+(?:something|another))\b|fell\s+through\b|(?:project|plan|idea|rollout|pilot)\s+(?:was|got)\s+(?:cancel+ed|scrapped|shelved|dropped)\b)/i;
+/** Would or could, for a person: it says what might happen, not what did. */
+const CONDITIONAL = /\b(?:i\s+(?:could|would|might)\b|would\s+be\s+able\b|if\s+(?:needed|required|asked)\b|(?:am|i['’]m)\s+willing\s+to\b)/i;
 export const notAStatement = (text: string) => {
   const value = text.normalize("NFKC");
-  return NOT_A_STATEMENT.test(value) || REPORTED.test(value) || templateText(value);
+  return NOT_A_STATEMENT.test(value) || REPORTED.test(value) || NEVER_HAPPENED.test(value) || CONDITIONAL.test(value) || templateText(value);
 };
 
 /** The value carries something other than a name: markup, hidden characters, or claim wording. */

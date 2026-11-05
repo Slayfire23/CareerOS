@@ -5,7 +5,19 @@ import patterns from "@/lib/ai/rules/data/untrusted_text.json";
 
 const ENCLOSED = new RegExp(patterns.enclosed, "g");
 const BOUNDARY = new RegExp(patterns.boundary, "g");
-const DIRECTED = patterns.evaluator_directed.map(p => new RegExp(p, "i"));
+// Added in rules-v14, here and not in the shared file, which the frozen Python copy is compared against.
+const MORE_DIRECTED = [
+  /^\W*[[(<{]?\s*(?:admin|administrator|system|root|sudo|debug|developer|supervisor)(?:\s+\w+)?\s*[\]):>}]/i, // [admin override], system:
+  /\byou\s+are\s+now\b/i,
+  /\b(?:status|verdict|confidence|score|result|decision|outcome|qualified|approved|met)\s*[=:]\s*["']?(?:met|true|yes|1(?:\.0)?|pass(?:ed)?|supported|approved|qualified|100)\b/i,
+  /\b(?:end|skip|stop|finish)\s+(?:the\s+|this\s+)?(?:interview|review|evaluation|screening|questions?|questioning)\b/i,
+  /\b(?:bypass|override|admin|debug|developer)\s+mode\b/i,
+  /\bpretend\s+(?:that\s+|you\b|to\s+be\b)/i,
+  /\bas\s+(?:the|an?)\s+(?:ai|assistant|reviewer|model|screener)\b(?!\s+(?:to|for|manager|coach))/i,
+  /\b(?:please|kindly)\s+(?:approve|accept|pass|qualify|credit|mark|count|confirm)\b/i,
+  /\bapprove\s+(?:this|the|my|me)\b/i,
+];
+const DIRECTED = [...patterns.evaluator_directed.map(p => new RegExp(p, "i")), ...MORE_DIRECTED];
 
 type Span = [number, number];
 

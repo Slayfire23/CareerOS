@@ -23,6 +23,7 @@ const golden = JSON.parse(readFileSync("tests/fixtures/rules_v5_golden.json", "u
 /** Requirements where the engine deliberately decides differently: "<set>/<case>/<index>" -> why. */
 const SAME_FIELD = "Years now count only in the field asked for, and a role naming that field and covering the time is supported.";
 const INTENDED_VERDICT_CHANGES: Record<string, string> = {
+  "F/f-inj-yaml/0": "A requirement carrying result: supported and confidence lines is flagged, so listing the skill doesn't settle it.",
   "F/f-inj-prof-field-note/0": "A field of study holding a claim is not evidence (set F's false supported).",
   "F/f-legit-as-a/0": "A requirement naming a role exactly is matched against that job title.",
   "F/f-syn-redshift/0": "\"AWS Redshift\" and \"Amazon Redshift\" are now the same name in the reviewed table.",

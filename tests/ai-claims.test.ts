@@ -285,17 +285,12 @@ describe("boundaries", () => {
     const production = files("src").filter(f => /\.(ts|tsx)$/.test(f) && !f.replaceAll("\\", "/").includes("lib/ai/claims/"));
     for (const file of production) {
       const source = readFileSync(file, "utf8");
-      const name = file.replaceAll("\\", "/");
-      const allowed = name.endsWith("lib/ai/rules/answer-review.ts") || name.endsWith("lib/ai/rules/clarifications.ts")
-        ? source.replace('from "@/lib/ai/claims/language"', "").replace('from "@/lib/ai/rules/data/terminology_v2.json"', "")
-        : source;
-      expect(/claims\/|terminology_v2|\/v1\/retrieve/.test(allowed), file).toBe(false);
+      expect(/claims\/|terminology_v2|\/v1\/retrieve/.test(source), file).toBe(false);
     }
   });
 
-  it("the answer reader takes only the language gate from the shadow layer, and no similarity", () => {
+  it("the answer reader has no similarity input", () => {
     const source = readFileSync("src/lib/ai/rules/answer-review.ts", "utf8");
-    expect(source).toMatch(/import \{ foreignDirected, foreignNegation, otherPersonInAnyLanguage \} from "@\/lib\/ai\/claims\/language"/);
     expect(source).not.toMatch(/similarity|retrieve|semantic|embedding/i);
     expect(readFileSync("src/lib/ai/rules/engine.ts", "utf8")).not.toMatch(/candidate_semantic|similarity/);
   });

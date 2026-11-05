@@ -64,8 +64,6 @@ export const foreignNegation = (text: string) => {
   return (value.match(/\p{L}+/gu) ?? []).some(t => NEGATION_WORDS.has(t)) || NEGATION_PHRASES.test(value);
 };
 export const otherPersonInAnyLanguage = (text: string) => THIRD_PARTY.test(text.normalize("NFC"));
-/** Words telling a reader what to do, in the other languages we can name. English is read elsewhere. */
-export const foreignDirected = (text: string) => DIRECTED.test(text.normalize("NFC"));
 
 /** Why this text can't go to the model, or null. The default is no: passing means every check found nothing
  * and the language is plainly one we know. */

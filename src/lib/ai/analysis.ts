@@ -1,3 +1,4 @@
+import { evidenceForAi } from "@/lib/ai/evidence-boundary";
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { Prisma } from "@/generated/prisma/client";
@@ -24,7 +25,7 @@ import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pri
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
-import { buildReviewQueue, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
+import { buildReviewQueue, questionKey, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
 // Server-side analysis workflow. Every function takes the verified Supabase user id and scopes
@@ -106,12 +107,14 @@ async function ownedEvidenceProfile(userId: string) {
 }
 
 /** A person's active answers, for the rules only. */
-async function activeAnswers(userId: string): Promise<LinkedAnswer[]> {
+async function activeAnswers(userId: string, reviewEnabled: boolean): Promise<LinkedAnswer[]> {
   const rows = await prisma.candidateClarification.findMany({
-    where: { userId, status: "ACTIVE", questionKey: { not: null }, outcome: { in: ["ROLE_DETAIL_ADDED", "DENIED"] } },
-    select: { id: true, questionKey: true, coveredKeys: true, outcome: true, detail: true },
+    // A denial exists only in the review. An answer needs its role, which is what a citation points at.
+    where: { userId, status: "ACTIVE", OR: [{ outcome: "ROLE_DETAIL_ADDED", experienceId: { not: null } }, ...(reviewEnabled ? [{ outcome: "DENIED" as const, questionKey: { not: null } }] : [])] },
+    select: { id: true, questionKey: true, coveredKeys: true, outcome: true, detail: true, requirementText: true },
   });
-  return rows.flatMap(r => [...new Set([r.questionKey!, ...r.coveredKeys])].map((key): LinkedAnswer => (r.outcome === "DENIED"
+  // Answers from the question flow have no stored key: theirs comes from what they were asked.
+  return rows.flatMap(r => [...new Set([r.questionKey ?? questionKey(r.requirementText, "work_detail"), ...r.coveredKeys])].map((key): LinkedAnswer => (r.outcome === "DENIED"
     ? { action: "deny", questionKey: key }
     : { action: "confirm", questionKey: key, evidenceId: `experience:${r.id}`, detail: r.detail ?? "" })));
 }
@@ -310,14 +313,14 @@ export async function runJobAnalysis(options: {
   try {
     const requirementsList: Requirement[] = validateRequirements(job.requirements);
     const evidence = buildEvidence(profile);
-    linked = config.reviewEnabled && usesRules ? await activeAnswers(user.id) : [];
-    fingerprint = evidenceFingerprint(evidence, linked); // always of the unredacted profile
+    linked = usesRules ? await activeAnswers(user.id, config.reviewEnabled === true) : [];
+    fingerprint = evidenceFingerprint(evidence, config.reviewEnabled ? linked : []); // always of the unredacted profile
     const requirements = buildRequirements(requirementsList);
     request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}) };
-    // Only the rules on this server use an answer's source; the service's strict format has no such field.
-    if (!usesRules) request.evidence = evidence.map(item => (("source" in item) ? (Object.fromEntries(Object.entries(item).filter(([key]) => key !== "source")) as Evidence) : item));
+    // Answers stay on this server, read by the answer reader only. The service's strict format has no source field.
+    if (!usesRules) request.evidence = evidenceForAi(evidence);
     if (cloud) {
-      const redacted = redactForCloud(evidence, requirements, await redactionTerms(user.id, job.company, options.contactEmail ?? null));
+      const redacted = redactForCloud(request.evidence, requirements, await redactionTerms(user.id, job.company, options.contactEmail ?? null));
       request = { ...request, ...redacted };
       const maxInput = Buffer.byteLength(JSON.stringify(request), "utf8") + PROMPT_OVERHEAD_TOKENS;
       if (maxInput > CLOUD_MAX_INPUT_TOKENS) return { ok: false, error: "too_large_for_cloud" };
@@ -616,7 +619,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   const [answers, declined, roles] = await Promise.all([
     prisma.candidateClarification.findMany({
-      where: { userId: user.id, outcome: { not: "DECLINED" } },
+      where: { userId: user.id, status: "ACTIVE", outcome: { in: ["ROLE_DETAIL_ADDED", "ENTRY_ADDED"] } },
       orderBy: { createdAt: "desc" },
       take: 50,
       select: { id: true, requirementText: true, detail: true, outcome: true, createdAt: true, experience: { select: { jobTitle: true } }, education: { select: { qualification: true } } },
@@ -643,7 +646,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   let currentFingerprint: string | null = null;
   try {
-    currentFingerprint = profile ? evidenceFingerprint(buildEvidence(profile), config.reviewEnabled ? await activeAnswers(user.id) : []) : null;
+    currentFingerprint = profile ? evidenceFingerprint(buildEvidence(profile), config.reviewEnabled ? await activeAnswers(user.id, true) : []) : null;
   } catch {
     currentFingerprint = null;
   }
@@ -669,6 +672,11 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   let shown = view;
   let review: ReviewPageData | null = null;
+  if (!config.reviewEnabled && view) {
+    // Whatever was revoked while the review was on stays out of what's shown, with it off too.
+    const lapsed = await prisma.candidateClarification.findMany({ where: { userId: user.id, status: { not: "ACTIVE" }, evidenceId: { not: null } }, select: { evidenceId: true } });
+    shown = maskRevoked(view, new Set(lapsed.map(r => r.evidenceId!)), new Set());
+  }
   if (config.reviewEnabled) {
     const rows = await prisma.candidateClarification.findMany({
       where: { userId: user.id },

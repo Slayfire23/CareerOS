@@ -1,3 +1,4 @@
+import { evidenceForAi } from "@/lib/ai/evidence-boundary";
 import type { Evidence, MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
 import { quoteIsVerbatim } from "@/lib/ai/evidence";
 import { namesOfListedSkills } from "@/lib/ai/listed-skills";
@@ -64,7 +65,7 @@ function masked(text: string | null): string | null {
 export function buildSuggestRequest(request: MatchRequest, requirements: MatchRequirement[], requestId: string): SuggestRequest {
   const listed = listedTerms(namesOfListedSkills(request.evidence));
   const evidence: SuggestEvidence[] = [];
-  for (const item of request.evidence) {
+  for (const item of evidenceForAi(request.evidence)) {
     if (item.kind === "skill") {
       if (plainSkillName(item.name)) evidence.push({ id: item.id, kind: "skill", name: item.name });
     } else if (item.kind === "experience") {

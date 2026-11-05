@@ -1,6 +1,7 @@
 import "server-only";
 import type { AiConfig } from "@/lib/ai/config";
 import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
+import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, clarificationFor, entryProblem, type Clarification } from "@/lib/ai/rules/clarifications";
@@ -41,7 +42,10 @@ async function askedQuestion(supabaseAuthId: string, analysisId: string, require
 async function withinLimit<T>(userId: string, now: Date, save: (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => Promise<T>): Promise<T | "rate_limited"> {
   return prisma.$transaction(async tx => {
     await tx.$queryRaw`SELECT 1 AS locked FROM (SELECT pg_advisory_xact_lock(hashtextextended(${`clarification:${userId}`}, 0))) AS l`;
-    const used = await tx.candidateClarification.count({ where: { userId, createdAt: { gt: new Date(now.getTime() - WINDOW_MS) } } });
+    const since = new Date(now.getTime() - WINDOW_MS);
+    // Deleted answers still count, so deleting can't reset this.
+    const used = await tx.candidateClarification.count({ where: { userId, createdAt: { gt: since } } })
+      + await tx.clarificationEvent.count({ where: { userId, createdAt: { gt: since }, action: "DELETED" } });
     if (used >= CLARIFICATION_DAILY_LIMIT) return "rate_limited" as const;
     return save(tx);
   }, { maxWait: 10_000, timeout: 10_000 });
@@ -113,14 +117,32 @@ export async function declineClarification(options: { supabaseAuthId: string; an
   return saved ? { ok: true } : { ok: false, error: "save_failed" };
 }
 
-/** Take an answer back. An education entry added by an answer goes with it. */
+/** Change what an answer says. It's read again from scratch, like any other answer. */
+export async function editRoleDetail(options: { supabaseAuthId: string; clarificationId: string; detail: string; config: AiConfig; now?: Date }): Promise<ClarificationResult> {
+  const now = options.now ?? new Date();
+  if (!UUID.test(options.clarificationId)) return { ok: false, error: "not_found" };
+  const row = await prisma.candidateClarification.findFirst({
+    where: { id: options.clarificationId, user: { supabaseAuthId: options.supabaseAuthId }, outcome: "ROLE_DETAIL_ADDED", status: "ACTIVE" },
+    select: { id: true, userId: true, savedJobId: true, requirementText: true },
+  });
+  if (!row) return { ok: false, error: "not_found" };
+  const problem = answerProblem(options.detail, row.requirementText);
+  if (problem) return { ok: false, error: "invalid", message: problem };
+  const saved = await prisma.candidateClarification.update({ where: { id: row.id }, data: { detail: options.detail.trim() }, select: { id: true } }).catch(() => null);
+  if (!saved) return { ok: false, error: "save_failed" };
+  const run = row.savedJobId ? await runJobAnalysis({ supabaseAuthId: options.supabaseAuthId, jobId: row.savedJobId, provider: "rules", config: options.config, now }).catch(() => null) : null;
+  if (!run?.ok) return { ok: true, before: "insufficient_information", after: null, evidenceSources: undefined };
+  const fresh = await prisma.jobMatchAnalysis.findFirst({ where: { id: run.analysisId, userId: row.userId }, select: { requirements: true, findings: true } });
+  const requirement = (fresh?.requirements as MatchRequirement[] | undefined)?.find(r => r.text.includes(row.requirementText));
+  const finding = (fresh?.findings as Finding[] | undefined)?.find(f => f.requirementIndex === requirement?.index);
+  return { ok: true, before: "insufficient_information", after: finding?.verdict ?? null, evidenceSources: finding?.evidenceSources };
+}
+
+/** Take an answer back, for good: its words, any entry it added, and its stored copies. */
 export async function removeClarification(options: { supabaseAuthId: string; clarificationId: string }): Promise<boolean> {
   if (!UUID.test(options.clarificationId)) return false;
-  const row = await prisma.candidateClarification.findFirst({ where: { id: options.clarificationId, user: { supabaseAuthId: options.supabaseAuthId } }, select: { id: true, educationId: true } });
+  const row = await prisma.candidateClarification.findFirst({ where: { id: options.clarificationId, user: { supabaseAuthId: options.supabaseAuthId } }, select: { id: true, userId: true, questionKey: true } });
   if (!row) return false;
-  await prisma.$transaction(async tx => {
-    await tx.candidateClarification.delete({ where: { id: row.id } });
-    if (row.educationId) await tx.education.deleteMany({ where: { id: row.educationId, profile: { user: { supabaseAuthId: options.supabaseAuthId } } } });
-  });
+  await deleteAnswerChain(row.userId, row);
   return true;
 }

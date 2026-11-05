@@ -2,7 +2,8 @@ import "server-only";
 import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
-import type { Finding, Suggestion } from "@/lib/ai/match-validation";
+import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
+import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, entryProblem } from "@/lib/ai/rules/clarifications";
 import { RULES_VERSION } from "@/lib/ai/rules/engine";
 import { buildReviewQueue, type ReviewQuestion } from "@/lib/ai/rules/review-queue";
@@ -203,36 +204,10 @@ export async function revokeAnswer(options: Scope & { clarificationId: string })
   return old.savedJobId ? recheck(options, old.userId, old.savedJobId, old.id, old.questionKey, "REVOKED") : { ok: true, changes: [] };
 }
 
-/** Removes an answer's words and every stored copy of them: earlier versions, the entry it created, and the
- * citations and suggestions quoting it in any analysis. The event stays, without the words, so the audit
- * trail shows that something was deleted. docs/CLARIFICATION_RETENTION.md lists what this can't reach. */
+/** Removes an answer's words and every stored copy of them. See answer-deletion.ts. */
 export async function deleteAnswerPermanently(options: Scope & { clarificationId: string }): Promise<boolean> {
   const first = await ownedAnswer(options);
   if (!first) return false;
-  const chain = await prisma.candidateClarification.findMany({
-    where: { userId: first.userId, OR: [{ id: first.id }, ...(first.questionKey ? [{ questionKey: first.questionKey, status: { in: ["SUPERSEDED", "REVOKED"] as ("SUPERSEDED" | "REVOKED")[] } }] : [])] },
-    select: { id: true, evidenceId: true, educationId: true, detail: true },
-  });
-  // Older rows and answers may carry only ids; every id a citation could use is covered.
-  const evidenceIds = new Set(chain.flatMap(c => [c.evidenceId, `experience:${c.id}`, c.educationId ? `education:${c.educationId}` : null]).filter((v): v is string => !!v));
-  const texts = chain.map(c => c.detail).filter((v): v is string => !!v);
-  await prisma.$transaction(async tx => {
-    const analyses = await tx.jobMatchAnalysis.findMany({ where: { userId: first.userId }, select: { id: true, findings: true, aiSuggestions: true } });
-    for (const analysis of analyses) {
-      const findings = analysis.findings as Finding[];
-      const suggestions = (analysis.aiSuggestions ?? []) as Suggestion[];
-      const cited = (f: Finding) => f.citations.some(c => evidenceIds.has(c.evidenceId) || texts.some(t => t.includes(c.quote) && c.quote.length > 20));
-      const keepSuggestion = (s: Suggestion) => !s.citation || (!evidenceIds.has(s.citation.evidenceId) && !texts.some(t => t.includes(s.citation!.quote) && s.citation!.quote.length > 20));
-      if (!findings.some(cited) && suggestions.every(keepSuggestion)) continue;
-      const cleaned = findings.map(f => (cited(f) ? { ...f, verdict: "insufficient_information" as Verdict, explanation: "This relied on an answer you permanently deleted. Run the analysis again.", citations: [], caveats: [], basis: "no_evidence" as const, evidenceSources: [] } : f));
-      const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
-      for (const f of cleaned) verdictCounts[f.verdict]++;
-      await tx.jobMatchAnalysis.update({ where: { id: analysis.id }, data: { findings: cleaned, verdictCounts, aiSuggestions: suggestions.filter(keepSuggestion) } });
-    }
-    const educationIds = chain.map(c => c.educationId).filter((v): v is string => !!v);
-    await tx.candidateClarification.deleteMany({ where: { id: { in: chain.map(c => c.id) }, userId: first.userId } });
-    if (educationIds.length) await tx.education.deleteMany({ where: { id: { in: educationIds }, profile: { userId: first.userId } } });
-    await event(tx, { userId: first.userId, clarificationId: first.id, savedJobId: first.savedJobId, action: "DELETED", questionKey: first.questionKey, requirementText: first.requirementText });
-  });
+  await deleteAnswerChain(first.userId, first);
   return true;
 }

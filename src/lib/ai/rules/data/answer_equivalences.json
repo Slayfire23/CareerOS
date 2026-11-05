@@ -1,5 +1,5 @@
 {
- "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
+ "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, never fuzzy or semantic. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
  "version": "answer-equivalences-v1",
  "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
  "groups": [
@@ -74,7 +74,9 @@
     "maintained"
    ],
    "objects": [
-    "ledger ledgers books",
+    "ledger",
+    "ledgers",
+    "books",
     "journal entries"
    ],
    "status": "source_checked",
@@ -123,7 +125,8 @@
     "cuts"
    ],
    "objects": [
-    "paychecks wages"
+    "paychecks",
+    "wages"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 43-3051.00 Payroll and Timekeeping Clerks",
@@ -269,7 +272,10 @@
     "passed"
    ],
    "objects": [
-    "medication medications injections meds"
+    "medication",
+    "medications",
+    "injections",
+    "meds"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 29-1141.00 Registered Nurses",
@@ -306,7 +312,8 @@
     "checked"
    ],
    "objects": [
-    "vitals vital signs",
+    "vitals",
+    "vital signs",
     "blood pressure"
    ],
    "status": "source_checked",
@@ -338,7 +345,8 @@
     "cleaned"
    ],
    "objects": [
-    "wounds dressings"
+    "wounds",
+    "dressings"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 29-2061.00 Licensed Practical and Licensed Vocational Nurses",
@@ -375,7 +383,8 @@
     "finished"
    ],
    "objects": [
-    "drywall sheetrock"
+    "drywall",
+    "sheetrock"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 47-2082.00 Tapers",
@@ -414,7 +423,8 @@
     "ran"
    ],
    "objects": [
-    "forklift forklifts",
+    "forklift",
+    "forklifts",
     "lift truck",
     "fork truck",
     "reach truck"
@@ -496,7 +506,9 @@
     "handled"
    ],
    "objects": [
-    "register till cash",
+    "register",
+    "till",
+    "cash",
     "cash drawer"
    ],
    "status": "source_checked",
@@ -562,7 +574,8 @@
     "counted"
    ],
    "objects": [
-    "stock inventory",
+    "stock",
+    "inventory",
     "cycle counts",
     "the walk-in"
    ],
@@ -658,7 +671,8 @@
     "typed"
    ],
    "objects": [
-    "records data"
+    "records",
+    "data"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 43-9021.00 Data Entry Keyers",
@@ -717,7 +731,8 @@
    ],
    "objects": [
     "case law",
-    "statutes precedents"
+    "statutes",
+    "precedents"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
@@ -752,7 +767,8 @@
     "prepared"
    ],
    "objects": [
-    "contracts agreements"
+    "contracts",
+    "agreements"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 23-1011.00 Lawyers",
@@ -782,7 +798,9 @@
     "screened"
    ],
    "objects": [
-    "applicants candidates resumes"
+    "applicants",
+    "candidates",
+    "resumes"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 13-1071.00 Human Resources Specialists",
@@ -821,7 +839,9 @@
     "managed"
    ],
    "objects": [
-    "staff team crew"
+    "staff",
+    "team",
+    "crew"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 43-1011.00 First-Line Supervisors of Office and Administrative Support Workers",
@@ -857,7 +877,8 @@
     "managed"
    ],
    "objects": [
-    "budget budgets"
+    "budget",
+    "budgets"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 13-2031.00 Budget Analysts",
@@ -934,7 +955,8 @@
     "installed"
    ],
    "objects": [
-    "pipe piping"
+    "pipe",
+    "piping"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 47-2152.00 Plumbers, Pipefitters, and Steamfitters",
@@ -1053,7 +1075,8 @@
     "pushed"
    ],
    "objects": [
-    "ivs piggybacks",
+    "ivs",
+    "piggybacks",
     "iv",
     "peripheral lines"
    ],
@@ -1122,7 +1145,9 @@
     "planned"
    ],
    "objects": [
-    "drivers trucks routes"
+    "drivers",
+    "trucks",
+    "routes"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 43-5032.00 Dispatchers, Except Police, Fire, and Ambulance",
@@ -1153,7 +1178,9 @@
     "arranged"
    ],
    "objects": [
-    "flights hotels travel"
+    "flights",
+    "hotels",
+    "travel"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 43-6014.00 Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",
@@ -1242,7 +1269,9 @@
     "ran"
    ],
    "objects": [
-    "ductwork ducts duct",
+    "ductwork",
+    "ducts",
+    "duct",
     "sheet metal trunks",
     "flex runs"
    ],
@@ -1307,7 +1336,8 @@
     "followed"
    ],
    "objects": [
-    "blueprints drawings"
+    "blueprints",
+    "drawings"
    ],
    "status": "source_checked",
    "source": "O*NET 31.0 task statement, 47-2111.00 Electricians",

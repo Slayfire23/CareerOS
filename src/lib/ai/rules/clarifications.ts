@@ -1,4 +1,4 @@
-import { foreignDirected } from "@/lib/ai/claims/language";
+import { answerLanguage } from "@/lib/ai/answer-language";
 import { requiredMonths, unquantifiedTime, type Finding } from "@/lib/ai/match-validation";
 import { answerUntrustedSpans } from "@/lib/ai/requirement-structure";
 import { asksForCredential } from "@/lib/ai/rules/engine";
@@ -91,14 +91,16 @@ export function answerProblem(detail: string, requirementText: string): string |
   const text = detail.trim();
   if (text.length > DETAIL_MAX) return `Keep this to ${DETAIL_MAX} characters.`;
   if (disguised(text)) return "This contains hidden or look-alike characters. Type it plainly.";
+  if (keywordDump(text) || labelledList(text)) return "Write this as a sentence about what you did, not a list of terms.";
+  // Kept as written and left unresolved, however it reads: the checks below only understand English.
+  if (answerLanguage(text) !== "en" && words(text).length >= MIN_WORDS) return null;
   const all = words(text);
   const asked = new Set(words(requirementText));
   const specific = all.filter(w => !SAYS_NOTHING.has(w) && !GENERIC_TERMS.has(w) && !asked.has(w));
   if (all.length < MIN_WORDS || specific.length < MIN_SPECIFIC_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
-  if (keywordDump(text) || labelledList(text)) return "Write this as a sentence about what you did, not a list of terms.";
   if (PRAISE.test(text) && all.length < PRAISE_ONLY_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (hasNegation(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
-  if (answerUntrustedSpans(text).length || foreignDirected(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
+  if (answerUntrustedSpans(text).length) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   return null;
 }
 
