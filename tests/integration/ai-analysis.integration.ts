@@ -95,7 +95,7 @@ it("runs an owner-scoped analysis and stores validated findings with an audit ru
   expect(analysis.run).toMatchObject({ status: "SUCCEEDED", errorCode: null, provider: "rules" });
   // The audit row holds metadata only.
   expect(Object.keys(analysis.run).sort()).toEqual([
-    "billingState", "cacheReadTokens", "cacheWriteTokens", "confirmedMicroUsd", "countsTowardLimit", "errorCode", "finishedAt", "id", "inputTokens",
+    "billingState", "cacheReadTokens", "cacheWriteTokens", "confirmedMicroUsd", "countsTowardLimit", "errorCode", "finishedAt", "id", "inputTokens", "isRecheck",
     "model", "outputTokens", "provider", "providerRequestId", "reconciledAt", "reservedMicroUsd", "savedJobId", "startedAt", "status", "userId",
   ]);
   expect(analysis.run).toMatchObject({ billingState: "NONE", reservedMicroUsd: 0, confirmedMicroUsd: null, countsTowardLimit: true });
