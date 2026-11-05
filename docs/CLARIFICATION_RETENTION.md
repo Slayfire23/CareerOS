@@ -21,7 +21,7 @@ For the exception review behind `CLARIFICATION_REVIEW_ENABLED`, which is off by 
 
 | Kept | Why | Contains the answer's words? |
 |---|---|---|
-| Audit events: action, time, question key, requirement text, verdicts, rules version | The audit trail you asked for, and rate limits that deleting can't reset | **No.** Never written there |
+| Audit events: action, time, question key, requirement text, verdicts, rules version | The audit trail you asked for, and rate limits that deleting can't reset | **No.** Never written there. No longer shown on the job page once the answer is deleted, though a kept event can still show that someone said no |
 | `profileFingerprint` on old analyses | Detects a changed profile | A one-way hash of the profile. Not readable, though it was derived from the text |
 | The job's requirement text | It's job data, not the answer | No |
 

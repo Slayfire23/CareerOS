@@ -303,7 +303,10 @@ The open foundation security follow-ups near the top of this file remain open an
 - [ ] Criteria not met on untouched Set J (236 cases, AI-written, AI-labeled blind): 62.6% accuracy, 1 false "supported" of 254, 2 of 32 injections reaching Possible, 51% of legitimate matches missed. Not tuned.
 - [x] Milestone 11, Phase 2: typed evidence layer and bge-m3 retrieval in shadow, occurrence fix in production (rules-v11), curated layer. See docs/MILESTONE_11_PHASE_2_REPORT.md.
 - [x] Milestone 11, Phase 3: rules-v12 fixes for six false Supported patterns, a conservative language gate, shadow-layer corrections. See docs/MILESTONE_11_PHASE_3_REPORT.md.
+- [x] Milestone 11, Phase 4 (rules-v13): clarification-first review behind `CLARIFICATION_REVIEW_ENABLED`, off by default. See docs/MILESTONE_11_PHASE_4_REPORT.md.
+- [ ] Not safe to enable. On the sealed check: 1 false Supported from a negated answer, third-party, vague, and injected answers reaching Possible, 7 of 9 attacks saved, 0 of 29 paraphrases at Supported. Blockers are listed in the report. Not tuned.
+- [ ] Owner sign-off on the 42 equivalence groups; none are owner-reviewed yet.
 - [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
-- [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000. Needs approval.
+- [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000, 20261103010000, 20261104010000. Needs approval.
 - [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

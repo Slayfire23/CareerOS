@@ -7,6 +7,7 @@ import { confirmAction, openPage } from "./support";
 // The rules engine only: no AI service or Ollama needs to be running. Local resources, fictional data.
 test("a question about a requirement: yes alone changes nothing, specifics are re-read by the rules, and the source stays visible", async ({ page }) => {
   test.setTimeout(180000);
+  test.skip(parse(readFileSync(".env")).CLARIFICATION_REVIEW_ENABLED === "true", "The exception review replaces these questions; see job-review.spec.ts.");
   const env = parse(readFileSync(".env.playwright.local"));
   if (!env.E2E_TEST_EMAIL || !env.E2E_TEST_PASSWORD) throw new Error("A disposable account is required.");
   const tag = randomUUID().slice(0, 8);

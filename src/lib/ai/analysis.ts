@@ -683,7 +683,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey).flatMap(keysOf));
     if (view) shown = maskRevoked(view, revokedEvidence, activeDenials);
     const events = await prisma.clarificationEvent.findMany({
-      where: { userId: user.id, savedJobId: job.id, verdictBefore: { not: null }, verdictAfter: { not: null } },
+      // An answer that's been deleted leaves the audit row, and nothing on this page.
+      where: { userId: user.id, savedJobId: job.id, verdictBefore: { not: null }, verdictAfter: { not: null }, clarificationId: { in: rows.map(r => r.id) } },
       orderBy: { createdAt: "desc" },
       take: 5,
       select: { requirementText: true, verdictBefore: true, verdictAfter: true, createdAt: true },

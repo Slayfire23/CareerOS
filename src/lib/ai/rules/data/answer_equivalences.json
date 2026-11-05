@@ -1,5 +1,5 @@
 {
- "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, never fuzzy or semantic. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
+ "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
  "version": "answer-equivalences-v1",
  "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
  "groups": [

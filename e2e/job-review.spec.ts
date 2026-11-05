@@ -104,7 +104,8 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     await openPage(page, matchUrl);
     await page.getByRole("button", { name: /^Delete permanently answer about Payroll/ }).click();
     await page.getByRole("button", { name: "Yes, delete permanently", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Your answers" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Your answers", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Changed by your answers", exact: true })).toHaveCount(0);
   } finally {
     await openPage(page, "/dashboard/jobs");
     if (await jobRow.count()) await confirmAction(jobRow.getByRole("button", { name: /^Remove / }));
