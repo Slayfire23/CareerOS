@@ -6,9 +6,10 @@ vi.mock("server-only", () => ({}));
 
 import type { Evidence, MatchRequest, MatchRequirement, Verdict } from "@/lib/ai/evidence";
 import { callLocalModel, decideInterpretation } from "@/lib/ai/interpretation";
-import { readAnswer } from "@/lib/ai/rules/answer-review";
+import { validateMatchResponse } from "@/lib/ai/match-validation";
+import { applyAnswers, readAnswer, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
-import { assessRequirements } from "@/lib/ai/rules/engine";
+import { assessRequirements, RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
 import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 
@@ -26,11 +27,13 @@ const month = (asOf: string, back: number) => {
   return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, "0")}`;
 };
 
+const DIR = process.env.FOLLOWUP_DIR ?? "m11_followup";
+
 it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
   const split = process.env.FOLLOWUP_SPLIT!;
   const sealed = process.env.FOLLOWUP_SEALED === "1" || (split === "blind" && process.env.FOLLOWUP_UNSEAL !== "1");
-  const scenarios = (JSON.parse(readFileSync("tests/fixtures/m11_followup/scenarios.json", "utf8")).scenarios as Scenario[]).filter(s => s.split === split);
-  const labels = new Map((JSON.parse(readFileSync("tests/fixtures/m11_followup/labels.json", "utf8")).labels as Label[]).map(l => [l.id, l]));
+  const scenarios = (JSON.parse(readFileSync(`tests/fixtures/${DIR}/scenarios.json`, "utf8")).scenarios as Scenario[]).filter(s => s.split === split);
+  const labels = new Map((JSON.parse(readFileSync(`tests/fixtures/${DIR}/labels.json`, "utf8")).labels as Label[]).map(l => [l.id, l]));
   const t = {
     scenarios: scenarios.length, modelErrors: 0, invalidCitations: 0,
     falseSupported: 0, unsafePossible: 0, unsafePossibleFromReply: 0,
@@ -54,7 +57,11 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     const rulesOnly = assessRequirements(request)[0].verdict;
     const refused = answerProblem(s.answer, s.requirement);
     const reader: Verdict = refused ? "insufficient_information" : readAnswer(requirement, s.answer).verdict;
-    let final: Verdict = rulesOnly === "supported" || rulesOnly === "gap" ? rulesOnly : reader === "insufficient_information" ? rulesOnly : reader;
+    const ANSWER_ID = "experience:00000000-0000-4000-8000-000000000002";
+    const linked: LinkedAnswer[] = refused ? [] : [{ action: "confirm", questionKey: keyForRequirement(requirement), evidenceId: ANSWER_ID, detail: s.answer }];
+    const withAnswer: MatchRequest = { ...request, evidence: [...evidence, { ...evidence[0], id: ANSWER_ID, description: s.answer, source: "clarification" } as Evidence], ...(linked.length ? { linked_answers: linked } : {}) };
+    const applied = validateMatchResponse(withAnswer, JSON.parse(JSON.stringify(rulesResponse(withAnswer, { provider: "rules", model: null, methodVersion: RULES_VERSION }, f => applyAnswers(withAnswer, f, linked, keyForRequirement)))), { provider: "rules", model: null }).findings[0].verdict;
+    let final: Verdict = applied;
     const answerVerdict = final;
     let quotedSentence: string | null = null;
     let asked = false;
