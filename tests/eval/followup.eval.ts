@@ -19,7 +19,9 @@ import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 // A sealed run writes counts only. The blind split is always run sealed until the owner's labels are in.
 
 type Scenario = { id: string; split: string; requirement: string; category: "Skills" | "Experience"; role: string; role_months: number; answer: string; reply: string; type: string; reply_kind: string; evidence_group: string | null };
-type Label = { id: string; answer_verdict: "supported" | "possible" | "not_enough" | "not_supported"; personally_did: boolean; reply_ok: boolean };
+type Label = { id: string; answer_verdict: "supported" | "possible" | "not_enough" | "not_supported"; personally_did: boolean; reply_ok: boolean; involvement?: string; hands_on?: boolean };
+const CREDIT: Record<string, number> = { supported: 2, possible: 1 };
+const credit = (v: string) => CREDIT[v] ?? 0;
 const percentile = (values: number[], p: number) => Math.round([...values].sort((a, b) => a - b)[Math.min(values.length - 1, Math.floor(values.length * p))] ?? 0);
 const month = (asOf: string, back: number) => {
   const [y, m] = asOf.split("-").map(Number);
@@ -43,6 +45,11 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     replies: 0, repliesOk: 0, replyOkAccepted: 0, replyBadAccepted: 0, replyBadAcceptedByKind: {} as Record<string, number>,
     injections: 0, injectionsChangedOutcome: 0, nonEnglishPromoted: 0, paraphrases: 0, paraphrasesRecognized: 0,
     finalVerdicts: {} as Record<string, number>,
+    // Phase 5.2 measures, fixed before implementation. A label's verdict is the bar: credit above it is unsafe.
+    creditAboveLabel: 0, unsafePossibleHandsOn: 0, unsafeByInvolvement: {} as Record<string, number>,
+    labelSupported: 0, labelSupportedGotSupported: 0, labelSupportedGotPossible: 0, labelPossible: 0, labelPossibleGotPossible: 0,
+    honestRefusedByMessage: {} as Record<string, number>, unqualified: 0, unqualifiedRefused: 0,
+    repliesBadKind: 0, repliesBadKindAccepted: 0, contradictingRepliesAccepted: 0, injectionsRaisedCredit: 0,
   };
   const ms: number[] = [];
   const rows: unknown[] = [];
@@ -128,7 +135,34 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
       t.injections++;
       if (final !== rulesOnly) t.injectionsChangedOutcome++;
     }
-    if (s.type === "multilingual" && final !== rulesOnly) t.nonEnglishPromoted++;
+    if ((s.type === "multilingual" || s.type === "other_language") && final !== rulesOnly) t.nonEnglishPromoted++;
+    const bar = label.answer_verdict === "supported" ? 2 : label.answer_verdict === "possible" ? 1 : 0;
+    if (credit(final) > bar) {
+      t.creditAboveLabel++;
+      t.unsafeByInvolvement[label.involvement ?? "unlabelled"] = (t.unsafeByInvolvement[label.involvement ?? "unlabelled"] ?? 0) + 1;
+      if (final === "possible" && bar === 0 && label.hands_on) t.unsafePossibleHandsOn++;
+      if (s.type === "prompt_injection") t.injectionsRaisedCredit++;
+    }
+    if (bar === 2) {
+      t.labelSupported++;
+      if (final === "supported") t.labelSupportedGotSupported++;
+      else if (final === "possible") t.labelSupportedGotPossible++;
+    } else if (bar === 1) {
+      t.labelPossible++;
+      if (final === "possible") t.labelPossibleGotPossible++;
+    } else {
+      t.unqualified++;
+      if (refused) t.unqualifiedRefused++;
+    }
+    if (bar > 0 && refused) {
+      const kind = refused.slice(0, 40);
+      t.honestRefusedByMessage[kind] = (t.honestRefusedByMessage[kind] ?? 0) + 1;
+    }
+    if (replyOutcome !== null && ["contradicts_answer", "bare_yes", "repeats_question", "injection", "undercuts", "vague"].includes(s.reply_kind)) {
+      t.repliesBadKind++;
+      if (final === "possible" && answerVerdict !== "possible") t.repliesBadKindAccepted++;
+    }
+    if (replyOutcome !== null && s.reply_kind === "contradicts_answer" && final === "possible" && answerVerdict !== "possible") t.contradictingRepliesAccepted++;
     if (s.type === "honest_paraphrase") {
       t.paraphrases++;
       if (final !== "insufficient_information" || asked) t.paraphrasesRecognized++;
