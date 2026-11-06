@@ -7,6 +7,7 @@ import { answerLanguage } from "@/lib/ai/answer-language";
 import { buildEvidence, evidenceFingerprint, type Evidence, type MatchRequest, type MatchRequirement } from "@/lib/ai/evidence";
 import { answerStatements, evidenceForAi, evidenceForRules } from "@/lib/ai/evidence-boundary";
 import { readFollowUpReply } from "@/lib/ai/interpretation";
+import { followUpNeed } from "@/lib/ai/rules/follow-up-reply";
 import { validateMatchResponse } from "@/lib/ai/match-validation";
 import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import { applyAnswers, groupsFor, needsCredentialEntry, readAnswer, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
@@ -162,8 +163,10 @@ describe("what still counts", () => {
     expect(afterSaving("Contract review", "I went through every contract review the sales team sent over this year.").verdict).toBe("supported");
   });
 
-  it("we is a lead, because it doesn't say what this person did", () => {
-    expect(afterSaving("Kubernetes", "We patch our Kubernetes clusters and roll the deployments every week.").verdict).toBe("possible");
+  // Owner rule 6 (Phase 5.2): ownership that isn't plain gets a question, not credit. Before rules-v18 this was Possible.
+  it("we isn't a lead, because it doesn't say what this person did: a question asks which part was theirs", () => {
+    expect(afterSaving("Kubernetes", "We patch our Kubernetes clusters and roll the deployments every week.").verdict).toBe("insufficient_information");
+    expect(followUpNeed(req("Kubernetes"), "We patch our Kubernetes clusters and roll the deployments every week.")?.kind).toBe("who");
   });
 
   it("trying something is a lead, not the work", () => {

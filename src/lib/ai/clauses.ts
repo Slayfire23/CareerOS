@@ -49,7 +49,8 @@ export function subjectAt(text: string, atSentenceStart = false): ClauseSubject 
   if (!DETERMINER.has(first)) return null;
   for (let length = 1; length <= 4; length++) {
     const noun = tokens.slice(1, 1 + length);
-    if (noun.length < length || noun.some(w => !/^[\p{L}'’-]+$/u.test(w) || NOT_A_NOUN.has(w.toLowerCase()) || DETERMINER.has(w.toLowerCase()))) return null;
+    // "This year I've got…": a pronoun is never part of someone else's name.
+    if (noun.length < length || noun.some(w => !/^[\p{L}'’-]+$/u.test(w) || NOT_A_NOUN.has(w.toLowerCase()) || DETERMINER.has(w.toLowerCase()) || /^(?:i|we|you|he|she|they|it)(?:['’]\p{L}+)?$/iu.test(w))) return null;
     let at = 1 + length;
     if (/^(?:actually|really|usually|always|also|just|then|now|still|mostly)$/i.test(tokens[at] ?? "")) at++;
     const head = noun[noun.length - 1].toLowerCase();
@@ -67,6 +68,9 @@ export type Clause = { text: string; start: number; subject: ClauseSubject | nul
 const PERSON = /(?:^|\s)(?:he|she|they|someone|somebody|everyone|others|\p{Lu}\p{Ll}+|[\p{L}-]*(?:er|ers|or|ors|ist|ists|ian|ians|ant|ants|ent|ents|ee|ees)|guy|guys|man|men|woman|women|person|people|staff|crew|crews|team|teams|tech|techs|nurse|nurses|doctor|doctors|chef|chefs|boss|lead|partner|partners|vendor|vendors|company|firm|agency|contractor|contractors|coworker|coworkers|colleague|colleagues|husband|wife|son|daughter|dad|mom|brother|sister)\b/u;
 /** Verbs for something happening, not someone doing the work: "a customer came in", "they called". */
 const HAPPENED = /^\W*(?:\S+\s+){0,4}?(?:came|comes|went|goes|called|calls|asked|asks|wanted|wants|needed|needs|said|says|told|tells|showed|shows|walked|walks|stopped|stops|left|leaves|arrived|arrives|happened|happens|liked|likes|loved|loves|hated|hates)\b/iu;
+
+/** A clause whose subject is a person or a firm, not a thing. */
+export const isPersonClause = (text: string) => PERSON.test(text.trim().split(/\s+/).slice(0, 5).join(" "));
 
 /** Someone else, a person or a firm, doing something in the same sentence as the person's own clause: "he did the
  * ratings, I took the photos". A whole sentence about someone else's part isn't this. */

@@ -6,7 +6,7 @@ import type { MatchRequirement, Verdict } from "@/lib/ai/evidence";
 import { callLocalModel, decideInterpretation } from "@/lib/ai/interpretation";
 import type { Finding } from "@/lib/ai/match-validation";
 import { RULES_VERSION } from "@/lib/ai/rules/engine";
-import { readFollowUpReply, REPLY_NOTES, type ReplyReason } from "@/lib/ai/rules/follow-up-reply";
+import { followUpNeed, readFollowUpReply, REPLY_NOTES, type ReplyReason } from "@/lib/ai/rules/follow-up-reply";
 import { prisma } from "@/lib/db";
 
 // Local testing only, behind FOLLOW_UP_WORKFLOW_ENABLED. After an answer is saved and the rules have read it,
@@ -42,20 +42,27 @@ export async function proposeFollowUp(options: { config: AiConfig; userId: strin
   const rulesOnly: Verdict = finding.verdict;
   if (rulesOnly !== "insufficient_information") return "none"; // The rules read it already.
 
-  const call = await callLocalModel(requirement.text, options.answer, { url: shadow.url, model: shadow.model, fetchImpl: options.fetchImpl });
-  const result = decideInterpretation(requirement, options.answer, rulesOnly, call.raw);
-  if (result.reason === "model_unavailable" || result.reason === "output_rejected") {
-    await event(options.userId, options.clarificationId, options.jobId, "FU_UNAVAILABLE", options.questionKey);
-    return "unavailable";
+  // Code asks first, without the model, when who did it or the person's part isn't plain. Only otherwise may the model
+  // suggest asking about related work.
+  const need = followUpNeed(requirement, options.answer);
+  let followUpSpan = need ? { start: need.start, end: need.end } : null;
+  if (!followUpSpan) {
+    const call = await callLocalModel(requirement.text, options.answer, { url: shadow.url, model: shadow.model, fetchImpl: options.fetchImpl });
+    const result = decideInterpretation(requirement, options.answer, rulesOnly, call.raw);
+    if (result.reason === "model_unavailable" || result.reason === "output_rejected") {
+      await event(options.userId, options.clarificationId, options.jobId, "FU_UNAVAILABLE", options.questionKey);
+      return "unavailable";
+    }
+    if (result.outcome !== "follow_up" || !result.followUpSpan) return "none";
+    followUpSpan = result.followUpSpan;
   }
-  if (result.outcome !== "follow_up" || !result.followUpSpan) return "none";
   // The same words on another requirement aren't asked about a second time.
-  const quote = options.answer.slice(result.followUpSpan.start, result.followUpSpan.end);
+  const quote = options.answer.slice(followUpSpan.start, followUpSpan.end);
   if (earlier.some(f => f.clarification.detail?.slice(f.quoteStart, f.quoteEnd) === quote)) return "none";
   // The answer may have gone while the model was reading it.
   if (!(await prisma.candidateClarification.count({ where: { id: options.clarificationId, userId: options.userId, status: "ACTIVE" } }))) return "none";
   const created = await prisma.clarificationFollowUp.createMany({
-    data: [{ userId: options.userId, clarificationId: options.clarificationId, savedJobId: options.jobId, experienceId: parent.experienceId, questionKey: options.questionKey, requirementText: requirement.text.slice(0, 500), quoteStart: result.followUpSpan.start, quoteEnd: result.followUpSpan.end }],
+    data: [{ userId: options.userId, clarificationId: options.clarificationId, savedJobId: options.jobId, experienceId: parent.experienceId, questionKey: options.questionKey, requirementText: requirement.text.slice(0, 500), quoteStart: followUpSpan.start, quoteEnd: followUpSpan.end }],
     skipDuplicates: true,
   });
   if (!created.count) return "none";
@@ -88,7 +95,7 @@ export async function replyToFollowUp(options: Scope & { followUpId: string; det
   const quoted = row.clarification.detail.slice(row.quoteStart, row.quoteEnd);
   const detail = options.detail.trim();
   const requirement: MatchRequirement = { index: 0, text: row.requirementText, category: "Skills", priority: "Required" };
-  const reading = readFollowUpReply(requirement, quoted, detail);
+  const reading = readFollowUpReply(requirement, quoted, detail, row.clarification.detail);
   if (AT_THE_DOOR.includes(reading.reason)) return { ok: false, error: "invalid", message: REFUSALS[reading.reason] };
   const action = row.status === "ANSWERED" ? "FU_EDITED" : "FU_ANSWERED";
   const saved = await prisma.$transaction(async tx => {

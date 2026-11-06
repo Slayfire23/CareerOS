@@ -10,7 +10,7 @@ import { validateMatchResponse } from "@/lib/ai/match-validation";
 import { applyAnswers, readAnswer, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
 import { assessRequirements, RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
-import { readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
+import { followUpNeed, readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
 import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 
 // The follow-up workflow end to end on independent scenarios, scored against an independent labeler.
@@ -75,12 +75,21 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     let replyOutcome: string | null = null;
     let decision: string | null = null;
     if (!refused && final === "insufficient_information") {
-      const call = await callLocalModel(s.requirement, s.answer, { url: process.env.FOLLOWUP_URL, model: "qwen3:8b" });
-      if (call.error) t.modelErrors++;
-      else ms.push(call.ms);
-      const r = decideInterpretation(requirement, s.answer, rulesOnly, call.raw);
-      decision = `${r.reason}/${r.checked?.link ?? "-"}/${(r.checked?.facts ?? []).map(f => `${f.actor}:${f.status}:${f.about}`).join(",")}/drop${r.checked?.droppedFacts ?? 0}`;
-      for (const e of r.evidence) if (s.answer.slice(e.start, e.end) !== e.text) t.invalidCitations++;
+      // As in production: code asks first, without the model; only otherwise may the model suggest a question.
+      const need = followUpNeed(requirement, s.answer);
+      let r: { outcome: string; followUpSpan?: { start: number; end: number } | null } = { outcome: "none", followUpSpan: null };
+      if (need) {
+        r = { outcome: "follow_up", followUpSpan: { start: need.start, end: need.end } };
+        decision = `code:${need.kind}`;
+      } else {
+        const call = await callLocalModel(s.requirement, s.answer, { url: process.env.FOLLOWUP_URL, model: "qwen3:8b" });
+        if (call.error) t.modelErrors++;
+        else ms.push(call.ms);
+        const m = decideInterpretation(requirement, s.answer, rulesOnly, call.raw);
+        decision = `${m.reason}/${m.checked?.link ?? "-"}/${(m.checked?.facts ?? []).map(f => `${f.actor}:${f.status}:${f.about}`).join(",")}/drop${m.checked?.droppedFacts ?? 0}`;
+        for (const e of m.evidence) if (s.answer.slice(e.start, e.end) !== e.text) t.invalidCitations++;
+        r = m;
+      }
       if (r.outcome === "follow_up" && r.followUpSpan) {
         const key = keyForRequirement(requirement);
         const group = s.evidence_group ? `group:${s.evidence_group}` : null;
@@ -98,7 +107,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
         if (s.reply.trim()) {
           const quoted = s.answer.slice(r.followUpSpan!.start, r.followUpSpan!.end);
           quotedSentence = quoted;
-          const reading = readFollowUpReply(requirement, quoted, s.reply);
+          const reading = readFollowUpReply(requirement, quoted, s.reply, s.answer);
           replyOutcome = reading.reason;
           t.replies++;
           if (label.reply_ok) t.repliesOk++;
@@ -167,7 +176,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
       t.paraphrases++;
       if (final !== "insufficient_information" || asked) t.paraphrasesRecognized++;
     }
-    if (!sealed) rows.push({ id: s.id, type: s.type, reply_kind: s.reply_kind, requirement: s.requirement, answer: s.answer, reply: s.reply, label, rulesOnly, refused, reader, answerVerdict, asked, quotedSentence, decision, replyOutcome, replyIfAsked: s.reply.trim() ? readFollowUpReply(requirement, quotedSentence ?? s.answer, s.reply).reason : "skipped", final });
+    if (!sealed) rows.push({ id: s.id, type: s.type, reply_kind: s.reply_kind, requirement: s.requirement, answer: s.answer, reply: s.reply, label, rulesOnly, refused, reader, answerVerdict, asked, quotedSentence, decision, replyOutcome, replyIfAsked: s.reply.trim() ? readFollowUpReply(requirement, quotedSentence ?? s.answer, s.reply, s.answer).reason : "skipped", final });
   }
   const report = { split, sealed, totals: t, latency: { p50Ms: percentile(ms, 0.5), p95Ms: percentile(ms, 0.95), maxMs: ms.length ? Math.round(Math.max(...ms)) : 0, calls: ms.length }, ...(sealed ? {} : { rows }) };
   mkdirSync(dirname(process.env.FOLLOWUP_REPORT!), { recursive: true });

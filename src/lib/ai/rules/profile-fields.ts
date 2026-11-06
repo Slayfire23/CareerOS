@@ -42,7 +42,7 @@ const PLAIN_NEGATIVE = /\b(?:no|not|never|none|without|nothing|cannot|neither|no
 /** The person says they didn't: strict about any plain negative, but only in their own clauses. */
 /** Negatives that describe doing something: preventing it ("I don't let it turn into a standoff") or why the work is done
  * ("so we're not out of filters"). */
-const DOING_BY_NEGATIVE = /\b(?:don['’]t|do\s+not|never|won['’]t)\s+let\s+(?:it|things|them|that|anything|situations?|tempers?)\s+\p{L}+|\bso\s+(?:that\s+)?(?:we|i|they|it|nobody|no\s+one)(?:['’]\p{L}+)?\s+(?:(?:are|is|do|does|will|can|aren['’]t|isn['’]t|don['’]t|doesn['’]t|won['’]t|can['’]t|never)\s+)?(?:not\s+|never\s+)?[^,;.!?]*$/giu;
+const DOING_BY_NEGATIVE = /\bnot\s+(?:just|only)\b|\b(?:don['’]t|do\s+not|never|won['’]t)\s+let\s+(?:it|things|them|that|anything|situations?|tempers?)\s+\p{L}+|\bso\s+(?:that\s+)?(?:we|i|they|it|nobody|no\s+one)(?:['’]\p{L}+)?\s+(?:(?:are|is|do|does|will|can|aren['’]t|isn['’]t|don['’]t|doesn['’]t|won['’]t|can['’]t|never)\s+)?(?:not\s+|never\s+)?[^,;.!?]*$/giu;
 export const ownNegative = (sentence: string) => {
   const own = ownClauses(sentence).replace(DOING_BY_NEGATIVE, " ");
   return PLAIN_NEGATIVE.test(own) || hasNegation(own);

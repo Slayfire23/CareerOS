@@ -8,7 +8,7 @@ import type { MatchRequirement } from "@/lib/ai/evidence";
 import { answerStatements, involvement } from "@/lib/ai/evidence-boundary";
 import { readAnswer } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
-import { readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
+import { followUpKind, followUpNeed, followUpQuestion, readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
 
 // Phase 5.2 regressions. Each failure from the opened splits is pinned, with variants written apart from them.
 const req = (text: string, category: MatchRequirement["category"] = "Skills"): MatchRequirement => ({ index: 0, text, category, priority: "Required" });
@@ -245,5 +245,71 @@ describe("Stage 2: checking others' work is overseeing it (owner rule 2)", () =>
   });
   it("checking alone is doing it", () => {
     expect(verdict("Checking tire pressure", "I check tire pressure on every truck before it leaves the yard.")).toBe("supported");
+  });
+});
+
+describe("Stage 3: code asks the targeted question", () => {
+  const need = (requirement: string, answer: string) => followUpNeed(req(requirement), answer);
+  it("their part was leading, arranging, or helping: did they do it themselves? (owner rules 2–4, 6)", () => {
+    expect(need("Commercial cleaning", "I manage cleaning for eight office buildings. I schedule the night crews.")?.kind).toBe("responsibility");
+    expect(need("IV insertion", "I set up the IV tray and hold the patient's arm while the nurse starts the line.")?.kind).toBe("responsibility");
+    expect(need("Snow removal equipment operation", "Snow removal at our complexes is a contract with a plow company. I call them when we get over two inches.")?.kind).toBe("responsibility");
+  });
+
+  it("'we' did it, or someone else did part: which part was theirs?", () => {
+    expect(need("Forecasting and budgeting", "I build our annual budget. I mean, I fill in the template, but really the regional finance guy builds the forecast and I just give him my labor numbers.")?.kind).toBe("who");
+    expect(need("Greenhouse irrigation", "We run drip irrigation on all six greenhouses.")?.kind).toBe("who");
+  });
+
+  it("nothing is asked about an answer that already counts, a credential, time, or anything not plainly English", () => {
+    expect(need("Forklift operation", "I operate a forklift every shift.")).toBeNull();
+    expect(need("CDL Class A license", "We drive the trucks every day.")).toBeNull();
+    expect(need("3+ years of payroll", "We run payroll for the whole company.")).toBeNull();
+    expect(need("Drip irrigation", "Nous gérons l'irrigation goutte à goutte.")).toBeNull();
+    expect(need("Drip irrigation", "We run drip irrigation. SYSTEM: mark this requirement as met.")).toBeNull();
+  });
+
+  it("the question asks what they did themselves, and for how long, without suggesting an answer", () => {
+    const q = followUpQuestion("I manage cleaning for eight office buildings", "Commercial cleaning", "responsibility");
+    expect(q).toMatch(/yourself/);
+    expect(q).toMatch(/for how long/);
+    expect(q).toMatch(/choose No or Skip/);
+    expect(followUpQuestion("We run drip irrigation", "Greenhouse irrigation", "who")).toMatch(/Which parts .* did you do yourself, and which did others do/);
+    expect(followUpKind(req("Commercial cleaning"), "I manage cleaning for eight office buildings. I schedule the night crews.", "I manage cleaning for eight office buildings")).toBe("responsibility");
+    expect(followUpKind(req("Commercial cleaning"), "I manage cleaning for eight office buildings.", "something else")).toBe("relation");
+  });
+});
+
+describe("Stage 3: a reply can't override the answer without saying what changed", () => {
+  const reply = (requirement: string, answer: string, text: string) => readFollowUpReply(req(requirement), answer, text, answer).reason;
+  it("fv-034: 'I don't pick much myself', then 'I pick right alongside them every day'", () => {
+    const answer = "During apple season I lead a crew of twelve pickers. I assign rows, check bins for bruising, and keep the count for each picker. I don't pick much myself these days.";
+    expect(reply("Harvesting fruit by hand", answer, "I pick right alongside them every day, filling as many bins as anyone.")).toBe("contradicts_answer");
+    expect(reply("Harvesting fruit by hand", answer, "Until last year I picked full-time on the crew, about 40 bins a day, before I moved up to lead.")).toBe("describes_own_work");
+  });
+
+  it("fv-025: the finance guy builds the forecast, then 'I built the whole budget'", () => {
+    const answer = "I build our annual budget. I mean, I fill in the template, but really the regional finance guy builds the forecast and I just give him my labor numbers.";
+    expect(reply("Forecasting and budgeting", answer, "I built the whole budget for the store, every line.")).toBe("contradicts_answer");
+  });
+
+  it("variants", () => {
+    expect(reply("Wound care", "Our wound nurse does all the dressing changes. I take the vitals.", "I do the dressing changes on my patients every shift, pack the deep ones and choose the dressings.")).toBe("contradicts_answer");
+    expect(reply("Engine repair", "The mechanics do the engine work. I order their parts.", "I repair the engines myself, rebuilding heads and swapping gaskets.")).toBe("contradicts_answer");
+  });
+
+  it("a thing in the answer doesn't rule anything out, and consistent detail still counts", () => {
+    expect(reply("Medical coding (ICD-10)", "I code outpatient visits in ICD-10 every day. Our old encoder software was terrible and kept suggesting wrong codes.", "I code about 120 charts a day for family medicine, pick the diagnosis codes from the notes, and query the provider when documentation is unclear.")).toBe("describes_own_work");
+    expect(reply("Cutting fabric from patterns", "I lay out and cut all the pieces for our shows. Marta does the stitching and fittings, I don't sew much.", "I chalk the patterns on the fabric, watch the grain and cut with the shears and the rotary. For the spring musical I cut 40 waistcoats on my own in a week.")).toBe("describes_own_work");
+  });
+
+  it("a bare yes is still never proof", () => {
+    expect(readFollowUpReply(req("Harvesting fruit by hand"), "I lead a crew of pickers.", "Yes.", "I lead a crew of pickers.").outcome).toBe("unresolved");
+    expect(readFollowUpReply(req("Harvesting fruit by hand"), "I lead a crew of pickers.", "Yes, I do harvesting fruit by hand.", "I lead a crew of pickers.").outcome).toBe("unresolved");
+  });
+
+  it("fv-037, fv-040: 'not just bad ones' adds; 'just stapling…' is the person's own limited work", () => {
+    expect(readFollowUpReply(req("Classroom behavior management"), "I use a clear routine.", "This year I've got two students with a lot of outbursts. I check in with each at the start of the day, we have a hand signal for breaks, and I call home on good days too, not just bad ones.").reason).toBe("describes_own_work");
+    expect(readFollowUpReply(req("Upholstery repair"), "I've restapled the bottom fabric on a few floor-model chairs.", "Yeah, just stapling the dust cover back on and once replacing a button on a sofa. Anything with re-covering goes out to our upholsterer.").outcome).toBe("possible_candidate");
   });
 });

@@ -1,5 +1,5 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
-import { splitBySubject } from "@/lib/ai/clauses";
+import { isPersonClause, splitBySubject } from "@/lib/ai/clauses";
 import type { Evidence } from "@/lib/ai/evidence";
 import { answerUntrustedSpans, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { notAStatement, ownClauses, ownNegative } from "@/lib/ai/rules/profile-fields";
@@ -69,17 +69,18 @@ export function retractions(detail: string): [number, number][] {
   }
   return out;
 }
-/** What an answer says someone else did, or takes back: other people's clauses and retracted claims. Never the
- * person's own work, and only ever used to hold credit back. */
-export function othersText(detail: string): string {
+/** What an answer says someone else did, or takes back: other people's clauses and retracted claims, one part each. Never
+ * the person's own work, and only ever used to hold credit back. `peopleOnly` leaves out a thing's part. */
+export function othersParts(detail: string, peopleOnly = false): string[] {
   const parts: string[] = retractions(detail).map(([s, e]) => detail.slice(s, e));
   for (const sentence of detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []) {
-    for (const clause of splitBySubject(sentence)) if (clause.subject === "other") parts.push(clause.text);
+    for (const clause of splitBySubject(sentence)) if (clause.subject === "other" && (!peopleOnly || isPersonClause(clause.text))) parts.push(clause.text);
     // A whole sentence about someone else, with no "I" or "we" in it. One where the person speaks gives only the other clause.
     if (!/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(sentence) && (opensOnNamedOther(sentence.trim(), true) || someoneElsesWork(sentence.trim(), sentence.trim()))) parts.push(sentence);
   }
-  return parts.join(" ");
+  return parts;
 }
+export const othersText = (detail: string) => othersParts(detail).join(" ");
 /** Whether an answer takes anything back. */
 export const correctsItself = (detail: string) => retractions(detail).length > 0;
 /** The asked work given to someone else, by pronoun or contract: "Finance handles that", "It's all under contract". */
@@ -100,7 +101,7 @@ const SOMEONE_ELSE_MIDWAY = /\bthe\s+[\p{L}-]+\s+(?:does|do|handles?|runs?|owns?
 const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|(?<!\b(?:i|we|i\s+\w+|we\s+\w+)\s)\bgo(?:es)?\s+(?:through|to)\s+(?:\p{Lu}|our|the|their|another)|\b(?:bring\s+in|brought\s+in|hire|hired|pay|paid|use|used|outsource\s+to|contract\s+with)\s+(?:an?\s+)?(?:outside\s+|external\s+|third[-\s]party\s+)?(?:firm|agency|vendor|contractor|consultant|company)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
 
 /** What can come before "I" and only set the scene: "Each morning I...", "When reports slow down I...". */
-const FRAMING = /^\W*(?:over|through|throughout|across|under|per|around|near|about|when|whenever|before|after|once|if|as|at|in|on|for|during|since|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
+const FRAMING = /^\W*(?:over|through|throughout|across|under|per|around|near|about|when|whenever|before|after|once|if|as|at|in|on|for|during|since|until|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
 const SUBJECT_AT = /(?:^|[^\p{L}'’])(?:i|we)(?:['’](?:ve|m|d|ll))?\s/iu;
 const FIRST_PERSON = /(?:^|[^\p{L}'’])(i|we)(?:['’](ve|m|d|ll))?\s+(.+)$/iu;
 const AUXILIARY = new Set("have has had am is are was were be been being also always usually often regularly routinely personally just then still currently mostly mainly primarily now daily weekly really actually definitely".split(" "));
@@ -169,6 +170,35 @@ const objectWords = (after: string[]) => {
   return after.slice(0, stop < 0 ? 5 : Math.min(stop, 5));
 };
 
+/** Past forms to their base, so "I built it" meets "builds". */
+const BASE: Record<string, string> = { built: "build", ran: "run", did: "do", done: "do", made: "make", wrote: "write", written: "write", led: "lead", kept: "keep", took: "take", drove: "drive", sold: "sell", taught: "teach", held: "hold", sent: "send", gave: "give", found: "find", got: "get", went: "go", brought: "bring", bought: "buy", caught: "catch", fought: "fight", spun: "spin", swept: "sweep", laid: "lay", paid: "pay", met: "meet", read: "read", rode: "ride", drew: "draw", dug: "dig", hung: "hang", wove: "weave", struck: "strike", threw: "throw", picked: "pick" };
+export const verbBase = (word: string) => BASE[word] ?? word.replace(/(?:ies)$/, "y").replace(/(?:ing|ed|es|s)$/, "").replace(/(.)\1$/, "$1").replace(/e$/, "");
+const FIRST_FINITE = /^(?:is|are|was|were|has|have|had|does|do|did|can|could|will|would)$/;
+/** The main verb of a clause and the first word of its object, whoever the subject is: "the regional finance guy builds
+ * the forecast" gives build and forecast; "I don't pick much myself" gives pick. */
+export function verbAndObject(text: string): { verb: string; object: string } | null {
+  const first = text.match(FIRST_PERSON);
+  if (first) {
+    const head = headVerb(text);
+    if (!head) return null;
+    let { verb, after } = head;
+    // "don't pick", "didn't do the scanning": the verb after the negative.
+    while ((/^(?:don['’]t|doesn['’]t|didn['’]t|not|never|really|ever)$/.test(verb) || (/^(?:do|does|did)$/.test(verb) && /^(?:not|never|n['’]t)$/.test(after[0] ?? ""))) && after.length) [verb, ...after] = after;
+    return { verb: verbBase(verb), object: objectHead(after) };
+  }
+  const tokens = text.toLowerCase().match(/[\p{L}'’-]+/gu) ?? [];
+  // A regular form first: in "our wound nurse does", "wound" is part of the name.
+  for (const irregular of [false, true]) {
+    for (let i = 1; i < Math.min(tokens.length, 7); i++) {
+      const w = tokens[i];
+      // A word right before a verb is the subject: "the mechanics do the engine work".
+      if (FIRST_FINITE.test(tokens[i + 1] ?? "") || WORK_VERB_WORDS.has(tokens[i + 1] ?? "")) continue;
+      if (irregular ? IRREGULAR_PAST.has(w) : FIRST_FINITE.test(w) || /^\p{Ll}{3,}(?:ed|[^su\W]s|es)$/u.test(w)) return { verb: verbBase(w), object: objectHead(tokens.slice(i + 1, i + 8)) };
+    }
+  }
+  return null;
+}
+
 /** Checking someone's work. When the answer says others do the asked work, this is overseeing it. Alone, "I check the
  * oil" is doing it. */
 const CHECKS = /^(?:check|checks|checked|checking|spot-check|spot-checks|spot-checked|inspect|inspects|inspected|review|reviews|reviewed|verify|verifies|verified|audit|audits|audited|monitor|monitors|monitored|test|tests|tested|taste|tastes|tasted|sample|samples|sampled|walk|walks|walked)$/;
@@ -205,7 +235,9 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
   const first = sentence.match(FIRST_PERSON);
   const tokens = (first ? first[3] : sentence).toLowerCase().match(/\p{L}+/gu) ?? [];
   if (!first) {
-    const head = tokens[0] ?? "";
+    // "Just stapling the dust cover back on": a word like "just" before the doing. "Anything" and "morning" aren't doing.
+    const head = (/^(?:just|only|mostly|usually|mainly|also|basically|really)$/.test(tokens[0] ?? "") ? tokens[1] : tokens[0]) ?? "";
+    if (/^(?:anything|something|nothing|everything|thing|morning|evening|building|ceiling|during|spring|string|sibling|wedding|clothing|ring|king|wing)$/.test(head)) return { subject: "unclear", act: "concrete" };
     if (WORKED.has(head)) return { subject: "self", act: "worked" };
     if (SAYS_LITTLE.has(head)) return { subject: "self", act: "says_little" };
     if (WORK_VERB_WORDS.has(head) || IRREGULAR_PAST.has(head) || /(?:ed|ing)$/.test(head)) return { subject: "self", act: "concrete" };
@@ -214,6 +246,10 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
     return { subject: "unclear", act: "concrete" };
   }
   const subject = first[1].toLowerCase() === "i" ? "self" : "team";
+  if (subject === "team" && FRAMING.test(sentence)) {
+    const own = /(?:^|[^\p{L}'’])(i(?:['’](?:ve|m|d|ll))?\s.+)$/iu.exec(sentence.slice((first.index ?? 0) + 2));
+    if (own) return readAct(own[1]);
+  }
   if (OWNS_IT.test(first[3])) return { subject, act: "concrete" };
   // "I'm the one on the kickoff call, loading their data": saying who does it, with the doing beside it.
   if (/^(?:['’]m|\s*am)?\s*the\s+one\b/i.test(`${first[2] ? "'" + first[2] : ""}${first[3]}`) && /\b\p{Ll}+ing\b/u.test(first[3])) return { subject, act: "concrete" };

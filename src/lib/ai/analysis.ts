@@ -25,7 +25,7 @@ import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pri
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
-import { applyFollowUps, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
+import { applyFollowUps, followUpKind, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
 import { buildReviewQueue, questionKey, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
@@ -117,7 +117,7 @@ async function activeFollowUps(userId: string, config: AiConfig): Promise<{ evid
   const usable = rows.filter(r => r.clarification.experience);
   return {
     evidence: usable.map((r): Evidence => ({ id: `experience:${r.id}`, kind: "experience", job_title: r.clarification.experience!.jobTitle.trim(), start_month: r.clarification.experience!.startMonth, end_month: r.clarification.experience!.endMonth, description: r.detail!.slice(0, 1000), source: "clarification" })),
-    replies: usable.map(r => ({ questionKey: r.questionKey, evidenceId: `experience:${r.id}`, quoted: r.clarification.detail?.slice(r.quoteStart, r.quoteEnd) ?? "", detail: r.detail! })),
+    replies: usable.map(r => ({ questionKey: r.questionKey, evidenceId: `experience:${r.id}`, quoted: r.clarification.detail?.slice(r.quoteStart, r.quoteEnd) ?? "", detail: r.detail!, answer: r.clarification.detail ?? "" })),
   };
 }
 
@@ -724,8 +724,10 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
       changes: events.map(e => ({ requirementText: e.requirementText ?? "", before: e.verdictBefore!, after: e.verdictAfter!, at: e.createdAt })),
       followUps: followUpOn ? followUpRows.filter(f => f.savedJobId === job.id).map(f => {
         const quoted = f.clarification.detail?.slice(f.quoteStart, f.quoteEnd) ?? "";
-        const reading = f.detail ? readFollowUpReply({ index: 0, text: f.requirementText, category: "Skills", priority: "Required" }, quoted, f.detail) : null;
-        return { id: f.id, status: f.status, requirementText: f.requirementText, detail: f.detail, question: followUpQuestion(quoted, f.requirementText), note: reading ? REPLY_NOTES[reading.reason] : null };
+        const asked = { index: 0, text: f.requirementText, category: "Skills" as const, priority: "Required" as const };
+        const answer = f.clarification.detail ?? "";
+        const reading = f.detail ? readFollowUpReply(asked, quoted, f.detail, answer) : null;
+        return { id: f.id, status: f.status, requirementText: f.requirementText, detail: f.detail, question: followUpQuestion(quoted, f.requirementText, followUpKind(asked, answer, quoted)), note: reading ? REPLY_NOTES[reading.reason] : null };
       }) : [],
       followUpUnavailable: followUpOn && (await prisma.clarificationEvent.count({ where: { userId: user.id, savedJobId: job.id, action: "FU_UNAVAILABLE" } })) > 0,
     };

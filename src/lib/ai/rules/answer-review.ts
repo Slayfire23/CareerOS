@@ -79,7 +79,7 @@ const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" ||
 
 function readPiece(piece: string, allStatements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
   // When helping is what's asked, saying you helped is saying you did it.
-  const statements = allStatements.filter(s => !aboutSomethingElse(s) && ownedFor(piece, s)).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
+  const statements = allStatements.filter(s => s.subject !== "team" && !aboutSomethingElse(s) && ownedFor(piece, s)).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
   const groups = GROUPS.filter(g => askedBy(piece, g));
   let lead: string | null = null;
   for (const s of statements) {
