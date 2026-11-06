@@ -27,7 +27,8 @@ export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRu
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plainly a brief try, however it's described: a weekend, a sample, a trial, a look around, then gone. */
-const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends)\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const WALKS_BACK = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|ok(?:ay)?|truthfully)\b,?\s+(?:i\s+|it['’]?s\s+|that['’]?s\s+)?(?:mostly|only|just|really|more\s+like|not|don['’]?t|didn['’]?t|never|read|watch|help)\b/i;
 /** Trying something is related to doing it, at most. */
 const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
 /** Being in the room isn't doing it, and starting and stopping isn't either. */
@@ -106,6 +107,8 @@ export function answerStatements(detail: string): Statement[] {
   // An answer with an instruction in it gets no credit at all, however good the rest looks.
   if (answerLanguage(detail) !== "en" || hasDirectedText(detail)) return [];
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
+  // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
+  if (WALKS_BACK.test(detail)) return [];
   if (BRIEF_TRY.test(detail) || /\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\bnot\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b/i.test(detail)) return [];
   const barred = untrustedSpans(detail, "answer");
   const out: Statement[] = [];
@@ -119,7 +122,10 @@ export function answerStatements(detail: string): Statement[] {
     // thing isn't the part saying what was done. Only the clause with the person in it counts.
     const own = whole.slice(span[0]);
     const subject = SUBJECT_AT.exec(own);
-    if (subject && subject.index > 0 && !FRAMING.test(own)) {
+    // A short opening with no "the" or "a" sets the scene, like "Mondays" or "Most nights". "Marcy and I" doesn't.
+    const before = own.slice(0, subject ? subject.index + 1 : 0).trim();
+    const scene = /^[\p{L}'’-]+(?:\s+[\p{L}'’-]+)?$/u.test(before) && !/^(?:a|an|the|our|my|their|his|her|its|this|that)\b/i.test(before) && !/\band$/i.test(before);
+    if (subject && subject.index > 0 && !FRAMING.test(own) && !scene) {
       // "A contractor we hired did the move": the "we" here belongs to the contractor's description. Only
       // a clause of the person's own, set apart, can stand by itself.
       if (!/(?:[,;:]\s*(?:and\s+|so\s+|then\s+|but\s+)?|\b(?:and|so|then|but)\s+)$/i.test(own.slice(0, subject.index + 1))) continue;
@@ -134,7 +140,15 @@ export function answerStatements(detail: string): Statement[] {
     // Judged on the first clause: "I build the screens, and I hand them to engineering" is doing the work.
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
     const ownership: Ownership = OVERSAW.test(firstClause) ? "oversaw" : ASSISTED.test(firstClause) ? "assisted" : "performed";
-    out.push({ text, start, ...readAct(text), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text), ownership });
+    const read = readAct(text);
+    out.push({ text, start, ...read, exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text), ownership });
+    // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
+    const mine = read.subject === "team" ? /(?:,\s*(?:and|so|then|but)\s+|\s+and\s+)(?=i\s)/i.exec(text) : null;
+    if (mine) {
+      const own = text.slice(mine.index + mine[0].length);
+      const firstOwn = own.split(/,\s*(?:and|then|but)\s+/i)[0];
+      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(own), ownership: OVERSAW.test(firstOwn) ? "oversaw" : ASSISTED.test(firstOwn) ? "assisted" : "performed" });
+    }
   }
   return out;
 }

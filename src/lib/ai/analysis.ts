@@ -18,12 +18,14 @@ import {
   type MatchRequest,
   type MatchRequirement,
   type Verdict,
+  type Evidence,
 } from "@/lib/ai/evidence";
 import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
+import { applyFollowUps, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
 import { buildReviewQueue, questionKey, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
@@ -103,6 +105,20 @@ async function ownedEvidenceProfile(userId: string) {
       projects: { select: { id: true, title: true, description: true, contribution: true, results: true, skills: true } },
     },
   });
+}
+
+/** Active replies, as evidence entries a citation can point at. Nothing here unless the workflow is on. */
+async function activeFollowUps(userId: string, config: AiConfig): Promise<{ evidence: Evidence[]; replies: LinkedReply[] }> {
+  if (!config.enabled || !config.followUp) return { evidence: [], replies: [] };
+  const rows = await prisma.clarificationFollowUp.findMany({
+    where: { userId, status: "ANSWERED", detail: { not: null }, clarification: { status: "ACTIVE" } },
+    select: { id: true, detail: true, questionKey: true, quoteStart: true, quoteEnd: true, clarification: { select: { detail: true, experience: { select: { jobTitle: true, startMonth: true, endMonth: true } } } } },
+  });
+  const usable = rows.filter(r => r.clarification.experience);
+  return {
+    evidence: usable.map((r): Evidence => ({ id: `experience:${r.id}`, kind: "experience", job_title: r.clarification.experience!.jobTitle.trim(), start_month: r.clarification.experience!.startMonth, end_month: r.clarification.experience!.endMonth, description: r.detail!.slice(0, 1000), source: "clarification" })),
+    replies: usable.map(r => ({ questionKey: r.questionKey, evidenceId: `experience:${r.id}`, quoted: r.clarification.detail?.slice(r.quoteStart, r.quoteEnd) ?? "", detail: r.detail! })),
+  };
 }
 
 /** A person's active answers, for the rules only. */
@@ -311,11 +327,12 @@ export async function runJobAnalysis(options: {
   let linked: LinkedAnswer[] = [];
   try {
     const requirementsList: Requirement[] = validateRequirements(job.requirements);
-    const evidence = buildEvidence(profile);
+    const followUps = usesRules ? await activeFollowUps(user.id, config) : { evidence: [], replies: [] };
+    const evidence = [...buildEvidence(profile), ...followUps.evidence];
     linked = usesRules ? await activeAnswers(user.id, config.reviewEnabled === true) : [];
     fingerprint = evidenceFingerprint(evidence, config.reviewEnabled ? linked : []); // always of the unredacted profile
     const requirements = buildRequirements(requirementsList);
-    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}) };
+    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}), ...(followUps.replies.length ? { follow_up_replies: followUps.replies } : {}) };
     // Answers stay on this server, read by the answer reader only. The service's strict format has no source field.
     if (!usesRules) request.evidence = evidenceForAi(evidence);
     if (cloud) {
@@ -432,7 +449,8 @@ async function analyzeWithRules(options: {
   let validated;
   try {
     const answers = request.linked_answers ?? [];
-    const body = rulesResponse(request, { provider, model, methodVersion }, answers.length ? findings => applyAnswers(request, findings, answers, reviewKeyFor) : undefined);
+    const replies = request.follow_up_replies ?? [];
+    const body = rulesResponse(request, { provider, model, methodVersion }, answers.length || replies.length ? findings => applyFollowUps(request, applyAnswers(request, findings, answers, reviewKeyFor), replies, reviewKeyFor) : undefined);
     // The same independent checks as any other result, on the same format.
     validated = validateMatchResponse(request, JSON.parse(JSON.stringify(body)), { provider, model });
   } catch (error) {
@@ -595,7 +613,7 @@ export type LocalAiStatus = { available: boolean; model: string | null };
 export type ClarificationAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
 
 export type ReviewAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; status: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
-export type ReviewPageData = { queue: ReviewQueue; answers: ReviewAnswer[]; changes: { requirementText: string; before: string; after: string; at: Date }[] };
+export type ReviewPageData = { queue: ReviewQueue; answers: ReviewAnswer[]; changes: { requirementText: string; before: string; after: string; at: Date }[]; followUps: { id: string; status: string; question: string; requirementText: string; detail: string | null; note: string | null }[]; followUpUnavailable: boolean };
 
 /** Masks results resting on an answer that no longer counts, so a revocation takes effect everywhere at once,
  * even for a job not yet run again. */
@@ -645,7 +663,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   let currentFingerprint: string | null = null;
   try {
-    currentFingerprint = profile ? evidenceFingerprint(buildEvidence(profile), config.reviewEnabled ? await activeAnswers(user.id, true) : []) : null;
+    currentFingerprint = profile ? evidenceFingerprint([...buildEvidence(profile), ...(await activeFollowUps(user.id, config)).evidence], config.reviewEnabled ? await activeAnswers(user.id, true) : []) : null;
   } catch {
     currentFingerprint = null;
   }
@@ -671,10 +689,14 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
 
   let shown = view;
   let review: ReviewPageData | null = null;
+  // A reply counts only while it's active, and only with the workflow on.
+  const followUpRows = await prisma.clarificationFollowUp.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" }, select: { id: true, status: true, savedJobId: true, requirementText: true, detail: true, quoteStart: true, quoteEnd: true, clarification: { select: { detail: true, status: true } } } });
+  const followUpOn = config.enabled && !!config.followUp;
+  const lapsedReplies = followUpRows.filter(f => !followUpOn || f.status !== "ANSWERED" || f.clarification.status !== "ACTIVE").map(f => `experience:${f.id}`);
   if (!config.reviewEnabled && view) {
     // Whatever was revoked while the review was on stays out of what's shown, with it off too.
     const lapsed = await prisma.candidateClarification.findMany({ where: { userId: user.id, status: { not: "ACTIVE" }, evidenceId: { not: null } }, select: { evidenceId: true } });
-    shown = maskRevoked(view, new Set(lapsed.map(r => r.evidenceId!)), new Set());
+    shown = maskRevoked(view, new Set([...lapsed.map(r => r.evidenceId!), ...lapsedReplies]), new Set());
   }
   if (config.reviewEnabled) {
     const rows = await prisma.candidateClarification.findMany({
@@ -686,7 +708,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     const keysOf = (r: (typeof rows)[number]) => [r.questionKey!, ...r.coveredKeys];
     const answered = new Set(rows.filter(r => r.status === "ACTIVE" && r.questionKey && r.outcome !== "SKIPPED" && r.outcome !== "DECLINED").flatMap(keysOf));
     const skipped = new Set(rows.filter(r => r.outcome === "SKIPPED" && r.savedJobId === job.id && r.questionKey).flatMap(keysOf));
-    const revokedEvidence = new Set(rows.filter(r => r.status !== "ACTIVE" && r.evidenceId).map(r => r.evidenceId!));
+    const revokedEvidence = new Set([...rows.filter(r => r.status !== "ACTIVE" && r.evidenceId).map(r => r.evidenceId!), ...lapsedReplies]);
     const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey).flatMap(keysOf));
     if (view) shown = maskRevoked(view, revokedEvidence, activeDenials);
     const events = await prisma.clarificationEvent.findMany({
@@ -700,6 +722,12 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
       queue: shown ? buildReviewQueue(shown.requirements, shown.findings, answered, skipped) : { questions: [], notShown: 0, settled: 0, total: 0, suppressedByEarlierAnswers: 0 },
       answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null })),
       changes: events.map(e => ({ requirementText: e.requirementText ?? "", before: e.verdictBefore!, after: e.verdictAfter!, at: e.createdAt })),
+      followUps: followUpOn ? followUpRows.filter(f => f.savedJobId === job.id).map(f => {
+        const quoted = f.clarification.detail?.slice(f.quoteStart, f.quoteEnd) ?? "";
+        const reading = f.detail ? readFollowUpReply({ index: 0, text: f.requirementText, category: "Skills", priority: "Required" }, quoted, f.detail) : null;
+        return { id: f.id, status: f.status, requirementText: f.requirementText, detail: f.detail, question: followUpQuestion(quoted, f.requirementText), note: reading ? REPLY_NOTES[reading.reason] : null };
+      }) : [],
+      followUpUnavailable: followUpOn && (await prisma.clarificationEvent.count({ where: { userId: user.id, savedJobId: job.id, action: "FU_UNAVAILABLE" } })) > 0,
     };
   }
 

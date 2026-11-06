@@ -3,6 +3,7 @@ import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
+import { proposeFollowUp } from "@/lib/ai/follow-up";
 import { shadowInterpret } from "@/lib/ai/interpretation-shadow";
 import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, entryProblem } from "@/lib/ai/rules/clarifications";
@@ -59,6 +60,7 @@ const event = (tx: Tx, data: { userId: string; clarificationId: string | null; s
   tx.clarificationEvent.create({ data: { ...data, rulesVersion: RULES_VERSION } });
 
 /** Run the rules again and record what changed. A failure here loses nothing: the answer is already saved. */
+export const recheckAfterAnswer = (options: Scope, userId: string, jobId: string, clarificationId: string | null, key: string | null, action: string) => recheck(options, userId, jobId, clarificationId, key, action);
 async function recheck(options: Scope, userId: string, jobId: string, clarificationId: string | null, key: string | null, action: string): Promise<ReviewResult> {
   const before = await prisma.jobMatchAnalysis.findFirst({ where: { userId, savedJobId: jobId }, orderBy: { createdAt: "desc" }, select: { requirements: true, findings: true } });
   const run = await runJobAnalysis({ supabaseAuthId: options.supabaseAuthId, jobId, provider: "rules", config: options.config, now: options.now, recheck: true }).catch(() => null);
@@ -110,7 +112,8 @@ export async function confirmWithDetail(options: Scope & { analysisId: string; q
   if (saved === "rate_limited") return { ok: false, error: "rate_limited" };
   if (!saved) return { ok: false, error: "save_failed" };
   const checked = await recheck(options, question.userId, question.jobId, saved.id, question.key, "CONFIRMED");
-  void shadowInterpret({ config: options.config, userId: question.userId, clarificationId: saved.id, jobId: question.jobId, requirementText: question.requirement.text, answer: options.detail.trim() });
+  if (options.config.enabled && options.config.followUp) await proposeFollowUp({ config: options.config, userId: question.userId, clarificationId: saved.id, jobId: question.jobId, questionKey: question.key, requirementText: question.requirement.text, answer: options.detail.trim() }).catch(() => "none");
+  else void shadowInterpret({ config: options.config, userId: question.userId, clarificationId: saved.id, jobId: question.jobId, requirementText: question.requirement.text, answer: options.detail.trim() });
   return checked;
 }
 
@@ -181,11 +184,15 @@ export async function correctAnswer(options: Scope & { clarificationId: string; 
   if (problem) return { ok: false, error: "invalid", message: problem };
   const saved = await withinLimit(old.userId, now, "correction", async tx => {
     await tx.candidateClarification.update({ where: { id: old.id }, data: { status: "SUPERSEDED" } });
+    const previousFollowUps = await tx.clarificationFollowUp.findMany({ where: { clarificationId: old.id, userId: old.userId }, select: { id: true } });
     const row = await tx.candidateClarification.create({
       data: { userId: old.userId, savedJobId: old.savedJobId, requirementText: old.requirementText, outcome: "ROLE_DETAIL_ADDED", experienceId: old.experienceId!, detail: options.detail.trim(), questionKey: old.questionKey, coveredKeys: old.coveredKeys, supersedesId: old.id },
       select: { id: true },
     });
     await tx.candidateClarification.update({ where: { id: row.id }, data: { evidenceId: `experience:${row.id}` } });
+    // A question quoted the old words, so an open one closes. It isn't asked again.
+    await tx.clarificationFollowUp.updateMany({ where: { id: { in: previousFollowUps.map(f => f.id) }, status: "PROPOSED" }, data: { status: "CLOSED" } });
+    await tx.clarificationFollowUp.updateMany({ where: { id: { in: previousFollowUps.map(f => f.id) } }, data: { clarificationId: row.id, quoteStart: 0, quoteEnd: 0 } });
     await event(tx, { userId: old.userId, clarificationId: row.id, savedJobId: old.savedJobId, action: "CORRECTED", questionKey: old.questionKey, requirementText: old.requirementText });
     return row;
   }).catch(() => null);
@@ -203,6 +210,9 @@ export async function revokeAnswer(options: Scope & { clarificationId: string })
   if (!old || old.status === "REVOKED") return { ok: false, error: "not_found" };
   await prisma.$transaction(async tx => {
     await tx.candidateClarification.update({ where: { id: old.id }, data: { status: "REVOKED", revokedAt: options.now ?? new Date(), educationId: null } });
+    // A reply stands on its answer. It stops counting too, and an open question goes away.
+    await tx.clarificationFollowUp.updateMany({ where: { clarificationId: old.id, status: "PROPOSED" }, data: { status: "CLOSED" } });
+    await tx.clarificationFollowUp.updateMany({ where: { clarificationId: old.id, status: "ANSWERED" }, data: { status: "REVOKED" } });
     if (old.educationId) await tx.education.deleteMany({ where: { id: old.educationId, profile: { userId: old.userId } } });
     await event(tx, { userId: old.userId, clarificationId: old.id, savedJobId: old.savedJobId, action: "REVOKED", questionKey: old.questionKey, requirementText: old.requirementText });
   });

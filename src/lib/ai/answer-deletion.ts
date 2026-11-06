@@ -34,14 +34,23 @@ async function scrubAnalyses(tx: Tx, userId: string, rows: Row[]) {
  * What stays is that something was answered and deleted, and when: deleting can't reset a daily limit. */
 export async function purgeAnswers(tx: Tx, userId: string, rows: Row[]) {
   if (!rows.length) return;
-  await scrubAnalyses(tx, userId, rows);
+  // Replies go with their answer, by cascade. Their copies have to be found first.
+  const replies = await tx.clarificationFollowUp.findMany({ where: { userId, clarificationId: { in: rows.map(r => r.id) } }, select: { id: true, detail: true } });
+  await scrubAnalyses(tx, userId, [...rows, ...replies.map(r => ({ id: r.id, evidenceId: `experience:${r.id}`, educationId: null, detail: r.detail }))]);
   const ids = rows.map(r => r.id);
   const educationIds = rows.map(c => c.educationId).filter((v): v is string => !!v);
-  await tx.clarificationEvent.deleteMany({ where: { userId, clarificationId: { in: ids }, action: { startsWith: "SHADOW_" } } });
+  await tx.clarificationEvent.deleteMany({ where: { userId, clarificationId: { in: ids }, action: { in: ["SHADOW_SUPPORTED", "SHADOW_POSSIBLE", "SHADOW_FOLLOW_UP", "SHADOW_UNRESOLVED", "FU_UNAVAILABLE"] } } });
   await tx.clarificationEvent.updateMany({ where: { userId, clarificationId: { in: ids } }, data: { requirementText: null, questionKey: null, verdictBefore: null, verdictAfter: null, savedJobId: null } });
   await tx.candidateClarification.deleteMany({ where: { id: { in: ids }, userId } });
   if (educationIds.length) await tx.education.deleteMany({ where: { id: { in: educationIds }, profile: { userId } } });
   await tx.clarificationEvent.createMany({ data: ids.map(clarificationId => ({ userId, clarificationId, action: "DELETED", rulesVersion: RULES_VERSION })) });
+}
+
+/** One reply's words and copies. The row stays, without them, so the question doesn't come back. */
+export async function purgeFollowUpReply(tx: Tx, userId: string, reply: { id: string; detail: string | null; clarificationId: string; status: string }) {
+  await scrubAnalyses(tx, userId, [{ id: reply.id, evidenceId: `experience:${reply.id}`, educationId: null, detail: reply.detail }]);
+  await tx.clarificationFollowUp.update({ where: { id: reply.id }, data: { detail: null, status: reply.status === "PROPOSED" ? "SKIPPED" : "REVOKED" } });
+  await tx.clarificationEvent.create({ data: { userId, clarificationId: reply.clarificationId, action: "FU_DELETED", rulesVersion: RULES_VERSION } });
 }
 
 const ROW = { id: true, evidenceId: true, educationId: true, detail: true } as const;

@@ -32,8 +32,8 @@ export type FindingMethod = "rules" | "local_ai";
 export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
 export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
 /** Which deterministic rule decided a finding (shown as where the result came from). */
-export type RuleBasis = "candidate_answer" | "candidate_denied" | "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
-export const RULE_BASES: RuleBasis[] = ["candidate_answer", "candidate_denied", "stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
+export type RuleBasis = "candidate_follow_up" | "candidate_answer" | "candidate_denied" | "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
+export const RULE_BASES: RuleBasis[] = ["candidate_follow_up", "candidate_answer", "candidate_denied", "stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
 export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
 /** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
 export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
@@ -288,6 +288,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     const denied = f.basis === "candidate_denied";
     if (denied && (verdict !== "gap" || !request.linked_answers?.some(a => a.action === "deny"))) reject("a denial without a person's answer");
     if (f.basis === "candidate_answer" && !citations.some(c => evidence.get(c.evidenceId)?.kind === "experience" && citationOrigin(evidence.get(c.evidenceId)!, c.quote) === "candidate_answer")) reject("an answer's result must cite that answer");
+    if (f.basis === "candidate_follow_up" && (verdict !== "possible" || !request.follow_up_replies?.length || !citations.some(c => evidence.get(c.evidenceId)?.kind === "experience" && citationOrigin(evidence.get(c.evidenceId)!, c.quote) === "candidate_answer"))) reject("a follow-up reply beyond what one can show");
     if (verdict === "gap" && !denied && areaIsEmpty(request, requirement)) reject("gap claimed for an empty profile area");
 
     // A requirement that needs confirmation is never judged automatically, whatever produced it.

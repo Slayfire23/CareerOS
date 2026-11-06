@@ -50,6 +50,8 @@ export type AiConfig =
       reviewEnabled?: boolean;
       /** Local shadow testing of the model reading answers. null unless turned on, on this machine. */
       interpretationShadow?: { url: string; model: string } | null;
+      /** The follow-up workflow, for local testing. null unless turned on, with the review, on this machine. */
+      followUp?: { url: string; model: string } | null;
     }
   | { enabled: false; reason: string; reviewEnabled?: false };
 
@@ -121,9 +123,13 @@ function readService(env: Record<string, string | undefined>): { url: string; se
   return { url: url.origin + url.pathname.replace(/\/$/, ""), secret };
 }
 
-/** Only with the flag set, never on Vercel, and only to Ollama on this machine, with this one model. */
-function readInterpretationShadow(env: Record<string, string | undefined>): { url: string; model: string } | null {
-  if (env.INTERPRETATION_SHADOW_ENABLED?.trim() !== "true" || env.VERCEL) return null;
+/** Follow-ups use the review's controls, so they need it on too. */
+const readFollowUp = (env: Record<string, string | undefined>) => (env.FOLLOW_UP_WORKFLOW_ENABLED?.trim() === "true" && env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true" ? localModel(env) : null);
+const readInterpretationShadow = (env: Record<string, string | undefined>) => (env.INTERPRETATION_SHADOW_ENABLED?.trim() === "true" ? localModel(env) : null);
+
+/** Never on Vercel, and only to Ollama on this machine, with this one model. */
+function localModel(env: Record<string, string | undefined>): { url: string; model: string } | null {
+  if (env.VERCEL) return null;
   const url = env.INTERPRETATION_SHADOW_URL?.trim() || "http://127.0.0.1:11434";
   try {
     if (!["127.0.0.1", "localhost", "[::1]"].includes(new URL(url).hostname)) return null;
@@ -147,6 +153,7 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
       dailyLimit, attemptLimit: dailyLimit * ATTEMPT_MULTIPLIER, cloud: null, cloudReason: service.problem, localAi: null,
       reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
       interpretationShadow: readInterpretationShadow(env),
+      followUp: readFollowUp(env),
     };
   }
   const { cloud, reason } = readCloud(env);
@@ -162,5 +169,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     localAi: readLocalAi(env),
     reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
     interpretationShadow: readInterpretationShadow(env),
+    followUp: readFollowUp(env),
   };
 }

@@ -30,7 +30,7 @@ export const NEGATION = new RegExp(
 export const hasNegation = (text: string) => new RegExp(NEGATION.source, "i").test(text);
 
 const LEADING_OTHER = /^[^,;:]*?(?:[,;:]\s*(?:and\s+|so\s+|then\s+)?|\s+(?:so|and|then)\s+)(?=(?:i|we)(?:['’]\p{L}+)?\s)/iu;
-const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
+const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|so(?=\s+(?:the|a|an|our|my|their|his|her|it|they|he|she|nobody|no\s+one|drivers?|customers?|clients?|patients?|users?|kids|students|people|staff|nothing|bugs?)\b)|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
 /** A sentence without what it says about others: "customers can't log in, so I reset their accounts", "who
  * never bought from us". A negative left over is the person's own. An opening that negates ("Not once...") stays. */
 export function ownClauses(sentence: string): string {

@@ -28,6 +28,7 @@ model User {
   jobMatchAnalyses JobMatchAnalysis[]
   clarifications   CandidateClarification[]
   clarificationEvents ClarificationEvent[]
+  clarificationFollowUps ClarificationFollowUp[]
 }
 
 /// ROLE_DETAIL_ADDED: a description of work in one role. ENTRY_ADDED: a typed education or credential
@@ -44,6 +45,39 @@ enum ClarificationStatus {
   ACTIVE
   SUPERSEDED
   REVOKED
+}
+
+enum FollowUpStatus {
+  PROPOSED
+  ANSWERED
+  DENIED
+  SKIPPED
+  REVOKED
+  CLOSED
+}
+
+/// A question a local model suggested about an answer, and the person's reply. Holds offsets, not a copy of
+/// the answer's words. One per requirement, per person, ever, so it's never asked twice.
+model ClarificationFollowUp {
+  id              String                 @id @default(uuid()) @db.Uuid
+  userId          String                 @db.Uuid
+  clarificationId String                 @db.Uuid
+  savedJobId      String?                @db.Uuid
+  experienceId    String                 @db.Uuid
+  questionKey     String                 @db.VarChar(64)
+  requirementText String                 @db.VarChar(500)
+  quoteStart      Int
+  quoteEnd        Int
+  status          FollowUpStatus         @default(PROPOSED)
+  detail          String?
+  createdAt       DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime               @updatedAt @db.Timestamptz(3)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clarification   CandidateClarification @relation(fields: [clarificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionKey])
+  @@index([clarificationId])
+  @@index([savedJobId])
 }
 
 /// Append-only audit trail for answers. Never holds an answer's words, so it survives permanent deletion.
@@ -90,6 +124,7 @@ model CandidateClarification {
   user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedJob        SavedJob?               @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
   experience      ProfessionalExperience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  followUps       ClarificationFollowUp[]
   education       Education?              @relation(fields: [educationId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])

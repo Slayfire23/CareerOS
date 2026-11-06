@@ -28,6 +28,8 @@ export type TokenBudget = { max_input_tokens: number; max_output_tokens: number 
 export type MatchRequest = {
   /** Exception review only, and only for the rules on this server: a person's active answers. */
   linked_answers?: LinkedAnswerRecord[];
+  /** Follow-up workflow only: active replies, for the rules on this server. */
+  follow_up_replies?: { questionKey: string; evidenceId: string; quoted: string; detail: string }[];
   request_id: string;
   provider: AnalysisProvider;
   /** Cloud providers only: the token bounds Next.js reserved budget for. */

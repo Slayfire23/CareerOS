@@ -168,6 +168,12 @@ describe("boundaries", () => {
     expect(source).not.toMatch(/assumeApproved: true/);
   });
 
+  it("analysis reads replies with rules only, and never reaches the model", () => {
+    const analysis = readFileSync("src/lib/ai/analysis.ts", "utf8");
+    expect(analysis).not.toMatch(/@\/lib\/ai\/follow-up"|interpretation/);
+    expect(readFileSync("src/lib/ai/rules/follow-up-reply.ts", "utf8")).not.toMatch(/interpretation|callLocalModel|fetch\(/);
+  });
+
   it("nothing that decides a verdict imports it", () => {
     for (const file of ["src/lib/ai/analysis.ts", "src/lib/ai/rules/engine.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/evidence-boundary.ts", "src/lib/ai/match-validation.ts", "src/lib/ai/rules/suggestions.ts", "src/lib/ai/rules/review-queue.ts"]) {
       expect(readFileSync(file, "utf8"), file).not.toMatch(/interpret/i);
@@ -178,7 +184,7 @@ describe("boundaries", () => {
     for (const file of ["src/lib/ai/clarification-review.ts", "src/lib/ai/clarification-store.ts"]) {
       const source = readFileSync(file, "utf8");
       expect(source, file).not.toMatch(/@\/lib\/ai\/interpretation"/);
-      for (const line of source.split("\n").filter(l => l.includes("shadowInterpret("))) expect(line.trim().startsWith("void shadowInterpret("), line).toBe(true);
+      for (const line of source.split("\n").filter(l => l.includes("shadowInterpret("))) expect(/^(?:else )?void shadowInterpret\(/.test(line.trim()), line).toBe(true);
     }
     const runner = readFileSync("src/lib/ai/interpretation-shadow.ts", "utf8");
     expect(runner).toMatch(/Promise<void>/);
@@ -238,7 +244,8 @@ describe("follow-up replies", () => {
 
   it("the question doesn't lean toward yes, and offers a way out", () => {
     const question = followUpQuestion(SENTENCE, "Soldering copper pipe");
-    expect(question).toMatch(/or something different/);
+    expect(question).toMatch(/What, if anything/);
+    expect(question).toMatch(/personally/);
     expect(question).toMatch(/No or Skip/);
     expect(question).not.toMatch(/confirm|just say|surely|right\?/i);
   });

@@ -12,6 +12,7 @@ import { requirementsHref, SECTIONS } from "@/lib/sections";
 import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
 import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
 import { ClarificationPanel, EditAnswerForm, TakeBackForm } from "@/components/job-clarification";
+import { FollowUps } from "@/components/job-follow-up";
 import { AnswerControls, ReviewQuestions } from "@/components/job-review-panel";
 import { clarificationFor } from "@/lib/ai/rules/clarifications";
 import terminology from "@/lib/ai/rules/data/terminology.json";
@@ -76,6 +77,7 @@ const ORIGIN_NOTE = (sources: EvidenceOrigin[] | undefined) =>
     : "From your profile. Self-reported: CareerOS hasn't independently verified it.";
 /** Where each result came from. All of these are deterministic rules, never AI. */
 const RULE_SOURCE: Record<RuleBasis, string> = {
+  candidate_follow_up: "Rules engine: reading your reply to a follow-up question. A local model suggested asking, and nothing else",
   candidate_answer: "Rules engine: reading your answer to a question",
   candidate_denied: "Rules engine: your answer says you don't have this",
   stated_absent: "Rules engine: your profile says you don't have this",
@@ -155,6 +157,7 @@ function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnT
       </ul>
     </div>}
     <ReviewQuestions analysisId={analysisId} questions={queue.questions} roles={data.roles} />
+    {(review.followUps.length > 0 || review.followUpUnavailable) && <FollowUps followUps={review.followUps} unavailable={review.followUpUnavailable} />}
     {queue.notShown > 0 && <p className="text-sm text-muted">{queue.notShown} more not shown, to keep this short. They appear as you answer these.</p>}
     {review.answers.length > 0 && <div className="space-y-2">
       <h4 className="text-sm font-semibold">Your answers</h4>

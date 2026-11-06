@@ -208,6 +208,9 @@ describe("who did the work", () => {
     ["mixed, other does what's asked", "Wiring", "I did the framing and Luis did the wiring on every house."],
     ["mixed, reverse order", "Wiring", "Luis did the wiring and I did the framing on every house."],
     ["mixed, comma", "Bookkeeping", "I run the front desk, and our accountant handles the bookkeeping."],
+    ["walks it back", "Welding structural steel", "Yes, I weld structural steel all the time. Well, I mostly tack things up and the certified guys run the actual beads."],
+    ["walks it back, I mean", "Primavera P6 scheduling", "Yes, I use Primavera P6 scheduling daily. I mean, I read the printouts, the scheduler builds it."],
+    ["two days, then gone", "Industrial sewing", "I did industrial sewing for about two days when they were short, then went back to inspection. Wasn't for me."],
   ])("%s isn't doing it: %s / %s", (_kind, text, detail) => {
     expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
   });
@@ -216,6 +219,9 @@ describe("who did the work", () => {
     ["mixed, own part is what's asked", "Framing", "I did the framing and Luis did the wiring on every house."],
     ["mixed, own part second", "Framing", "Luis did the wiring and I did the framing on every house."],
     ["own work, naming who it's for", "Payroll", "I run payroll for the crew every other Friday."],
+    ["a day of the week first", "Cycle counting", "Mondays I do cycle counting on twenty bins off the slow movers list."],
+    ["we, then I", "Parent communication", "We use a calm corner, and I handle parent communication by calling home early."],
+    ["a negative about others, after so", "Route planning", "Each morning I do route planning so drivers aren't doubling back across the river."],
     ["giving a patient something", "Medication administration", "I gave him the medication administration record and did medication administration on each round."],
     ["a person is the object", "Wound care", "I did wound care for her after every surgery."],
     ["contractor as the customer", "Invoice processing", "I did invoice processing for our contractors every week."],
