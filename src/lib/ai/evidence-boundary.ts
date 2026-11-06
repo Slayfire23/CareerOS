@@ -27,7 +27,7 @@ export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRu
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plainly a brief try, however it's described: a weekend, a sample, a trial, a look around, then gone. */
-const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bone\s+(?:session|class|workshop|lesson|demo)\b|\bthat\s+one\s+(?:session|class|time|workshop|course|lesson)\b|\blunch[\s-]+and[\s-]+learn\b|\b(?:a|one)\s+(?:one|half|single)[\s-]day\s+(?:class|course|workshop|session|training)\b|\bfollowed\s+(?:the|their|his|her)\s+[\p{L}'’-]+\s+steps\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\btook\s+(?:a|an|one|that)\s+(?:[\p{L}-]+\s+){0,3}?(?:class|course|workshop|webinar|seminar|bootcamp|training)\b|\b(?:weekend|evening|night|community|intro(?:ductory)?|online|one-day|half-day)\s+(?:class|course|workshop|bootcamp)\b|\bone\s+(?:session|class|workshop|lesson|demo)\b|\bthat\s+one\s+(?:session|class|time|workshop|course|lesson)\b|\blunch[\s-]+and[\s-]+learn\b|\b(?:a|one)\s+(?:one|half|single)[\s-]day\s+(?:class|course|workshop|session|training)\b|\bfollowed\s+(?:the|their|his|her)\s+[\p{L}'’-]+\s+steps\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
 const CORRECTION_MARKER = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|in\s+reality|truthfully|ok(?:ay)?|correction|sorry)\b[,:]?\s*([^.!?;\n]*)/giu;
 /** What makes the words after a marker a correction: they shrink the claim, deny it, or give it to someone else. */
 const SHRINKS = /\b(?:only|just|mostly|merely|barely|hardly|not|never|no|none|kind\s+of|sort\s+of|stood|watched|wave[sd]?|near)\b|n['’]t\b/i;
@@ -89,6 +89,8 @@ export type Statement = {
   exposureOnly: boolean;
   /** The text without what it says about others. Read this, and quote `text`. */
   readable: string;
+  /** Part of an answer about a class, demo, tutorial, or trial: limited familiarity at most. */
+  brief?: boolean;
   ownership: Ownership;
 };
 
@@ -133,9 +135,12 @@ export function answerStatements(detail: string): Statement[] {
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
   // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
   if (correctsItself(detail) || handsThisOff(detail)) return [];
-  if (BRIEF_TRY.test(detail) || /\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\bnot\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b/i.test(detail)) return [];
+  if (/\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\b(?:not|wasn['’]t|isn['’]t)\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b|\bnever\s+(?:used|touched|opened)\s+it\s+again\b/i.test(detail)) return [];
+  // A class, demo, tutorial, or trial is limited familiarity: everything said beside it is read as that, and no more.
+  const brief = BRIEF_TRY.test(detail);
   const barred = untrustedSpans(detail, "answer");
   const out: Statement[] = [];
+  const leading: Statement[] = [];
   for (const match of detail.matchAll(/[^.!?;\n]+/g)) {
     const whole = match[0].trim();
     const wholeStart = match.index + match[0].indexOf(whole);
@@ -153,6 +158,12 @@ export function answerStatements(detail: string): Statement[] {
       // "A contractor we hired did the move": the "we" here belongs to the contractor's description. Only
       // a clause of the person's own, set apart, can stand by itself.
       if (!/(?:[,;:]\s*(?:and\s+|so\s+|then\s+|but\s+)?|\b(?:and|so|then|but)\s+)$/i.test(own.slice(0, subject.index + 1))) continue;
+      // "Spun up a test bucket with Terraform, then we stuck with CloudFormation": the opening is the person's own too.
+      const opening = own.slice(0, subject.index + 1).replace(/(?:[,;:]\s*(?:and|so|then|but)?|\s+(?:and|so|then|but))\s*$/i, "").trim();
+      if (opening && /^\W*(?!\p{L}+ing\b)\p{L}/u.test(opening) && readAct(opening).subject === "self" && readAct(opening).act === "concrete" && !/\b(?:is|are|was|were|be|been)\b/i.test(opening) && !ownNegative(opening) && !HYPOTHETICAL.test(opening)) {
+        const at = wholeStart + whole.indexOf(opening, span[0]);
+        if (!barred.some(([s, e]) => s < at + opening.length && at < e)) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(opening), ownership: OVERSAW.test(opening) ? "oversaw" : ASSISTED.test(opening) ? "assisted" : "performed" });
+      }
       span[0] += subject.index + subject[0].search(/\p{L}/u);
     }
     const text = whole.slice(span[0], span[1]).trim();
@@ -165,14 +176,14 @@ export function answerStatements(detail: string): Statement[] {
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
     const ownership: Ownership = OVERSAW.test(firstClause) ? "oversaw" : ASSISTED.test(firstClause) ? "assisted" : "performed";
     const read = readAct(text);
-    out.push({ text, start, ...read, exposureOnly: EXPOSURE.test(whole), readable: ownClauses(text), ownership });
+    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(text), ownership });
     // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
     const mine = read.subject === "team" ? /(?:,\s*(?:and|so|then|but)\s+|\s+and\s+)(?=i\s)/i.exec(text) : null;
     if (mine) {
       const own = text.slice(mine.index + mine[0].length);
       const firstOwn = own.split(/,\s*(?:and|then|but)\s+/i)[0];
-      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: EXPOSURE.test(whole), readable: ownClauses(own), ownership: OVERSAW.test(firstOwn) ? "oversaw" : ASSISTED.test(firstOwn) ? "assisted" : "performed" });
+      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(own), ownership: OVERSAW.test(firstOwn) ? "oversaw" : ASSISTED.test(firstOwn) ? "assisted" : "performed" });
     }
   }
-  return out;
+  return [...leading, ...out].sort((x, y) => x.start - y.start);
 }

@@ -11,7 +11,7 @@ import { validateMatchResponse } from "@/lib/ai/match-validation";
 import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import { applyAnswers, groupsFor, needsCredentialEntry, readAnswer, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { hasQualificationWords } from "@/lib/ai/skill-relations";
-import { answerProblem } from "@/lib/ai/rules/clarifications";
+import { answerProblem, clarificationFor } from "@/lib/ai/rules/clarifications";
 import { asksForCredential, RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { evaluationLanguage } from "@/lib/ai/requirement-structure";
 import { buildReviewQueue, keyForRequirement, questionKey } from "@/lib/ai/rules/review-queue";
@@ -283,6 +283,50 @@ describe("blind review recognition fixes, rules-v17", () => {
   });
 });
 
+describe("owner decisions, rules-v17", () => {
+  const DBA: Evidence = { id: ROLE, kind: "experience", job_title: "Database Administrator", start_month: "2024-06", end_month: null, description: null };
+  const timed = (detail: string) => {
+    const r = req("7+ years of PostgreSQL administration", "Experience");
+    return decide(r, [DBA, answerEntry(detail)], [{ action: "confirm", questionKey: keyForRequirement(r), evidenceId: ANSWER, detail }]);
+  };
+
+  it("fu-068: claiming the time against shorter role dates is Possible, and asks for the earlier roles", () => {
+    const r = req("7+ years of PostgreSQL administration", "Experience");
+    expect(decide(r, [DBA]).verdict).toBe("gap");
+    const f = timed("Yes, 7+ years. Backups, replication, tuning, upgrades, all of it.");
+    expect(f).toMatchObject({ verdict: "possible", basis: "candidate_answer", rulesOnlyVerdict: "gap" });
+    expect(f.explanation).toMatch(/add them in Experience/);
+    const question = clarificationFor(r, { requirementIndex: 0, verdict: "gap", basis: "employment_dates", explanation: "", citations: [], caveats: [] });
+    expect(question?.question).toMatch(/earlier experience/);
+  });
+
+  it.each([
+    ["no time claimed", "Backups, replication, tuning, upgrades, all of it."],
+    ["less time claimed", "I have about three years of PostgreSQL administration."],
+    ["someone else's time", "My manager has 10 years of PostgreSQL administration."],
+    ["hypothetical", "I could get to 7 years of PostgreSQL administration soon."],
+  ])("but not when %s", (_name, detail) => {
+    expect(timed(detail).verdict).toBe("gap");
+  });
+
+  it("fu-102: setting traps yourself is limited pest-control work, Possible at most, beside the exterminator's part", () => {
+    const r = readFollowUpReply(req("Pest control treatment"), "I keep the binder ready for the health inspector", "I set out the sticky traps myself and tell him where we've seen mice. He sprays and does the bait stations.");
+    expect(r).toMatchObject({ outcome: "possible_candidate", provenance: "self_reported" });
+  });
+
+  it.each([
+    "A contractor we hired did all of it; I gave him the keys.",
+    "He sprays and does the bait stations. I just tell him where the mice are.",
+    "I set out traps, though really the exterminator does everything that matters.",
+    "My part was the endpoints and the SQL on top of her tables. The table layout itself was hers.",
+    "He does the pads, rotors and bleeding. I just take the wheels off and put them back on after.",
+    "I wrote the copy and sent her the logo. She did the actual layouts.",
+    "I carry the cooler between the wards and sign the custody sheet. The techs handle everything once it's on their bench.",
+  ])("someone else's part still can't carry a reply: %s", reply => {
+    expect(readFollowUpReply(req("Pest control treatment"), "I keep the binder ready", reply).outcome).toBe("unresolved");
+  });
+});
+
 describe("who did the work", () => {
   it.each([
     ["delegated, the blocker", "Data migration", "A contractor we hired did the data migration; I gave him the logins."],
@@ -359,8 +403,28 @@ describe("the four production findings", () => {
     ["Docker", "I played with Docker on my laptop."],
     ["Excel macros", "I recorded Excel macros for a free trial of the add-in."],
     ["AutoCAD drafting", "Installed the AutoCAD free trial and clicked around for a couple of evenings. Drew a box or two, tried some AutoCAD drafting tools, and let it run out."],
-  ])("a brief try isn't experience: %s", (text, detail) => {
+  ])("a brief try is limited familiarity, Possible at most: %s", (text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("supported");
+  });
+
+  it.each([
+    ["fu-057", "Terraform", "Spun up a test bucket with Terraform in a lunch and learn once, then we stuck with CloudFormation."],
+    ["fu-076", "AutoCAD drafting", "Took a weekend community class on AutoCAD drafting a few years back and drew a floor plan in it."],
+  ])("%s: an introductory session on a tool reaches Possible, and no further", (_id, text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("possible");
+  });
+
+  it.each([
+    ["Professional AutoCAD drafting experience", "Took a weekend community class on AutoCAD drafting a few years back and drew a floor plan in it."],
+    ["Advanced Terraform", "Spun up a test bucket with Terraform in a lunch and learn once."],
+    ["3+ years of Terraform", "Spun up a test bucket with Terraform in a lunch and learn once."],
+  ])("but never for experience, proficiency, a level, or time: %s", (text, detail) => {
     expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
+  });
+
+  it("watching, or stopping partway, is still nothing", () => {
+    expect(afterSaving("Grant writing", "Had a go at one grant writing project, got partway through and handed it off.").verdict).toBe("insufficient_information");
+    expect(afterSaving("Open heart surgery", "I observed open heart surgery from the gallery during my rotation.").verdict).toBe("insufficient_information");
   });
 
   it.each([

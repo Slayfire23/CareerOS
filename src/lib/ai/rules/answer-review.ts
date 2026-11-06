@@ -61,6 +61,7 @@ const hasPhrase = (sentence: string, phrase: string) => {
 
 const statesDoing = (s: Statement) => s.subject === "self" && !s.exposureOnly;
 const ASKS_TO_OVERSEE = /\b(?:schedul\w+|oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|hir\w+|recruit\w*|delegat\w+|approv\w+|vendor|contractor|procure\w*)\b/i;
+const ASKS_FOR_PRACTICE = /\b(?:experience|experienced|proficien\w*|professional|hands[-\s]on|expert\w*|advanced|senior|production|years?|months?|fluent|mastery)\b/i;
 const ASKS_TO_ASSIST = /\b(?:assist\w*|support\w*|help\w*)\b/i;
 /** Overseeing or helping counts only where that's what's asked. Otherwise someone else did the work. */
 const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece));
@@ -113,6 +114,8 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   if (answerLanguage(detail) !== "en") return nothing("language_not_evaluated");
   const statements = answerStatements(detail);
   if (!statements.length) return nothing("no_own_statement");
+  // Limited familiarity can be a lead on a skill or tool, never on experience, proficiency, a level, or time.
+  if (statements.every(s => s.brief) && (requirement.category === "Experience" || ASKS_FOR_PRACTICE.test(text))) return nothing("brief_exposure_only");
   const structure = parseRequirement(text, new Set(), true);
   const pieces = structure.pieces.length ? structure.pieces : [structure.creditText || text];
   const readings = pieces.map(p => readPiece(p, statements, options));
@@ -123,6 +126,25 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   const capped = asksForTime(text) || requiredSkillLevel(text) !== null || /\bas\s+(?:a|an|the)\b/i.test(text);
   if (all && !capped) return { verdict: "supported", quote, reason: "stated_work", sourceId: readings[0].sourceId };
   return { verdict: "possible", quote, reason: all ? "limit_on_what_an_answer_shows" : "part_of_what_is_asked", sourceId: null };
+}
+
+/** "I have seven years" when the listed roles cover less: they may have earlier work that isn't listed. That's
+ * Possible, never more, and the person is asked to add the roles so the dates can show it. Only the dates can
+ * make it Supported. */
+function claimsMoreTime(requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding): RawFinding {
+  const needed = requiredMonths(qualificationText(requirement.text));
+  if (needed === null || answerLanguage(answer.detail) !== "en") return f;
+  const claim = answerStatements(answer.detail).find(s => !s.brief && (requiredMonths(s.text) ?? 0) >= needed);
+  if (!claim) return f;
+  return {
+    ...f,
+    verdict: "possible",
+    explanation: "You said you have this much time, but your listed roles cover less. If earlier roles are missing, add them in Experience so the dates can show it.",
+    citations: [{ evidence_id: answer.evidenceId, quote: claim.text.slice(0, 300) }],
+    caveats: [],
+    basis: "candidate_answer" as RuleBasis,
+    rules_only_verdict: f.verdict,
+  };
 }
 
 const EXPLAIN: Record<string, string> = {
@@ -137,10 +159,11 @@ export function applyAnswers(request: MatchRequest, findings: RawFinding[], answ
   if (!answers.length) return findings;
   const byKey = new Map(answers.map(a => [a.questionKey, a]));
   return findings.map(f => {
-    if (f.verdict === "supported" || f.verdict === "gap" || f.review) return f;
+    if (f.verdict === "supported" || f.review) return f;
     const requirement = request.requirements.find(r => r.index === f.requirement_index)!;
     const answer = byKey.get(keyFor(requirement));
     if (!answer) return f;
+    if (f.verdict === "gap") return f.basis === "employment_dates" && answer.action === "confirm" ? claimsMoreTime(requirement, answer, f) : f;
     if (answer.action === "deny") {
       return { ...f, verdict: "gap", explanation: "You said you don't have this. You can correct or revoke that answer.", citations: [], caveats: [], basis: "candidate_denied" as RuleBasis, rules_only_verdict: f.verdict };
     }

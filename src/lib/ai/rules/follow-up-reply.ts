@@ -24,6 +24,8 @@ const SAYS_NO = /^\W*(?:no|nope|not\s+really|different|it['’]?s\s+different|th
 const AFFIRMS = /^\W*(?:(?:yes|yeah|yep|it|it['’]s|its|is|that|that['’]s|the|same|work|right|correct|exactly)\W*)+$/i;
 /** Offering a credential for the work: a reply can't show one, and it isn't a description of doing anything. */
 const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket|bar|boards?|exam)\b|\b(?:covers|counts\s+for|answers)\s+(?:it|that|this)\b|\b(?:that|this|it)\s+counts\b/i;
+/** Someone else did the real work, or the person's own part is framed as the small part. */
+const OTHERS_DID_THE_WORK = /\b(?:did|does|do|handled?|handles)\s+the\s+actual\b|\bthe\s+actual\s+[\p{L}-]+(?:\s+[\p{L}-]+)?\s+(?:was|were|is|are)\b|\b(?:handles?|handled|does|did|do)\s+(?:everything|the\s+rest|all\s+(?:of\s+)?the\s+rest)\b|\b(?:was|is|were|are)\s+(?:all\s+)?(?:his|hers|theirs)\b|\bmy\s+(?:part|piece|bit|end|role)\s+(?:was|is)\b|\bi\s+just\b/iu;
 const UNDERCUTS = /^\W*only\s+(?:some|part)\b|\b(?:part|some)\s+of\s+it\b|\bi\s+only\b|\bthough\s+really\b|\b(?:although|though)\s+i\b|\bonly\s+(?:ever|when|if)\b|\bbut\s+(?:only|mostly|just|really|honestly|mainly)\b|\b(?:sort|kind)\s+of\b|\bi\s+(?:guess|think|suppose|believe)\b|\bnot\s+sure\b|\bprobably\b|\bmaybe\b|\bmore\s+or\s+less\b|\bpretty\s+much\b|\bbasically\b|\bessentially\b/i;
 const NEW_WORDS_NEEDED = 3;
 const SAYS_NOTHING = new Set(words("yes yeah yep same work i i've we my our the a an and or of to in on at for with it this that these those is was are were be been did do does done have has had what you said also just always every each day week month year"));
@@ -39,11 +41,14 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   // Before language: "Yes." is too short to be any language, and it's a yes.
   if (answerProblem(value, `${text} ${quoted}`)) return unresolved("not_specific");
   if (answerLanguage(value) !== "en") return unresolved("not_english");
-  if (UNDERCUTS.test(value)) return unresolved("undercuts_itself");
+  if (UNDERCUTS.test(value) || OTHERS_DID_THE_WORK.test(value)) return unresolved("undercuts_itself");
   const sentences = (value.match(/[^.!?;\n]+/g) ?? []).filter(s => words(s).length > 2 && !AFFIRMS.test(s));
   const statements = answerStatements(value).filter(s => !AFFIRMS.test(s.text));
   // Every sentence with something to say has to clear. One that doesn't takes back what the rest claims.
-  if (statements.length < sentences.length) return unresolved("undercuts_itself");
+  // A sentence about someone else's part ("He sprays and does the bait stations") doesn't take back the person's own
+  // limited part. One that denies, corrects, or hedges does.
+  const othersPart = (s: string) => !/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(s) && !/\b(?:no|not|never|none)\b|n['’]t\b/i.test(s) && /^\W*(?:he|she|they|\p{Lu}\p{Ll}+|(?:the|our|a|an|my|their)\s+[\p{L}-]+)\b/u.test(s);
+  if (statements.length < sentences.filter(s => !othersPart(s)).length) return unresolved("undercuts_itself");
   const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly && s.ownership === "performed");
   if (!own.length) return unresolved("no_own_work");
   const asked = new Set(words(`${text} ${quoted}`));

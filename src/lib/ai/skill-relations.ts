@@ -270,7 +270,7 @@ export function ownSpan(sentence: string, strict = false): [number, number] | nu
 /** The work sits with someone else: "belongs to the platform squad", "happens on my colleague's side". */
 export const HANDED_OFF = /\bbelongs?\s+to\b|\bhappens?\s+on\s+(?:my|our|the|their)\b/i;
 /** Past forms that don't end in -ed, at the start of a line about the work. */
-export const IRREGULAR_PAST = new Set("kept drove ran wrote built made led taught drew sold bought held sent set cut spent paid took gave found told did met read bent hung dug fit won rode swept laid put began shot stood understood".split(" "));
+export const IRREGULAR_PAST = new Set("kept drove ran wrote built made led taught drew sold bought held sent set cut spent paid took gave found told did met read bent hung dug fit won rode swept laid put began shot stood understood spun wound sought fought caught taught brought bought threw drew dug hung sank slid split spread struck swung wove wrote".split(" "));
 /** A person or department doing it, named first, with no "I" anywhere: "Marcy administers Salesforce",
  * "Accounting handles the books". A work line opening on its verb ("Prepared paychecks") isn't one.
  * `strict` is for answers. */

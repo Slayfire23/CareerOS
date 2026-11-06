@@ -59,10 +59,14 @@ const QUESTIONS: Record<ClarificationKind, (asked: string) => string> = {
 /** The question to ask about a finding, or null when there's nothing to ask: it's already settled, or it's
  * waiting on the job review. A requirement carrying instructions never becomes a question. */
 export function clarificationFor(requirement: MatchRequirement, finding: Finding): Clarification | null {
-  if (finding.review || (finding.verdict !== "possible" && finding.verdict !== "insufficient_information")) return null;
-  if (hasDirectedText(requirement.text)) return null;
+  if (finding.review || hasDirectedText(requirement.text)) return null;
   const text = qualificationText(requirement.text).trim();
   if (!text) return null;
+  // Too little time in the listed roles isn't the end of it: earlier work may be missing.
+  if (finding.verdict === "gap" && finding.basis === "employment_dates" && requiredMonths(text) !== null) {
+    return { requirementIndex: requirement.index, requirementText: text, kind: "work_detail", why: "Your listed roles cover less time than this asks.", question: `Do you have earlier experience for this: “${text}”? Add any missing roles in Experience, or say which role and what you did there, and for how long.` };
+  }
+  if (finding.verdict !== "possible" && finding.verdict !== "insufficient_information") return null;
   const kind = kindOf(requirement, text, finding);
   return {
     requirementIndex: requirement.index,
