@@ -28,7 +28,7 @@ const month = (asOf: string, back: number) => {
 
 it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
   const split = process.env.FOLLOWUP_SPLIT!;
-  const sealed = process.env.FOLLOWUP_SEALED === "1" || split === "blind";
+  const sealed = process.env.FOLLOWUP_SEALED === "1" || (split === "blind" && process.env.FOLLOWUP_UNSEAL !== "1");
   const scenarios = (JSON.parse(readFileSync("tests/fixtures/m11_followup/scenarios.json", "utf8")).scenarios as Scenario[]).filter(s => s.split === split);
   const labels = new Map((JSON.parse(readFileSync("tests/fixtures/m11_followup/labels.json", "utf8")).labels as Label[]).map(l => [l.id, l]));
   const t = {
@@ -55,6 +55,8 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     const refused = answerProblem(s.answer, s.requirement);
     const reader: Verdict = refused ? "insufficient_information" : readAnswer(requirement, s.answer).verdict;
     let final: Verdict = rulesOnly === "supported" || rulesOnly === "gap" ? rulesOnly : reader === "insufficient_information" ? rulesOnly : reader;
+    const answerVerdict = final;
+    let quotedSentence: string | null = null;
     let asked = false;
     let replyOutcome: string | null = null;
     let decision: string | null = null;
@@ -81,6 +83,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
         else t.followUpsOnUnqualified++;
         if (s.reply.trim()) {
           const quoted = s.answer.slice(r.followUpSpan!.start, r.followUpSpan!.end);
+          quotedSentence = quoted;
           const reading = readFollowUpReply(requirement, quoted, s.reply);
           replyOutcome = reading.reason;
           t.replies++;
@@ -123,7 +126,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
       t.paraphrases++;
       if (final !== "insufficient_information" || asked) t.paraphrasesRecognized++;
     }
-    if (!sealed) rows.push({ id: s.id, type: s.type, reply_kind: s.reply_kind, requirement: s.requirement, answer: s.answer, reply: s.reply, label, rulesOnly, refused, reader, asked, decision, replyOutcome, final });
+    if (!sealed) rows.push({ id: s.id, type: s.type, reply_kind: s.reply_kind, requirement: s.requirement, answer: s.answer, reply: s.reply, label, rulesOnly, refused, reader, answerVerdict, asked, quotedSentence, decision, replyOutcome, replyIfAsked: s.reply.trim() ? readFollowUpReply(requirement, quotedSentence ?? s.answer, s.reply).reason : "skipped", final });
   }
   const report = { split, sealed, totals: t, latency: { p50Ms: percentile(ms, 0.5), p95Ms: percentile(ms, 0.95), maxMs: ms.length ? Math.round(Math.max(...ms)) : 0, calls: ms.length }, ...(sealed ? {} : { rows }) };
   mkdirSync(dirname(process.env.FOLLOWUP_REPORT!), { recursive: true });
