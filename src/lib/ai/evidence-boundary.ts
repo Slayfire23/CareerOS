@@ -77,7 +77,8 @@ const OVERSAW = /\b(?:arranged\s+(?:for\s+)?(?:a|an|the)?\s*(?:[\p{L}-]+\s+){0,2
 /** Helping someone who does it, or handing things over. */
 const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisting|supported|support|supports|supporting|handed|hand|hands|passed|pass\s+(?:him|her|them|the)|fetched|fetch|held\s+the|hold\s+the|gave\s+(?:him|her|them)\s+(?:the|my|our|a|an)\s+(?:[\p{L}-]+\s+)?(?:logins?|access|keys?|files?|specs?|tools?|passwords?|credentials?|paperwork|list|numbers?|data)|set\s+(?:him|her|them)\s+up|prepped\s+for|tagged\s+along|stocked|sweep|swept)\b/iu;
 /** Who did what the sentence describes. */
-export type Ownership = "performed" | "oversaw" | "assisted";
+/** What the person's part in it was. Only "performed" is doing the work; the rest count where that's what's asked. */
+export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed";
 
 export type Statement = {
   text: string;
@@ -94,6 +95,66 @@ export type Statement = {
   brief?: boolean;
   ownership: Ownership;
 };
+
+/** Where a word sits as a verb: after the person, a helper word, a joiner, or a comma. "I help the PTs" is helping;
+ * "the help desk" and "new hire training" aren't. */
+const VERB_POSITION = /(?:^|[,;:]|\b(?:i|we|and|or|then|also|to|just|usually|always|often|sometimes|personally|mostly|mainly|really|actually|even|i['’](?:ve|d|m)|have|has|had|been|will|would|can|could)\s*)\s*$/i;
+const atVerbPosition = (pattern: RegExp, text: string) => {
+  for (const m of text.matchAll(new RegExp(pattern.source, `${pattern.flags.replace("g", "")}g`))) if (VERB_POSITION.test(text.slice(0, m.index))) return true;
+  return false;
+};
+/** People and the units they make up, as the object of running, leading, or managing. */
+const PEOPLE = /^(?:team|teams|crew|crews|staff|people|employees|workers|techs?|technicians|drivers|cleaners|instructors|teachers|nurses|volunteers|vendors?|contractors?|pickers|operators|installers|agents|reps|associates|guards|servers|cooks|aides|interns|tutors|coaches|lifeguards|apprentices|laborers|labourers|movers|painters|stylists|cashiers|shifts?|group|groups)$/;
+const UNIT = /^(?:program|programs|programme|department|departments|operation|operations|office|offices|shop|unit|units|division|business|site|sites|store|stores|facility|facilities|building|buildings|property|properties|location|locations|branch|branches|warehouse|portfolio|contract|contracts)$/;
+const OBSERVES = new Set("watch watched watches watching observe observed observes observing shadow shadowed shadows shadowing".split(" "));
+const OBSERVER_ROLE = /^(?:note-?taker|notetaker|scribe|observer|shadow|witness|onlooker)$/;
+/** Asking someone else to do it: a ticket, a call, a request. */
+const REQUEST_OBJECT = /^(?:tickets?|requests?|orders?|work|calls?|claims?|reports?)$/;
+const PROVIDER = /^(?:them|him|her|it|the|our|a|an|in|out|ahead)$/;
+
+/** The person's main verb and the words after it, with the person and helper words taken off. */
+function headVerb(text: string): { verb: string; after: string[] } | null {
+  const sentence = text.replace(/^\W*(?:(?:i\s+mean|well|actually|honestly|to\s+be\s+honest|okay|ok|yes|yeah|yep)\b[,\s]*)+/i, "");
+  const first = sentence.match(FIRST_PERSON);
+  const tokens = ((first ? first[3] : sentence).toLowerCase().match(/[\p{L}'’-]+/gu) ?? []);
+  let at = 0;
+  while (at < tokens.length && AUXILIARY.has(tokens[at]) && !BE.has(tokens[at])) at++;
+  // "I'm the one who troubleshoots them": the doing is after "the one".
+  if (tokens[at] === "the" && tokens[at + 1] === "one") at += /^(?:who|that)$/.test(tokens[at + 2] ?? "") ? 3 : 2;
+  return tokens[at] ? { verb: tokens[at], after: tokens.slice(at + 1, at + 8) } : null;
+}
+const objectHead = (after: string[]) => after.find(w => !/^(?:the|a|an|our|my|all|every|each|both|two|three|four|five|six|seven|eight|nine|ten|twelve|several|\d+|of|for|at|in|on|new|night|day|whole|entire|local)$/.test(w)) ?? "";
+/** The object, up to the first word that says who it's for or where: "payroll for 40 people" is payroll. */
+const objectWords = (after: string[]) => {
+  const stop = after.findIndex(w => /^(?:for|at|in|on|with|to|from|across|around|during|after|before|when|while|so|because|by)$/.test(w));
+  return after.slice(0, stop < 0 ? 5 : Math.min(stop, 5));
+};
+
+/** What the person's part was, read from the main verb and its object, then from phrases at a verb's position. */
+export function involvement(text: string): Ownership {
+  const head = headVerb(text);
+  if (head) {
+    const { verb, after } = head;
+    const object = objectHead(after);
+    const near = objectWords(after);
+    if (OBSERVES.has(verb) || (/^(?:sat|sit|sits)$/.test(verb) && after[0] === "in") || (/^(?:took|take|takes)$/.test(verb) && near.includes("notes"))) return "observed";
+    if (BE.has(verb) && near.some(w => OBSERVER_ROLE.test(w))) return "observed";
+    if (/^(?:request|requests|requested|requesting)$/.test(verb)) return "requested";
+    if (/^(?:submit|submits|submitted|contact|contacts|contacted|email|emails|emailed)$/.test(verb) && near.some(w => /^(?:tickets?|requests?|vendors?|contractors?|providers?|landlord|manufacturer|company|firm|support|helpdesk|help-desk)$/.test(w))) return "requested";
+    if (/^(?:put|puts|open|opens|opened|log|logs|logged|file|files|filed)$/.test(verb) && /^(?:in|a|an|the)$/.test(after[0] ?? "") && after.slice(0, 5).some(w => /^(?:tickets?|requests?|work)$/.test(w))) return "requested";
+    if (/^(?:call|calls|called|calling|phone|phones|phoned|ring|rang)$/.test(verb) && PROVIDER.test(after[0] ?? "") && !near.some(w => /^(?:customers?|patients?|clients?|families|parents|guests?|members?|residents?|tenants?)$/.test(w))) return "requested";
+    if (/^(?:book|books|booked|order|orders|ordered)$/.test(verb) && near.some(w => /^(?:service|repair|repairs|technician|tech|contractor|plumber|electrician|exterminator|visit|pickup|crew)$/.test(w))) return "requested";
+    if (/^(?:reach|reached|reaches)$/.test(verb) && after[0] === "out") return "requested";
+    if (/^(?:make|makes|made|making)$/.test(verb) && after[0] === "sure") return "oversaw";
+    if (/^(?:ensure|ensures|ensured)$/.test(verb)) return "oversaw";
+    if (/^(?:manage|manages|managed|managing)$/.test(verb) && (/ing$/.test(object) || near.some(w => PEOPLE.test(w) || UNIT.test(w)))) return "oversaw";
+    if (/^(?:run|runs|ran|running)$/.test(verb) && near.slice(0, 4).some(w => PEOPLE.test(w) || UNIT.test(w))) return "oversaw";
+    if (/^(?:lead|leads|led|leading)$/.test(verb) && (PEOPLE.test(object) || near.some(w => PEOPLE.test(w)))) return "oversaw";
+  }
+  if (atVerbPosition(OVERSAW, text)) return "oversaw";
+  if (atVerbPosition(ASSISTED, text)) return "assisted";
+  return "performed";
+}
 
 function readAct(raw: string): { subject: Statement["subject"]; act: Statement["act"] } {
   const sentence = raw.replace(/^\W*(?:(?:i\s+mean|well|actually|honestly|to\s+be\s+honest|okay|ok|yes|yeah|yep)\b[,\s]*)+/i, "");
@@ -143,7 +204,7 @@ export function answerStatements(detail: string): Statement[] {
   const out: Statement[] = [];
   const leading: Statement[] = [];
   // Each sentence is read clause by clause where it changes hands: another person's clause is theirs, never the person's.
-  for (const match of detail.matchAll(/[^.!?;\n]+/g)) for (const clause of splitBySubject(match[0])) {
+  for (const match of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) for (const clause of splitBySubject(match[0])) {
     if (clause.subject === "other") continue;
     const whole = clause.text.trim();
     const wholeStart = match.index + clause.start + clause.text.indexOf(whole);
@@ -165,7 +226,7 @@ export function answerStatements(detail: string): Statement[] {
       const opening = own.slice(0, subject.index + 1).replace(/(?:[,;:]\s*(?:and|so|then|but)?|\s+(?:and|so|then|but))\s*$/i, "").trim();
       if (opening && /^\W*(?!\p{L}+ing\b)\p{L}/u.test(opening) && readAct(opening).subject === "self" && readAct(opening).act === "concrete" && !/\b(?:is|are|was|were|be|been)\b/i.test(opening) && !ownNegative(opening) && !HYPOTHETICAL.test(opening)) {
         const at = wholeStart + whole.indexOf(opening, span[0]);
-        if (!barred.some(([s, e]) => s < at + opening.length && at < e)) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(opening), ownership: OVERSAW.test(opening) ? "oversaw" : ASSISTED.test(opening) ? "assisted" : "performed" });
+        if (!barred.some(([s, e]) => s < at + opening.length && at < e)) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(opening), ownership: involvement(opening) });
       }
       span[0] += subject.index + subject[0].search(/\p{L}/u);
     }
@@ -177,7 +238,7 @@ export function answerStatements(detail: string): Statement[] {
     if (someoneElsesWork(text, text)) continue;
     // Judged on the first clause: "I build the screens, and I hand them to engineering" is doing the work.
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
-    const ownership: Ownership = OVERSAW.test(firstClause) ? "oversaw" : ASSISTED.test(firstClause) ? "assisted" : "performed";
+    const ownership: Ownership = involvement(firstClause);
     const read = readAct(text);
     out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(text), ownership });
     // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
@@ -185,7 +246,7 @@ export function answerStatements(detail: string): Statement[] {
     if (mine) {
       const own = text.slice(mine.index + mine[0].length);
       const firstOwn = own.split(/,\s*(?:and|then|but)\s+/i)[0];
-      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(own), ownership: OVERSAW.test(firstOwn) ? "oversaw" : ASSISTED.test(firstOwn) ? "assisted" : "performed" });
+      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(own), ownership: involvement(firstOwn) });
     }
   }
   return [...leading, ...out].sort((x, y) => x.start - y.start);

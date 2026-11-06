@@ -43,7 +43,7 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   if (answerProblem(value, `${text} ${quoted}`)) return unresolved("not_specific");
   if (answerLanguage(value) !== "en") return unresolved("not_english");
   if (UNDERCUTS.test(value) || OTHERS_DID_THE_WORK.test(value)) return unresolved("undercuts_itself");
-  const sentences = (value.match(/[^.!?;\n]+/g) ?? []).filter(s => words(s).length > 2 && !AFFIRMS.test(s));
+  const sentences = (value.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).filter(s => words(s).length > 2 && !AFFIRMS.test(s));
   const statements = answerStatements(value).filter(s => !AFFIRMS.test(s.text));
   // Every sentence with something to say has to clear. One that doesn't takes back what the rest claims.
   // A sentence about someone else's part ("He sprays and does the bait stations") doesn't take back the person's own

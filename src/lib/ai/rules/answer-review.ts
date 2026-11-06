@@ -63,12 +63,23 @@ const statesDoing = (s: Statement) => s.subject === "self" && !s.exposureOnly;
 const ASKS_TO_OVERSEE = /\b(?:schedul\w+|oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|hir\w+|recruit\w*|delegat\w+|approv\w+|vendor|contractor|procure\w*)\b/i;
 const ASKS_FOR_PRACTICE = /\b(?:experience|experienced|proficien\w*|professional|hands[-\s]on|expert\w*|advanced|senior|production|years?|months?|fluent|mastery)\b/i;
 const ASKS_TO_ASSIST = /\b(?:assist\w*|support\w*|help\w*)\b/i;
+/** Asking a provider counts only where the work asked for is that: coordinating, vendors, service requests. */
+const ASKS_TO_REQUEST = /\b(?:coordinat\w+|vendors?|contractors?|suppliers?|service\s+requests?|work\s+orders?|tickets?|procure\w*|purchas\w+|dispatch\w*|schedul\w+|liaison|liais\w+|facilit(?:y|ies)\s+management|outsourc\w+|escalat\w+)\b/i;
+const ASKS_TO_OBSERVE = /\b(?:observ\w+|shadow\w*)\b/i;
 /** Overseeing or helping counts only where that's what's asked. Otherwise someone else did the work. */
-const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece));
+/** A sentence with no one in it that's about a thing or someone else: "Snow removal at our complexes is a contract with a
+ * plow company", "Outside counsel writes the first drafts". Who did it isn't said, so it's a question to ask, not a lead.
+ * A line that opens on what was done ("Temper chocolate for bonbons weekly") or names a tool is still the person's. */
+const aboutSomethingElse = (s: Statement) => {
+  if (s.subject !== "unclear") return false;
+  if (/\b(?:is|are|was|were)\s+(?:on\s+me|mine|me|my\b)/i.test(s.text)) return false;
+  return /^\W*(?:[\p{L}\p{N}'’,$.-]+\s+){1,7}?(?:is|are|was|were|isn['’]t|aren['’]t|wasn['’]t|weren['’]t)\b/iu.test(s.text) || (/^\W*(?:[\p{L}'’-]+\s+){1,2}?\p{Ll}{2,}[^su\W]s\s+(?:the|a|an|our|my|all|every|any|it|them)\b/u.test(s.text) && !/^\W*\p{L}+(?:ed|ing)\b/iu.test(s.text));
+};
+const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "requested" && ASKS_TO_REQUEST.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece)) || (s.ownership === "observed" && ASKS_TO_OBSERVE.test(piece));
 
 function readPiece(piece: string, allStatements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
   // When helping is what's asked, saying you helped is saying you did it.
-  const statements = allStatements.filter(s => ownedFor(piece, s)).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
+  const statements = allStatements.filter(s => !aboutSomethingElse(s) && ownedFor(piece, s)).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
   const groups = GROUPS.filter(g => askedBy(piece, g));
   let lead: string | null = null;
   for (const s of statements) {
