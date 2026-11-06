@@ -27,8 +27,29 @@ export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRu
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plainly a brief try, however it's described: a weekend, a sample, a trial, a look around, then gone. */
-const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
-const WALKS_BACK = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|ok(?:ay)?|truthfully)\b,?\s+(?:i\s+|it['’]?s\s+|that['’]?s\s+)?(?:mostly|only|just|really|more\s+like|not|don['’]?t|didn['’]?t|never|read|watch|help)\b/i;
+const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\bone\s+(?:session|class|workshop|lesson|demo)\b|\bthat\s+one\s+(?:session|class|time|workshop|course|lesson)\b|\blunch[\s-]+and[\s-]+learn\b|\b(?:a|one)\s+(?:one|half|single)[\s-]day\s+(?:class|course|workshop|session|training)\b|\bfollowed\s+(?:the|their|his|her)\s+[\p{L}'’-]+\s+steps\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const CORRECTION_MARKER = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|in\s+reality|truthfully|ok(?:ay)?|correction|sorry)\b[,:]?\s*([^.!?;\n]*)/giu;
+/** What makes the words after a marker a correction: they shrink the claim, deny it, or give it to someone else. */
+const SHRINKS = /\b(?:only|just|mostly|merely|barely|hardly|not|never|no|none|kind\s+of|sort\s+of|stood|watched|wave[sd]?|near)\b|n['’]t\b/i;
+const SOMEONE_ELSE_DOES = /^(?:(?:the|a|an|our|my|their|his|her)\s+[\p{L}-]+(?:\s+[\p{L}-]+)?|\p{Lu}\p{Ll}+|they|he|she|someone|volunteers|others)\s+[\p{Ll}]+|,\s*(?:the|our|a|an|my|their)\s+[\p{L}-]+\s+\p{Ll}+s\b/u;
+/** "Yes, I teach it. Well, volunteers teach it" corrects the claim; "Actually, I also train new hires on it" adds to it.
+ * A marker means nothing by itself: what follows has to shrink, deny, or reassign what came before. */
+export function correctsItself(detail: string): boolean {
+  for (const match of detail.matchAll(CORRECTION_MARKER)) {
+    if (!detail.slice(0, match.index).trim()) continue; // nothing earlier to correct
+    const rest = match[1].trim();
+    if (SHRINKS.test(rest) || SOMEONE_ELSE_DOES.test(rest) || HANDED_OFF.test(rest)) return true;
+  }
+  return false;
+}
+/** The asked work given to someone else, by pronoun or contract: "Finance handles that", "It's all under contract". */
+const HANDS_THIS_OFF = /(?:^|[^\p{L}])(?!(?:i|we)\s)([\p{L}'’-]+)\s+(?:handles?|handled|does|do|did|takes?\s+care\s+of|took\s+care\s+of|runs?|ran|owns?|covers?|covered)\s+(?:that|those|it|this|them|all\s+of\s+(?:that|it|them))\b|\bunder\s+contract\b|\b(?:that|this|it|those)(?:['’]s|\s+is|\s+are)\s+(?:all\s+)?(?:handled|done|covered|outsourced|contracted)\b/iu;
+const NOT_A_DOER = new Set("i we and then also or but to so just usually always often still myself ourselves me us you can will would should could must also really personally".split(" "));
+const handsThisOff = (detail: string) => (detail.match(/[^.!?;\n]+/g) ?? []).some(sentence => {
+  const match = HANDS_THIS_OFF.exec(sentence);
+  // The word before the verb has to be someone: "...and run them on the analyzer" is still the person.
+  return !!match && !NOT_A_DOER.has((match[1] ?? "").toLowerCase());
+});
 /** Trying something is related to doing it, at most. */
 const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
 /** Being in the room isn't doing it, and starting and stopping isn't either. */
@@ -51,7 +72,7 @@ const WORKED = new Set(["worked", "work", "works", "working"]);
 const OWNS_IT = /\b(?:responsible\s+for|in\s+charge\s+of)\b/i;
 
 /** Arranging for it to be done, or overseeing it. That's work, but not the work itself, unless that's what's asked. */
-const OVERSAW = /\b(?:oversaw|oversee|oversees|overseeing|supervised|supervise|supervises|supervising|signed\s+off|approved|approve|approves|delegated|delegate|delegates|hired|hire|hires|contracted|subcontracted|outsourced|brought\s+in|called\s+in|farmed\s+out|assigned|assign|assigns|tasked|directed|direct|directs|managed\s+(?:the\s+|our\s+|a\s+)?(?:[\p{L}-]+\s+)?(?:team|teams|crew|crews|people|staff|vendors?|contractors?|consultants?)|coordinated\s+(?:the\s+|our\s+|with\s+(?:the\s+|our\s+)?)?(?:[\p{L}-]+\s+)?(?:contractors?|vendors?|crews?|teams?|consultants?)|(?:had|got|have|get)\s+(?:[\p{L}-]+\s+){1,4}?(?:to\s+)?(?:do|did|handle|handled|run|ran|fix|fixed|install|installed|build|built|write|wrote|file|filed|take\s+care)|(?:paid|pay|asked|ask|told|tell)\s+(?:[\p{L}-]+\s+){1,4}?to\s+\p{L}+)\b/iu;
+const OVERSAW = /\b(?:arranged\s+(?:for\s+)?(?:a|an|the)?\s*(?:[\p{L}-]+\s+){0,2}?(?:visit|visits|service|contractor|vendor|company|firm|technician|exterminator|crew|inspection)|schedul(?:e|es|ed|ing)\s+(?:the\s+|our\s+|all\s+)?(?:[\p{L}-]+\s+)?(?:crews?|drivers?|staff|workers|technicians|combines|trucks|contractors?|vendors?|teams?|operators?|installers?|cleaners)|run\s+(?:two|three|four|five|six|several|\d+)\s+(?:crews|teams|shifts)|oversaw|oversee|oversees|overseeing|supervised|supervise|supervises|supervising|signed\s+off|approved|approve|approves|delegated|delegate|delegates|hired|hire|hires|contracted|subcontracted|outsourced|brought\s+in|called\s+in|farmed\s+out|assigned|assign|assigns|tasked|directed|direct|directs|managed\s+(?:the\s+|our\s+|a\s+)?(?:[\p{L}-]+\s+)?(?:team|teams|crew|crews|people|staff|vendors?|contractors?|consultants?)|coordinated\s+(?:the\s+|our\s+|with\s+(?:the\s+|our\s+)?)?(?:[\p{L}-]+\s+)?(?:contractors?|vendors?|crews?|teams?|consultants?)|(?:had|got|have|get)\s+(?:[\p{L}-]+\s+){1,4}?(?:to\s+)?(?:do|did|handle|handled|run|ran|fix|fixed|install|installed|build|built|write|wrote|file|filed|take\s+care)|(?:paid|pay|asked|ask|told|tell)\s+(?:[\p{L}-]+\s+){1,4}?to\s+\p{L}+)\b/iu;
 /** Helping someone who does it, or handing things over. */
 const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisting|supported|support|supports|supporting|handed|hand|hands|passed|pass\s+(?:him|her|them|the)|fetched|fetch|held\s+the|hold\s+the|gave\s+(?:him|her|them)\s+(?:the|my|our|a|an)\s+(?:[\p{L}-]+\s+)?(?:logins?|access|keys?|files?|specs?|tools?|passwords?|credentials?|paperwork|list|numbers?|data)|set\s+(?:him|her|them)\s+up|prepped\s+for|tagged\s+along|stocked|sweep|swept)\b/iu;
 /** Who did what the sentence describes. */
@@ -71,7 +92,8 @@ export type Statement = {
   ownership: Ownership;
 };
 
-function readAct(sentence: string): { subject: Statement["subject"]; act: Statement["act"] } {
+function readAct(raw: string): { subject: Statement["subject"]; act: Statement["act"] } {
+  const sentence = raw.replace(/^\W*(?:(?:i\s+mean|well|actually|honestly|to\s+be\s+honest|okay|ok|yes|yeah|yep)\b[,\s]*)+/i, "");
   const first = sentence.match(FIRST_PERSON);
   const tokens = (first ? first[3] : sentence).toLowerCase().match(/\p{L}+/gu) ?? [];
   if (!first) {
@@ -108,7 +130,7 @@ export function answerStatements(detail: string): Statement[] {
   if (answerLanguage(detail) !== "en" || hasDirectedText(detail)) return [];
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
   // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
-  if (WALKS_BACK.test(detail)) return [];
+  if (correctsItself(detail) || handsThisOff(detail)) return [];
   if (BRIEF_TRY.test(detail) || /\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\bnot\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b/i.test(detail)) return [];
   const barred = untrustedSpans(detail, "answer");
   const out: Statement[] = [];

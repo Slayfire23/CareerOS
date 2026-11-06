@@ -73,7 +73,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v16";
+export const RULES_VERSION = "rules-v17";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";

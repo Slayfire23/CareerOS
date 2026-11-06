@@ -189,6 +189,69 @@ describe("leading people isn't shown by working in the field", () => {
   });
 });
 
+describe("blind review failures, rules-v17", () => {
+  it.each([
+    ["fu-084", "Teaching adult literacy", "Yes, I teach adult literacy at the branch. Well, volunteers teach it, and I book the rooms and order the workbooks."],
+    ["fu-120", "Operating a backhoe", "Yes, I operate the backhoe on our water main jobs. I mean, I've moved it across the yard a few times, the operator digs."],
+    ["fu-059", "Cash handling and till reconciliation", "Yes I count the till every closing shift. Well, the shift lead does the count, I just kind of stand there and write down what she says."],
+    ["fu-103", "Handling aircraft fueling", "Yes I've fueled planes. Well no, the fuel truck guy hooks it up, I've just stood near him and waved him in."],
+    ["new wording", "Grant writing", "I write our grant applications. Actually, our development director writes them and I format the budget tables."],
+    ["new wording, same sentence", "Event planning", "I do event planning for the office, well, mostly I just book the caterer."],
+  ])("%s, a claim corrected, gets no credit", (_id, text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
+  });
+
+  it.each([
+    ["Inventory audits", "I run inventory audits each quarter. Actually, I also train the new stock clerks on the counting sheets."],
+    ["Menu planning", "I handle menu planning for both locations. Well, I start from what the farm delivers that week and build the specials around it."],
+    ["Patient intake", "I mean, patient intake is most of my morning: I check people in, verify insurance, and update their charts."],
+  ])("a marker that adds detail takes nothing back: %s", (text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
+  });
+
+  it.each([
+    ["fu-063", "Monthly VAT filing", "Finance handles that. I just make sure my invoices have the right VAT numbers on them."],
+    ["fu-079", "Elevator maintenance", "That's all under contract with the elevator company. If one is stuck I call them and put a sign in the lobby."],
+    ["new wording", "Payroll processing", "Our bookkeeper takes care of that, and I hand her the payroll processing timesheets."],
+    ["new wording", "Snow removal", "It's all contracted out. I just call the snow removal company when it starts."],
+  ])("%s, the asked work handed off, gets no credit", (_id, text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
+  });
+
+  it.each([
+    ["Drawing arterial blood gases", "I draw arterial blood gases from the radial site myself on ICU patients and run them on the analyzer."],
+    ["API testing with Postman", "I keep Postman collections for our order API, with assertions on status codes and response fields, and run them through Newman."],
+  ])("running it yourself isn't handing it off: %s", (text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("supported");
+  });
+
+  it("handling it yourself still counts", () => {
+    expect(afterSaving("Payroll processing", "I handle that myself: payroll processing for 40 people every other Friday.").verdict).not.toBe("insufficient_information");
+  });
+
+  it.each([
+    ["fu-099", "Performing crop harvest with combine", "I schedule the combines and drivers for 2000 acres and decide when each field gets cut based on moisture."],
+    ["fu-102", "Pest control treatment", "I arranged a monthly visit from an exterminator and keep the binder ready for the health inspector."],
+    ["fu-058", "Hands-on plumbing rough-in", "I run four crews on multi-family jobs and sign off on every plumbing rough-in before the inspector comes."],
+  ])("%s, arranging or scheduling others, isn't doing it", (_id, text, detail) => {
+    expect(afterSaving(text, detail).verdict).toBe("insufficient_information");
+  });
+
+  it.each([
+    ["Scheduling crews", "I schedule the crews for every job across three counties."],
+    ["Appointment scheduling", "I schedule patient appointments for two dentists all day."],
+  ])("scheduling counts when it's what's asked: %s", (text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
+  });
+
+  it.each([
+    ["fu-054", "SQL report writing", "I mean yes, I work with SQL reports every week and I know exactly what's in them, so that counts."],
+    ["fu-057", "Terraform", "Just that one session. I followed the presenter's steps and deleted it after."],
+  ])("%s, a reply that wouldn't have been safe, stays unresolved", (_id, text, reply) => {
+    expect(readFollowUpReply(req(text), "I work with the reports", reply).outcome).toBe("unresolved");
+  });
+});
+
 describe("who did the work", () => {
   it.each([
     ["delegated, the blocker", "Data migration", "A contractor we hired did the data migration; I gave him the logins."],

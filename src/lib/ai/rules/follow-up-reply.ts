@@ -23,7 +23,7 @@ export type ReplyReading = { outcome: "possible_candidate" | "unresolved"; reaso
 const SAYS_NO = /^\W*(?:no|nope|not\s+really|different|it['’]?s\s+different|that['’]?s\s+different|something\s+different)\b/i;
 const AFFIRMS = /^\W*(?:(?:yes|yeah|yep|it|it['’]s|its|is|that|that['’]s|the|same|work|right|correct|exactly)\W*)+$/i;
 /** Offering a credential for the work: a reply can't show one, and it isn't a description of doing anything. */
-const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket|bar|boards?|exam)\b|\b(?:covers|counts\s+for|answers)\s+(?:it|that|this)\b/i;
+const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket|bar|boards?|exam)\b|\b(?:covers|counts\s+for|answers)\s+(?:it|that|this)\b|\b(?:that|this|it)\s+counts\b/i;
 const UNDERCUTS = /^\W*only\s+(?:some|part)\b|\b(?:part|some)\s+of\s+it\b|\bi\s+only\b|\bthough\s+really\b|\b(?:although|though)\s+i\b|\bonly\s+(?:ever|when|if)\b|\bbut\s+(?:only|mostly|just|really|honestly|mainly)\b|\b(?:sort|kind)\s+of\b|\bi\s+(?:guess|think|suppose|believe)\b|\bnot\s+sure\b|\bprobably\b|\bmaybe\b|\bmore\s+or\s+less\b|\bpretty\s+much\b|\bbasically\b|\bessentially\b/i;
 const NEW_WORDS_NEEDED = 3;
 const SAYS_NOTHING = new Set(words("yes yeah yep same work i i've we my our the a an and or of to in on at for with it this that these those is was are were be been did do does done have has had what you said also just always every each day week month year"));

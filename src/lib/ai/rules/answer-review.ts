@@ -60,7 +60,7 @@ const hasPhrase = (sentence: string, phrase: string) => {
 };
 
 const statesDoing = (s: Statement) => s.subject === "self" && !s.exposureOnly;
-const ASKS_TO_OVERSEE = /\b(?:oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|hir\w+|recruit\w*|delegat\w+|approv\w+|vendor|contractor|procure\w*)\b/i;
+const ASKS_TO_OVERSEE = /\b(?:schedul\w+|oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|hir\w+|recruit\w*|delegat\w+|approv\w+|vendor|contractor|procure\w*)\b/i;
 const ASKS_TO_ASSIST = /\b(?:assist\w*|support\w*|help\w*)\b/i;
 /** Overseeing or helping counts only where that's what's asked. Otherwise someone else did the work. */
 const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece));
