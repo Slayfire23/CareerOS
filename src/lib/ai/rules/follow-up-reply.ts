@@ -1,4 +1,5 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
+import { handsPartToSomeoneElse } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
 import { answerStatements } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
@@ -49,6 +50,8 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   // limited part. One that denies, corrects, or hedges does.
   const othersPart = (s: string) => !/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(s) && !/\b(?:no|not|never|none)\b|n['’]t\b/i.test(s) && /^\W*(?:he|she|they|\p{Lu}\p{Ll}+|(?:the|our|a|an|my|their)\s+[\p{L}-]+)\b/u.test(s);
   if (statements.length < sentences.filter(s => !othersPart(s)).length) return unresolved("undercuts_itself");
+  // "He did the ratings, I took the photos": a sentence that hands part of it to someone else, beside the person's own.
+  if (sentences.some(handsPartToSomeoneElse)) return unresolved("undercuts_itself");
   const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly && s.ownership === "performed");
   if (!own.length) return unresolved("no_own_work");
   const asked = new Set(words(`${text} ${quoted}`));

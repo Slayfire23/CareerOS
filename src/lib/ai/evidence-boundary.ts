@@ -1,4 +1,5 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
+import { splitBySubject } from "@/lib/ai/clauses";
 import type { Evidence } from "@/lib/ai/evidence";
 import { answerUntrustedSpans, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { notAStatement, ownClauses, ownNegative } from "@/lib/ai/rules/profile-fields";
@@ -141,9 +142,11 @@ export function answerStatements(detail: string): Statement[] {
   const barred = untrustedSpans(detail, "answer");
   const out: Statement[] = [];
   const leading: Statement[] = [];
-  for (const match of detail.matchAll(/[^.!?;\n]+/g)) {
-    const whole = match[0].trim();
-    const wholeStart = match.index + match[0].indexOf(whole);
+  // Each sentence is read clause by clause where it changes hands: another person's clause is theirs, never the person's.
+  for (const match of detail.matchAll(/[^.!?;\n]+/g)) for (const clause of splitBySubject(match[0])) {
+    if (clause.subject === "other") continue;
+    const whole = clause.text.trim();
+    const wholeStart = match.index + clause.start + clause.text.indexOf(whole);
     if (HANDED_OFF.test(whole) || DONE_ELSEWHERE.test(whole) || opensOnNamedOther(whole, true) || (!SUBJECT_AT.test(whole) && SOMEONE_ELSE_MIDWAY.test(whole))) continue;
     const span = ownSpan(whole, true);
     if (!span) continue;
