@@ -26,8 +26,12 @@ function finiteVerb(word: string, pluralSubject: boolean): boolean {
 export type ClauseSubject = "self" | "team" | "other";
 
 /** The subject at the start of `text`, if a subject and its verb start there. */
+const LEAD_IN = /^(?:really|actually|honestly|usually|then|now|mostly|basically|obviously|of\s+course)$/i;
 export function subjectAt(text: string, atSentenceStart = false): ClauseSubject | null {
-  const tokens = text.match(/[\p{L}'’-]+|[^\s\p{L}]/gu) ?? [];
+  const all = text.match(/[\p{L}'’-]+|[^\s\p{L}]/gu) ?? [];
+  let skip = 0;
+  while (skip < 2 && LEAD_IN.test(all[skip] ?? "")) skip++;
+  const tokens = all.slice(skip);
   const first = (tokens[0] ?? "").toLowerCase();
   if (/^i(?:['’](?:ve|m|d|ll))?$/.test(first)) return "self";
   if (/^we(?:['’](?:ve|re|d|ll))?$/.test(first)) return "team";

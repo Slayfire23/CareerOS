@@ -121,3 +121,42 @@ describe("Stage 1b: what the person's part was, from the main verb", () => {
     expect(answerStatements("I closed $1.4M last year against a $1M quota.").length).toBe(1);
   });
 });
+
+describe("Stage 1c: a correction takes back only what it contradicts", () => {
+  it("fv-061, fv-080: the corrected claim goes, and what the person really did is read as itself", () => {
+    expect(verdict("Network firewall configuration", "I configure our firewalls. Well, I mean I put in the request and our network engineer actually changes the rules.")).toBe("insufficient_information");
+    expect(verdict("Bridge inspection", "I've inspected bridges for the county. I mean, I was the note-taker; the licensed engineer did the inspection and rated the elements.")).toBe("insufficient_information");
+  });
+
+  it("variants of a genuine correction", () => {
+    expect(verdict("Welding", "Yes, I weld all the time. Well, I mostly tack things up for the welder.")).toBe("insufficient_information");
+    expect(verdict("Payroll processing", "I process payroll every two weeks. Actually, I collect the timesheets and our accountant runs payroll.")).toBe("insufficient_information");
+    expect(verdict("Tree pruning", "I prune the orchard every winter. Honestly, I just hold the ladder while my uncle cuts.")).toBe("insufficient_information");
+  });
+
+  it("a marker that only adds keeps the credit", () => {
+    expect(verdict("Patient scheduling", "I book appointments for three physical therapists. Well, I also handle the waitlist and rebook cancellations.")).not.toBe("insufficient_information");
+    expect(verdict("Sterilizing surgical trays", "I decontaminate and sterilize the surgical trays for the OR. I mean, I also run the biological indicators every morning.")).not.toBe("insufficient_information");
+    expect(verdict("Forklift operation", "I operate a forklift every shift. Actually, I train the new drivers on it too.")).toBe("supported");
+  });
+
+  it("a correction keeps what it doesn't touch", () => {
+    const statements = answerStatements("I unload the trucks every morning. I stock the cooler. Well, I mean the night crew does the freezer.");
+    expect(statements.map(s => s.text)).toContain("I unload the trucks every morning");
+  });
+
+  it("fv-009: someone else's part stays theirs, and the person's own part is Possible at most", () => {
+    const answer = "I do the day-to-day bookkeeping for our landscaping company, entering invoices and bills and matching deposits. The month-end close and reconciliation, our outside accountant does that part.";
+    expect(verdict("Bookkeeping and month-end reconciliation", answer)).toBe("possible");
+    expect(verdict("Bookkeeping", answer)).toBe("supported");
+  });
+
+  it("a hand-off of what was just said takes that back", () => {
+    expect(verdict("Pest control treatment", "We had mice in the stockroom. The exterminator handles that.")).toBe("insufficient_information");
+    expect(verdict("Lawn care", "I mow the front lawns every week. The landscaping company does it now, though.")).toBe("insufficient_information");
+  });
+
+  it("mixed ownership in one sentence: Possible at most for the person's part", () => {
+    expect(verdict("Lesson planning", "I plan the reading lessons myself, and the lead teacher plans the math lessons.")).not.toBe("supported");
+  });
+});

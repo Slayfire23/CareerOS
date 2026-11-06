@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import type { MatchRequest, MatchRequirement, Verdict } from "@/lib/ai/evidence";
-import { answerStatements, type Statement } from "@/lib/ai/evidence-boundary";
+import { answerStatements, othersText, type Statement } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
@@ -132,7 +132,10 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   const readings = pieces.map(p => readPiece(p, statements, options));
   const quote = readings.find(r => r.quote)?.quote ?? null;
   if (!quote) return nothing("no_relationship");
-  const all = readings.every(r => r.level === 2);
+  // Someone else does part of what's asked, by the answer's own account: the person's part is Possible at most.
+  const others = new Set([...canonicalTerms(othersText(detail))].flatMap(t => [t, stem(t)]));
+  const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
+  const all = readings.every(r => r.level === 2) && !shared;
   // An answer can't add time to a job, or show a level the person hasn't rated.
   const capped = asksForTime(text) || requiredSkillLevel(text) !== null || /\bas\s+(?:a|an|the)\b/i.test(text);
   if (all && !capped) return { verdict: "supported", quote, reason: "stated_work", sourceId: readings[0].sourceId };

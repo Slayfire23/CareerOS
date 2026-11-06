@@ -33,24 +33,58 @@ const CORRECTION_MARKER = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+h
 /** What makes the words after a marker a correction: they shrink the claim, deny it, or give it to someone else. */
 const SHRINKS = /\b(?:only|just|mostly|merely|barely|hardly|not|never|no|none|kind\s+of|sort\s+of|stood|watched|wave[sd]?|near)\b|n['’]t\b/i;
 const SOMEONE_ELSE_DOES = /^(?:(?:the|a|an|our|my|their|his|her)\s+[\p{L}-]+(?:\s+[\p{L}-]+)?|\p{Lu}\p{Ll}+|they|he|she|someone|volunteers|others)\s+[\p{Ll}]+|,\s*(?:the|our|a|an|my|their)\s+[\p{L}-]+\s+\p{Ll}+s\b/u;
-/** "Yes, I teach it. Well, volunteers teach it" corrects the claim; "Actually, I also train new hires on it" adds to it.
- * A marker means nothing by itself: what follows has to shrink, deny, or reassign what came before. */
-export function correctsItself(detail: string): boolean {
-  for (const match of detail.matchAll(CORRECTION_MARKER)) {
-    if (!detail.slice(0, match.index).trim()) continue; // nothing earlier to correct
-    const rest = match[1].trim();
-    if (SHRINKS.test(rest) || SOMEONE_ELSE_DOES.test(rest) || HANDED_OFF.test(rest)) return true;
-  }
-  return false;
+/** What follows a marker takes back what came before: it shrinks or denies it, gives it to someone else, or turns the
+ * person's part into asking, overseeing, helping, or watching. "Actually, I also train new hires on it" adds to it. */
+const contradicts = (rest: string) => SHRINKS.test(rest) || SOMEONE_ELSE_DOES.test(rest) || HANDED_OFF.test(rest) || splitBySubject(rest).some(c => c.subject === "other") || ["requested", "oversaw", "assisted", "observed"].includes(involvement(rest));
+/** The claim just before a position: the rest of the sentence before it, or the sentence before when it starts one. */
+function claimBefore(detail: string, at: number): [number, number] | null {
+  const before = detail.slice(0, at);
+  const inSentence = before.search(/[^.!?;\n]*$/);
+  if (before.slice(inSentence).trim()) return [inSentence, at];
+  const prior = before.slice(0, inSentence).replace(/[.!?;\s]+$/, "");
+  if (!prior.trim()) return null;
+  return [prior.search(/[^.!?;\n]*$/), prior.length];
 }
+/** The parts of an answer it takes back. "Yes, I teach it. Well, volunteers teach it" takes back the first sentence and
+ * nothing else; the correcting words are read like any others. A marker means nothing by itself. */
+export function retractions(detail: string): [number, number][] {
+  const out: [number, number][] = [];
+  for (const match of detail.matchAll(CORRECTION_MARKER)) {
+    const markerAt = match.index + match[0].search(/\p{L}/u);
+    if (!detail.slice(0, markerAt).trim() || !contradicts(match[1].trim())) continue;
+    const claim = claimBefore(detail, markerAt);
+    if (claim) out.push(claim);
+  }
+  for (const sentence of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) {
+    const hand = HANDS_THIS_OFF.exec(sentence[0]);
+    if (!hand || NOT_A_DOER.has((hand[1] ?? "").toLowerCase())) continue;
+    // "The month-end close, our accountant does that part" is about its own topic. "Finance handles that" is about
+    // what the person just said, so that goes too.
+    out.push([sentence.index, sentence.index + sentence[0].length]);
+    const topic = sentence[0].slice(0, hand.index).match(/\p{L}{3,}/gu) ?? [];
+    if (topic.filter(w => !/^(?:the|and|but|though|really|honestly|actually|well|that|this|all|our|their)$/i.test(w)).length < 2) {
+      const claim = claimBefore(detail, sentence.index + sentence[0].search(/\S|$/));
+      if (claim) out.push(claim);
+    }
+  }
+  return out;
+}
+/** What an answer says someone else did, or takes back: other people's clauses and retracted claims. Never the
+ * person's own work, and only ever used to hold credit back. */
+export function othersText(detail: string): string {
+  const parts: string[] = retractions(detail).map(([s, e]) => detail.slice(s, e));
+  for (const sentence of detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []) {
+    for (const clause of splitBySubject(sentence)) if (clause.subject === "other") parts.push(clause.text);
+    // A whole sentence about someone else, with no "I" or "we" in it. One where the person speaks gives only the other clause.
+    if (!/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(sentence) && (opensOnNamedOther(sentence.trim(), true) || someoneElsesWork(sentence.trim(), sentence.trim()))) parts.push(sentence);
+  }
+  return parts.join(" ");
+}
+/** Whether an answer takes anything back. */
+export const correctsItself = (detail: string) => retractions(detail).length > 0;
 /** The asked work given to someone else, by pronoun or contract: "Finance handles that", "It's all under contract". */
 const HANDS_THIS_OFF = /(?:^|[^\p{L}])(?!(?:i|we)\s)([\p{L}'’-]+)\s+(?:handles?|handled|does|do|did|takes?\s+care\s+of|took\s+care\s+of|runs?|ran|owns?|covers?|covered)\s+(?:that|those|it|this|them|all\s+of\s+(?:that|it|them))\b|\bunder\s+contract\b|\b(?:that|this|it|those)(?:['’]s|\s+is|\s+are)\s+(?:all\s+)?(?:handled|done|covered|outsourced|contracted)\b/iu;
 const NOT_A_DOER = new Set("i we and then also or but to so just usually always often still myself ourselves me us you can will would should could must also really personally".split(" "));
-const handsThisOff = (detail: string) => (detail.match(/[^.!?;\n]+/g) ?? []).some(sentence => {
-  const match = HANDS_THIS_OFF.exec(sentence);
-  // The word before the verb has to be someone: "...and run them on the analyzer" is still the person.
-  return !!match && !NOT_A_DOER.has((match[1] ?? "").toLowerCase());
-});
 /** Trying something is related to doing it, at most. */
 const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
 /** Being in the room isn't doing it, and starting and stopping isn't either. */
@@ -109,7 +143,6 @@ const UNIT = /^(?:program|programs|programme|department|departments|operation|op
 const OBSERVES = new Set("watch watched watches watching observe observed observes observing shadow shadowed shadows shadowing".split(" "));
 const OBSERVER_ROLE = /^(?:note-?taker|notetaker|scribe|observer|shadow|witness|onlooker)$/;
 /** Asking someone else to do it: a ticket, a call, a request. */
-const REQUEST_OBJECT = /^(?:tickets?|requests?|orders?|work|calls?|claims?|reports?)$/;
 const PROVIDER = /^(?:them|him|her|it|the|our|a|an|in|out|ahead)$/;
 
 /** The person's main verb and the words after it, with the person and helper words taken off. */
@@ -196,11 +229,13 @@ export function answerStatements(detail: string): Statement[] {
   if (answerLanguage(detail) !== "en" || hasDirectedText(detail)) return [];
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
   // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
-  if (correctsItself(detail) || handsThisOff(detail)) return [];
+  // What the answer takes back is out; everything else is read. The word before a hand-off verb has to be someone:
+  // "...and run them on the analyzer" is still the person.
+  const taken = retractions(detail);
   if (/\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\b(?:not|wasn['’]t|isn['’]t)\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b|\bnever\s+(?:used|touched|opened)\s+it\s+again\b/i.test(detail)) return [];
   // A class, demo, tutorial, or trial is limited familiarity: everything said beside it is read as that, and no more.
   const brief = BRIEF_TRY.test(detail);
-  const barred = untrustedSpans(detail, "answer");
+  const barred = [...untrustedSpans(detail, "answer"), ...taken];
   const out: Statement[] = [];
   const leading: Statement[] = [];
   // Each sentence is read clause by clause where it changes hands: another person's clause is theirs, never the person's.
