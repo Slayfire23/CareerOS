@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { requiredMonths, unquantifiedTime, type Finding } from "@/lib/ai/match-validation";
-import { answerUntrustedSpans } from "@/lib/ai/requirement-structure";
+import { answerUntrustedParts } from "@/lib/ai/requirement-structure";
 import { asksForCredential } from "@/lib/ai/rules/engine";
 import { disguised, plainQualification, statesNotDoing } from "@/lib/ai/rules/profile-fields";
 import { GENERIC_TERMS, keywordDump, labelledList, technologyTerms, words } from "@/lib/ai/skill-relations";
@@ -110,10 +110,19 @@ export function answerProblem(detail: string, requirementText: string): string |
   const all = words(text);
   const asked = new Set(words(requirementText));
   const specific = all.filter(w => !SAYS_NOTHING.has(w) && !GENERIC_TERMS.has(w) && !asked.has(w));
-  if (all.length < MIN_WORDS || specific.length < MIN_SPECIFIC_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
+  // "I have three years of hotel front desk experience" is a claim of time for a requirement that asks for time. It's
+  // not a bare yes: the time question about earlier roles takes it from here, and it can never be Supported.
+  const claimsTime = (requiredMonths(requirementText) !== null || unquantifiedTime(requirementText)) && requiredMonths(text) !== null && /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(text);
+  if (!claimsTime && (all.length < MIN_WORDS || specific.length < MIN_SPECIFIC_WORDS)) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (PRAISE.test(text) && all.length < PRAISE_ONLY_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (statesNotDoing(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
-  if (answerUntrustedSpans(text).length) return "Describe only your own work. Remarks about how this should be judged can't be used.";
+  // The message says what's actually wrong, so the person knows what to change.
+  const kinds = new Set(answerUntrustedParts(text).map(p => p.kind));
+  if (kinds.has("directed") || kinds.has("remark")) return "Describe only your own work. Remarks about how this should be judged can't be used.";
+  if (kinds.has("negated")) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
+  if (kinds.has("not_done")) return "This reads as something you might do, or someone else's account, not work you've done. Describe what you did yourself.";
+  if (kinds.has("list")) return "Write this as a sentence about what you did, not a list of terms.";
+  if (kinds.has("template") || kinds.has("quoted")) return "Describe what you did in your own words. Quoted or template text can't be used.";
   return null;
 }
 

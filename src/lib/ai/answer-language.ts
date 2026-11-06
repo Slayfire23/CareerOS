@@ -42,7 +42,9 @@ const MIN_WORDS_TO_JUDGE = 3;
 const MOSTLY_OTHER_ALPHABET = 0.3;
 const ENGLISH_SHARE = 0.25;
 
-type Reading = "en" | "other" | "unknown" | "too_short";
+/** "neutral": a fragment of names and nouns ("Hooks, context for auth, React Query for data fetching") with some English
+ * in it, nothing from another language, and only plain ASCII. It can sit beside English, never stand alone. */
+type Reading = "en" | "neutral" | "other" | "unknown" | "too_short";
 
 function readSentence(sentence: string): Reading {
   const value = sentence.normalize("NFC").toLowerCase();
@@ -58,6 +60,7 @@ function readSentence(sentence: string): Reading {
   const other = tokens.filter(t => OTHER.has(t)).length;
   if (other >= 2 && other > english) return "other";
   if (english >= 1 && english > other && english / tokens.length >= ENGLISH_SHARE) return "en";
+  if (english >= 1 && other === 0 && /^[\x20-\x7E]*$/.test(sentence)) return "neutral";
   return "unknown";
 }
 
@@ -66,9 +69,10 @@ export function answerLanguage(text: string): AnswerLanguage {
   const readings = (text.match(/[^.!?;\n]+/g) ?? []).map(readSentence).filter(r => r !== "too_short");
   if (!readings.length) return "unknown";
   const english = readings.filter(r => r === "en").length;
-  if (english === readings.length) return "en";
+  if (english > 0 && readings.every(r => r === "en" || r === "neutral")) return "en";
   if (english > 0) return "mixed";
   return readings.every(r => r === "other") ? "other" : "unknown";
+  // A fragment alone, with no plainly English sentence beside it, stays unknown above.
 }
 
 export const LANGUAGE_NOTE = "Saved, but not used yet. For now CareerOS can only read answers written fully in English, so this stays unresolved. You can edit it at any time.";

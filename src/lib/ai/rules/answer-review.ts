@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import type { MatchRequest, MatchRequirement, Verdict } from "@/lib/ai/evidence";
-import { answerStatements, othersText, type Statement } from "@/lib/ai/evidence-boundary";
+import { answerStatements, checksOthersWork, othersText, type Statement } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
@@ -103,6 +103,12 @@ function readPiece(piece: string, allStatements: Statement[], options: ReadOptio
     if (found.length === wanted.length && !actionMissing(piece, s.readable) && statesDoing(s)) return { level: 2, quote: s.text, sourceId: null };
     // "Worked with vendors" isn't a lead on negotiating vendor contracts, though "worked with Kafka" names the thing.
     if (found.length && (s.act === "concrete" || found.length === wanted.length)) lead ??= s.text;
+    // "When our point-of-sale terminals freeze, I'm the one who troubleshoots them": the thing is named in the "when"
+    // part and the person's clause points back to it. A lead, never more.
+    if (!found.length && s.act === "concrete" && /\b(?:them|it|those|these)\b/i.test(s.readable)) {
+      const context = new Set([...canonicalTerms(s.text)].flatMap(t => [t, stem(t)]));
+      if (wanted.some(t => context.has(t) || context.has(stem(t))) && wanted.some(t => have.has(t) || have.has(stem(t)) || words(s.readable).some(w => stem(w) === stem(t)))) lead ??= s.text;
+    }
   }
   if (lead) return { level: 1, quote: lead, sourceId: null };
   for (const s of statements) {
@@ -123,7 +129,11 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   if (!text) return nothing("not_assessable");
   if (needsCredentialEntry(text)) return nothing("credential_needs_an_entry");
   if (answerLanguage(detail) !== "en") return nothing("language_not_evaluated");
-  const statements = answerStatements(detail);
+  // Someone else does part of what's asked, by the answer's own account: the person's part is Possible at most, and
+  // checking that work ("My cooks prepare them. I spot-check the trays") is overseeing it, not doing it.
+  const others = new Set([...canonicalTerms(othersText(detail))].flatMap(t => [t, stem(t)]));
+  const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
+  const statements = answerStatements(detail).map(s => (shared && s.ownership === "performed" && checksOthersWork(s.text) ? { ...s, ownership: "oversaw" as const } : s));
   if (!statements.length) return nothing("no_own_statement");
   // Limited familiarity can be a lead on a skill or tool, never on experience, proficiency, a level, or time.
   if (statements.every(s => s.brief) && (requirement.category === "Experience" || ASKS_FOR_PRACTICE.test(text))) return nothing("brief_exposure_only");
@@ -132,9 +142,6 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   const readings = pieces.map(p => readPiece(p, statements, options));
   const quote = readings.find(r => r.quote)?.quote ?? null;
   if (!quote) return nothing("no_relationship");
-  // Someone else does part of what's asked, by the answer's own account: the person's part is Possible at most.
-  const others = new Set([...canonicalTerms(othersText(detail))].flatMap(t => [t, stem(t)]));
-  const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
   const all = readings.every(r => r.level === 2) && !shared;
   // An answer can't add time to a job, or show a level the person hasn't rated.
   const capped = asksForTime(text) || requiredSkillLevel(text) !== null || /\bas\s+(?:a|an|the)\b/i.test(text);

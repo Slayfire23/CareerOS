@@ -28,7 +28,7 @@ export const evidenceForAi = (evidence: Evidence[]): Evidence[] => evidenceForRu
 /** Could, would, or might, which says nothing about what was done. */
 const HYPOTHETICAL = /\b(?:i\s+(?:could|would|can|might|may|should)|i['’]d|we\s+(?:could|would|can|might)|if\s+(?:needed|required|asked|necessary|given|i\b|we\b)|would\s+be\s+(?:able|happy|glad)|(?:be\s+)?able\s+to|capable\s+of|willing\s+to|happy\s+to|ready\s+to|confident\s+(?:i|that)|sure\s+i|pick\s+(?:it|that|this)\s+up|learn\s+(?:it|that|this)|(?:plan|planning|going|hoping|hope|want|wanting|intend|intending|expect|expecting)\s+to|in\s+the\s+future|some\s*day|one\s+day|next\s+(?:year|month|quarter)|soon)\b/i;
 /** Plainly a brief try, however it's described: a weekend, a sample, a trial, a look around, then gone. */
-const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\btook\s+(?:a|an|one|that)\s+(?:[\p{L}-]+\s+){0,3}?(?:class|course|workshop|webinar|seminar|bootcamp|training)\b|\b(?:weekend|evening|night|community|intro(?:ductory)?|online|one-day|half-day)\s+(?:class|course|workshop|bootcamp)\b|\bone\s+(?:session|class|workshop|lesson|demo)\b|\bthat\s+one\s+(?:session|class|time|workshop|course|lesson)\b|\blunch[\s-]+and[\s-]+learn\b|\b(?:a|one)\s+(?:one|half|single)[\s-]day\s+(?:class|course|workshop|session|training)\b|\bfollowed\s+(?:the|their|his|her)\s+[\p{L}'’-]+\s+steps\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
+const BRIEF_TRY = /\b(?:one|last)\s+weekend\b|\bover\s+a\s+weekend\b(?!\s+\p{L})|\b(?:one|a\s+single)\s+(?:afternoon|evening|morning|night)\b|\bfor\s+(?:about\s+|only\s+|just\s+)?(?:a\s+couple\s+of|a\s+few|two|three)\s+(?:days|afternoons|evenings|weekends|shifts)\b|\bwasn['’]t\s+for\s+me\b|\bfor\s+(?:a|one)\s+(?:day|week|weekend|afternoon|evening)\b|\b(?:ran|tried|used|did|opened|tested|built)\s+(?:it|that|one)\s+(?:just\s+|only\s+)?(?:once|twice)\b|\b(?:just|only)\s+(?:once|twice)\b|\b(?:sample|demo|toy|practice)\s+(?:project|app|file|workbook|account|site)\b|\b(?:followed|watched|worked\s+through|did)\s+(?:a|an|the|some|one|two)?\s*(?:[\p{L}-]+\s+){0,3}?tutorials?\b|\bhello\s+world\b|\btook\s+(?:a|an|one|that)\s+(?:[\p{L}-]+\s+){0,3}?(?:class|course|workshop|webinar|seminar|bootcamp|training)\b|\b(?:weekend|evening|night|community|intro(?:ductory)?|online|one-day|half-day)\s+(?:class|course|workshop|bootcamp)\b|\bone\s+(?:session|class|workshop|lesson|demo)\b|\bthat\s+one\s+(?:session|class|time|workshop|course|lesson)\b|\blunch[\s-]+and[\s-]+learn\b|\b(?:vendor\s+)?demo\s+(?:day|session)\b|\bvendor\s+demo\b|\b(?:a|one)\s+(?:one|half|single)[\s-]day\s+(?:class|course|workshop|session|training)\b|\bfollowed\s+(?:the|their|his|her)\s+[\p{L}'’-]+\s+steps\b|\bfree\s+trial\b|\b(?:opened|started|signed\s+up\s+for|downloaded|installed|spun\s+up)\s+(?:a|an|the)\s+(?:[\p{L}-]+\s+){0,3}?trial\b|\bclicked\s+around\b|\bplayed\s+(?:around|with)\b|\bmessed\s+(?:around|with)\b|\bpoked\s+around\b|\bdabbled\b|\btinkered\b|\bmoved\s+on\b/iu;
 const CORRECTION_MARKER = /(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|in\s+reality|truthfully|ok(?:ay)?|correction|sorry)\b[,:]?\s*([^.!?;\n]*)/giu;
 /** What makes the words after a marker a correction: they shrink the claim, deny it, or give it to someone else. */
 const SHRINKS = /\b(?:only|just|mostly|merely|barely|hardly|not|never|no|none|kind\s+of|sort\s+of|stood|watched|wave[sd]?|near)\b|n['’]t\b/i;
@@ -85,13 +85,19 @@ export const correctsItself = (detail: string) => retractions(detail).length > 0
 /** The asked work given to someone else, by pronoun or contract: "Finance handles that", "It's all under contract". */
 const HANDS_THIS_OFF = /(?:^|[^\p{L}])(?!(?:i|we)\s)([\p{L}'’-]+)\s+(?:handles?|handled|does|do|did|takes?\s+care\s+of|took\s+care\s+of|runs?|ran|owns?|covers?|covered)\s+(?:that|those|it|this|them|all\s+of\s+(?:that|it|them))\b|\bunder\s+contract\b|\b(?:that|this|it|those)(?:['’]s|\s+is|\s+are)\s+(?:all\s+)?(?:handled|done|covered|outsourced|contracted)\b/iu;
 const NOT_A_DOER = new Set("i we and then also or but to so just usually always often still myself ourselves me us you can will would should could must also really personally".split(" "));
+/** "Tell them what I can do" isn't a hypothetical. */
+const WHAT_I_CAN = /\b(?:what|whatever|all|everything|anything|how\s+much)\s+i\s+can\s+\p{L}+/giu;
+/** "I'm the one who troubleshoots them": the "who" is the person, so the clause is theirs. */
+const THE_ONE_WHO = /\b(?:i['’]m|i\s+am|i\s+was)\s+the\s+one\s+(?:who|that)\s+/i;
+/** A small amount of real work: "done some tack welds", "a few times", "maybe a dozen times". Possible at most. */
+const LIMITED = /\b(?:done|did)\s+(?:some|a\s+few|a\s+little|a\s+couple)\b|\b(?:a\s+few|a\s+couple\s+of|maybe\s+a\s+dozen|only\s+a\s+few|a\s+handful\s+of)\s+times\b|\bmaybe\s+a\s+dozen\b/i;
 /** Trying something is related to doing it, at most. */
 const EXPOSURE = /\b(?:trial(?:l)?ed|piloted|tested\s+out|demoed|evaluated|looked\s+(?:at|into)|considered|explored|exposed\s+to|familiar\s+with|helped\s+with|assisted\s+with)\b/i;
 /** Being in the room isn't doing it, and starting and stopping isn't either. */
 const NOT_DOING = /\b(?:attended|read\s+about|heard\s+about|learned\s+about|watched|observed|shadowed|sat\s+in|had\s+a\s+go|gave\s+it\s+a\s+(?:go|try|shot)|got\s+part\s*way|partway\s+through|handed\s+it\s+off|outside\s+my\s+scope)\b/i;
 /** Someone else's work, in the passive: "handled by our billing office", "is outsourced". */
 const SOMEONE_ELSE_MIDWAY = /\bthe\s+[\p{L}-]+\s+(?:does|do|handles?|runs?|owns?|manages?)\b/iu;
-const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|\bgo(?:es)?\s+(?:through|to)\s+(?:\p{Lu}|our|the|their|another)|\b(?:bring\s+in|brought\s+in|hire|hired|pay|paid|use|used|outsource\s+to|contract\s+with)\s+(?:an?\s+)?(?:outside\s+|external\s+|third[-\s]party\s+)?(?:firm|agency|vendor|contractor|consultant|company)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
+const DONE_ELSEWHERE = /\b(?:\w+ed|done|run|kept|sent|set\s+up)\s+by\b|(?<!\b(?:i|we|i\s+\w+|we\s+\w+)\s)\bgo(?:es)?\s+(?:through|to)\s+(?:\p{Lu}|our|the|their|another)|\b(?:bring\s+in|brought\s+in|hire|hired|pay|paid|use|used|outsource\s+to|contract\s+with)\s+(?:an?\s+)?(?:outside\s+|external\s+|third[-\s]party\s+)?(?:firm|agency|vendor|contractor|consultant|company)\b|\b(?:outsourced|sent\s+out|contracted\s+out|farmed\s+out|taken\s+care\s+of)\b/iu;
 
 /** What can come before "I" and only set the scene: "Each morning I...", "When reports slow down I...". */
 const FRAMING = /^\W*(?:over|through|throughout|across|under|per|around|near|about|when|whenever|before|after|once|if|as|at|in|on|for|during|since|while|each|every|most|all|with|by|from|to|last|this|on|weekly|daily|monthly|then|also|yes|sure|so|because)\b/i;
@@ -163,6 +169,11 @@ const objectWords = (after: string[]) => {
   return after.slice(0, stop < 0 ? 5 : Math.min(stop, 5));
 };
 
+/** Checking someone's work. When the answer says others do the asked work, this is overseeing it. Alone, "I check the
+ * oil" is doing it. */
+const CHECKS = /^(?:check|checks|checked|checking|spot-check|spot-checks|spot-checked|inspect|inspects|inspected|review|reviews|reviewed|verify|verifies|verified|audit|audits|audited|monitor|monitors|monitored|test|tests|tested|taste|tastes|tasted|sample|samples|sampled|walk|walks|walked)$/;
+export const checksOthersWork = (text: string) => CHECKS.test(headVerb(text)?.verb ?? "");
+
 /** What the person's part was, read from the main verb and its object, then from phrases at a verb's position. */
 export function involvement(text: string): Ownership {
   const head = headVerb(text);
@@ -217,7 +228,14 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
   if ((verb === "went" || verb === "go" || verb === "goes") && tokens[at + 1] === "through") return { subject, act: "concrete" };
   if (["do", "does", "did"].includes(verb)) return { subject, act: SAYS_LITTLE.has(tokens[at + 1] ?? "") && !["the", "a", "an", "our", "my", "all"].includes(tokens[at + 1] ?? "") ? "says_little" : "concrete" };
   if (WORKED.has(verb)) return { subject, act: "worked" };
-  if (SAYS_LITTLE.has(verb) || !verb) return { subject, act: "says_little" };
+  // "I've done some MIG tack welds", "I get three quotes": done or gotten things, counted, is doing them. A course isn't.
+  if ((verb === "done" && /^(?:some|hundreds|dozens|\d+|two|three|four|five|six|several|many|few)$/.test(tokens[at + 1] ?? "") || /^(?:get|gets|got)$/.test(verb) && /^(?:\d+|two|three|four|five|six|several|multiple|few)$/.test(tokens[at + 1] ?? "")) && !/\b(?:course|class|workshop|training|tutorial|webinar|seminar|research|reading|bootcamp|certificate|certification|license|licence)\b/i.test(first[3])) return { subject, act: "concrete" };
+  // "I went to a demo day where I flew their drone": what the person did is later in the sentence.
+  if (SAYS_LITTLE.has(verb) || !verb) {
+    const later = /\b(?:where|and|then|so)\s+(i\s+.+)$/i.exec(first[3]);
+    if (later && readAct(later[1]).act === "concrete") return { subject, act: "concrete" };
+    return { subject, act: "says_little" };
+  }
   if (be && !/(?:ing|ed)$/.test(verb)) return { subject, act: "says_little" };
   return { subject, act: "concrete" };
 }
@@ -269,13 +287,13 @@ export function answerStatements(detail: string): Statement[] {
     const start = wholeStart + whole.indexOf(text, span[0]);
     const end = start + text.length;
     if (text.length < 3 || barred.some(([s, e]) => s < end && start < e)) continue;
-    if (ownNegative(whole) || HYPOTHETICAL.test(ownClauses(whole)) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
+    if (ownNegative(whole) || HYPOTHETICAL.test(ownClauses(whole).replace(WHAT_I_CAN, " ")) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
     if (someoneElsesWork(text, text)) continue;
     // Judged on the first clause: "I build the screens, and I hand them to engineering" is doing the work.
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
     const ownership: Ownership = involvement(firstClause);
     const read = readAct(text);
-    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(text), ownership });
+    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole), brief, readable: ownClauses(text.replace(THE_ONE_WHO, "I ")), ownership });
     // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
     const mine = read.subject === "team" ? /(?:,\s*(?:and|so|then|but)\s+|\s+and\s+)(?=i\s)/i.exec(text) : null;
     if (mine) {

@@ -194,29 +194,40 @@ export function untrustedEvidenceSpans(text: string): Span[] {
 
 /** The same, for a person's answer to a question. Naming "every assessment" or "the application" isn't a
  * remark about being judged when someone is describing their work, so a bare reference doesn't count here. */
-export function answerUntrustedSpans(text: string): Span[] {
-  const spans = new Map<string, Span>();
-  for (const span of directedSpans(text)) spans.set(span.join(":"), span);
+/** Why part of an answer can't be read: aimed at the evaluator, a remark about judging or a claim about the profile,
+ * a negative about the person, a list or a fragment, a template, or someone else's quoted words. */
+export type UntrustedKind = "directed" | "remark" | "negated" | "not_done" | "list" | "template" | "quoted";
+/** "Keep the count for each picker" is a tally, not a claim that something counts for something. */
+const NOUN_COUNT = /\b(?:the|a|an|each|every|daily|weekly|nightly|head|inventory|cycle|bin|pallet|my|our|their)\s+counts?\s+(?:for|of|on|toward)\b/gi;
+export function answerUntrustedParts(text: string): { span: Span; kind: UntrustedKind }[] {
+  const parts: { span: Span; kind: UntrustedKind }[] = [];
+  for (const span of directedSpans(text)) parts.push({ span, kind: "directed" });
   for (const [s, e] of segments(text)) {
     const segment = text.slice(s, e);
-    if (PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment) || isRelationClaim(segment) || evaluationLanguage(segment)) spans.set(`${s}:${e}`, [s, e]);
+    if (PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment.replace(NOUN_COUNT, " ")) || isRelationClaim(segment) || evaluationLanguage(segment.replace(/\binstead\s+of\s+\p{L}+ing\b/giu, " "))) parts.push({ span: [s, e], kind: "remark" });
   }
   // A negative about someone else ("clients who never paid") doesn't bar the person's own work beside it.
   const sentences = [...text.matchAll(/[^.!?;\n]+/g)];
   for (const span of negatedSpans(text)) {
     const sentence = sentences.find(m => m.index <= span[0] && span[0] < m.index + m[0].length);
-    if (!sentence || statesNotDoing(sentence[0])) spans.set(span.join(":"), span);
+    if (!sentence || statesNotDoing(sentence[0])) parts.push({ span, kind: "negated" });
   }
   for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
     // "I rebuilt the course, new labs, new assessments" lists what the person did. A dump has no one doing anything.
     const someoneDoes = /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s+\p{L}{3,}/iu.test(match[0]) && match[0].split(/\s+/).length >= 12;
-    if ((keywordDump(match[0]) && !someoneDoes) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    if (keywordDump(match[0]) && !someoneDoes) parts.push({ span: [match.index, match.index + match[0].length], kind: "list" });
+    else if (notAStatement(match[0])) parts.push({ span: [match.index, match.index + match[0].length], kind: "not_done" });
   }
-  if (templateText(text)) spans.set(`0:${text.length}`, [0, text.length]);
+  if (templateText(text)) parts.push({ span: [0, text.length], kind: "template" });
   // Quoted words are someone else's, as they are in a profile.
   for (const match of text.matchAll(/["“”«»]([^"“”«»]{20,})["“”«»]|(?<![\p{L}\p{N}])'([^']{20,})'(?![\p{L}\p{N}])/gu)) {
-    spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    parts.push({ span: [match.index, match.index + match[0].length], kind: "quoted" });
   }
+  return parts;
+}
+export function answerUntrustedSpans(text: string): Span[] {
+  const spans = new Map<string, Span>();
+  for (const { span } of answerUntrustedParts(text)) spans.set(span.join(":"), span);
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 

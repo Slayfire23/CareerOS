@@ -15,7 +15,7 @@ const MORE_DIRECTED = [
   /\bpretend\s+(?:that\s+|you\b|to\s+be\b)/i,
   /\bas\s+(?:the|an?)\s+(?:ai|assistant|reviewer|model|screener)\b(?!\s+(?:to|for|manager|coach))/i,
   /\b(?:please|kindly)\s+(?:approve|accept|pass|qualify|credit|mark|count|confirm)\b/i,
-  /\bapprove\s+(?:this|the|my|me)\b/i,
+  /\bapprove\s+(?:this|my|me)\b|\bapprove\s+the\s+(?:candidate|answer|application|applicant|requirement|claim|profile|response|match|person)\b/i,
   /\b(?:reviewer|recruiter|hiring|screener|screening|grader|evaluator)\s+(?:note|override|message|instructions?)\b/i,
   /\baccept\s+(?:this|my|the)\s+(?:answer|response|candidate|application|applicant|claim)\b/i,
   /\b(?:do\s+not|don['’]t)\s+(?:ask|flag|escalate|question)\b/i,
