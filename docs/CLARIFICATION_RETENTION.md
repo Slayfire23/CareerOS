@@ -20,6 +20,8 @@ An answer is never read as ordinary role text, and no external AI provider recei
 - Local AI suggestions citing it
 - From its audit events: the requirement text, question key, verdicts, and job link
 
+Follow-up replies (behind `FOLLOW_UP_WORKFLOW_ENABLED`, off by default) go with their answer: deleting the answer or its role removes them and their copies. A reply can also be deleted alone, which removes its words and copies; the question's record stays, without words, so it isn't asked again. A follow-up record holds offsets into the answer, never a copy of its words.
+
 Removing a role does all of this for every answer about that role. Account deletion removes everything, through database cascades.
 
 ## What stays, and why

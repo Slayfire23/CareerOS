@@ -309,7 +309,10 @@ The open foundation security follow-ups near the top of this file remain open an
 - [ ] Still not ready to enable: no independent evidence, honest paraphrases 0 of 18 on both new splits, hosted retention unverified.
 - [x] Milestone 11, Phase 5 design and shadow proof of concept: a local model reads answers, and code decides what that's worth. See docs/MILESTONE_11_PHASE_5_DESIGN.md. Not integrated.
 - [x] Phase 5 production fixes (rules-v15) and local shadow run behind INTERPRETATION_SHADOW_ENABLED, off by default. See docs/MILESTONE_11_PHASE_5_SHADOW_REPORT.md.
-- [ ] Follow-up flow: reply rules are written and evaluated, but no question is shown and no reply reaches a verdict. Needs approval, a fix for a known contradictory reply, and a new evaluation.
+- [x] Follow-up workflow for local testing behind FOLLOW_UP_WORKFLOW_ENABLED (rules-v16), with the delegation fix. See docs/MILESTONE_11_PHASE_5_FOLLOW_UP_REPORT.md.
+- [ ] Owner labels the 30-scenario blind packet (docs/PHASE5_BLIND_LABEL_PACKET.md) before any blind results are opened.
+- [ ] Blind split: 2 false Supported and 7 unsafe Possible of 80, from the answer reader, against agent labels. Decide whether to keep patching word lists.
+- [ ] Production migrations now include 20261104010000 and 20261105010000. Needs approval.
 - [ ] Owner sign-off on the 42 equivalence groups (docs/EQUIVALENCE_REVIEW_PACKET.md); none are owner-reviewed yet.
 - [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
 - [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
