@@ -13,6 +13,7 @@ import { applyAnswers, groupsFor, needsCredentialEntry, readAnswer, type LinkedA
 import { hasQualificationWords } from "@/lib/ai/skill-relations";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
 import { asksForCredential, RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
+import { evaluationLanguage } from "@/lib/ai/requirement-structure";
 import { buildReviewQueue, keyForRequirement, questionKey } from "@/lib/ai/rules/review-queue";
 import { buildSuggestRequest } from "@/lib/ai/rules/suggestions";
 
@@ -250,6 +251,35 @@ describe("blind review failures, rules-v17", () => {
     ["fu-057", "Terraform", "Just that one session. I followed the presenter's steps and deleted it after."],
   ])("%s, a reply that wouldn't have been safe, stays unresolved", (_id, text, reply) => {
     expect(readFollowUpReply(req(text), "I work with the reports", reply).outcome).toBe("unresolved");
+  });
+});
+
+describe("blind review recognition fixes, rules-v17", () => {
+  it.each([
+    ["fu-075", "Conflict resolution", "When two people on a shift can't stand each other I get them in a room, let each say their piece, and we write down what both will do differently."],
+    ["fu-060", "Curriculum development", "When our welding-tech intro course got outdated I rebuilt the whole sixteen weeks, new labs, new assessments, new reading list, got it through the committee."],
+    ["fu-055", "Pool chemistry", "Twice a day I dip the test kit in all three pools, then adjust the chlorine and acid feed and top up as needed. Health inspector has never written us up."],
+  ])("%s isn't refused", (_id, text, detail) => {
+    expect(answerProblem(detail, text)).toBeNull();
+  });
+
+  it.each([
+    ["fu-065", "Livestock vaccination", "Come spring we run the calves through the chute and I give them their livestock vaccination shots in the neck, keep the syringe cold, mark each one so none get missed."],
+    ["fu-100", "Client onboarding", "Once a contract is signed I'm the one on the client onboarding kickoff call, loading their data and walking their admins through the setup."],
+  ])("%s is read as the person's own work", (_id, text, detail) => {
+    expect(afterSaving(text, detail).verdict).not.toBe("insufficient_information");
+  });
+
+  it.each([
+    ["the person's own negative still refuses", "Never used Kafka, and I have not written a producer."],
+    ["a negative right after I", "Honestly I have never done this, the senior tech does it."],
+    ["a keyword dump with no one doing anything", "Salesforce, Salesforce admin, Salesforce reports, Salesforce dashboards, Salesforce flows"],
+  ])("%s", (_name, detail) => {
+    expect(answerProblem(detail, "Kafka")).not.toBeNull();
+  });
+
+  it("\"X will do\" in a requirement still reads as evaluation language", () => {
+    expect(evaluationLanguage("Any bachelor's degree will do.")).toBe(true);
   });
 });
 

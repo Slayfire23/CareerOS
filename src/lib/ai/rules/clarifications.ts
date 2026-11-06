@@ -98,7 +98,9 @@ export function answerProblem(detail: string, requirementText: string): string |
   // An English instruction inside a mixed answer is turned away. Everything else in it is only unread.
   if (language !== "unknown" && hasDirectedText(text)) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   if (language === "mixed") return null;
-  const looksLikeList = keywordDump(text) || labelledList(text);
+  // "I rebuilt the whole course, new labs, new assessments" lists what was done; a list with no one doing anything is a dump.
+  const someoneDoes = /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s+\p{L}{3,}/iu.test(text) && words(text).length >= 12;
+  const looksLikeList = labelledList(text) || (keywordDump(text) && !someoneDoes);
   if (looksLikeList && (language === "en" || /^[\x00-\x7F]*$/.test(text))) return "Write this as a sentence about what you did, not a list of terms.";
   if (language === "unknown" && (looksLikeList || words(text).length >= MIN_WORDS)) return null;
   const all = words(text);

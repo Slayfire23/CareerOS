@@ -208,7 +208,9 @@ export function answerUntrustedSpans(text: string): Span[] {
     if (!sentence || statesNotDoing(sentence[0])) spans.set(span.join(":"), span);
   }
   for (const match of text.matchAll(/[^.!?;\n]+[.!?;\n]?/g)) {
-    if (keywordDump(match[0]) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
+    // "I rebuilt the course, new labs, new assessments" lists what the person did. A dump has no one doing anything.
+    const someoneDoes = /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s+\p{L}{3,}/iu.test(match[0]) && match[0].split(/\s+/).length >= 12;
+    if ((keywordDump(match[0]) && !someoneDoes) || notAStatement(match[0])) spans.set(`${match.index}:${match.index + match[0].length}`, [match.index, match.index + match[0].length]);
   }
   if (templateText(text)) spans.set(`0:${text.length}`, [0, text.length]);
   // Quoted words are someone else's, as they are in a profile.

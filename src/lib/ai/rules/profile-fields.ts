@@ -30,7 +30,7 @@ export const NEGATION = new RegExp(
 export const hasNegation = (text: string) => new RegExp(NEGATION.source, "i").test(text);
 
 const LEADING_OTHER = /^[^,;:]*?(?:[,;:]\s*(?:and\s+|so\s+|then\s+)?|\s+(?:so|and|then)\s+)(?=(?:i|we)(?:['’]\p{L}+)?\s)/iu;
-const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|so(?=\s+(?:the|a|an|our|my|their|his|her|it|they|he|she|nobody|no\s+one|drivers?|customers?|clients?|patients?|users?|kids|students|people|staff|nothing|bugs?)\b)|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
+const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|so(?=\s+(?:the|a|an|our|my|their|his|her|it|they|he|she|nobody|none|nothing|no\s+one|drivers?|customers?|clients?|patients?|users?|kids|students|people|staff|nothing|bugs?)\b)|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
 /** A sentence without what it says about others: "customers can't log in, so I reset their accounts", "who
  * never bought from us". A negative left over is the person's own. An opening that negates ("Not once...") stays. */
 export function ownClauses(sentence: string): string {
@@ -44,8 +44,12 @@ export const ownNegative = (sentence: string) => {
   const own = ownClauses(sentence);
   return PLAIN_NEGATIVE.test(own) || hasNegation(own);
 };
+/** A sentence about someone or something else: no "I" or "we", and it opens on what it's about ("Health inspector has
+ * never written us up"), not on what was done ("Never used Kafka"). */
+const ABOUT_SOMEONE_ELSE = /^\W*(?:(?:the|a|an|our|my|their|his|her|its|this|that)\s+)?(?:\p{Lu}[\p{L}'’-]*|[\p{Ll}'’-]+)\s+(?:[\p{L}'’-]+\s+)?(?:has|have|had|is|are|was|were|does|do|did|can|could|will|would)(?:n['’]t)?\s+(?:never|not|no)\b/iu;
+const aboutSomeoneElse = (sentence: string) => !/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(sentence) && ABOUT_SOMEONE_ELSE.test(sentence);
 /** The same, only for the phrasing that means not having done something. Any sentence of a longer text. */
-export const statesNotDoing = (text: string) => (text.match(/[^.!?;\n]+/g) ?? []).some(sentence => hasNegation(ownClauses(sentence)));
+export const statesNotDoing = (text: string) => (text.match(/[^.!?;\n]+/g) ?? []).some(sentence => !aboutSomeoneElse(sentence) && hasNegation(ownClauses(sentence)));
 
 /** Invisible characters, or a word mixing Latin letters with look-alikes from another alphabet. */
 export function disguised(value: string): boolean {

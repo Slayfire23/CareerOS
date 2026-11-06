@@ -107,6 +107,8 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
   }
   const subject = first[1].toLowerCase() === "i" ? "self" : "team";
   if (OWNS_IT.test(first[3])) return { subject, act: "concrete" };
+  // "I'm the one on the kickoff call, loading their data": saying who does it, with the doing beside it.
+  if (/^(?:['’]m|\s*am)?\s*the\s+one\b/i.test(`${first[2] ? "'" + first[2] : ""}${first[3]}`) && /\b\p{Ll}+ing\b/u.test(first[3])) return { subject, act: "concrete" };
   let be = first[2]?.toLowerCase() === "m";
   let at = 0;
   while (at < tokens.length && AUXILIARY.has(tokens[at])) {

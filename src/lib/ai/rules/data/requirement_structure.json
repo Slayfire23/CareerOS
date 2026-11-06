@@ -114,7 +114,7 @@
     "\\b(full|partial)\\s+(credit|points|marks)\\b",
     "\\bin\\s+place\\s+of\\b|\\binstead\\s+of\\b|\\bin\\s+lieu\\s+of\\b|\\bsubstitut\\w*|\\binterchangeab\\w*|\\bsame\\s+as\\b|\\bas\\s+good\\s+as\\b",
     "\\b(counts?|counted|qualif(y|ies|ied)|treat|treated|regarded|considered|accepted|acceptable)\\s+as\\b",
-    "\\b(qualifies|suffices|is\\s+sufficient|are\\s+sufficient|is\\s+enough|is\\s+acceptable|are\\s+acceptable|will\\s+do)\\b",
+    "\\b(qualifies|suffices|is\\s+sufficient|are\\s+sufficient|is\\s+enough|is\\s+acceptable|are\\s+acceptable|will\\s+do(?!\\s+[a-z]))\\b",
     "\\b(satisf(y|ies|ied)|meets?|fulfil+s?|fulfilled)\\s+(this|the|all|every|each|these|any)\\s+(requirement|requirements|criteria|criterion|qualification|qualifications)\\b",
     "\\b(is|are|be|as|deemed)\\s+equivalent\\b|\\bequivalent\\s+to\\b",
     "\\bverdicts?\\b|[\\\"'`](supported|insufficient_information)[\\\"'`]",
