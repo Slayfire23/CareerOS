@@ -1,0 +1,12 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
+import { readAnswer } from "@/lib/ai/rules/answer-review";
+// Equivalence review probes for a batch, evaluation only. Deleted after the packet.
+it.skipIf(!process.env.PROBES)("probes", { timeout: 120_000 }, () => {
+  const probes = JSON.parse(readFileSync(process.env.PROBES!, "utf8")) as [string, string, string, string][];
+  writeFileSync(process.env.PROBE_OUT!, JSON.stringify(probes.map(([group, requirement, text, want]) => {
+    const r = { index: 0, text: requirement, category: "Skills" as const, priority: "Required" as const };
+    return { group, requirement, text, want, now: readAnswer(r, text).verdict, approved: readAnswer(r, text, { assumeApproved: true }).verdict };
+  }), null, 1));
+});
