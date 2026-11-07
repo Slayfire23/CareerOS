@@ -18,8 +18,10 @@ import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 //   npx vitest run --config vitest.eval.config.mts followup
 // A sealed run writes counts only. The blind split is always run sealed until the owner's labels are in.
 
-type Scenario = { id: string; split: string; requirement: string; category: "Skills" | "Experience"; role: string; role_months: number; answer: string; reply: string; type: string; reply_kind: string; evidence_group: string | null };
-type Label = { id: string; answer_verdict: "supported" | "possible" | "not_enough" | "not_supported"; personally_did: boolean; reply_ok: boolean; involvement?: string; hands_on?: boolean };
+type Scenario = { id: string; split: string; requirement: string; category: "Skills" | "Experience"; role: string; role_months: number; role_description?: string | null; answer: string; reply: string; type: string; reply_kind: string; evidence_group: string | null };
+/** `answer_verdict` is the whole entry without the reply (title, dates, description, answer); `after_reply_verdict`, where
+ * a split has it, is the same with the reply read too. */
+type Label = { id: string; answer_verdict: "supported" | "possible" | "not_enough" | "not_supported"; after_reply_verdict?: "supported" | "possible" | "not_enough" | "not_supported"; personally_did: boolean; reply_ok: boolean; involvement?: string; hands_on?: boolean };
 const CREDIT: Record<string, number> = { supported: 2, possible: 1 };
 const credit = (v: string) => CREDIT[v] ?? 0;
 const percentile = (values: number[], p: number) => Math.round([...values].sort((a, b) => a - b)[Math.min(values.length - 1, Math.floor(values.length * p))] ?? 0);
@@ -46,6 +48,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     injections: 0, injectionsChangedOutcome: 0, nonEnglishPromoted: 0, paraphrases: 0, paraphrasesRecognized: 0,
     finalVerdicts: {} as Record<string, number>,
     // Phase 5.2 measures, fixed before implementation. A label's verdict is the bar: credit above it is unsafe.
+    engineCreditAboveLabel: 0, engineCreditAboveLabelByTitle: {} as Record<string, number>,
     creditAboveLabel: 0, unsafePossibleHandsOn: 0, unsafeByInvolvement: {} as Record<string, number>,
     labelSupported: 0, labelSupportedGotSupported: 0, labelSupportedGotPossible: 0, labelPossible: 0, labelPossibleGotPossible: 0,
     honestRefusedByMessage: {} as Record<string, number>, unqualified: 0, unqualifiedRefused: 0,
@@ -59,7 +62,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
   for (const s of scenarios) {
     const label = labels.get(s.id)!;
     const requirement: MatchRequirement = { index: 0, text: s.requirement, category: s.category, priority: "Required" };
-    const evidence: Evidence[] = [{ id: "experience:00000000-0000-4000-8000-000000000001", kind: "experience", job_title: s.role, start_month: month("2026-11", Math.max(0, s.role_months - 1)), end_month: null, description: null }];
+    const evidence: Evidence[] = [{ id: "experience:00000000-0000-4000-8000-000000000001", kind: "experience", job_title: s.role, start_month: month("2026-11", Math.max(0, s.role_months - 1)), end_month: null, description: s.role_description ?? null }];
     const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: "2026-11", requirements: [requirement], evidence };
     const rulesOnly = assessRequirements(request)[0].verdict;
     const refused = answerProblem(s.answer, s.requirement);
@@ -145,7 +148,14 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
       if (final !== rulesOnly) t.injectionsChangedOutcome++;
     }
     if ((s.type === "multilingual" || s.type === "other_language") && final !== rulesOnly) t.nonEnglishPromoted++;
-    const bar = label.answer_verdict === "supported" ? 2 : label.answer_verdict === "possible" ? 1 : 0;
+    const level = (v: string | undefined) => (v === "supported" ? 2 : v === "possible" ? 1 : 0);
+    // The final verdict is held to the label with the reply read, where the split has one.
+    const bar = level(label.after_reply_verdict ?? label.answer_verdict);
+    // Credit the engine gives from the title, dates or description alone, above what the whole entry supports.
+    if (credit(rulesOnly) > level(label.answer_verdict)) {
+      t.engineCreditAboveLabel++;
+      t.engineCreditAboveLabelByTitle[s.role] = (t.engineCreditAboveLabelByTitle[s.role] ?? 0) + 1;
+    }
     if (credit(final) > bar) {
       t.creditAboveLabel++;
       t.unsafeByInvolvement[label.involvement ?? "unlabelled"] = (t.unsafeByInvolvement[label.involvement ?? "unlabelled"] ?? 0) + 1;
