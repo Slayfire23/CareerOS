@@ -73,7 +73,7 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v18";
+export const RULES_VERSION = "rules-v19";
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";
@@ -923,6 +923,44 @@ function assessCredential(request: MatchRequest, requirement: MatchRequirement):
   return finding(requirement, "insufficient_information", "Your profile doesn't list this credential.", { caveats: unique([...result.caveats.filter(c => c !== RELATED_TECHNOLOGY), CREDENTIAL_NOT_SHOWN]).slice(0, 5) });
 }
 
+// A job title shows occupational background, not every task in it. Phase 5.3: a supervisor's or manager's title doesn't
+// show doing the hands-on work they oversee, and a helper's title shows at most limited experience of the work they help
+// with. Leadership, assisting, field and time requirements keep the title's credit.
+const LEADER_TITLE = /\b(?:supervisor|manager|mgr|foreman|forewoman|superintendent|coordinator|director|head|chief|lead)\b/i;
+const HELPER_TITLE = /\b(?:helper|apprentice|aide|trainee|runner|porter|assistant|asst)\b|['’]s\s+helper\b/i;
+/** Asks for leading or managing work, or for the office work managers do. */
+const ASKS_TO_LEAD = /\b(?:lead\w*|manag\w+|supervis\w+|oversee\w*|oversight|coordinat\w+|direct\w*|schedul\w+|hir\w+|recruit\w*|budget\w*|cost\w*|plan\w*|forecast\w*|negotiat\w+|purchas\w+|procure\w*|administ\w+|approv\w+|staff\w*|team|teams|crews?)\b/i;
+const ASKS_TO_HELP = /\b(?:assist\w*|help\w*|support\w*)\b/i;
+/** An operational task: opens on doing it, or says hands-on. "Warehouse experience" and "3 years in retail" aren't. */
+const OPERATIONAL_TASK = /^(?:hands[-\s]on\s+|experience\s+(?:in\s+|with\s+)?|proficien\w+\s+in\s+)?(?:install\w*|repair\w*|rebuild\w*|weld\w*|solder\w*|wir\w+|plumb\w*|pour\w*|finish\w*|fram\w+|set\w*|lay\w*|tile|til\w+|paint\w*|refinish\w*|sand\w*|roof\w*|operat\w+|driv\w+|lift\w*|load\w*|unload\w*|cook\w*|prepar\w+|bak\w+|butcher\w*|clean\w*|sanit\w+|harvest\w*|pick\w*|prun\w+|plant\w*|mow\w*|cut\w*|sew\w*|assembl\w+|machin\w+|calibrat\w+|maintain\w*|maintenance|servic\w+|perform\w*|administer\w*|draw\w*|insert\w*|conduct\w*|deliver\w*|teach\w*|train\w*|treat\w*|inspect\w*|test\w*|troubleshoot\w*|fix\w*|build\w*|construct\w*|demolish\w*|excavat\w+|grind\w*|polish\w*)\b/i;
+export type RequirementKind = "lead" | "assist" | "task" | "field";
+export function requirementKind(text: string): RequirementKind {
+  const value = text.trim();
+  if (ASKS_TO_LEAD.test(value)) return "lead";
+  if (ASKS_TO_HELP.test(value)) return "assist";
+  if (/\bhands[-\s]on\b/i.test(value) || OPERATIONAL_TASK.test(value)) return "task";
+  return "field";
+}
+export const titleLevel = (title: string): "leader" | "helper" | "doer" => (HELPER_TITLE.test(title) ? "helper" : LEADER_TITLE.test(title) ? "leader" : "doer");
+const LEADER_NOT_HANDS_ON = "A supervisor's or manager's title doesn't show doing this hands-on work yourself. Say what you did yourself to have it counted.";
+const HELPER_LIMITED = "A helper's or assistant's title shows limited experience of this work, not doing it on your own.";
+/** Limits credit that rests on a job title or its dates, by what the title's level can show for this kind of requirement.
+ * The reason is kept as a caveat, so a lowered verdict always says why. */
+function limitTitleCredit(request: MatchRequest, requirement: MatchRequirement, f: RawFinding): RawFinding {
+  if (f.verdict !== "supported" && f.verdict !== "possible") return f;
+  if (requirementKind(qualificationText(requirement.text)) !== "task") return f;
+  const cited = f.citations.map(c => ({ quote: c.quote, item: request.evidence.find(e => e.id === c.evidence_id) }));
+  // Credit that rests on the title: its dates, the title itself, or a citation that only quotes job titles.
+  const onTitle = f.basis === "employment_dates" || f.basis === "role_description" || (cited.length > 0 && cited.every(c => !!c.item && isRole(c.item) && c.quote === c.item.job_title));
+  if (!onTitle) return f;
+  const titles = cited.map(c => c.item).filter((e): e is ExperienceEvidence => !!e && isRole(e)).map(e => e.job_title);
+  if (!titles.length) return f;
+  // Every cited title has to be a leader's for the credit to go: a line cook's title beside a kitchen manager's still counts.
+  if (titles.every(t => titleLevel(t) === "leader")) return { ...f, verdict: "insufficient_information", explanation: LEADER_NOT_HANDS_ON, citations: [], caveats: unique([LEADER_NOT_HANDS_ON, ...f.caveats]).slice(0, 5), basis: "no_evidence" };
+  if (f.verdict === "supported" && titles.every(t => titleLevel(t) !== "doer") && titles.some(t => titleLevel(t) === "helper")) return { ...f, verdict: "possible", caveats: unique([HELPER_LIMITED, ...f.caveats]).slice(0, 5) };
+  return f;
+}
+
 function assess(request: MatchRequest, requirement: MatchRequirement, terms: Set<string>): RawFinding {
   // A requirement containing instructions or evaluation language is not judged until the person
   // confirms it. Otherwise only its qualification is judged.
@@ -944,6 +982,7 @@ function assess(request: MatchRequest, requirement: MatchRequirement, terms: Set
   else if (current.category === "Experience") result = assessExperience(request, current);
   else if (current.category === "Education") result = assessEducation(request, current);
   else result = assessSkills(request, current);
+  result = limitTitleCredit(request, current, result);
   return notes.length ? { ...result, caveats: unique([...result.caveats, ...notes]).slice(0, 5) } : result;
 }
 
