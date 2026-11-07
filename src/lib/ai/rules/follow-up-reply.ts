@@ -25,7 +25,7 @@ const AFFIRMS = /^\W*(?:(?:yes|yeah|yep|it|it['’]s|its|is|that|that['’]s|the
 /** Offering a credential for the work: a reply can't show one, and it isn't a description of doing anything. */
 const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket|bar|boards?|exam)\b|\b(?:covers|counts\s+for|answers)\s+(?:it|that|this)\b|\b(?:that|this|it)\s+counts\b/i;
 /** Someone else did the real work, or the person's own part is framed as the small part. */
-const OTHERS_DID_THE_WORK = /\b(?:did|does|do|handled?|handles)\s+the\s+actual\b|\bthe\s+actual\s+[\p{L}-]+(?:\s+[\p{L}-]+)?\s+(?:was|were|is|are)\b|\b(?:handles?|handled|does|did|do)\s+(?:everything|the\s+rest|all\s+(?:of\s+)?the\s+rest)\b|\b(?:was|is|were|are)\s+(?:all\s+)?(?:his|hers|theirs)\b|\bmy\s+(?:part|piece|bit|end|role)\s+(?:was|is)\b|\bi\s+just\b/iu;
+const OTHERS_DID_THE_WORK = /\b(?:did|does|do|handled?|handles)\s+the\s+actual\b|\bthe\s+actual\s+[\p{L}-]+(?:\s+[\p{L}-]+)?\s+(?:was|were|is|are)\b|\b(?:handles?|handled|does|did|do)\s+(?:everything|the\s+rest|all\s+(?:of\s+)?the\s+rest)\b|\b(?:was|is|were|are)\s+(?:all\s+)?(?:his|hers|theirs)\b|\bmy\s+(?:part|piece|bit|end|role)\s+(?:was|is)\b|\bi\s+just\b|\b(?:is|are|was|were)\s+(?:all\s+|mostly\s+|really\s+)?(?:them|theirs|(?:the|our|an?|their)\s+(?:[\p{L}-]+\s+){0,2}(?:company|contractor|contractors|vendor|agency|firm|team|department|provider|crew|guys?|people|techs?|staff|office))\b|\b(?:rarely|seldom|hardly\s+ever|barely\s+ever|not\s+often|once\s+in\s+a\s+while)\b/iu;
 const UNDERCUTS = /^\W*only\s+(?:some|part)\b|\b(?:part|some)\s+of\s+it\b|\bi\s+only\b|\bthough\s+really\b|\b(?:although|though)\s+i\b|\bonly\s+(?:ever|when|if)\b|\bbut\s+(?:only|mostly|just|really|honestly|mainly)\b|\b(?:sort|kind)\s+of\b|\bi\s+(?:guess|think|suppose|believe)\b|\bnot\s+sure\b|\bprobably\b|\bmaybe\b|\bmore\s+or\s+less\b|\bpretty\s+much\b|\bbasically\b|\bessentially\b/i;
 const NEW_WORDS_NEEDED = 3;
 const SAYS_NOTHING = new Set(words("yes yeah yep same work i i've we my our the a an and or of to in on at for with it this that these those is was are were be been did do does done have has had what you said also just always every each day week month year"));
@@ -117,6 +117,9 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   if (added.size < NEW_WORDS_NEEDED) return unresolved("repeats_the_question");
   // The answer said someone else does this, or that the person doesn't, or took it back. A reply claiming that same work
   // counts only if it says what changed: "I pick right alongside them every day" after "I don't pick much myself" doesn't.
+  // Code asked whether they did it themselves, or which part was theirs: the reply has to describe doing the asked work
+  // itself, in its words. Posting the notices, or salting the steps beside the plow contract, isn't snow removal.
+  if (followUpKind(requirement, answer, quoted) !== "relation" && !own.some(s => touches(specificTerms(text), s.readable))) return unresolved("no_own_work");
   const ruledOut = disputed(answer);
   const claims = own.map(s => verbAndObject(s.text)).filter((p): p is { verb: string; object: string } => !!p);
   const reverses = claims.some(c => ruledOut.verbs.has(c.verb) || ruledOut.objects.has(stemOf(c.object)));

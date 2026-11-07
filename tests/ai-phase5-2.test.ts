@@ -313,3 +313,22 @@ describe("Stage 3: a reply can't override the answer without saying what changed
     expect(readFollowUpReply(req("Upholstery repair"), "I've restapled the bottom fabric on a few floor-model chairs.", "Yeah, just stapling the dust cover back on and once replacing a button on a sofa. Anything with re-covering goes out to our upholsterer.").outcome).toBe("possible_candidate");
   });
 });
+
+describe("Stage 3: replies to code's questions have to describe doing the asked work", () => {
+  // As production asks: the quoted sentence is the one code chose.
+  const asked = (requirement: string, answer: string, reply: string) => {
+    const need = followUpNeed(req(requirement), answer)!;
+    return readFollowUpReply(req(requirement), answer.slice(need.start, need.end), reply, answer).outcome;
+  };
+  it("fv-007, fv-042, fv-046, fv-073, fv-088: work around it, or someone else's, isn't it", () => {
+    expect(asked("Fire alarm system testing", "Our fire alarm testing is done under contract with an outside fire protection company. I let them in, escort them around the building, and keep the inspection reports on file.", "Honestly the testing itself is all them. I post the notices so people don't panic when the horns go off, and I chase them for the report afterward.")).toBe("unresolved");
+    expect(asked("IT helpdesk support", "When our computers break we put in a ticket with the managed IT company. They remote in and fix it.", "I do restart the printer and the router when they hang, but anything beyond that is the IT company.")).toBe("unresolved");
+    expect(asked("Software code review", "I make sure every PR on my team gets two reviewers and I set the review guidelines. I approve merges for releases.", "I assign reviewers in the rotation and track review turnaround in our weekly metrics. I rarely read the diffs myself these days.")).toBe("unresolved");
+    expect(asked("Social media content creation", "Our social media is run by a marketing agency on a monthly retainer. I send them photos of the team sometimes.", "Honestly I write a lot of the posts too.")).toBe("unresolved");
+    expect(asked("Snow removal equipment operation", "Snow removal at our complexes is a contract with a plow company. I call them when we get over two inches.", "I salt the front steps of the office myself, but the plows and loaders are all the contractor.")).toBe("unresolved");
+  });
+
+  it("a reply that describes doing the asked work itself still counts", () => {
+    expect(asked("Commercial cleaning", "I manage cleaning for eight office buildings. I schedule the night crews.", "Until last spring I cleaned two of the buildings myself every night, floors, restrooms and break rooms, before I moved up to manage the crews.")).toBe("possible_candidate");
+  });
+});
