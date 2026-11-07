@@ -311,6 +311,7 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Phase 5 production fixes (rules-v15) and local shadow run behind INTERPRETATION_SHADOW_ENABLED, off by default. See docs/MILESTONE_11_PHASE_5_SHADOW_REPORT.md.
 - [x] Follow-up workflow for local testing behind FOLLOW_UP_WORKFLOW_ENABLED (rules-v16), with the delegation fix. See docs/MILESTONE_11_PHASE_5_FOLLOW_UP_REPORT.md.
 - [x] Phase 5 fix round (rules-v17): contextual corrections, brief exposure kept but limited, time claims longer than listed roles ask for earlier roles, hand-off replies refused. New 100-scenario blind split: 1 false Supported, 7 unsafe Possible remain. See docs/PHASE5_FIX_ROUND_REPORT.md and docs/MULTILINGUAL_ANSWERS_INVESTIGATION.md.
+- [x] Phase 5.2 (rules-v18): clause reader (clauses.ts), involvement from the main verb, corrections that retract only what they contradict, refusal messages by cause, code-chosen follow-up questions, replies that cannot reverse the answer. Sealed split m11_followup3 (120): criteria not met (3 false Supported, 7 unsafe hands-on Possible, 2 bad replies accepted, recognition 35 vs 37 of 75). See docs/PHASE5_2_EVALUATION_REPORT.md.
 - [ ] Owner labels the 30-scenario blind packet (docs/PHASE5_BLIND_LABEL_PACKET.md) before any blind results are opened.
 - [ ] Blind split: 2 false Supported and 7 unsafe Possible of 80, from the answer reader, against agent labels. Decide whether to keep patching word lists.
 - [ ] Production migrations now include 20261104010000 and 20261105010000. Needs approval.
