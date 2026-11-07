@@ -1,6 +1,7 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
+import { splitBySubject } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement, Verdict } from "@/lib/ai/evidence";
-import { answerStatements, checksOthersWork, othersText, type Statement } from "@/lib/ai/evidence-boundary";
+import { answerStatements, checksOthersWork, othersParts, othersText, type Statement } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
@@ -168,6 +169,38 @@ function claimsMoreTime(requirement: MatchRequirement, answer: Extract<LinkedAns
   };
 }
 
+/** Credit that rests on a job title: its dates, the title itself, or citations that only quote job titles. */
+function restsOnTitle(request: MatchRequest, f: RawFinding): boolean {
+  if (f.basis === "employment_dates" || f.basis === "role_description") return true;
+  return f.citations.length > 0 && f.citations.every(c => {
+    const item = request.evidence.find(e => e.id === c.evidence_id);
+    return item?.kind === "experience" && c.quote === item.job_title;
+  });
+}
+const MIXED_WITH_TITLE = "Your answer says someone else does part of this work, so your title counts toward Possible at most.";
+const TITLE_CONTRADICTED = "Your job title suggested this, but your answer says someone else does this work, so the title alone isn't counted. If you do it yourself too, say what you did.";
+/** Phase 5.3: a confirmed answer that gives the asked work to someone else takes away credit that rested only on a job title,
+ * to Not enough information, never lower. Supervising alone doesn't: the person may do the work too. What the rules said
+ * before is kept beside it, and the citation is the answer's own words. A later reply can still show the person did it. */
+function titleContradicted(request: MatchRequest, requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding, options: ReadOptions): RawFinding | null {
+  if ((f.verdict !== "supported" && f.verdict !== "possible") || !restsOnTitle(request, f) || answerLanguage(answer.detail) !== "en") return null;
+  const text = qualificationText(requirement.text);
+  const wanted = specificTerms(text);
+  const touches = (part: string) => {
+    const have = new Set([...canonicalTerms(part)].flatMap(t => [t, stem(t)]));
+    return wanted.some(t => have.has(t) || have.has(stem(t)));
+  };
+  const theirs = othersParts(answer.detail, true).find(touches);
+  if (!theirs || readAnswer(requirement, answer.detail, options).verdict !== "insufficient_information") return null;
+  // "I do the individual 1040s and my manager takes the partnership returns": the work is split in one sentence, so the
+  // person does part of it. That's mixed ownership: Possible at most, not taken away.
+  const sentence = (answer.detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).find(x => x.includes(theirs.trim()));
+  if (sentence && splitBySubject(sentence).some(c => c.subject === "self")) {
+    return f.verdict === "supported" ? { ...f, verdict: "possible", caveats: [MIXED_WITH_TITLE, ...f.caveats].slice(0, 5) } : null;
+  }
+  return { ...f, verdict: "insufficient_information", explanation: TITLE_CONTRADICTED, citations: [{ evidence_id: answer.evidenceId, quote: theirs.trim().slice(0, 300) }], caveats: [TITLE_CONTRADICTED], basis: "candidate_answer" as RuleBasis, rules_only_verdict: f.verdict };
+}
+
 const EXPLAIN: Record<string, string> = {
   stated_work: "Your answer describes doing this work.",
   limit_on_what_an_answer_shows: "Your answer describes this work, but an answer alone can't show the amount of time or level asked for.",
@@ -180,10 +213,15 @@ export function applyAnswers(request: MatchRequest, findings: RawFinding[], answ
   if (!answers.length) return findings;
   const byKey = new Map(answers.map(a => [a.questionKey, a]));
   return findings.map(f => {
-    if (f.verdict === "supported" || f.review) return f;
+    if (f.review) return f;
     const requirement = request.requirements.find(r => r.index === f.requirement_index)!;
     const answer = byKey.get(keyFor(requirement));
     if (!answer) return f;
+    if (answer.action === "confirm") {
+      const lowered = titleContradicted(request, requirement, answer, f, options);
+      if (lowered) return lowered;
+    }
+    if (f.verdict === "supported") return f;
     if (f.verdict === "gap") return f.basis === "employment_dates" && answer.action === "confirm" ? claimsMoreTime(requirement, answer, f) : f;
     if (answer.action === "deny") {
       return { ...f, verdict: "gap", explanation: "You said you don't have this. You can correct or revoke that answer.", citations: [], caveats: [], basis: "candidate_denied" as RuleBasis, rules_only_verdict: f.verdict };

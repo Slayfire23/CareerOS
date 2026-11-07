@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import type { Evidence, MatchRequest } from "@/lib/ai/evidence";
+import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { assessRequirements, requirementKind, titleLevel } from "@/lib/ai/rules/engine";
+import { applyFollowUps } from "@/lib/ai/rules/follow-up-reply";
+import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 
 // Phase 5.3 regressions: what a job title and its dates can show. Each identified failure is pinned, with the correct
 // classifications that must stay and variants written apart from them.
@@ -99,5 +102,54 @@ describe("Stage 1b: a workplace in a title isn't the occupation", () => {
   it("…but it's still a lead for a setting requirement", () => {
     expect(verdict("Pharmacy experience", "Cashier, Bellwood Pharmacy")).toBe("possible");
     expect(verdict("Hospital experience", "Housekeeper, Riverside Hospital")).toBe("possible");
+  });
+});
+
+describe("Stage 1c: an answer can take away credit that rested only on a title", () => {
+  const ANSWER = "experience:00000000-0000-4000-8000-000000000002";
+  const withAnswer = (requirement: string, title: string, answer: string, action: "confirm" | "deny" = "confirm", reply?: string) => {
+    const req = { index: 0, text: requirement, category: "Experience" as const, priority: "Required" as const };
+    const evidence = [role(title, 36), { ...role(title, 12), id: ANSWER, description: answer, source: "clarification" } as Evidence];
+    const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: "2026-11", evidence: [evidence[0]], requirements: [req] };
+    const before = assessRequirements(request)[0];
+    const linked: LinkedAnswer[] = [action === "confirm" ? { action, questionKey: keyForRequirement(req), evidenceId: ANSWER, detail: answer } : { action, questionKey: keyForRequirement(req) }];
+    const after = applyAnswers({ ...request, evidence }, [before], linked, keyForRequirement)[0];
+    const replied = reply ? applyFollowUps({ ...request, evidence }, [after], [{ questionKey: keyForRequirement(req), evidenceId: ANSWER, quoted: answer, detail: reply, answer }], keyForRequirement)[0] : null;
+    return { before, after, replied };
+  };
+
+  it("fw-082: 'Our lead tech, Gloria, does the ordering' takes away the pharmacy technician's title credit, with the reason kept", () => {
+    const r = withAnswer("Order and manage pharmacy inventory", "Pharmacy Technician", "Our lead tech, Gloria, does the ordering from the wholesaler and handles the overstock returns. I fill and count.");
+    expect(r.before.verdict).toBe("possible");
+    expect(r.after.verdict).toBe("insufficient_information");
+    expect(r.after.rules_only_verdict).toBe("possible");
+    expect(r.after.explanation).toMatch(/title suggested this, but your answer says someone else does this work/);
+    expect(r.after.citations[0].quote).toMatch(/Gloria, does the ordering/);
+  });
+
+  it("variants", () => {
+    expect(withAnswer("Repair commercial refrigeration units", "Refrigeration Technician", "Our outside contractor repairs all the refrigeration units. I log the temperatures.").after.verdict).toBe("insufficient_information");
+    expect(withAnswer("Maintain the hotel's swimming pool chemistry", "Pool Technician", "The pool company does the chemistry and shocks the pool weekly. I skim leaves.").after.verdict).toBe("insufficient_information");
+  });
+
+  it("supervising alone doesn't take it away: the person may do the work too", () => {
+    const r = withAnswer("Order and manage pharmacy inventory", "Pharmacy Technician", "I train the new techs and check the inventory reports every week.");
+    expect(r.after.verdict).not.toBe("insufficient_information");
+  });
+
+  it("work split in one sentence is mixed ownership: kept at Possible, not taken away", () => {
+    const r = withAnswer("Prepare tax returns for individuals and small businesses", "Tax Associate", "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents.");
+    expect(r.after.verdict).toBe("possible");
+  });
+
+  it("a later, specific reply can still show the person did it", () => {
+    const r = withAnswer("Repair commercial refrigeration units", "Refrigeration Technician", "Our outside contractor repairs all the refrigeration units. I log the temperatures.", "confirm",
+      "Since the contractor left in March I repair the walk-in and reach-in units myself: I replaced two compressor relays and a condenser fan motor last month.");
+    expect(r.after.verdict).toBe("insufficient_information");
+    expect(r.replied?.verdict).toBe("possible");
+  });
+
+  it("an explicit denial follows the existing rule", () => {
+    expect(withAnswer("Order and manage pharmacy inventory", "Pharmacy Technician", "", "deny").after.verdict).toBe("gap");
   });
 });
