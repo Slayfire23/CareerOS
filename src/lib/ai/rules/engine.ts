@@ -362,7 +362,7 @@ function stem(word: string): string {
 const sameRoot = (a: string, b: string) => a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5);
 
 /** The clause stating the duration, without the amount: what the years must relate to. */
-export function durationField(text: string): { leads: boolean; technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[] } {
+export function durationField(text: string): { leads: boolean; technologies: string[]; rest: string[]; stems: string[]; allStems: string[]; roles: ReturnType<typeof rolesForField>; asRole: string[]; namesRole: boolean } {
   // "Experience with AWS and 3+ years of DevOps work": the years belong to DevOps.
   const clauses = text.split(/[:;.\n]\s|\s+and\s+(?=\S*\s*\d|\w+\s+(?:years?|yrs?))/);
   const clause = clauses.find(c => requiredMonths(c) !== null) ?? text;
@@ -374,7 +374,7 @@ export function durationField(text: string): { leads: boolean; technologies: str
   // "As a project manager" names a role, so every word of it counts: a coordinator isn't a manager.
   const role = clause.match(/\bas\s+(?:an?|the)\s+(.+?)(?=\s+(?:for|at|with|in|on|of|who|that)\b|[,.;:]|$)/i)?.[1] ?? "";
   const asRole = words(role).filter(w => !ROLE_ADJECTIVES.has(w)).map(stem);
-  return { leads: LEADS_PEOPLE.test(clause), technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, allStems: [...new Set(all.map(stem))], roles: rolesForField(clause), asRole };
+  return { leads: LEADS_PEOPLE.test(clause), technologies, rest: [...new Set(specific.filter(w => !named.has(w)).map(stem))], stems, allStems: [...new Set(all.map(stem))], roles: rolesForField(clause), asRole, namesRole: words(clause).some(w => GENERIC_JOB.has(w) || OCCUPATION_NOUN.has(w)) };
 }
 /** Asking to lead people. Working in the field doesn't show that: a line cook isn't leading the kitchen. */
 const LEADS_PEOPLE = /\b(?:lead(?:s|ing)?|manag(?:e|es|ing)|supervis(?:e|es|ing)|direct(?:s|ing)?|oversee(?:s|ing)?|head(?:s|ing)?|run(?:s|ning)?|coach(?:es|ing)?)\b.*\b(?:team|teams|crew|crews|staff|department|kitchen|shift|shifts|store|group|people|employees|reports|workers|technicians|nurses|associates)\b|\b(?:team|crew|staff|people|shift)\s+(?:leadership|lead|supervision|management)\b/i;
@@ -387,6 +387,8 @@ const GENERIC_JOB = new Set(`manager supervisor director lead head chief foreman
 representative rep associate consultant agent analyst engineer developer programmer administrator dba instructor teacher trainer
 driver operator mechanic worker attendant inspector planner estimator installer repairer`.split(/\s+/));
 const JOB_MODIFIER = new Set("sales store shift floor senior staff".split(" "));
+/** Occupations a requirement can name besides the generic job nouns: "pharmacy technician experience", "hospital nurse". */
+const OCCUPATION_NOUN = new Set("nurse nurses pharmacist pharmacists cook cooks chef chefs cashier cashiers receptionist receptionists hygienist hygienists therapist therapists dentist dentists electrician electricians plumber plumbers carpenter carpenters welder welders machinist machinists paralegal paralegals accountant accountants bookkeeper bookkeepers bartender bartenders barista baristas teller tellers".split(" "));
 /** The title's head says the field: its last word names it, or a generic job noun follows a word that does. */
 function headShowsField(field: ReturnType<typeof durationField>, part: string): boolean {
   const tokens = words(part.replace(/\([^)]*\)/g, " ")).filter(w => !/^(i|ii|iii|iv|jr|sr|\d+)$/.test(w));
@@ -410,6 +412,9 @@ export function titleCoverage(field: ReturnType<typeof durationField>, title: st
   // A pharmacy delivery driver drives; a nurse recruiter recruits. The field has to be the job itself.
   if (found === "full" && !field.technologies.length && !field.roles.some(r => r.same.some(t => containsPhrase(part, t))) && !headShowsField(field, part)) return "some";
   if (found !== "none" || part === title) return found;
+  // "Cashier, Bellwood Pharmacy" works at a pharmacy: a lead for "pharmacy experience", nothing for "pharmacy technician
+  // experience", which names an occupation the title doesn't hold.
+  if (field.namesRole) return "none";
   return workplaceWords(title).map(stem).some(w => field.stems.includes(w)) ? "some" : "none";
 }
 

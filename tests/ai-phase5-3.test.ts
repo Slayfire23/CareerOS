@@ -87,3 +87,17 @@ describe("what kind of requirement it is", () => {
     expect(titleLevel("Line Cook")).toBe("doer");
   });
 });
+
+describe("Stage 1b: a workplace in a title isn't the occupation", () => {
+  it("'Cashier, Bellwood Pharmacy' doesn't show pharmacy technician experience", () => {
+    expect(verdict("Pharmacy technician experience", "Cashier, Bellwood Pharmacy")).toBe("insufficient_information");
+  });
+  it("variants", () => {
+    expect(verdict("Veterinary nurse experience", "Receptionist, Lakeside Vet Clinic")).toBe("insufficient_information");
+    expect(verdict("Hospital pharmacist experience", "Porter, St. Mary's Hospital")).toBe("insufficient_information");
+  });
+  it("…but it's still a lead for a setting requirement", () => {
+    expect(verdict("Pharmacy experience", "Cashier, Bellwood Pharmacy")).toBe("possible");
+    expect(verdict("Hospital experience", "Housekeeper, Riverside Hospital")).toBe("possible");
+  });
+});
