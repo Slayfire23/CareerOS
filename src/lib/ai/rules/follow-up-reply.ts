@@ -1,9 +1,9 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
-import { handsPartToSomeoneElse } from "@/lib/ai/clauses";
+import { handsPartToSomeoneElse, isPersonClause, splitBySubject } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
-import { answerStatements, othersParts, othersText, verbAndObject } from "@/lib/ai/evidence-boundary";
+import { answerStatements, involvement, othersParts, othersText, verbAndObject, type Statement } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
-import { asksForTime, needsCredentialEntry, readAnswer, specificTerms } from "@/lib/ai/rules/answer-review";
+import { asksForTime, needsCredentialEntry, ownedFor, readAnswer, specificTerms } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
 import type { RawFinding } from "@/lib/ai/rules/engine";
 import { ownNegative } from "@/lib/ai/rules/profile-fields";
@@ -20,7 +20,7 @@ export const mayAskFollowUp = (key: string, alreadyAsked: ReadonlySet<string>) =
 export type ReplyReason = "not_english" | "instruction_in_reply" | "credential_or_time" | "says_no" | "not_specific" | "undercuts_itself" | "no_own_work" | "repeats_the_question" | "contradicts_answer" | "describes_own_work";
 export type ReplyReading = { outcome: "possible_candidate" | "unresolved"; reason: ReplyReason; quote: string | null; provenance: "self_reported" };
 
-const SAYS_NO = /^\W*(?:no|nope|not\s+really|different|it['’]?s\s+different|that['’]?s\s+different|something\s+different)\b/i;
+const SAYS_NO = /^\W*(?:no|nope|not\s+really|different|it['’]?s\s+different|that['’]?s\s+different|something\s+different|nothing|none|never|not\s+at\s+work)\b/i;
 const AFFIRMS = /^\W*(?:(?:yes|yeah|yep|it|it['’]s|its|is|that|that['’]s|the|same|work|right|correct|exactly)\W*)+$/i;
 /** Offering a credential for the work: a reply can't show one, and it isn't a description of doing anything. */
 const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|the)\b[^.]*\b(?:card|licen[cs]e|cert|certificate|credential|permit|ticket|bar|boards?|exam)\b|\b(?:covers|counts\s+for|answers)\s+(?:it|that|this)\b|\b(?:that|this|it)\s+counts\b/i;
@@ -28,6 +28,9 @@ const OFFERS_CREDENTIAL = /\b(?:hold|have|got|carry|earned|passed)\s+(?:an?|my|t
 const OTHERS_DID_THE_WORK = /\b(?:did|does|do|handled?|handles)\s+the\s+actual\b|\bthe\s+actual\s+[\p{L}-]+(?:\s+[\p{L}-]+)?\s+(?:was|were|is|are)\b|\b(?:handles?|handled|does|did|do)\s+(?:everything|the\s+rest|all\s+(?:of\s+)?the\s+rest)\b|\b(?:was|is|were|are)\s+(?:all\s+)?(?:his|hers|theirs)\b|\bmy\s+(?:part|piece|bit|end|role)\s+(?:was|is)\b|\bi\s+just\b|\b(?:is|are|was|were)\s+(?:all\s+|mostly\s+|really\s+)?(?:them|theirs|(?:the|our|an?|their)\s+(?:[\p{L}-]+\s+){0,2}(?:company|contractor|contractors|vendor|agency|firm|team|department|provider|crew|guys?|people|techs?|staff|office))\b|\b(?:rarely|seldom|hardly\s+ever|barely\s+ever|not\s+often|once\s+in\s+a\s+while)\b/iu;
 const UNDERCUTS = /^\W*only\s+(?:some|part)\b|\b(?:part|some)\s+of\s+it\b|\bi\s+only\b|\bthough\s+really\b|\b(?:although|though)\s+i\b|\bonly\s+(?:ever|when|if)\b|\bbut\s+(?:only|mostly|just|really|honestly|mainly)\b|\b(?:sort|kind)\s+of\b|\bi\s+(?:guess|think|suppose|believe)\b|\bnot\s+sure\b|\bprobably\b|\bmaybe\b|\bmore\s+or\s+less\b|\bpretty\s+much\b|\bbasically\b|\bessentially\b/i;
 const NEW_WORDS_NEEDED = 3;
+/** When the answer showed someone else doing it, or the person leading, arranging, helping or watching, a reply has to say
+ * more about what the person did: what, on what, how much or how often. Plain words do; jargon isn't needed. */
+const NEW_WORDS_AFTER_OTHERS = 5;
 const SAYS_NOTHING = new Set(words("yes yeah yep same work i i've we my our the a an and or of to in on at for with it this that these those is was are were be been did do does done have has had what you said also just always every each day week month year"));
 /** What a follow-up question asks. Code chooses it from the answer: who did which part, or whether the person did it
  * themselves or led or arranged it. "relation" is the open question the local model may suggest for a paraphrase. */
@@ -76,14 +79,17 @@ export function followUpKind(requirement: MatchRequirement, answer: string, quot
 }
 
 /** A reply that says what changed: when, or what moved. Without it, a reply can't reverse the answer. */
-const SAYS_WHAT_CHANGED = /\b(?:since|until|used\s+to|these\s+days|nowadays|now\s+i|i\s+now|took\s+over|moved\s+(?:to|into|over|up)|(?:was|got)\s+promoted|switched|changed|started\s+(?:doing|in|at|on|last|this)|before\s+(?:that|i|we)|after\s+(?:that|i|we|the|our)|last\s+(?:year|month|season|spring|summer|fall|autumn|winter|quarter)|this\s+(?:year|season|quarter)|in\s+(?:19|20)\d\d|left|retired|quit|no\s+longer)\b/i;
+const SAYS_WHAT_CHANGED = /\b(?:since|until|used\s+to|these\s+days|nowadays|now\s+i|i\s+now|took\s+over|moved\s+(?:to|into|over|up)|(?:was|got)\s+promoted|switched|changed|started\s+(?:doing|in|at|on|last|this)|before\s+(?:that|i|we)|after\s+(?:that|i|we|the|our)|last\s+(?:year|month|season|spring|summer|fall|autumn|winter|quarter)|this\s+(?:year|season|quarter)|in\s+(?:19|20)\d\d|left|retired|quit|no\s+longer|at\s+my\s+(?:last|previous|old|former|first)\s+(?:job|role|place|employer|company|shop|store|hospital|clinic|restaurant)|before\s+this\s+(?:job|role)|previously|in\s+my\s+(?:last|previous|former)\s+(?:job|role|position))\b/i;
 /** Verbs that say nothing about which work it was. */
 const VAGUE_VERBS = new Set("be is are was were have has had do get go make take keep use help work".split(" "));
 /** What the answer itself says the person doesn't do, someone else does, or takes back: each part's main verb and the
  * object of it. Only a person's or a firm's part counts, not a thing's ("our old encoder kept suggesting wrong codes"). */
 function disputed(answer: string): { verbs: Set<string>; objects: Set<string> } {
   const negatives = (answer.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).filter(s => /(?:^|[^\p{L}'’])i(?:['’]\p{L}+)?\s/iu.test(s) && ownNegative(s));
-  const parts = [...othersParts(answer, true), ...negatives].map(verbAndObject).filter((p): p is { verb: string; object: string } => !!p);
+  // Only the denied part of a denial: "not all of them… and I only measure the residential" rules out nothing the person kept.
+  const split = (p: string) => p.split(/,\s*|\s+and\s+|\s+but\s+|\s+[–—-]\s+/i).filter(x => x.trim());
+  const pieces = [...othersParts(answer, true, false).flatMap(split), ...negatives.flatMap(split).filter(x => /\b(?:no|not|never|none)\b|n['’]t\b/i.test(x))];
+  const parts = pieces.map(p => verbAndObject(p) ?? verbAndObject(`They ${p.trim()}`)).filter((p): p is { verb: string; object: string } => !!p);
   return { verbs: new Set(parts.map(p => p.verb).filter(v => v && !VAGUE_VERBS.has(v))), objects: new Set(parts.map(p => stemOf(p.object)).filter(Boolean)) };
 }
 
@@ -108,22 +114,41 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   // limited part. One that denies, corrects, or hedges does.
   const othersPart = (s: string) => !/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(s) && !/\b(?:no|not|never|none)\b|n['’]t\b/i.test(s) && /^\W*(?:he|she|they|\p{Lu}\p{Ll}+|(?:the|our|a|an|my|their)\s+[\p{L}-]+)\b/u.test(s);
   if (statements.length < sentences.filter(s => !othersPart(s)).length) return unresolved("undercuts_itself");
-  // "He did the ratings, I took the photos": a sentence that hands part of it to someone else, beside the person's own.
-  if (sentences.some(handsPartToSomeoneElse)) return unresolved("undercuts_itself");
+  const wanted = specificTerms(text);
+  // The same standard as an answer: when the answer showed someone else doing it, or the person leading, arranging,
+  // helping or watching, a reply has to show the person doing the asked work itself, specifically.
+  const answerSentences = answer.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? [];
+  // Watching, wherever it sits: "I work in a cardiology office and I've watched our sonographer do hundreds of echoes".
+  const watched = answerSentences.some(s => /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+|\s+have|\s+had)?\s+(?:\p{L}+\s+){0,2}?(?:watched|observed|shadowed|sat\s+in|seen)\b/iu.test(s));
+  const notOwnPart = watched || answerSentences.some(s => /(?:^|[^\p{L}'’])i(?:['’]\p{L}+)?\s/iu.test(s) && (involvement(s) !== "performed" && !ownedFor(text, { ownership: involvement(s) } as Statement)) || (ownNegative(s) && touches(wanted, s)));
+  const strict = followUpKind(requirement, answer, quoted) !== "relation" || answerStatements(answer).some(s => !ownedFor(text, s)) || othersParts(answer, true).some(p => touches(wanted, p)) || notOwnPart;
+  // Someone else doing the asked work, in the reply itself: "Their tech does all the treatments and baiting." When the
+  // answer already showed others or a lead role, any part handed to someone else does: "he did the ratings, I took the photos".
+  const theirs = sentences.flatMap(s => splitBySubject(s).filter(c => c.subject === "other" && isPersonClause(c.text)).map(c => c.text));
+  // Someone else finishing the person's work, after it: "I wrote up the rule requests, he applied them". Someone giving
+  // the person something first isn't: "My manager sends the photo and I build it".
+  const finishedByOthers = sentences.some(s => {
+    const parts = splitBySubject(s);
+    // "…, he applied them" points back at the person's work; "…, and he sat down" doesn't.
+    return parts.some((c, i) => c.subject === "other" && isPersonClause(c.text) && parts.slice(0, i).some(p => p.subject === "self") && (/\b(?:them|it|those|that|the\s+rest)\b/i.test(c.text) || touches(wanted, c.text)));
+  });
+  if (theirs.some(c => touches(wanted, c)) || finishedByOthers || (strict && sentences.some(handsPartToSomeoneElse))) return unresolved("undercuts_itself");
   const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly && s.ownership === "performed");
   if (!own.length) return unresolved("no_own_work");
-  const asked = new Set(words(`${text} ${quoted}`));
-  const added = new Set(own.flatMap(s => words(s.readable)).filter(w => !asked.has(w) && !SAYS_NOTHING.has(w)));
-  if (added.size < NEW_WORDS_NEEDED) return unresolved("repeats_the_question");
   // The answer said someone else does this, or that the person doesn't, or took it back. A reply claiming that same work
   // counts only if it says what changed: "I pick right alongside them every day" after "I don't pick much myself" doesn't.
   // Code asked whether they did it themselves, or which part was theirs: the reply has to describe doing the asked work
   // itself, in its words. Posting the notices, or salting the steps beside the plow contract, isn't snow removal.
-  if (followUpKind(requirement, answer, quoted) !== "relation" && !own.some(s => touches(specificTerms(text), s.readable))) return unresolved("no_own_work");
+  // About the asked work: in its words, or the same action or object the answer gave to others or said the person doesn't
+  // do ("I don't pick much myself", then "until last year I picked full-time").
   const ruledOut = disputed(answer);
   const claims = own.map(s => verbAndObject(s.text)).filter((p): p is { verb: string; object: string } => !!p);
-  const reverses = claims.some(c => ruledOut.verbs.has(c.verb) || ruledOut.objects.has(stemOf(c.object)));
-  if (reverses && !SAYS_WHAT_CHANGED.test(value)) return unresolved("contradicts_answer");
+  const sameWork = claims.some(c => ruledOut.verbs.has(c.verb)) || own.some(s => words(s.readable).some(w => w.length > 3 && ruledOut.objects.has(stemOf(w))));
+  if (strict && !own.some(s => touches(wanted, s.readable)) && !sameWork) return unresolved("no_own_work");
+  if (sameWork && !SAYS_WHAT_CHANGED.test(value)) return unresolved("contradicts_answer");
+  const asked = new Set(words(`${text} ${quoted}`));
+  const added = new Set(own.flatMap(s => words(s.readable)).filter(w => !asked.has(w) && !SAYS_NOTHING.has(w)));
+  if (added.size < (strict ? NEW_WORDS_AFTER_OTHERS : NEW_WORDS_NEEDED)) return unresolved("repeats_the_question");
   return { outcome: "possible_candidate", reason: "describes_own_work", quote: own[0].text, provenance: "self_reported" };
 }
 
@@ -145,7 +170,7 @@ export function applyFollowUps(request: MatchRequest, findings: RawFinding[], re
       verdict: "possible",
       explanation: "You described doing this work in reply to a question. It's self-reported, and it can only reach Possible.",
       citations: [{ evidence_id: reply.evidenceId, quote: reading.quote.slice(0, 300) }],
-      caveats: [],
+      caveats: [`Raised from ${f.verdict === "insufficient_information" ? "Not enough information" : f.verdict} by your reply to the question about “${reply.quoted.slice(0, 160)}”.`],
       basis: "candidate_follow_up" as RuleBasis,
       rules_only_verdict: f.verdict,
     };

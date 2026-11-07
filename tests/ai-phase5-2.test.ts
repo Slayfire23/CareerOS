@@ -48,8 +48,12 @@ describe("Stage 1a: another person's clause is theirs", () => {
 
 describe("Stage 1a: a reply that hands part of it to someone else", () => {
   it("fv-061, fv-080: 'he applied them', 'he did the ratings'", () => {
+    // As production reads them: with the whole answer the question was asked about.
+    const firewall = "I configure our firewalls. Well, I mean I put in the request and our network engineer actually changes the rules.";
+    expect(readFollowUpReply(req("Network firewall configuration"), "I configure our firewalls.", "I wrote up the rule requests for the new VPN users, he applied them.", firewall).outcome).toBe("unresolved");
+    const bridges = "I've inspected bridges for the county. I mean, I was the note-taker; the licensed engineer did the inspection and rated the elements.";
+    expect(readFollowUpReply(req("Bridge inspection"), "I've inspected bridges for the county.", "Yes, he did the ratings, I took the photos and measurements he called out.", bridges).outcome).toBe("unresolved");
     expect(readFollowUpReply(req("Network firewall configuration"), "I configure our firewalls.", "I wrote up the rule requests for the new VPN users, he applied them.").outcome).toBe("unresolved");
-    expect(readFollowUpReply(req("Bridge inspection"), "I've inspected bridges for the county.", "Yes, he did the ratings, I took the photos and measurements he called out.").outcome).toBe("unresolved");
   });
 
   it("variants", () => {
@@ -64,9 +68,13 @@ describe("Stage 1a: a reply that hands part of it to someone else", () => {
     expect(handsPartToSomeoneElse("I rebuilt the allergen matrix myself when we switched bun suppliers and two items picked up sesame")).toBe(false);
   });
 
-  it("owner decision fu-102 stands: a separate sentence about someone else's part doesn't take back the person's own", () => {
+  // Phase 5.3 Stage 2 changes the owner's rules-v17 decision here, and it's reported: the answer showed arranging a
+  // contractor, so a reply has to describe the asked work itself, and "sticky traps" shares no word with "pest control
+  // treatment". It's a vocabulary gap, a candidate for an equivalence group in Stage 4.
+  it("fu-102, after an answer about arranging a contractor: the reply has to name the asked work", () => {
     const reply = "I set out the sticky traps myself and tell him where we've seen mice. He sprays and does the bait stations.";
-    expect(readFollowUpReply(req("Pest control treatment"), "I arranged a monthly visit from an exterminator.", reply).reason).toBe("describes_own_work");
+    expect(readFollowUpReply(req("Pest control treatment"), "I arranged a monthly visit from an exterminator.", reply).reason).toBe("no_own_work");
+    expect(readFollowUpReply(req("Pest control treatment"), "I keep the binder ready for the health inspector.", reply).reason).toBe("describes_own_work");
   });
 });
 

@@ -76,7 +76,7 @@ const aboutSomethingElse = (s: Statement) => {
   if (/\b(?:is|are|was|were)\s+(?:on\s+me|mine|me|my\b)/i.test(s.text)) return false;
   return /^\W*(?:[\p{L}\p{N}'’,$.-]+\s+){1,7}?(?:is|are|was|were|isn['’]t|aren['’]t|wasn['’]t|weren['’]t)\b/iu.test(s.text) || (/^\W*(?:[\p{L}'’-]+\s+){1,2}?\p{Ll}{2,}[^su\W]s\s+(?:the|a|an|our|my|all|every|any|it|them)\b/u.test(s.text) && !/^\W*\p{L}+(?:ed|ing)\b/iu.test(s.text));
 };
-const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "requested" && ASKS_TO_REQUEST.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece)) || (s.ownership === "observed" && ASKS_TO_OBSERVE.test(piece));
+export const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "requested" && ASKS_TO_REQUEST.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece)) || (s.ownership === "observed" && ASKS_TO_OBSERVE.test(piece));
 
 function readPiece(piece: string, allStatements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
   // When helping is what's asked, saying you helped is saying you did it.

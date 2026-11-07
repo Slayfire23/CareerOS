@@ -71,8 +71,8 @@ export function retractions(detail: string): [number, number][] {
 }
 /** What an answer says someone else did, or takes back: other people's clauses and retracted claims, one part each. Never
  * the person's own work, and only ever used to hold credit back. `peopleOnly` leaves out a thing's part. */
-export function othersParts(detail: string, peopleOnly = false): string[] {
-  const parts: string[] = retractions(detail).map(([s, e]) => detail.slice(s, e));
+export function othersParts(detail: string, peopleOnly = false, withRetractions = true): string[] {
+  const parts: string[] = withRetractions ? retractions(detail).map(([s, e]) => detail.slice(s, e)) : [];
   for (const sentence of detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []) {
     for (const clause of splitBySubject(sentence)) if (clause.subject === "other" && (!peopleOnly || isPersonClause(clause.text))) parts.push(clause.text);
     // A whole sentence about someone else, with no "I" or "we" in it. One where the person speaks gives only the other clause.
@@ -183,17 +183,17 @@ export function verbAndObject(text: string): { verb: string; object: string } | 
     if (!head) return null;
     let { verb, after } = head;
     // "don't pick", "didn't do the scanning": the verb after the negative.
-    while ((/^(?:don['’]t|doesn['’]t|didn['’]t|not|never|really|ever)$/.test(verb) || (/^(?:do|does|did)$/.test(verb) && /^(?:not|never|n['’]t)$/.test(after[0] ?? ""))) && after.length) [verb, ...after] = after;
+    while ((/^(?:don['’]t|doesn['’]t|didn['’]t|haven['’]t|hasn['’]t|hadn['’]t|wasn['’]t|weren['’]t|isn['’]t|aren['’]t|not|never|really|ever|have|has|had)$/.test(verb) || (/^(?:do|does|did)$/.test(verb) && /^(?:not|never|n['’]t)$/.test(after[0] ?? ""))) && after.length) [verb, ...after] = after;
     return { verb: verbBase(verb), object: objectHead(after) };
   }
   const tokens = text.toLowerCase().match(/[\p{L}'’-]+/gu) ?? [];
   // A regular form first: in "our wound nurse does", "wound" is part of the name.
   for (const irregular of [false, true]) {
-    for (let i = 1; i < Math.min(tokens.length, 7); i++) {
+    for (let i = 1; i < Math.min(tokens.length, 10); i++) {
       const w = tokens[i];
       // A word right before a verb is the subject: "the mechanics do the engine work".
       if (FIRST_FINITE.test(tokens[i + 1] ?? "") || WORK_VERB_WORDS.has(tokens[i + 1] ?? "")) continue;
-      if (irregular ? IRREGULAR_PAST.has(w) : FIRST_FINITE.test(w) || /^\p{Ll}{3,}(?:ed|[^su\W]s|es)$/u.test(w)) return { verb: verbBase(w), object: objectHead(tokens.slice(i + 1, i + 8)) };
+      if (irregular ? IRREGULAR_PAST.has(w) : FIRST_FINITE.test(w) || /^\p{Ll}{2,}(?:ed|[^su\W]s|es)$/u.test(w)) return { verb: verbBase(w), object: objectHead(tokens.slice(i + 1, i + 8)) };
     }
   }
   return null;
@@ -220,6 +220,7 @@ export function involvement(text: string): Ownership {
     if (/^(?:book|books|booked|order|orders|ordered)$/.test(verb) && near.some(w => /^(?:service|repair|repairs|technician|tech|contractor|plumber|electrician|exterminator|visit|pickup|crew)$/.test(w))) return "requested";
     if (/^(?:reach|reached|reaches)$/.test(verb) && after[0] === "out") return "requested";
     if (/^(?:make|makes|made|making)$/.test(verb) && after[0] === "sure") return "oversaw";
+    if (/^(?:make|makes|made|making|do|does|did|write|writes|wrote|build|builds|built|set|sets)$/.test(verb) && near.some(w => /^(?:assignments?|schedules?|rotas?|rosters?)$/.test(w))) return "oversaw";
     if (/^(?:ensure|ensures|ensured)$/.test(verb)) return "oversaw";
     if (/^(?:manage|manages|managed|managing)$/.test(verb) && (/ing$/.test(object) || near.some(w => PEOPLE.test(w) || UNIT.test(w)))) return "oversaw";
     if (/^(?:run|runs|ran|running)$/.test(verb) && near.slice(0, 4).some(w => PEOPLE.test(w) || UNIT.test(w))) return "oversaw";

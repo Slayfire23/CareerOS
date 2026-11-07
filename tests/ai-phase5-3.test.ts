@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -5,7 +6,7 @@ vi.mock("server-only", () => ({}));
 import type { Evidence, MatchRequest } from "@/lib/ai/evidence";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { assessRequirements, requirementKind, titleLevel } from "@/lib/ai/rules/engine";
-import { applyFollowUps } from "@/lib/ai/rules/follow-up-reply";
+import { applyFollowUps, followUpNeed, readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
 import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 
 // Phase 5.3 regressions: what a job title and its dates can show. Each identified failure is pinned, with the correct
@@ -151,5 +152,75 @@ describe("Stage 1c: an answer can take away credit that rested only on a title",
 
   it("an explicit denial follows the existing rule", () => {
     expect(withAnswer("Order and manage pharmacy inventory", "Pharmacy Technician", "", "deny").after.verdict).toBe("gap");
+  });
+});
+
+describe("Stage 2: replies held to the same standard as answers", () => {
+  // The opened splits are regression data. Each reply is read as production reads it: the quoted sentence is the one code
+  // would ask about, and the whole answer is passed in.
+  const scenarios = new Map<string, { requirement: string; category: "Skills" | "Experience"; answer: string; reply: string }>();
+  for (const dir of ["m11_followup", "m11_followup2", "m11_followup3"]) {
+    for (const s of JSON.parse(readFileSync(`tests/fixtures/${dir}/scenarios.json`, "utf8")).scenarios) scenarios.set(s.id, s);
+  }
+  const read = (id: string, reply?: string) => {
+    const s = scenarios.get(id)!;
+    const r = { index: 0, text: s.requirement, category: s.category, priority: "Required" as const };
+    const need = followUpNeed(r, s.answer);
+    return readFollowUpReply(r, need ? s.answer.slice(need.start, need.end) : s.answer, reply ?? s.reply, s.answer);
+  };
+
+  it("every unsafe reply identified so far stays unresolved", () => {
+    for (const id of ["fv-005", "fv-007", "fv-011", "fv-025", "fv-034", "fv-042", "fv-046", "fv-073", "fv-088", "fw-001", "fw-004", "fw-020", "fw-047", "fw-053", "fw-102"]) {
+      expect(read(id).outcome, id).toBe("unresolved");
+    }
+  });
+
+  it("a bare or vague confirmation never overrides someone else doing the work", () => {
+    for (const reply of ["Yes.", "I do that.", "Yes, I do that myself.", "All of it, every day."]) expect(read("fw-053", reply).outcome, reply).toBe("unresolved");
+  });
+
+  it("a flat reversal of the answer is a contradiction; one that says what changed can count", () => {
+    expect(read("fv-034").reason).toBe("contradicts_answer");
+    expect(read("fv-034", "Until last year I picked full-time on the crew, about 40 bins a day, before I moved up to lead.").outcome).toBe("possible_candidate");
+    expect(read("fw-004").reason).toBe("contradicts_answer");
+    expect(read("fw-047").reason).toBe("contradicts_answer");
+  });
+
+  it("a supervisor can show they do the hands-on work too, specifically, in plain words", () => {
+    expect(read("fv-062", "On top of managing, I clean two of the buildings myself every night: floors, restrooms, break rooms and trash, about six hours a shift.").outcome).toBe("possible_candidate");
+    expect(read("fv-062", "I clean too.").outcome).toBe("unresolved");
+  });
+
+  it("experience from an earlier job counts when it's specific", () => {
+    expect(read("fw-102", "At my last job I conducted job interviews for the warehouse myself, about four candidates a week, asking the questions and scoring them.").outcome).toBe("possible_candidate");
+  });
+
+  it("assistance, requested contractor work, and brief exposure don't become doing it", () => {
+    expect(read("fv-011", "I help the sonographer by setting up the machine and holding the probe cable while she scans.").outcome).toBe("unresolved");
+    expect(read("fv-088", "I call the plow company and they clear all the lots and roads.").outcome).toBe("unresolved");
+    expect(read("fv-005", "I took a six-week ASL class and practiced fingerspelling with a partner.").outcome).toBe("unresolved");
+  });
+
+  it("honest replies that were misread now count: fv-029, fw-105, fw-031", () => {
+    expect(read("fv-029").outcome).toBe("possible_candidate");
+    expect(read("fw-105").outcome).toBe("possible_candidate");
+    expect(read("fw-031").outcome).toBe("possible_candidate");
+  });
+
+  it("someone else finishing the person's work undercuts a reply; someone giving them something first doesn't", () => {
+    const r = { index: 0, text: "Network firewall configuration", category: "Skills" as const, priority: "Required" as const };
+    expect(readFollowUpReply(r, "I configure our firewalls.", "I wrote up the rule requests for the new VPN users, he applied them.").outcome).toBe("unresolved");
+    expect(readFollowUpReply(r, "I configure our firewalls.", "My manager sends me the change tickets and I write and apply the firewall rules myself on the Palo Alto, about ten a week.").outcome).toBe("possible_candidate");
+  });
+
+  it("a raised verdict keeps what it was before and which question the reply answered", () => {
+    const req = { index: 0, text: "Commercial cleaning", category: "Skills" as const, priority: "Required" as const };
+    const answer = "I manage cleaning for eight office buildings. I schedule the night crews.";
+    const finding = { requirement_index: 0, verdict: "insufficient_information", explanation: "", citations: [], caveats: [], basis: "no_evidence" } as never;
+    const request = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: "2026-11", evidence: [], requirements: [req] } as MatchRequest;
+    const [raised] = applyFollowUps(request, [finding], [{ questionKey: keyForRequirement(req), evidenceId: "experience:00000000-0000-4000-8000-000000000003", quoted: "I manage cleaning for eight office buildings", detail: "Until last spring I cleaned two of the buildings myself every night, floors, restrooms and break rooms, before I moved up to manage the crews.", answer }], keyForRequirement);
+    expect(raised.verdict).toBe("possible");
+    expect(raised.rules_only_verdict).toBe("insufficient_information");
+    expect(raised.caveats[0]).toMatch(/Raised from Not enough information by your reply to the question about “I manage cleaning/);
   });
 });

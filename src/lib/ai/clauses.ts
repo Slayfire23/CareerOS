@@ -70,7 +70,17 @@ const PERSON = /(?:^|\s)(?:he|she|they|someone|somebody|everyone|others|\p{Lu}\p
 const HAPPENED = /^\W*(?:\S+\s+){0,4}?(?:came|comes|went|goes|called|calls|asked|asks|wanted|wants|needed|needs|said|says|told|tells|showed|shows|walked|walks|stopped|stops|left|leaves|arrived|arrives|happened|happens|liked|likes|loved|loves|hated|hates)\b/iu;
 
 /** A clause whose subject is a person or a firm, not a thing. */
-export const isPersonClause = (text: string) => PERSON.test(text.trim().split(/\s+/).slice(0, 5).join(" "));
+export function isPersonClause(text: string): boolean {
+  const tokens = text.trim().split(/\s+/).slice(0, 7);
+  const lower = tokens.map(t => t.toLowerCase().replace(/[^\p{L}'’-]/gu, ""));
+  if (/^(?:he|she|they|someone|somebody|everyone|others)$/.test(lower[0] ?? "")) return true;
+  const verb = lower.findIndex((w, i) => i > 0 && (FINITE.has(w) || IRREGULAR_PAST.has(w) || /^\p{Ll}{2,}(?:ed|[^su\W]s|es)$/u.test(w)));
+  // "My supervisor actually does the reconciling": words like "actually" sit between the subject and its verb.
+  let at = verb > 0 ? verb - 1 : tokens.length - 1;
+  while (at > 0 && /^(?:actually|really|usually|also|just|mostly|still|always|often|now|then|normally|basically|even)$/.test(lower[at] ?? "")) at--;
+  const head = tokens[at] ?? "";
+  return PERSON.test(` ${head.replace(/[^\p{L}'’-]/gu, "")}`);
+}
 
 /** Someone else, a person or a firm, doing something in the same sentence as the person's own clause: "he did the
  * ratings, I took the photos". A whole sentence about someone else's part isn't this. */
