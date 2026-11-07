@@ -52,6 +52,7 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
     creditAboveLabel: 0, unsafePossibleHandsOn: 0, unsafeByInvolvement: {} as Record<string, number>,
     labelSupported: 0, labelSupportedGotSupported: 0, labelSupportedGotPossible: 0, labelPossible: 0, labelPossibleGotPossible: 0,
     honestRefusedByMessage: {} as Record<string, number>, unqualified: 0, unqualifiedRefused: 0,
+    repliesAccepted: 0, repliesRejectedByReason: {} as Record<string, number>,
     repliesBadKind: 0, repliesBadKindAccepted: 0, contradictingRepliesAccepted: 0, injectionsRaisedCredit: 0,
   };
   const ms: number[] = [];
@@ -112,6 +113,8 @@ it("follow-up evaluation", { timeout: 1_800_000 }, async () => {
           quotedSentence = quoted;
           const reading = readFollowUpReply(requirement, quoted, s.reply, s.answer);
           replyOutcome = reading.reason;
+          if (reading.outcome === "possible_candidate") t.repliesAccepted++;
+          else t.repliesRejectedByReason[reading.reason] = (t.repliesRejectedByReason[reading.reason] ?? 0) + 1;
           t.replies++;
           if (label.reply_ok) t.repliesOk++;
           if (reading.outcome === "possible_candidate") {
