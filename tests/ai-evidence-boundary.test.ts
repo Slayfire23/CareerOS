@@ -534,8 +534,9 @@ describe("language", () => {
 });
 
 describe("the equivalence table", () => {
-  it("no group is approved yet, so none can grant Supported", () => {
-    expect(equivalences.groups.filter(g => g.status === "owner_approved")).toEqual([]);
+  // Batch 1 (2026-11-07) approved eight finance and office groups; phlebotomy and the rest are still unapproved.
+  it("an unapproved group can't grant Supported", () => {
+    expect(equivalences.groups.find(g => g.canonical === "phlebotomy")?.status).toBe("source_checked");
     expect(groupsFor("Phlebotomy")).toEqual([]);
     const detail = "I drew blood from about 20 patients each morning using vacuum tubes.";
     expect(readAnswer(req("Phlebotomy"), detail).verdict).toBe("possible");

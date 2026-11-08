@@ -1,6 +1,6 @@
 {
- "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. Only status 'owner_approved' can grant Supported. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
- "version": "answer-equivalences-v1",
+ "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. Only status 'owner_approved' can grant Supported, and 'owner_rejected' is read by nothing. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
+ "version": "answer-equivalences-v2",
  "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
  "groups": [
   {
@@ -49,9 +49,6 @@
     "ledger maintenance"
    ],
    "descriptions": [
-    "kept the ledgers",
-    "kept the ledger",
-    "kept the books",
     "maintained the ledger",
     "maintained ledgers",
     "posted journal entries",
@@ -63,9 +60,6 @@
     "filed invoices"
    ],
    "verbs": [
-    "keep",
-    "keeps",
-    "kept",
     "post",
     "posts",
     "posted",
@@ -74,14 +68,13 @@
     "maintained"
    ],
    "objects": [
-    "ledger",
-    "ledgers",
-    "books",
+    "general ledger",
     "journal entries"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
-   "source_task": "Transfer details from separate journals to general ledgers or data processing sheets."
+   "source_task": "Transfer details from separate journals to general ledgers or data processing sheets.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "payroll",
@@ -92,8 +85,6 @@
     "run payroll"
    ],
    "descriptions": [
-    "calculated wages",
-    "computed wages",
     "prepared paychecks",
     "processed paychecks",
     "issued paychecks",
@@ -104,7 +95,9 @@
    "related": [
     "collected timesheets",
     "tracked timesheets",
-    "entered timesheets"
+    "entered timesheets",
+    "calculated wages",
+    "computed wages"
    ],
    "verbs": [
     "prepare",
@@ -125,12 +118,12 @@
     "cuts"
    ],
    "objects": [
-    "paychecks",
-    "wages"
+    "paychecks"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-3051.00 Payroll and Timekeeping Clerks",
-   "source_task": "Process and issue employee paychecks and statements of earnings and deductions."
+   "source_task": "Process and issue employee paychecks and statements of earnings and deductions.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "accountspayable",
@@ -142,7 +135,6 @@
     "paid supplier invoices",
     "processed vendor invoices",
     "processed supplier invoices",
-    "paid vendors",
     "ran payment batches",
     "matched invoices to purchase orders"
    ],
@@ -159,12 +151,12 @@
    ],
    "objects": [
     "vendor invoices",
-    "supplier invoices",
-    "vendors"
+    "supplier invoices"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
-   "source_task": "Match order forms with invoices, and record the necessary information."
+   "source_task": "Match order forms with invoices, and record the necessary information.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "accountsreceivable",
@@ -199,14 +191,14 @@
     "chased"
    ],
    "objects": [
-    "customers",
     "overdue accounts",
     "overdue invoices",
     "overdue payments"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-3011.00 Bill and Account Collectors",
-   "source_task": "Locate and monitor overdue accounts, using computers and a variety of automated systems."
+   "source_task": "Locate and monitor overdue accounts, using computers and a variety of automated systems.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "bankreconciliation",
@@ -218,26 +210,23 @@
     "reconciled bank statements",
     "reconciled the bank statements",
     "reconciled accounts to the bank",
-    "reconciled accounts to the bank statements",
-    "matched bank statements"
+    "reconciled accounts to the bank statements"
    ],
    "related": [],
    "verbs": [
     "reconcile",
     "reconciles",
-    "reconciled",
-    "match",
-    "matches",
-    "matched"
+    "reconciled"
    ],
    "objects": [
     "bank statement",
     "bank statements",
     "statement activity"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-3021.00 Billing and Posting Clerks",
-   "source_task": "Compare previously prepared bank statements with canceled checks and reconcile discrepancies."
+   "source_task": "Compare previously prepared bank statements with canceled checks and reconcile discrepancies.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "medicationadministration",
@@ -506,14 +495,14 @@
     "handled"
    ],
    "objects": [
-    "register",
     "till",
     "cash",
     "cash drawer"
    ],
-   "status": "source_checked",
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 41-2011.00 Cashiers",
-   "source_task": "Receive payment by cash, check, credit cards, vouchers, or automatic debits."
+   "source_task": "Receive payment by cash, check, credit cards, vouchers, or automatic debits.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "customerservice",
@@ -654,29 +643,15 @@
    "descriptions": [
     "keyed records",
     "keyed in records",
-    "entered records",
-    "typed records into",
     "entered data into"
    ],
    "related": [],
-   "verbs": [
-    "key",
-    "keys",
-    "keyed",
-    "enter",
-    "enters",
-    "entered",
-    "type",
-    "types",
-    "typed"
-   ],
-   "objects": [
-    "records",
-    "data"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-9021.00 Data Entry Keyers",
-   "source_task": "Locate and correct data entry errors, or report them to supervisors."
+   "source_task": "Locate and correct data entry errors, or report them to supervisors.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "lessonplanning",
@@ -880,9 +855,10 @@
     "budget",
     "budgets"
    ],
-   "status": "source_checked",
+   "status": "owner_rejected",
    "source": "O*NET 31.0 task statement, 13-2031.00 Budget Analysts",
-   "source_task": "Analyze monthly department budgeting and accounting reports to maintain expenditure controls."
+   "source_task": "Analyze monthly department budgeting and accounting reports to maintain expenditure controls.",
+   "review": "owner decision 2026-11-07, equivalence batch 1: rejected (adds nothing over the requirement's own word)"
   },
   {
    "canonical": "oilchanges",
@@ -1030,26 +1006,15 @@
    ],
    "descriptions": [
     "closed the books",
-    "closed the month",
     "ran the month-end close"
    ],
    "related": [],
-   "verbs": [
-    "close",
-    "closes",
-    "closed",
-    "run",
-    "runs",
-    "ran"
-   ],
-   "objects": [
-    "the books",
-    "the month",
-    "month-end"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 13-2011.00 Accountants and Auditors",
-   "source_task": "Prepare, examine, or analyze accounting records, financial statements, or other financial reports to assess accuracy, completeness, and conformance to reporting and procedural stan"
+   "source_task": "Prepare, examine, or analyze accounting records, financial statements, or other financial reports to assess accuracy, completeness, and conformance to reporting and procedural stan",
+   "review": "owner decision 2026-11-07, equivalence batch 1: approved as revised"
   },
   {
    "canonical": "ivmedications",

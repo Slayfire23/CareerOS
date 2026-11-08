@@ -22,7 +22,8 @@ export const EQUIVALENCES_VERSION = equivalences.version;
 const FILLER = new Set(words("experience experienced knowledge proficiency proficient familiarity required preferred ability strong solid good excellent work working with in of and or the a an for to on at must have"));
 
 type Group = { canonical: string; asks: string[]; descriptions: string[]; related: string[]; source: string; verbs: string[]; objects: string[]; status: string };
-const GROUPS: Group[] = equivalences.groups.map(g => ({ canonical: g.canonical, asks: g.asks, descriptions: g.descriptions, related: g.related, source: `equivalence:${g.canonical}`, verbs: g.verbs, objects: g.objects, status: g.status }));
+// A group the owner rejected is read by nothing, not even as a lead.
+const GROUPS: Group[] = equivalences.groups.filter(g => g.status !== "owner_rejected").map(g => ({ canonical: g.canonical, asks: g.asks, descriptions: g.descriptions, related: g.related, source: `equivalence:${g.canonical}`, verbs: g.verbs, objects: g.objects, status: g.status }));
 
 /** Only the owner's sign-off lets a table entry grant Supported, or treat two names as one question. */
 export const OWNER_APPROVED = "owner_approved";

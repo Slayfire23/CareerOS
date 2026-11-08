@@ -312,6 +312,14 @@ The open foundation security follow-ups near the top of this file remain open an
 - [x] Follow-up workflow for local testing behind FOLLOW_UP_WORKFLOW_ENABLED (rules-v16), with the delegation fix. See docs/MILESTONE_11_PHASE_5_FOLLOW_UP_REPORT.md.
 - [x] Phase 5 fix round (rules-v17): contextual corrections, brief exposure kept but limited, time claims longer than listed roles ask for earlier roles, hand-off replies refused. New 100-scenario blind split: 1 false Supported, 7 unsafe Possible remain. See docs/PHASE5_FIX_ROUND_REPORT.md and docs/MULTILINGUAL_ANSWERS_INVESTIGATION.md.
 - [x] Phase 5.2 (rules-v18): clause reader (clauses.ts), involvement from the main verb, corrections that retract only what they contradict, refusal messages by cause, code-chosen follow-up questions, replies that cannot reverse the answer. Sealed split m11_followup3 (120): criteria not met (3 false Supported, 7 unsafe hands-on Possible, 2 bad replies accepted, recognition 35 vs 37 of 75). See docs/PHASE5_2_EVALUATION_REPORT.md.
+- [x] Phase 5.3 (rules-v19), local and unpushed, flags off: Stage 1 title and date credit (docs/PHASE5_3_STAGE1_REPORT.md), Stage 2 follow-up validation (docs/PHASE5_3_STAGE2_REPORT.md), Stage 3 parser evaluation, no parser adopted (docs/PHASE5_3_STAGE3_PARSER_REPORT.md), Stage 4A structured ownership design (docs/PHASE5_3_STAGE4A_STRUCTURED_OWNERSHIP_DESIGN.md), description simulation, no rule adopted (docs/PHASE5_3_DESCRIPTION_SIMULATION_REPORT.md). Sealed split m11_followup4 still unopened.
+- [x] Equivalence batch 1 (finance and office): 8 groups approved as revised, budgeting rejected (owner decision 2026-11-07). See docs/EQUIVALENCE_REVIEW_BATCH1.md and tests/ai-equivalence-batch1.test.ts.
+- [ ] Equivalence batches 2–4 (42 groups in all) and batch 5 (two proposed groups, kept separate), each for the owner's decision.
+- [ ] Reader issues found in equivalence review, recorded for later and not yet fixed (owner, 2026-11-07):
+  - Payroll processing credited Supported from collecting timesheets and sending them to the payroll company: the requirement's word appears only in someone else's name.
+  - Budgeting credited Supported from managing a small office holiday-party budget.
+  - Accounts payable missed: "I paid vendor invoices" is dropped by the done-elsewhere rule, which reads "paid … vendor" as outsourcing.
+- [ ] Recognition losses from the batch 1 revisions, to revisit with recognition work: "Kept the books for three family restaurants" (bookkeeping) and "matched the statement activity … to the ledger" (bank reconciliation) now get nothing.
 - [ ] Owner labels the 30-scenario blind packet (docs/PHASE5_BLIND_LABEL_PACKET.md) before any blind results are opened.
 - [ ] Blind split: 2 false Supported and 7 unsafe Possible of 80, from the answer reader, against agent labels. Decide whether to keep patching word lists.
 - [ ] Production migrations now include 20261104010000 and 20261105010000. Needs approval.

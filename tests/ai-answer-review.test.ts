@@ -77,14 +77,23 @@ describe("instructions and praise in an answer", () => {
 describe("answers that describe the work", () => {
   it.each([
     ["Phlebotomy experience", "I drew blood from about 20 patients each morning using vacuum tubes."],
-    ["Payroll", "Prepared paychecks for 40 staff every two weeks."],
-    ["Bookkeeping", "Kept the books for three family restaurants."],
     ["Wound care", "Changed dressings on surgical patients every shift."],
     ["Patient scheduling", "Booked appointments for two dentists at the front desk."],
   ])("%s, from a table description: %s", (asked, answer) => {
     // Possible until the owner approves that group, and only then Supported.
     expect(read(asked, answer)).toBe("possible");
     expect(readAnswer(req(asked), answer, { assumeApproved: true }).verdict).toBe("supported");
+  });
+
+  // Equivalence batch 1 (owner decision 2026-11-07): payroll was approved as revised, so its phrase is Supported now.
+  it("Payroll, from an approved group: Prepared paychecks for 40 staff every two weeks.", () => {
+    expect(read("Payroll", "Prepared paychecks for 40 staff every two weeks.")).toBe("supported");
+  });
+
+  // The approved revision removed "kept the books" (it also fits a librarian). This genuine line shares no word with the
+  // requirement, so it now gets nothing: a recognition loss reported to the owner.
+  it("Bookkeeping, \"kept the books\" after the batch 1 revision: Not enough information", () => {
+    expect(read("Bookkeeping", "Kept the books for three family restaurants.")).toBe("insufficient_information");
   });
 
   it.each([
@@ -285,10 +294,11 @@ describe("the queue", () => {
 
 describe("the equivalence table", () => {
   it("is versioned, sourced, attributed, and honest about its review", () => {
-    expect(equivalences.version).toBe("answer-equivalences-v1");
+    expect(equivalences.version).toBe("answer-equivalences-v2");
     expect(equivalences.attribution).toMatch(/CC BY 4\.0/);
     for (const g of equivalences.groups) {
-      expect(g.status, g.canonical).toBe("source_checked");
+      // Owner decisions (equivalence batch 1, 2026-11-07) are recorded on the group; the rest are still unreviewed.
+      expect(["source_checked", "owner_approved", "owner_rejected"], g.canonical).toContain(g.status);
       expect(g.source_task.length, g.canonical).toBeGreaterThan(10);
       for (const d of g.descriptions) expect(d.split(/\s+/).length, d).toBeGreaterThan(1);
     }
