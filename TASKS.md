@@ -319,6 +319,8 @@ The open foundation security follow-ups near the top of this file remain open an
   - Payroll processing credited Supported from collecting timesheets and sending them to the payroll company: the requirement's word appears only in someone else's name.
   - Budgeting credited Supported from managing a small office holiday-party budget.
   - Accounts payable missed: "I paid vendor invoices" is dropped by the done-elsewhere rule, which reads "paid … vendor" as outsourcing.
+  - Medication administration missed: "I passed medications" (a medication pass) is read as handing things over (assisted).
+  - Medication administration credited Supported from "give medications back to the pharmacy for disposal" and "administer the medication reimbursement forms".
 - [ ] Recognition losses from the batch 1 revisions, to revisit with recognition work: "Kept the books for three family restaurants" (bookkeeping) and "matched the statement activity … to the ledger" (bank reconciliation) now get nothing.
 - [ ] Owner labels the 30-scenario blind packet (docs/PHASE5_BLIND_LABEL_PACKET.md) before any blind results are opened.
 - [ ] Blind split: 2 false Supported and 7 unsafe Possible of 80, from the answer reader, against agent labels. Decide whether to keep patching word lists.
