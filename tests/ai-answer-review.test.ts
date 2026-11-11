@@ -77,12 +77,15 @@ describe("instructions and praise in an answer", () => {
 describe("answers that describe the work", () => {
   it.each([
     ["Phlebotomy experience", "I drew blood from about 20 patients each morning using vacuum tubes."],
-    ["Wound care", "Changed dressings on surgical patients every shift."],
     ["Patient scheduling", "Booked appointments for two dentists at the front desk."],
   ])("%s, from a table description: %s", (asked, answer) => {
     // Possible until the owner approves that group, and only then Supported.
     expect(read(asked, answer)).toBe("possible");
     expect(readAnswer(req(asked), answer, { assumeApproved: true }).verdict).toBe("supported");
+  });
+
+  it("records the surgical-dressings recognition loss after narrowing wound care", () => {
+    expect(read("Wound care", "Changed dressings on surgical patients every shift.")).toBe("insufficient_information");
   });
 
   // Equivalence batch 1 (owner decision 2026-11-07): payroll was approved as revised, so its phrase is Supported now.
@@ -294,10 +297,10 @@ describe("the queue", () => {
 
 describe("the equivalence table", () => {
   it("is versioned, sourced, attributed, and honest about its review", () => {
-    expect(equivalences.version).toBe("answer-equivalences-v2");
+    expect(equivalences.version).toBe("answer-equivalences-v3");
     expect(equivalences.attribution).toMatch(/CC BY 4\.0/);
     for (const g of equivalences.groups) {
-      // Owner decisions (equivalence batch 1, 2026-11-07) are recorded on the group; the rest are still unreviewed.
+      // Owner decisions (equivalence batches 1 and 2) are recorded on the group; the rest are still unreviewed.
       expect(["source_checked", "owner_approved", "owner_rejected"], g.canonical).toContain(g.status);
       expect(g.source_task.length, g.canonical).toBeGreaterThan(10);
       for (const d of g.descriptions) expect(d.split(/\s+/).length, d).toBeGreaterThan(1);

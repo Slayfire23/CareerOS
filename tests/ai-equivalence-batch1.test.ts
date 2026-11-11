@@ -15,12 +15,12 @@ const read = (requirement: string, answer: string) => readAnswer(req(requirement
 const APPROVED = ["accountspayable", "accountsreceivable", "bankreconciliation", "bookkeeping", "cashhandling", "dataentry", "monthendclose", "payroll"];
 
 describe("batch 1: what the owner decided", () => {
-  it("eight groups approved as revised, budgeting rejected, the rest untouched", () => {
-    expect(equivalences.version).toBe("answer-equivalences-v2");
-    expect(equivalences.groups.filter(g => g.status === "owner_approved").map(g => g.canonical).sort()).toEqual(APPROVED);
-    expect(equivalences.groups.filter(g => g.status === "owner_rejected").map(g => g.canonical)).toEqual(["budgeting"]);
-    expect(equivalences.groups.filter(g => g.status === "source_checked")).toHaveLength(33);
-    for (const g of equivalences.groups.filter(x => x.status !== "source_checked")) expect((g as { review?: string }).review, g.canonical).toMatch(/owner decision 2026-11-07, equivalence batch 1/);
+  it("eight Batch 1 approvals and the budgeting rejection remain intact", () => {
+    expect(equivalences.version).toBe("answer-equivalences-v3");
+    const batch1 = equivalences.groups.filter(g => [...APPROVED, "budgeting"].includes(g.canonical));
+    expect(batch1.filter(g => g.status === "owner_approved").map(g => g.canonical).sort()).toEqual(APPROVED);
+    expect(batch1.filter(g => g.status === "owner_rejected").map(g => g.canonical)).toEqual(["budgeting"]);
+    for (const g of batch1) expect((g as { review?: string }).review, g.canonical).toMatch(/owner decision 2026-11-07, equivalence batch 1/);
   });
 
   it("the revisions are exactly the documented ones", () => {

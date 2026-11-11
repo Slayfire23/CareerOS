@@ -1,6 +1,6 @@
 {
  "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. Only status 'owner_approved' can grant Supported, and 'owner_rejected' is read by nothing. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
- "version": "answer-equivalences-v2",
+ "version": "answer-equivalences-v3",
  "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
  "groups": [
   {
@@ -266,9 +266,10 @@
     "injections",
     "meds"
    ],
-   "status": "source_checked",
+   "status": "owner_rejected",
    "source": "O*NET 31.0 task statement, 29-1141.00 Registered Nurses",
-   "source_task": "Administer medications to patients and monitor patients for reactions or side effects."
+   "source_task": "Administer medications to patients and monitor patients for reactions or side effects.",
+   "review": "Owner decision, equivalence batch 2: rejected as submitted. No group credit or question merging."
   },
   {
    "canonical": "vitalsigns",
@@ -278,36 +279,15 @@
    ],
    "descriptions": [
     "took vitals",
-    "took vital signs",
-    "recorded vitals",
-    "recorded vital signs",
-    "took blood pressure",
-    "measured blood pressure",
-    "checked blood pressure"
+    "took vital signs"
    ],
    "related": [],
-   "verbs": [
-    "take",
-    "takes",
-    "took",
-    "record",
-    "records",
-    "recorded",
-    "measure",
-    "measures",
-    "measured",
-    "check",
-    "checks",
-    "checked"
-   ],
-   "objects": [
-    "vitals",
-    "vital signs",
-    "blood pressure"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
-   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height.",
+   "review": "Owner decision, equivalence batch 2: exact phrases only; no verb-object patterns. See docs/EQUIVALENCE_REVIEW_BATCH2.md."
   },
   {
    "canonical": "woundcare",
@@ -315,31 +295,17 @@
     "wound care"
    ],
    "descriptions": [
-    "dressed wounds",
-    "changed dressings",
     "changed wound dressings",
-    "cleaned wounds",
-    "cleaned and dressed wounds"
+    "changed dressings on pressure sores",
+    "change dressings on pressure sores"
    ],
    "related": [],
-   "verbs": [
-    "dress",
-    "dresses",
-    "dressed",
-    "change",
-    "changes",
-    "changed",
-    "clean",
-    "cleans",
-    "cleaned"
-   ],
-   "objects": [
-    "wounds",
-    "dressings"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 29-2061.00 Licensed Practical and Licensed Vocational Nurses",
-   "source_task": "Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massag"
+   "source_task": "Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massag",
+   "review": "Owner decision, equivalence batch 2: exact phrases only; no verb-object patterns. See docs/EQUIVALENCE_REVIEW_BATCH2.md."
   },
   {
    "canonical": "drywallfinishing",
@@ -941,32 +907,20 @@
   {
    "canonical": "patientintake",
    "asks": [
-    "patient intake",
     "patient check-in",
     "patient registration"
    ],
    "descriptions": [
-    "checked in patients",
-    "registered patients",
-    "took patient histories",
-    "recorded patient histories",
-    "roomed patients"
+    "checked in patients for appointments",
+    "checked in patients for clinic visits"
    ],
    "related": [],
-   "verbs": [
-    "register",
-    "registers",
-    "registered",
-    "room",
-    "rooms",
-    "roomed"
-   ],
-   "objects": [
-    "patients"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
-   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+   "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height.",
+   "review": "Owner decision, equivalence batch 2: exact phrases only; no verb-object patterns. See docs/EQUIVALENCE_REVIEW_BATCH2.md."
   },
   {
    "canonical": "vehiclemaintenance",
@@ -1024,30 +978,17 @@
     "intravenous medications"
    ],
    "descriptions": [
-    "started ivs",
-    "hung iv"
+    "administered iv antibiotics",
+    "hung antibiotic piggybacks",
+    "hang antibiotic piggybacks"
    ],
    "related": [],
-   "verbs": [
-    "hang",
-    "hangs",
-    "hung",
-    "start",
-    "starts",
-    "started",
-    "push",
-    "pushes",
-    "pushed"
-   ],
-   "objects": [
-    "ivs",
-    "piggybacks",
-    "iv",
-    "peripheral lines"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 29-1141.03 Critical Care Nurses",
-   "source_task": "Administer medications intravenously, by injection, orally, through gastric tubes, or by other methods."
+   "source_task": "Administer medications intravenously, by injection, orally, through gastric tubes, or by other methods.",
+   "review": "Owner decision, equivalence batch 2: exact phrases only; no verb-object patterns. See docs/EQUIVALENCE_REVIEW_BATCH2.md."
   },
   {
    "canonical": "discovery",
@@ -1248,36 +1189,19 @@
    "canonical": "claimrejections",
    "asks": [
     "insurance claim rejections",
-    "claim rejections",
-    "resolving insurance claim rejections",
-    "insurance claims",
-    "handle insurance claims"
+    "resolving insurance claim rejections"
    ],
    "descriptions": [
-    "resubmitted claims",
-    "fixed rejected claims",
-    "appealed denied claims"
+    "appealed denied medical claims",
+    "resubmitted rejected pharmacy claims"
    ],
    "related": [],
-   "verbs": [
-    "fix",
-    "fixes",
-    "fixed",
-    "resubmit",
-    "resubmits",
-    "resubmitted",
-    "appeal",
-    "appeals",
-    "appealed"
-   ],
-   "objects": [
-    "claims",
-    "rejected claims",
-    "denied claims"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 29-2052.00 Pharmacy Technicians",
-   "source_task": "Prepare and process medical insurance claim forms and records."
+   "source_task": "Prepare and process medical insurance claim forms and records.",
+   "review": "Owner decision, equivalence batch 2: exact phrases only; no verb-object patterns. See docs/EQUIVALENCE_REVIEW_BATCH2.md."
   },
   {
    "canonical": "blueprintreading",
@@ -1389,9 +1313,10 @@
    "related": [],
    "verbs": [],
    "objects": [],
-   "status": "source_checked",
+   "status": "owner_rejected",
    "source": "O*NET 31.0 task statement, 21-1014.00 Mental Health Counselors",
-   "source_task": "Perform crisis interventions to help ensure the safety of the patients and others."
+   "source_task": "Perform crisis interventions to help ensure the safety of the patients and others.",
+   "review": "Owner decision, equivalence batch 2: rejected as submitted. No group credit or question merging."
   }
  ]
 }
