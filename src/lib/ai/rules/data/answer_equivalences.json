@@ -1,6 +1,6 @@
 {
  "_comment": "Reviewed descriptions of qualifying work, read only when judging a person's answer to a question about that exact requirement. Exact phrases, or a listed verb shortly before a listed object in one sentence, never fuzzy or semantic. Only status 'owner_approved' can grant Supported, and 'owner_rejected' is read by nothing. status 'source_checked' means chosen by hand and checked against the cited O*NET task; the owner hasn't signed off on them yet. Every group needs the owner's review before anything beyond local, flagged use. Adapted from O*NET; USDOL/ETA has not approved, endorsed, or tested this.",
- "version": "answer-equivalences-v4",
+ "version": "answer-equivalences-v5",
  "attribution": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
  "groups": [
   {
@@ -337,38 +337,21 @@
     "operating a forklift"
    ],
    "descriptions": [
-    "drove a forklift",
     "operated a forklift",
-    "drove forklifts",
     "operated forklifts",
-    "drove a lift truck",
-    "operated a lift truck",
-    "ran a forklift"
+    "drove a forklift",
+    "drove forklifts",
+    "operated a lift truck"
    ],
    "related": [
     "loaded trucks by hand"
    ],
-   "verbs": [
-    "drive",
-    "drives",
-    "drove",
-    "operate",
-    "operates",
-    "operated",
-    "run",
-    "runs",
-    "ran"
-   ],
-   "objects": [
-    "forklift",
-    "forklifts",
-    "lift truck",
-    "fork truck",
-    "reach truck"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 53-7051.00 Industrial Truck and Tractor Operators",
-   "source_task": "Move controls to drive gasoline- or electric-powered trucks, cars, or tractors and transport materials between loading, processing, and storage areas."
+   "source_task": "Move controls to drive gasoline- or electric-powered trucks, cars, or tractors and transport materials between loading, processing, and storage areas.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "brakerepair",
@@ -474,28 +457,17 @@
     "stock counts"
    ],
    "descriptions": [
-    "counted stock",
-    "counted inventory",
-    "did stock counts",
     "ran cycle counts",
-    "took inventory",
+    "did stock counts",
     "performed stock counts"
    ],
    "related": [],
-   "verbs": [
-    "count",
-    "counts",
-    "counted"
-   ],
-   "objects": [
-    "stock",
-    "inventory",
-    "cycle counts",
-    "the walk-in"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-5071.00 Shipping, Receiving, and Inventory Clerks",
-   "source_task": "Requisition and store shipping materials and supplies to maintain inventory of stock."
+   "source_task": "Requisition and store shipping materials and supplies to maintain inventory of stock.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "orderpicking",
@@ -505,29 +477,17 @@
     "pick orders"
    ],
    "descriptions": [
-    "picked orders",
-    "pulled orders",
     "picked customer orders",
-    "filled orders from the shelves"
+    "filled orders from the shelves",
+    "picked warehouse orders"
    ],
    "related": [],
-   "verbs": [
-    "pick",
-    "picks",
-    "picked",
-    "pull",
-    "pulls",
-    "pulled",
-    "fill",
-    "fills",
-    "filled"
-   ],
-   "objects": [
-    "orders"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 53-7065.00 Stockers and Order Fillers",
-   "source_task": "Read orders to ascertain catalog numbers, sizes, colors, and quantities of merchandise."
+   "source_task": "Read orders to ascertain catalog numbers, sizes, colors, and quantities of merchandise.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "appointmentscheduling",
@@ -588,29 +548,15 @@
    "descriptions": [
     "wrote lesson plans",
     "prepared lesson plans",
-    "planned lessons",
-    "planned weekly lessons",
-    "wrote weekly lessons"
+    "planned weekly lessons"
    ],
    "related": [],
-   "verbs": [
-    "write",
-    "writes",
-    "wrote",
-    "prepare",
-    "prepares",
-    "prepared",
-    "plan",
-    "plans",
-    "planned"
-   ],
-   "objects": [
-    "lessons",
-    "lesson plans"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 25-2021.00 Elementary School Teachers, Except Special Education",
-   "source_task": "Establish clear objectives for all lessons, units, and projects and communicate those objectives to students."
+   "source_task": "Establish clear objectives for all lessons, units, and projects and communicate those objectives to students.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "legalresearch",
@@ -619,24 +565,15 @@
    ],
    "descriptions": [
     "researched case law",
-    "researched statutes",
-    "researched precedents",
-    "looked up case law"
+    "researched statutes"
    ],
    "related": [],
-   "verbs": [
-    "research",
-    "researches",
-    "researched"
-   ],
-   "objects": [
-    "case law",
-    "statutes",
-    "precedents"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
-   "source_task": "Gather and analyze research data, such as statutes, decisions, and legal articles, codes, and documents."
+   "source_task": "Gather and analyze research data, such as statutes, decisions, and legal articles, codes, and documents.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "contractdrafting",
@@ -648,31 +585,17 @@
    ],
    "descriptions": [
     "drafted contracts",
-    "wrote contracts",
-    "drafted agreements",
-    "prepared contracts"
+    "drafted commercial contracts"
    ],
    "related": [
     "filed contracts"
    ],
-   "verbs": [
-    "draft",
-    "drafts",
-    "drafted",
-    "write",
-    "writes",
-    "wrote",
-    "prepare",
-    "prepares",
-    "prepared"
-   ],
-   "objects": [
-    "contracts",
-    "agreements"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 23-1011.00 Lawyers",
-   "source_task": "Prepare, draft, and review legal documents, such as wills, deeds, patent applications, mortgages, leases, and contracts."
+   "source_task": "Prepare, draft, and review legal documents, such as wills, deeds, patent applications, mortgages, leases, and contracts.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "recruiting",
@@ -682,29 +605,18 @@
     "candidate screening"
    ],
    "descriptions": [
-    "interviewed applicants",
-    "interviewed candidates",
-    "screened applicants",
     "screened resumes",
-    "screened candidates"
+    "interviewed job applicants",
+    "screened job applicants",
+    "interviewed job candidates"
    ],
    "related": [],
-   "verbs": [
-    "interview",
-    "interviews",
-    "interviewed",
-    "screen",
-    "screens",
-    "screened"
-   ],
-   "objects": [
-    "applicants",
-    "candidates",
-    "resumes"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 13-1071.00 Human Resources Specialists",
-   "source_task": "Review employment applications and job orders to match applicants with job requirements."
+   "source_task": "Review employment applications and job orders to match applicants with job requirements.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "teamsupervision",
@@ -712,40 +624,22 @@
     "team supervision",
     "supervise a team",
     "supervising staff",
-    "staff supervision",
-    "team leadership"
+    "staff supervision"
    ],
    "descriptions": [
-    "supervised staff",
-    "supervised a team",
-    "supervised a crew",
-    "led a team",
-    "led a crew",
+    "supervised a team of",
     "managed a team of",
-    "managed a crew"
+    "supervised a crew of"
    ],
    "related": [
     "member of a"
    ],
-   "verbs": [
-    "supervise",
-    "supervises",
-    "supervised",
-    "lead",
-    "leads",
-    "led",
-    "manage",
-    "manages",
-    "managed"
-   ],
-   "objects": [
-    "staff",
-    "team",
-    "crew"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-1011.00 First-Line Supervisors of Office and Administrative Support Workers",
-   "source_task": "Supervise the work of office, administrative, or customer service employees to ensure adherence to quality standards, deadlines, and proper procedures, correcting errors or problem"
+   "source_task": "Supervise the work of office, administrative, or customer service employees to ensure adherence to quality standards, deadlines, and proper procedures, correcting errors or problem",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "budgeting",
@@ -943,29 +837,17 @@
     "responding to discovery"
    ],
    "descriptions": [
-    "answered interrogatories",
-    "responded to discovery"
+    "drafted discovery responses",
+    "drafted interrogatory responses",
+    "prepared discovery responses"
    ],
    "related": [],
-   "verbs": [
-    "draft",
-    "drafts",
-    "drafted",
-    "answer",
-    "answers",
-    "answered",
-    "prepare",
-    "prepares",
-    "prepared"
-   ],
-   "objects": [
-    "interrogatories",
-    "document demands",
-    "document requests"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
-   "source_task": "Prepare, edit, or review legal documents, including legislation, briefs, pleadings, appeals, wills, contracts, and real estate closing statements."
+   "source_task": "Prepare, edit, or review legal documents, including legislation, briefs, pleadings, appeals, wills, contracts, and real estate closing statements.",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "routedispatch",
@@ -974,35 +856,19 @@
     "driver routes",
     "coordinating driver routes",
     "routing and scheduling",
-    "route planning",
-    "dispatching"
+    "route planning"
    ],
    "descriptions": [
-    "assigned drivers",
     "dispatched drivers",
-    "dispatched trucks",
-    "planned delivery routes"
+    "planned delivery routes for drivers"
    ],
    "related": [],
-   "verbs": [
-    "assign",
-    "assigns",
-    "assigned",
-    "dispatch",
-    "dispatches",
-    "dispatched",
-    "plan",
-    "plans",
-    "planned"
-   ],
-   "objects": [
-    "drivers",
-    "trucks",
-    "routes"
-   ],
-   "status": "source_checked",
+   "verbs": [],
+   "objects": [],
+   "status": "owner_approved",
    "source": "O*NET 31.0 task statement, 43-5032.00 Dispatchers, Except Police, Fire, and Ambulance",
-   "source_task": "Schedule or dispatch workers, work crews, equipment, or service vehicles to appropriate locations, according to customer requests, specifications, or needs, using radios or telepho"
+   "source_task": "Schedule or dispatch workers, work crews, equipment, or service vehicles to appropriate locations, according to customer requests, specifications, or needs, using radios or telepho",
+   "review": "owner decision 2026-11-10, equivalence batch 4: approved as revised (exact phrases only)"
   },
   {
    "canonical": "travelbooking",

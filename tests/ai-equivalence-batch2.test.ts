@@ -51,9 +51,9 @@ describe("Batch 2 owner decisions", () => {
   it("retains the phlebotomy hold and both rejections", () => {
     expect(table.groups.find(g=>g.canonical==="phlebotomy")?.status).toBe("source_checked");
     expect(table.groups.filter(g=>g.status==="owner_rejected").map(g=>g.canonical).sort()).toEqual(["budgeting","medicationadministration","mentalhealth"]);
-    // Batches 1 and 2 approved 13 groups; Batch 3 (2026-11-10) approved five more and left the rest unreviewed or held.
-    expect(table.groups.filter(g=>g.status==="owner_approved" && !/equivalence batch 3/.test((g as {review?: string}).review ?? ""))).toHaveLength(13);
-    expect(table.groups.filter(g=>g.status==="source_checked")).toHaveLength(26 - 5);
+    // Batches 1 and 2 approved 13 groups; Batches 3 and 4 (2026-11-10) approved five and ten more and held the rest.
+    expect(table.groups.filter(g=>g.status==="owner_approved" && !/equivalence batch [34]/.test((g as {review?: string}).review ?? ""))).toHaveLength(13);
+    expect(table.groups.filter(g=>g.status==="source_checked")).toHaveLength(26 - 5 - 10);
     expect(read("Phlebotomy","I drew blood from about 20 patients each morning using vacuum tubes.").verdict).toBe("possible");
   });
   it("retains the unlabeled PBM answer for later evaluation", () => {
