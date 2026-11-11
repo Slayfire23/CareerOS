@@ -83,6 +83,4 @@ class EmbeddingProvider:
                 RetrieveScore(query_id=query.id, passage_id=pid, similarity=round(score, 4))
                 for score, pid in ranked[: request.top_k]
             ]
-        return RetrieveResponse(
-            request_id=request.request_id, model=model, status="used", scores=scores
-        )
+        return RetrieveResponse(request_id=request.request_id, model=model, status="used", scores=scores)
