@@ -105,7 +105,9 @@ jobs:
       - name: Write local-only environment files
         run: |
           eval "$(npx supabase status -o env | sed 's/^/export /')"
-          SECRET="$(openssl rand -hex 32)"
+          # 48 random bytes as 64 URL-safe Base64 characters (64-symbol alphabet). Hex was rejected about 1 run in 4:
+          # the service requires 16+ distinct characters, and 64 hex characters only reach 16 if every digit appears.
+          SECRET="$(openssl rand -base64 48 | tr '+/' '-_')"
           echo "::add-mask::$SECRET"
           {
             echo "DATABASE_URL=$DB_URL"
@@ -126,6 +128,24 @@ jobs:
         run: |
           uv sync --locked
           nohup uv run uvicorn app.main:app_factory --factory --host 127.0.0.1 --port 8010 > ../ai-service.log 2>&1 &
+          pid=$!
+          # Fail here, with the reason, if the service can't start (such as a settings error), instead of surfacing as a
+          # readiness timeout two steps later. The log holds no secret: settings errors hide input values.
+          for second in $(seq 1 30); do
+            if curl -sf -o /dev/null http://127.0.0.1:8010/health; then
+              echo "AI service answered /health after ${second}s"
+              exit 0
+            fi
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error::The AI service exited during startup after ${second}s"
+              tail -n 40 ../ai-service.log
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "::error::The AI service did not answer /health within 30s"
+          tail -n 40 ../ai-service.log
+          exit 1
       - name: Build and start CareerOS
         run: |
           npm run build
