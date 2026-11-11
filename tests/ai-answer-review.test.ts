@@ -297,7 +297,7 @@ describe("the queue", () => {
 
 describe("the equivalence table", () => {
   it("is versioned, sourced, attributed, and honest about its review", () => {
-    expect(equivalences.version).toBe("answer-equivalences-v3");
+    expect(equivalences.version).toBe("answer-equivalences-v4");
     expect(equivalences.attribution).toMatch(/CC BY 4\.0/);
     for (const g of equivalences.groups) {
       // Owner decisions (equivalence batches 1 and 2) are recorded on the group; the rest are still unreviewed.

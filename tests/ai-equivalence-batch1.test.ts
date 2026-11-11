@@ -16,7 +16,7 @@ const APPROVED = ["accountspayable", "accountsreceivable", "bankreconciliation",
 
 describe("batch 1: what the owner decided", () => {
   it("eight Batch 1 approvals and the budgeting rejection remain intact", () => {
-    expect(equivalences.version).toBe("answer-equivalences-v3");
+    expect(equivalences.version).toBe("answer-equivalences-v4");
     const batch1 = equivalences.groups.filter(g => [...APPROVED, "budgeting"].includes(g.canonical));
     expect(batch1.filter(g => g.status === "owner_approved").map(g => g.canonical).sort()).toEqual(APPROVED);
     expect(batch1.filter(g => g.status === "owner_rejected").map(g => g.canonical)).toEqual(["budgeting"]);
