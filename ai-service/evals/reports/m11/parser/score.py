@@ -1,14 +1,20 @@
-"""Phase 5.3 Stage 3: scores clause records from rules-v19, wink-nlp and compromise against independent labels.
-One shared mapping turns every system's clause records into the label fields, so only the sentence analysis differs."""
+"""Phase 5.3 Stage 3: scores clause records from rules-v19, wink-nlp and compromise
+against independent labels. One shared mapping turns every system's clause records into
+the label fields, so only the sentence analysis differs."""
 
-import json, re, collections, sys
+import collections
+import json
+import re
 
-D = "C:/Users/slayf/AppData/Local/Temp/claude/09f11a5caec5af2c/ac07aabb-7520-4199-b003-a87e9b15270b/scratchpad/parser-eval/"
+D = (
+    "C:/Users/slayf/AppData/Local/Temp/claude/09f11a5caec5af2c/"
+    "ac07aabb-7520-4199-b003-a87e9b15270b/scratchpad/parser-eval/"
+)
 corpus = {i["id"]: i for i in json.load(open(D + "corpus.json", encoding="utf-8"))["items"]}
 labels = {}
 for f in ("labels_a.json", "labels_b.json"):
-    for l in json.load(open(D + f, encoding="utf-8"))["labels"]:
-        labels[l["id"]] = l
+    for label in json.load(open(D + f, encoding="utf-8"))["labels"]:
+        labels[label["id"]] = label
 parsed = json.load(open(D + "parsed.json", encoding="utf-8"))
 rules = json.load(open(D + "rules.json", encoding="utf-8"))["rules"]
 systems = {
@@ -30,9 +36,16 @@ for d in ("m11_followup2", "m11_followup3"):
         types[f"{d}:{s['id']}"] = s["type"]
 
 STOP = set(
-    "the a an and or of to in on at for with by from as is are was were be been being this that these those it its i we you he she they my our your their his her experience years year work working skills ability strong proficiency knowledge using use".split()
+    (
+        "the a an and or of to in on at for with by from as is are was were be been being this that "
+        "these those it its i we you he she they my our your their his her experience years year work "
+        "working skills ability strong proficiency knowledge using use"
+    ).split()
 )
-stem = lambda w: w.lower()[:5]
+
+
+def stem(w):
+    return w.lower()[:5]
 
 
 def terms(t):
@@ -82,7 +95,10 @@ CORRECTION = re.compile(
 def read(item, clauses):
     req = terms(item["requirement"])
     rel = [c for c in clauses if terms(c["text"]) & req] or clauses
-    inv = lambda c: c.get("involvement") or verb_involvement(c["verb"])
+
+    def inv(c):
+        return c.get("involvement") or verb_involvement(c["verb"])
+
     self_perf = any(c["subject"] == "self" and inv(c) == "performed" and not c["negated"] for c in rel)
     self_any = [c for c in rel if c["subject"] == "self"]
     other = any(c["subject"] == "other" and not c["passive"] for c in rel)
@@ -141,7 +157,13 @@ print("labelled items", len(ids), "of", len(corpus))
 report = {}
 for name, data in systems.items():
     preds = {i: read(corpus[i], data[i]) for i in ids}
-    acc = lambda f, sub=None: sum(preds[i][f] == labels[i][f] for i in (sub or ids)) / len(sub or ids)
+
+    # `preds` is bound when the function is defined. It is called only within this
+    # iteration, so the value is the same one the old lambda read; the default
+    # argument just makes that explicit.
+    def acc(f, sub=None, preds=preds):
+        return sum(preds[i][f] == labels[i][f] for i in (sub or ids)) / len(sub or ids)
+
     false_own = [i for i in ids if credited(preds[i]["ownership"]) and labels[i]["ownership"] == "no"]
     missed = [i for i in ids if not credited(preds[i]["ownership"]) and credited(labels[i]["ownership"])]
     report[name] = {
@@ -152,15 +174,19 @@ for name, data in systems.items():
     }
     print(f"\n== {name}")
     print(
-        f"  who did the work (actor) accuracy {acc('actor'):.2f}; involvement accuracy {acc('involvement'):.2f}"
+        f"  who did the work (actor) accuracy {acc('actor'):.2f}; "
+        f"involvement accuracy {acc('involvement'):.2f}"
     )
     for f in ("passive", "negated", "multiple_actors", "correction"):
         print(f"  {f:16} {f1([(preds[i][f], labels[i][f]) for i in ids])}")
     print(f"  ownership: false attribution {len(false_own)}, missed legitimate {len(missed)}")
     for kind in ("answer", "reply", "role_description"):
         sub = [i for i in ids if corpus[i]["kind"] == kind]
+        sub_false = sum(1 for i in sub if i in false_own)
+        sub_missed = sum(1 for i in sub if i in missed)
         print(
-            f"    {kind:16} n={len(sub):3} actor {acc('actor', sub):.2f}  false own {sum(1 for i in sub if i in false_own):3}  missed {sum(1 for i in sub if i in missed):3}"
+            f"    {kind:16} n={len(sub):3} actor {acc('actor', sub):.2f}  "
+            f"false own {sub_false:3}  missed {sub_missed:3}"
         )
     conf = collections.Counter((labels[i]["actor"], preds[i]["actor"]) for i in ids)
     print(
@@ -188,7 +214,8 @@ for name, data in systems.items():
             hard[t][1] += preds[i]["actor"] == labels[i]["actor"]
     print("  hard slices (actor right / n):", {k: f"{v[1]}/{v[0]}" for k, v in sorted(hard.items())})
 
-# rules-v19 as the product reads it: the answer reader, the reply reader, and the engine for role descriptions.
+# rules-v19 as the product reads it: the answer reader, the reply reader, and the engine
+# for role descriptions.
 prod = {i: rules[i]["product"] for i in ids}
 fo = [i for i in ids if credited(prod[i]) and labels[i]["ownership"] == "no"]
 mi = [i for i in ids if not credited(prod[i]) and credited(labels[i]["ownership"])]
