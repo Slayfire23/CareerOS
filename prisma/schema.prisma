@@ -29,6 +29,7 @@ model User {
   clarifications   CandidateClarification[]
   clarificationEvents ClarificationEvent[]
   clarificationFollowUps ClarificationFollowUp[]
+  clarificationParts ClarificationPart[]
 }
 
 /// ROLE_DETAIL_ADDED: a description of work in one role. ENTRY_ADDED: a typed education or credential
@@ -45,6 +46,35 @@ enum ClarificationStatus {
   ACTIVE
   SUPERSEDED
   REVOKED
+}
+
+/// The person's own statement of their part in the work (structured ownership, Phase 5.3). Self-reported, never verified.
+/// REQUESTED covers "I arranged it, requested it, or handled the paperwork for it" (O2); TAUGHT is "I taught or trained
+/// others to do it" (O1). NOT_DONE is "Actually, I haven't done this", stored with outcome DENIED.
+enum Involvement {
+  PERFORMED
+  PART
+  SUPERVISED
+  REQUESTED
+  ASSISTED
+  OBSERVED_TRAINED
+  TAUGHT
+  NOT_DONE
+}
+
+enum WorkFrequency {
+  MOST_DAYS
+  WEEKLY
+  MONTHLY
+  FEW_TIMES
+  ONCE
+}
+
+enum WorkRecency {
+  CURRENT
+  WITHIN_YEAR
+  ONE_TO_THREE_YEARS
+  OVER_THREE_YEARS
 }
 
 enum FollowUpStatus {
@@ -91,12 +121,31 @@ model ClarificationEvent {
   requirementText String?  @db.VarChar(500)
   verdictBefore   String?  @db.VarChar(30)
   verdictAfter    String?  @db.VarChar(30)
+  /// The structured choice at the time, for the audit trail. Never the person's words.
+  involvement     String?  @db.VarChar(20)
   rulesVersion    String   @db.VarChar(40)
   createdAt       DateTime @default(now()) @db.Timestamptz(3)
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([savedJobId, createdAt])
+}
+
+/// For a compound requirement ("conduit bending and installation"), whether the person says they did each part
+/// themselves (O3). Holds the requirement's own part wording, never the person's words. Deleted with its answer.
+model ClarificationPart {
+  id              String                 @id @default(uuid()) @db.Uuid
+  userId          String                 @db.Uuid
+  clarificationId String                 @db.Uuid
+  partIndex       Int                    @db.SmallInt
+  partText        String                 @db.VarChar(300)
+  checked         Boolean
+  createdAt       DateTime               @default(now()) @db.Timestamptz(3)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clarification   CandidateClarification @relation(fields: [clarificationId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@unique([clarificationId, partIndex])
+  @@index([userId])
 }
 
 /// What a person said about a requirement, kept with where it came from. All of it is self-reported:
@@ -121,12 +170,28 @@ model CandidateClarification {
   evidenceId      String?                 @db.VarChar(60)
   revokedAt       DateTime?               @db.Timestamptz(3)
   createdAt       DateTime                @default(now()) @db.Timestamptz(3)
+  // Structured ownership (Phase 5.3). All null on answers given before it ("not stated"), which are read as text, as
+  // before. A database CHECK keeps the combinations to what the form can produce (see the migration).
+  involvement     Involvement?
+  /// "Did you also do any of it yourself?", asked only after SUPERVISED, REQUESTED, ASSISTED or TAUGHT.
+  alsoDidSome     Boolean?
+  frequency       WorkFrequency?
+  recency         WorkRecency?
+  /// "About how long in total?" for time requirements. A claim, never dates.
+  claimedMonths   Int?                    @db.SmallInt
+  /// "consistent" | "text_mismatch" | "text_unread" | "no_text"; recomputed on read, kept for the audit trail.
+  consistency     String?                 @db.VarChar(30)
+  /// 1: a free-text answer (every answer before structured ownership). 2: a structured answer.
+  formVersion     Int                     @default(1) @db.SmallInt
   user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   savedJob        SavedJob?               @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
   experience      ProfessionalExperience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
   followUps       ClarificationFollowUp[]
+  parts           ClarificationPart[]
   education       Education?              @relation(fields: [educationId], references: [id], onDelete: SetNull)
 
+  // Lets ClarificationPart reference (answer, owner) so the database rejects a part attached to another account's answer.
+  @@unique([id, userId])
   @@index([userId, createdAt])
   @@index([savedJobId])
   @@index([experienceId])

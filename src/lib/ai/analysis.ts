@@ -125,7 +125,10 @@ async function activeFollowUps(userId: string, config: AiConfig): Promise<{ evid
 async function activeAnswers(userId: string, reviewEnabled: boolean): Promise<LinkedAnswer[]> {
   const rows = await prisma.candidateClarification.findMany({
     // A denial exists only in the review. An answer needs its role, which is what a citation points at.
-    where: { userId, status: "ACTIVE", OR: [{ outcome: "ROLE_DETAIL_ADDED", experienceId: { not: null } }, ...(reviewEnabled ? [{ outcome: "DENIED" as const, questionKey: { not: null } }] : [])] },
+    // Free-text answers only (formVersion 1, every answer given so far). A structured answer (formVersion 2) is read only
+    // by the structured rule table, which doesn't exist yet: until then it gives nothing, rather than having its text read
+    // without its choice (a "supervised it" answer must never be credited from its text alone).
+    where: { userId, status: "ACTIVE", formVersion: 1, OR: [{ outcome: "ROLE_DETAIL_ADDED", experienceId: { not: null } }, ...(reviewEnabled ? [{ outcome: "DENIED" as const, questionKey: { not: null } }] : [])] },
     select: { id: true, questionKey: true, coveredKeys: true, outcome: true, detail: true, requirementText: true },
   });
   // Answers from the question flow have no stored key: theirs comes from what they were asked.

@@ -198,3 +198,22 @@ New sealed evaluation split `tests/fixtures/m11_structured/` (208 structured-own
 - **Validate (counts only):** `STRUCTURED_REPORT=out.json npx vitest run --config vitest.eval.config.mts structured`.
 - **The one-time Stage 7 evaluation:** needs `STRUCTURED_UNSEAL=1`, `STRUCTURED_FREEZE_COMMIT` equal to HEAD, a clean working tree, matching hashes, and `STRUCTURED_ADAPTER`.
 - **Guard:** `tests/sealed-splits.test.ts` (unit suite) fails if any source, script, browser test or ordinary test names `m11_structured` or `m11_followup4`, if application code refers to test fixtures, or if either split's bytes change. It was checked with a deliberate violation and a one-byte change, and both were caught.
+
+## Phase 5.3 structured ownership Stage 1 - November 10, 2026 (local commits, not pushed)
+
+Additive schema for structured ownership, migration `20261110010000_structured_ownership`, applied to local Supabase (127.0.0.1:54322) and the isolated test database (127.0.0.1:5433) only.
+
+- **New enums:** `Involvement` (including TAUGHT, O1, and REQUESTED, covering arranging, requesting and paperwork, O2), `WorkFrequency` and `WorkRecency`.
+- **New fields on `CandidateClarification`:** involvement, also-did-some, frequency, recency, claimed months, consistency, and `formVersion`, which defaults to 1 for every earlier answer.
+- **`ClarificationEvent`** gains `involvement`, the choice's name only, never the person's words.
+- **New table `ClarificationPart`** for compound requirements (O3). Its composite (answer, owner) foreign key stops a part from being attached to another account's answer. RLS is on, with no policies.
+- **Database `CHECK` constraints** accept only the shapes the form can produce: 10 valid shapes accepted and 22 malformed ones rejected in a throwaway database. The answer-shape constraint changes only so a structured answer's explanation can be optional.
+- **Analysis:** reads only free-text answers (form version 1) until the structured rule table exists, so a structured answer can't be credited from its text alone. With the guard removed, the test fails: a "supervised" answer got Supported.
+
+**Verified:**
+- Pre-existing rows are byte-identical after the migration (snapshot hash), in a throwaway database seeded with every outcome, events, a follow-up and a superseded chain.
+- A fresh replay of all 18 migrations has no drift; local Supabase and the test database have no drift.
+- 7 new integration tests: compatibility, constraints, part ownership and deletion, RLS, fail-closed.
+- 2,452 unit tests, 183 integration tests, TypeScript, lint and the production build pass.
+- Engine baseline: 0 of 2,121 rows changed.
+- Both sealed splits are unchanged.
