@@ -13,7 +13,9 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
-    "db:local:setup": "node scripts/setup-local-supabase.mjs"
+    "db:local:setup": "node scripts/setup-local-supabase.mjs",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "check:secrets": "node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",

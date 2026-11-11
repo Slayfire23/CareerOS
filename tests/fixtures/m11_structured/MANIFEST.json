@@ -1,0 +1,14 @@
+{
+ "split": "structured ownership (Phase 5.3 Stage 0)",
+ "protocol": "docs/PHASE5_3_STAGE0_STRUCTURED_EVAL_PROTOCOL.md",
+ "frozen": "2026-11-10",
+ "count": 208,
+ "algorithm": "sha256 over the content with CRLF normalized to LF",
+ "files": {
+  "scenarios.json": "f66a8e75331a465898f377a771782fa8bac799aa2f0f08aea78908fd54f917d3",
+  "for_labeling.json": "a22d8288a6cd72de994755a4366fcc7e4edbfedd6dc3c6347f9cefbc8eb1a238",
+  "labels.json": "67cd02f8fa233408fad2f92f17b8bba030782af3bd22e1a47d440236305ba3c2"
+ },
+ "combined": "c8f1e49dbb2da29a672e5eeffefb5a3264f4c88291e76c07e5c9c19315cc39de",
+ "note": "Sealed. Read only by tests/eval/structured.eval.ts: validate mode (counts) or the one-time Stage 7 unseal."
+}

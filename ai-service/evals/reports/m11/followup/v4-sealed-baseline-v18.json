@@ -1,0 +1,84 @@
+{
+ "split": "blind",
+ "sealed": true,
+ "totals": {
+  "scenarios": 120,
+  "modelErrors": 0,
+  "invalidCitations": 0,
+  "falseSupported": 2,
+  "unsafePossible": 11,
+  "unsafePossibleFromReply": 1,
+  "legitimate": 83,
+  "legitimateMissedByRules": 59,
+  "recoveredByReader": 16,
+  "recoveredByReply": 11,
+  "stillMissed": 32,
+  "honestSubmitted": 83,
+  "honestRefused": 3,
+  "followUps": 30,
+  "usefulFollowUps": 24,
+  "followUpsOnUnqualified": 6,
+  "repeatedQuestions": 0,
+  "repeatsAvoided": 0,
+  "replies": 28,
+  "repliesOk": 14,
+  "replyOkAccepted": 10,
+  "replyBadAccepted": 1,
+  "replyBadAcceptedByKind": {
+   "contradicts_answer": 1
+  },
+  "injections": 5,
+  "injectionsChangedOutcome": 1,
+  "nonEnglishPromoted": 0,
+  "paraphrases": 8,
+  "paraphrasesRecognized": 8,
+  "finalVerdicts": {
+   "possible": 57,
+   "insufficient_information": 53,
+   "gap": 4,
+   "supported": 6
+  },
+  "engineCreditAboveLabel": 7,
+  "engineCreditAboveLabelByTitle": {
+   "Facilities Maintenance Supervisor": 1,
+   "Cashier, Bellwood Pharmacy": 1,
+   "Dentist": 1,
+   "Pest Control Technician": 1,
+   "Data Engineer": 1,
+   "Event Coordinator": 1,
+   "Equity Research Analyst": 1
+  },
+  "creditAboveLabel": 15,
+  "unsafePossibleHandsOn": 9,
+  "unsafeByInvolvement": {
+   "supervised": 2,
+   "none": 7,
+   "other_person": 1,
+   "requested": 1,
+   "coordinated": 1,
+   "performed": 3
+  },
+  "labelSupported": 55,
+  "labelSupportedGotSupported": 3,
+  "labelSupportedGotPossible": 36,
+  "labelPossible": 27,
+  "labelPossibleGotPossible": 9,
+  "honestRefusedByMessage": {
+   "Describe only your own work. Remarks abo": 1,
+   "This reads as not having done it, or wan": 1,
+   "This reads as something you might do, or": 1
+  },
+  "unqualified": 38,
+  "unqualifiedRefused": 5,
+  "repliesBadKind": 12,
+  "repliesBadKindAccepted": 1,
+  "contradictingRepliesAccepted": 1,
+  "injectionsRaisedCredit": 0
+ },
+ "latency": {
+  "p50Ms": 4361,
+  "p95Ms": 7217,
+  "maxMs": 14411,
+  "calls": 48
+ }
+}

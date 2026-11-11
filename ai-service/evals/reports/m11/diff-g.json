@@ -1,0 +1,581 @@
+{
+ "fixtures": "ai-service/evals/holdout_g_cases.json",
+ "mode": "rules",
+ "engine": "rules-v11",
+ "cases": 138,
+ "sealed": true,
+ "totals": {
+  "rulesOnly": {
+   "n": 153,
+   "correct": 139,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 12,
+   "expectMatch": 49,
+   "missed": 2,
+   "attackTargets": 34,
+   "attackSucceeded": 0
+  },
+  "withCurated": {
+   "n": 153,
+   "correct": 140,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 11,
+   "expectMatch": 49,
+   "missed": 2,
+   "attackTargets": 34,
+   "attackSucceeded": 0
+  },
+  "proposed": {
+   "n": 153,
+   "correct": 140,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 11,
+   "expectMatch": 49,
+   "missed": 2,
+   "attackTargets": 34,
+   "attackSucceeded": 0
+  },
+  "table": {
+   "n": 153,
+   "correct": 127,
+   "falseSupported": 2,
+   "tooFavorable": 2,
+   "tooCautious": 22,
+   "expectMatch": 49,
+   "missed": 16,
+   "attackTargets": 34,
+   "attackSucceeded": 0
+  }
+ },
+ "byCategory": {
+  "injection": {
+   "rulesOnly": {
+    "n": 36,
+    "correct": 32,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 1,
+    "missed": 0,
+    "attackTargets": 34,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 36,
+    "correct": 32,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 1,
+    "missed": 0,
+    "attackTargets": 34,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 36,
+    "correct": 32,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 1,
+    "missed": 0,
+    "attackTargets": 34,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 36,
+    "correct": 32,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 1,
+    "missed": 0,
+    "attackTargets": 34,
+    "attackSucceeded": 0
+   }
+  },
+  "manipulated_fields": {
+   "rulesOnly": {
+    "n": 13,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 5,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 13,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 4,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 13,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 4,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 13,
+    "correct": 10,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "legit_wording": {
+   "rulesOnly": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 12,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 12,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 12,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 12,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 8,
+    "expectMatch": 12,
+    "missed": 8,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "ambiguous": {
+   "rulesOnly": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 2,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 2,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 2,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 15,
+    "correct": 13,
+    "falseSupported": 1,
+    "tooFavorable": 1,
+    "tooCautious": 1,
+    "expectMatch": 2,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "synonyms": {
+   "rulesOnly": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 6,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 6,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 6,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 6,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "education": {
+   "rulesOnly": {
+    "n": 14,
+    "correct": 14,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 14,
+    "correct": 14,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 14,
+    "correct": 14,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 14,
+    "correct": 14,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "duration": {
+   "rulesOnly": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 7,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 7,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 7,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 11,
+    "correct": 10,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 1,
+    "expectMatch": 7,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "credentials": {
+   "rulesOnly": {
+    "n": 6,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 2,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 6,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 2,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 6,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 2,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 6,
+    "correct": 3,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 2,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "missing": {
+   "rulesOnly": {
+    "n": 5,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 5,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 5,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 5,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 0,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "mixed": {
+   "rulesOnly": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 15,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 15,
+    "correct": 13,
+    "falseSupported": 1,
+    "tooFavorable": 1,
+    "tooCautious": 1,
+    "expectMatch": 8,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "suggestions": {
+   "rulesOnly": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 3,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 3,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 11,
+    "correct": 11,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 3,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 11,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 3,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  }
+ },
+ "invalidClaims": 0,
+ "semanticStatus": {
+  "unavailable": 153
+ },
+ "semanticToSupported": 0,
+ "verdictsThatWouldChange": 0,
+ "latencyMs": {
+  "rules": {
+   "p50": 0.240099999999984,
+   "p95": 5.781399999999962,
+   "max": 14.667400000000015
+  },
+  "shadow": {
+   "p50": 1.0469000000000506,
+   "p95": 5.2912000000000035,
+   "max": 9.316900000000004
+  }
+ },
+ "heapGrowthMb": 13.3,
+ "passagesSent": 66
+}

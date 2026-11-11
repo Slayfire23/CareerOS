@@ -1,6 +1,7 @@
 export const categories = ["Skills", "Experience", "Education", "Other"] as const;
 export const priorities = ["Required", "Preferred", "Unspecified"] as const;
-export type Requirement = { text: string; category: typeof categories[number]; priority: typeof priorities[number]; source: string };
+/** `confirmed`: the person confirmed a flagged requirement is real. It never means they meet it. */
+export type Requirement = { text: string; category: typeof categories[number]; priority: typeof priorities[number]; source: string; confirmed?: boolean };
 
 // Conservative line-based suggestions, not a qualification assessment.
 export function suggestRequirements(description: string): Requirement[] {
@@ -31,7 +32,7 @@ export function validateRequirements(value: unknown, description?: string): Requ
  return value.map(row => {
   if (!row || typeof row !== "object" || typeof row.text !== "string" || !row.text.trim() || row.text.trim().length > 1000 || typeof row.source !== "string" || row.source.length > 2000 || !categories.includes(row.category) || !priorities.includes(row.priority)) throw new Error("Each requirement needs text, a valid category, and a priority.");
   if (description !== undefined && row.source && !description.includes(row.source)) throw new Error("A source excerpt no longer matches the description. Remove that row and add a corrected requirement.");
-  return {text: row.text.trim(), category: row.category, priority: row.priority, source: row.source};
+  return {text: row.text.trim(), category: row.category, priority: row.priority, source: row.source, ...(row.confirmed === true ? {confirmed: true} : {})};
  });
 }
 

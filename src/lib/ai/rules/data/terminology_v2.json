@@ -1,0 +1,315 @@
+{
+  "_comment": "Curated equivalence layer for the shadow pipeline ONLY. The production engine doesn't read this file. Exact phrases, never fuzzy. Every name was checked by a script to occur in the source it cites, and chosen by hand. 'related' can only ever give Possible.",
+  "version": "terminology-v2",
+  "attribution": {
+    "onet": "Includes information adapted from the O*NET® 31.0 Database by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA), used under CC BY 4.0. CareerOS modified this information; USDOL/ETA has not approved, endorsed, or tested these modifications. O*NET® is a trademark of USDOL/ETA.",
+    "esco": "This service uses the ESCO classification of the European Commission, in an adapted version."
+  },
+  "attribution_note": "ESCO labels came from its public API, using vocabulary terms only. O*NET names came from the licensed 31.0 database CSV files.",
+  "groups": [
+    {
+      "canonical": "payroll",
+      "asks": [
+        "payroll"
+      ],
+      "same": [
+        "manage payroll",
+        "administer payroll",
+        "handle payroll",
+        "nóminas",
+        "folhas de pagamento"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/9d916d7c-89b3-4084-a6d9-e2b0b3091404",
+        "http://data.europa.eu/esco/skill/3ee090a1-9d1c-44ed-bd93-f6b7c9b68a97"
+      ]
+    },
+    {
+      "canonical": "woundcare",
+      "asks": [
+        "wound care"
+      ],
+      "same": [
+        "wound-care",
+        "curar heridas",
+        "soigner une plaie",
+        "wundversorgung",
+        "tratar feridas"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/1c6736c2-77de-419c-9b84-8932e15abc21"
+      ]
+    },
+    {
+      "canonical": "vitalsigns",
+      "asks": [
+        "vital signs"
+      ],
+      "same": [
+        "constantes vitales",
+        "signes vitaux",
+        "vitalzeichen"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/60f826be-0c1b-413b-aad5-4f7546622e16"
+      ]
+    },
+    {
+      "canonical": "firstaid",
+      "asks": [
+        "first aid"
+      ],
+      "same": [
+        "primeros auxilios",
+        "premiers secours",
+        "erste hilfe",
+        "primeiros socorros"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/f7464f30-662b-4177-85a0-3df9693e9e58"
+      ]
+    },
+    {
+      "canonical": "carpentry",
+      "asks": [
+        "carpentry"
+      ],
+      "same": [
+        "carpintería",
+        "menuiserie",
+        "carpintaria"
+      ],
+      "related": [
+        "woodworking"
+      ],
+      "sources": [
+        "http://data.europa.eu/esco/skill/19858dd3-a5fe-4855-b644-6ecfefd1c384"
+      ]
+    },
+    {
+      "canonical": "legalresearch",
+      "asks": [
+        "legal research"
+      ],
+      "same": [
+        "investigación jurídica",
+        "recherche juridique",
+        "investigação jurídica"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/a8585efe-4011-47b2-9aed-cd01bd3652c0"
+      ]
+    },
+    {
+      "canonical": "customerservice",
+      "asks": [
+        "customer service"
+      ],
+      "same": [
+        "customer care",
+        "servicio al cliente",
+        "service clients",
+        "kundendienst",
+        "serviço ao cliente"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/15a33d76-4640-438d-ae64-fdc0c1d3eebc"
+      ]
+    },
+    {
+      "canonical": "tiling",
+      "asks": [
+        "tiling",
+        "tile setting",
+        "tile laying"
+      ],
+      "same": [
+        "wall tiling",
+        "alicatar",
+        "poser du carrelage",
+        "fliesen verlegen",
+        "assentar azulejos"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/504d99c7-395b-479c-815b-2f77ef769e75"
+      ]
+    },
+    {
+      "canonical": "bricklaying",
+      "asks": [
+        "bricklaying",
+        "brick laying"
+      ],
+      "same": [
+        "lay bricks",
+        "colocar ladrillos",
+        "poser des briques",
+        "ziegelsteine verlegen",
+        "assentar tijolos"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/13e1c0a2-b90d-46f4-be51-11730360b38d"
+      ]
+    },
+    {
+      "canonical": "tyrereplacement",
+      "asks": [
+        "tyre replacement",
+        "replace tyres"
+      ],
+      "same": [
+        "change tyres",
+        "sustituir neumáticos",
+        "remplacer des pneus",
+        "reifen ersetzen",
+        "substituir pneus"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/202d0d2b-f6b9-48fe-b70e-cff49fa1d087"
+      ]
+    },
+    {
+      "canonical": "appointments",
+      "asks": [
+        "appointment scheduling",
+        "schedule appointments"
+      ],
+      "same": [
+        "administer appointments",
+        "gestionar citas",
+        "gérer des rendez-vous",
+        "termine verwalten"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/933e7ccf-5d56-46ba-aca4-857f826a6b3a"
+      ]
+    },
+    {
+      "canonical": "machinemaintenance",
+      "asks": [
+        "machine maintenance"
+      ],
+      "same": [
+        "mantenimiento de máquinas",
+        "maintenance de machines"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/8a4e99e0-f259-4931-888f-604cfdc15b31"
+      ]
+    },
+    {
+      "canonical": "dataentry",
+      "asks": [
+        "data entry"
+      ],
+      "same": [
+        "introducción de datos",
+        "saisie de données",
+        "dateneingabe"
+      ],
+      "related": [],
+      "sources": [
+        "http://data.europa.eu/esco/skill/f399a9c1-be41-4117-bf86-a64b503c4cfd"
+      ]
+    },
+    {
+      "canonical": "sheetrock",
+      "asks": [
+        "drywall"
+      ],
+      "same": [
+        "sheetrock"
+      ],
+      "related": [],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    },
+    {
+      "canonical": "drywallfinishing",
+      "asks": [
+        "drywall finishing"
+      ],
+      "same": [
+        "sheetrock finisher",
+        "drywall taper",
+        "drywall finisher"
+      ],
+      "related": [
+        "drywall"
+      ],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    },
+    {
+      "canonical": "forkliftop",
+      "asks": [
+        "forklift operation",
+        "forklift operator"
+      ],
+      "same": [
+        "lift truck operator",
+        "fork truck driver",
+        "forklift driver"
+      ],
+      "related": [],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    },
+    {
+      "canonical": "pointofsale",
+      "asks": [
+        "point of sale"
+      ],
+      "same": [
+        "pos software",
+        "point of sale pos"
+      ],
+      "related": [],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    },
+    {
+      "canonical": "ekg",
+      "asks": [
+        "ekg"
+      ],
+      "same": [
+        "electrocardiogram"
+      ],
+      "related": [],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    },
+    {
+      "canonical": "emr",
+      "asks": [
+        "electronic medical records",
+        "emr"
+      ],
+      "same": [
+        "electronic medical record",
+        "emr software"
+      ],
+      "related": [],
+      "sources": [
+        "O*NET 31.0 Database: sample_of_reported_titles.csv, software_skills.csv, task_statements.csv"
+      ]
+    }
+  ]
+}

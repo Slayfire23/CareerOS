@@ -169,3 +169,51 @@ Directly executed on branch ui-redesign against local Supabase: 227 unit tests, 
 ## UI redesign phase 4 and final refinements - October 29, 2026
 
 Directly executed against local Supabase: 229 unit tests (new: month formatting), 25 integration tests, all 27 Chromium tests (new: e2e/confirmation.spec.ts for Cancel, Escape, focus, and confirmed removal), TypeScript, lint, and a clean no-env production build. A scripted audit of 15 pages at 375/768/1280px in light and dark mode (90 views) found no horizontal overflow, missing h1, or incorrect navigation highlighting. Browser specs use e2e/support.ts: openPage() waits for loading placeholders (aria-busy) to clear, and confirmAction() completes inline destructive confirmations.
+
+
+## Milestone 3 Phase 1 - October 30, 2026 (branch milestone-3-ai-matching)
+
+AI service (ai-service/, Python): 93 pytest tests passed; ruff format and lint clean; uv sync --locked succeeds. Verified over real HTTP with uvicorn and inside the production-mode Docker image: health 200, signed match 200, replay 409, unsigned 401, docs disabled, non-root, healthy health check, no profile text in logs, rejected secrets not printed. The CI workflow parses locally and will run on GitHub after the branch is pushed. Next.js (unchanged by Phase 1): TypeScript and lint passed; 229 unit, 25 integration, and all 27 Chromium tests passed against local Supabase; a fresh clone built with no environment variables. No test touched production Supabase or any AI provider. Details: docs/MILESTONE_3_PHASE_1_REPORT.md.
+
+## Milestone 3 Phase 2 - October 30, 2026 (branch milestone-3-ai-matching)
+
+All against local resources only. Python: 94 pytest tests (including the shared signature vector), ruff format and lint clean. Next.js: TypeScript and lint clean; 271 unit tests (42 new in tests/ai.test.ts: signing vector, config, evidence minimization, validator rejections, client error mapping); 45 integration tests (20 new in tests/integration/ai-analysis.integration.ts: owner scoping, cross-account refusal, malformed responses, foreign citations, disallowed provider, stale and unreviewed requirements, 25 concurrent requests against a limit of 20, feedback versioning, consent gate, database constraints, server-action input checks); 28 Chromium tests including e2e/job-match.spec.ts against the local rules service on 127.0.0.1:8010. With the AI service stopped, e2e/job-requirements.spec.ts still passed and the analysis page showed the unavailable message. Playwright refuses a non-local AI_SERVICE_URL. Replay rejection is covered by the Python tests.
+
+## Milestone 3 Phase 2 stabilization - October 30, 2026
+
+Local resources only. New regression tests: tests/integration/job-review.integration.ts (6 tests: LF and CRLF descriptions reviewed and re-reviewed, stored text kept exactly, real changes, stale versions, and other accounts still refused, line-ending-only job edits keep a review current, owner-scoped edits) and one sameDescription unit test. The three line-ending tests fail with the fix reverted and pass with it. Results: 94 pytest, ruff clean; TypeScript and lint clean; 272 unit; 51 integration; Chromium 27 of 28 in the full run. The failure was e2e/location-preferences.spec.ts, which passed on its own and failed 1 of 5 repeats (pre-existing flake; nothing in it changed on this branch). A real browser re-reviewed an LF-only demo job and ran its analysis. The shadow-replay failure of migration 20261028010000 was reproduced in a throwaway database, and a guarded version of the statement was verified; the merged migration is unchanged.
+
+## RLS migration replay fix - October 30, 2026
+
+Owner-approved change to 20261028010000_enable_row_level_security: only the _prisma_migrations statement changed (now guarded with to_regclass). Verified on throwaway databases on the local test container, all dropped afterwards. All 12 migrations replay with raw psql and no _prisma_migrations table, with RLS on all 9 app tables. `prisma migrate deploy` into a fresh database applies all 12 with _prisma_migrations RLS enabled. `prisma migrate dev --create-only` with a shadow database now succeeds and generates an empty migration (no drift), where the original file fails with P3006. `prisma migrate diff --from-migrations` against the schema finds no difference. Local Supabase and the test database report up to date; their recorded checksum for this migration was updated to the new file's, so `migrate dev` reports no modification. Results: schema valid; 94 pytest; TypeScript and lint clean; 272 unit; 51 integration; all 28 Chromium tests passed.
+
+## Milestone 3 Phase 3 - October 31, 2026 (local commits, not pushed)
+
+All local; no paid Anthropic call. Python 152 passed (real-Valkey replay tests with AI_TEST_REPLAY_STORE_URL, mocked Messages API, SDK round trip against devtools/mock_anthropic.py, network guard, evaluation harness), ruff clean. Next.js: TypeScript and lint clean; 304 unit; 69 integration (19 new cloud tests: consent and allow-list gating, redaction, billing states, unresolved holds and reconciliation, global daily and monthly caps, 25 concurrent cloud requests against the global cap, outage storms against the attempt cap, abandoned runs, ledger constraints, account scoping); 29 Chromium tests including e2e/job-match-cloud.spec.ts against the local mock. All 13 migrations replay into a fresh shadow database with no drift. Secret check passed. Docker image builds with app/ only. Offline evaluation: rules baseline 95.7% agreement with 1 false "supported" (proficiency ignored). Details: docs/MILESTONE_3_PHASE_3_REPORT.md.
+
+## Phase 5.3 structured ownership Stage 0 - November 10, 2026 (local commits, not pushed)
+
+New sealed evaluation split `tests/fixtures/m11_structured/` (208 structured-ownership scenarios), made under docs/PHASE5_3_STAGE0_STRUCTURED_EVAL_PROTOCOL.md before any reader, rule or schema change. One agent wrote the scenarios without reading the repository. A second agent labeled a blind, shuffled copy with no category tags, using only the protocol's rules. The implementer never read either. Frozen with per-file SHA-256 hashes, normalized to LF so Windows and CI checkouts agree, and a combined hash (`c8f1e49d…`) in `MANIFEST.json`. 208 scenarios; validation found 0 problems and no coverage shortfall; writer–labeler agreement was 204 of 208.
+
+- **Validate (counts only):** `STRUCTURED_REPORT=out.json npx vitest run --config vitest.eval.config.mts structured`.
+- **The one-time Stage 7 evaluation:** needs `STRUCTURED_UNSEAL=1`, `STRUCTURED_FREEZE_COMMIT` equal to HEAD, a clean working tree, matching hashes, and `STRUCTURED_ADAPTER`.
+- **Guard:** `tests/sealed-splits.test.ts` (unit suite) fails if any source, script, browser test or ordinary test names `m11_structured` or `m11_followup4`, if application code refers to test fixtures, or if either split's bytes change. It was checked with a deliberate violation and a one-byte change, and both were caught.
+
+## Phase 5.3 structured ownership Stage 1 - November 10, 2026 (local commits, not pushed)
+
+Additive schema for structured ownership, migration `20261110010000_structured_ownership`, applied to local Supabase (127.0.0.1:54322) and the isolated test database (127.0.0.1:5433) only.
+
+- **New enums:** `Involvement` (including TAUGHT, O1, and REQUESTED, covering arranging, requesting and paperwork, O2), `WorkFrequency` and `WorkRecency`.
+- **New fields on `CandidateClarification`:** involvement, also-did-some, frequency, recency, claimed months, consistency, and `formVersion`, which defaults to 1 for every earlier answer.
+- **`ClarificationEvent`** gains `involvement`, the choice's name only, never the person's words.
+- **New table `ClarificationPart`** for compound requirements (O3). Its composite (answer, owner) foreign key stops a part from being attached to another account's answer. RLS is on, with no policies.
+- **Database `CHECK` constraints** accept only the shapes the form can produce: 10 valid shapes accepted and 22 malformed ones rejected in a throwaway database. The answer-shape constraint changes only so a structured answer's explanation can be optional.
+- **Analysis:** reads only free-text answers (form version 1) until the structured rule table exists, so a structured answer can't be credited from its text alone. With the guard removed, the test fails: a "supervised" answer got Supported.
+
+**Verified:**
+- Pre-existing rows are byte-identical after the migration (snapshot hash), in a throwaway database seeded with every outcome, events, a follow-up and a superseded chain.
+- A fresh replay of all 18 migrations has no drift; local Supabase and the test database have no drift.
+- 7 new integration tests: compatibility, constraints, part ownership and deletion, RLS, fail-closed.
+- 2,452 unit tests, 183 integration tests, TypeScript, lint and the production build pass.
+- Engine baseline: 0 of 2,121 rows changed.
+- Both sealed splits are unchanged.

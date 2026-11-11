@@ -153,7 +153,7 @@ Keep confirmed facts, preferences, and AI inferences distinct. AI matching is a 
 
 ## Later milestones
 
-- [ ] Milestone 3 (AI Engineering phase, planned, not started): explainable job-description analysis and resume selection.
+- [ ] Milestone 3 (AI Engineering phase, in progress; see the Milestone 3 section at the end): explainable job-description analysis and resume selection.
 - [ ] Milestone 4 (planned, not started): application records, status history, filtering, and feedback. Initial deployment has already happened in Milestone 1.
 - [ ] Later: automatic discovery, recommendation learning, interview coaching, email integration, and background processing.
 
@@ -214,3 +214,119 @@ Directly executed on branch foundation-verification; details in docs/FOUNDATION_
 - [x] Production verification: signed-out checks (new home page and titles, /login redirects from all 11 section pages, 307 redirects from old addresses, 404 for unknown pages) and owner-confirmed signed-in checks (overview data, navigation highlighting, save/refresh, confirmation Cancel/remove, job analysis, friendly dates, mobile menu, dark mode).
 - [ ] Next: AI Engineering phase may begin. Still awaiting owner approval: production RLS migration 20261028010000_enable_row_level_security, and a check of production Storage for leftover test-fixture PDFs.
 - [x] Investigated the suspected input-loss issue: not a product bug. React 19 holds streamed section content in a hidden container behind the loading placeholder for about 300ms before revealing it. Users cannot see or type into the form until then; tests were acting on the hidden copy. Loading placeholders now carry aria-busy, and e2e/support.ts openPage() waits for the reveal (no fixed delays or networkidle).
+
+## Milestone 3: AI Engineering - started October 29, 2026 (branch milestone-3-ai-matching)
+
+Plan approved with decisions D1-D11 (docs/MILESTONE_3_PLAN.md): rules engine first, then Claude Sonnet as the first cloud provider; explicit consent before any cloud AI use; no numeric fit score; raw resume text excluded; separate analysis page; 20 analyses per user per day (configurable); manual requirement review stays independent of AI. Development and tests never use production data.
+
+### Phase 1: AI service foundation
+
+- [x] ai-service/ with Python 3.13 and uv 0.13.1; dependencies resolved only from releases at least two weeks old (exclude-newer).
+- [x] Settings with startup validation (secret length and strength, production guards); rejected values never appear in errors.
+- [x] Strict request/response contract; example request and golden rules response in contracts/match/.
+- [x] Signed internal requests: HMAC-SHA256, 5-minute expiry, canonical UUIDv4 request ids, replay rejection, body size limit.
+- [x] Provider interface with deterministic rules and test-only fake providers; Anthropic and Ollama refused until their phases.
+- [x] Code-enforced validation: supplied, verbatim citations; projects never count as employment; verified durations; no gap for empty areas.
+- [x] Health and readiness endpoints; metadata-only logging; docs disabled in production.
+- [x] 93 pytest tests, ruff format and lint clean; verified over real HTTP with uvicorn and inside the Docker image (healthy, non-root, no content in logs).
+- [x] Security review fixes: secrets no longer printed on startup errors; strict UUIDv4 check; minimum quote length; spelled-out and hyphenated durations detected; bounded request-id logging.
+- [x] GitHub Actions workflow for the Python service (runs after the branch is pushed).
+- [x] Existing Next.js suites re-run on this branch (see TESTING.md).
+- [x] Owner approval of Phase 1 (October 30, 2026); branch pushed and the Python workflow passed on GitHub Actions.
+
+### Phase 2: Next.js integration with the rules engine
+
+- [x] Evidence builder: loads only the signed-in user's confirmed profile and reviewed requirements; sends no names, companies, institutions, links, contact details, salary, location, or resume text.
+- [x] Signed client: HMAC-SHA256 with timestamp and request id, 45-second timeout, no redirects; shared signature vector checked by both TypeScript and Python tests.
+- [x] Next.js re-validates every response (supplied, verbatim citations; projects never employment; verified durations; recomputed counts; provider allow-list) and rejects the whole response on any violation.
+- [x] AiAnalysisRun (audit and rate limit) and JobMatchAnalysis (results and feedback) tables; ownership enforced by composite foreign keys, RLS enabled with no policies, CHECK constraints. Migration 20261030010000_ai_analysis applied to local databases only.
+- [x] 20 analyses per user per rolling 24 hours (AI_ANALYSIS_DAILY_LIMIT), serialized with a per-user advisory lock; failed runs count.
+- [x] Consent tracking prepared (User.aiCloudConsentAt); enforced for any non-local provider. The rules engine needs none; only the rules provider can be enabled.
+- [x] Dedicated page /dashboard/jobs/[id]/match with verdict counts (no fit score), cited evidence, out-of-date notices, Agree/Disagree feedback with optional note, and recent-run history.
+- [x] Manual requirement review verified with the AI service stopped.
+- [x] 42 unit, 20 integration, and 1 browser test added; all suites pass (see TESTING.md).
+- [x] Owner approval of Phase 2 (October 30, 2026), after the stabilization pass. Production migrations, merge, and deployment remain on hold and need separate approval.
+- [x] Fixed with owner approval (October 30, 2026): migration 20261028010000_enable_row_level_security now guards its _prisma_migrations statement with to_regclass, so `prisma migrate dev` shadow replay works again. Production has not applied this migration yet, so no applied history changed there; local databases had their recorded checksum updated. Applying it to production still needs separate approval.
+- [x] Stabilization: requirement reviews and job edits compare descriptions with line endings normalized and keep the stored text, so jobs with LF or CRLF descriptions can be re-reviewed; regression tests added.
+- [x] Stabilization: replay-cache limitation and production mitigations documented (ai-service/README.md).
+- [x] Done in Phase 3: failures that never reached an analysis don't count toward the daily limit; an attempt cap (3x) applies to every run.
+- [x] Fixed in Phase 3: the flaky e2e/location-preferences.spec.ts (openPage now waits for forms to hydrate; 10 of 10 repeats pass).
+
+### Phase 3: Anthropic provider (plan approved October 30, 2026; docs/MILESTONE_3_PHASE_3_PLAN.md)
+
+- [x] Anthropic model, structured outputs, errors, pricing, and spend limits verified against official documentation (docs/ANTHROPIC_VERIFIED_FACTS.md).
+- [x] Replay-store options and costs evaluated (docs/REPLAY_STORE_OPTIONS.md); local development uses a free Valkey container.
+- [x] App-level CI (.github/workflows/app.yml), a secret check, and a migration replay check; Valkey added to the AI service workflow. Not yet run on GitHub (branch not pushed).
+- [x] Failed-run limits and attempt cap, safe under concurrency.
+- [x] Shared, fail-closed replay store (Redis-compatible), 120-second signature window.
+- [x] Contract v2: per-request provider, token budget, usage, billed = no | yes | unknown.
+- [x] Cost ledger with reserved, confirmed, and unresolved charges; per-user daily, global daily, and global monthly caps under advisory locks. Migration 20261031010000_ai_cost_ledger applied to local databases only.
+- [x] Cloud redaction of names, employers, schools, emails, phone numbers, and links.
+- [x] Claude Sonnet 5.5 provider tested only against mocked responses; strict validation; no fallback model.
+- [x] Versioned consent, allow-list, and method choice (the rules engine stays a separate option); cloud off by default.
+- [x] Offline evaluation harness with 16 fictional cases (rules baseline, mock, replay).
+- [ ] Live evaluation: needs separate owner approval (proposal in docs/MILESTONE_3_PHASE_3_REPORT.md). No paid call has been made.
+- [ ] Operator procedure for reconciling unresolved charges in production (the function exists; tooling belongs to Phase 4).
+- [ ] Rules engine ignores proficiency ("Expert-level Java" with a beginner skill is "supported"); found by the evaluation baseline.
+
+### Later phases (not started)
+
+- [ ] Phase 4: hosting comparison, deployment, and production migration (each step needs approval).
+- [ ] Phase 5: Ollama provider for local use.
+
+The open foundation security follow-ups near the top of this file remain open and still apply.
+
+### Local AI with Ollama (strategy change, October 31, 2026)
+
+- [x] Claude provider kept but disabled; the Anthropic live evaluation was cancelled and never run; no paid call made.
+- [x] Ollama 0.40.6 installed natively, bound to 127.0.0.1 only; qwen3:8b and qwen3.5:9b downloaded and evaluated.
+- [x] Ollama provider with strict validation, a relevance rule for all language models, prompt v3 with computed facts, and a "Local AI" method in Next.js (off unless enabled and allow-listed).
+- [x] Evaluation: qwen3:8b is best for this hardware (82% agreement, 0 false "supported", 25% of responses discarded). Not yet accurate enough to offer; see docs/MILESTONE_3_OLLAMA_REPORT.md.
+- [x] Hybrid design approved and built: rules engine decides, qwen3:8b only proposes skill matches it missed, code decides each finding, every finding labeled; short evidence ids; "Rules + local AI" in the app.
+- [x] Held-out evaluation sets A (48 cases) and B (27 cases, untouched). Hybrid on B: 94.2% vs rules 84.9%, never worse than rules on any requirement. See docs/MILESTONE_3_HYBRID_REPORT.md.
+- [x] Fixes built and frozen (c119428): untrusted-text segmentation, word sense, education equivalency, more relations, "Experience with X" as a skill. Dev/A/B now 0 false "supported", 0 injections.
+- [x] Held-out set C (52 cases, untouched): hybrid 88.3% vs rules 80.2%; see docs/MILESTONE_3_HYBRID_V3_REPORT.md.
+- [x] Milestone 4 (frozen 360ae09/5ffeefa): structural requirement validation, all-mandatory-items, stricter technical context, category and label bugs fixed, relations and degree equivalence. See docs/MILESTONE_4_REPORT.md.
+- [x] Milestone 5 (frozen 13f85d6): structured requirements, "needs confirmation" for instruction-like requirements (confirmation is never evidence), no hybrid contamination, legitimate-match fixes. See docs/MILESTONE_5_REPORT.md.
+- [ ] Not ready for controlled remote-access testing of hybrid: on untouched set E, hybrid 89.6% (rules 84.9%, local AI alone 48.8%) with 4 false "supported" requirements and 3 of 10 injections. Next steps and a new set F proposed.
+- [x] Intermittent cloud integration failure: reproduced; a random UUID containing "555" failed the redaction check (fixed, regression test), and concurrent runs interfered (run lock added). Original output never captured.
+- [x] Milestone 6 (frozen a9e3d52): rules are the only verdict authority; Ollama only adds separate, code-checked suggestions; verdicts identical with Ollama on or off; hybrid retired. See docs/MILESTONE_6_REPORT.md.
+- [ ] Readiness bar not met: on untouched set F (67 cases), agreement 96.9%, but 1 false "supported" and 1 of 14 injections (a claim inside an education field). Not fixed, because F has been seen. Suggestions were 54% useful by the frozen labels.
+- [x] Milestone 7 (frozen c7acdcd): rules engine moved to Next.js, so rules-only analysis works with the laptop off; typed profile fields; FastAPI is only a bridge for suggestions; a Vercel build problem fixed. See docs/MILESTONE_7_REPORT.md.
+- [ ] Readiness bar still not met: on untouched set G (138 cases, written independently), agreement 71.2%, 1 false "supported" (of 153), and 3 of 34 injections reaching "possible" (none "supported"). Not fixed, because G has been seen. Suggestions were 68% useful.
+- [x] Milestone 8 (frozen fdff413): education status, negation, untrusted claims, years tied to the field, and degree names without invented equivalence. See docs/MILESTONE_8_REPORT.md.
+- [ ] Safety target still not met: on untouched set H (174 cases, AI-written, second AI rater), accuracy 76.8%, 0 of 33 injections, but 3 false "supported" of 190. Not fixed, because H has been seen.
+- [ ] Decide on a private Vercel Preview: needs an isolated Supabase project, Preview-only variables, and Deployment Protection (docs/MILESTONE_8_REPORT.md section 6). Needs approval.
+- [x] Milestone 9 (frozen 772c01f, rules-v9): Set H's false "supported" verdicts fixed; non-software coverage; the owner's 26 decisions stored and applied as general rules (direct evidence in work, explicit absence, relevant experience). See docs/MILESTONE_9_REPORT.md.
+- [ ] Criteria not met on untouched set I (242 cases, AI-written, AI-labeled blind): 57.3% accuracy, 3 false "supported" of 276, 1 of 36 injections, 37% of legitimate matches missed. Not tuned. Rules availability, citations, and AI independence held.
+- [x] Milestone 10 (frozen e4a68e0, rules-v10): safety fixes, clarification workflow with "Supported — Self-reported", terminology prototype, the owner's Set I audit. See docs/MILESTONE_10_REPORT.md.
+- [ ] Criteria not met on untouched Set J (236 cases, AI-written, AI-labeled blind): 62.6% accuracy, 1 false "supported" of 254, 2 of 32 injections reaching Possible, 51% of legitimate matches missed. Not tuned.
+- [x] Milestone 11, Phase 2: typed evidence layer and bge-m3 retrieval in shadow, occurrence fix in production (rules-v11), curated layer. See docs/MILESTONE_11_PHASE_2_REPORT.md.
+- [x] Milestone 11, Phase 3: rules-v12 fixes for six false Supported patterns, a conservative language gate, shadow-layer corrections. See docs/MILESTONE_11_PHASE_3_REPORT.md.
+- [x] Milestone 11, Phase 4 (rules-v13): clarification-first review behind `CLARIFICATION_REVIEW_ENABLED`, off by default. See docs/MILESTONE_11_PHASE_4_REPORT.md.
+- [ ] Not safe to enable. On the sealed check: 1 false Supported from a negated answer, third-party, vague, and injected answers reaching Possible, 7 of 9 attacks saved, 0 of 29 paraphrases at Supported. Blockers are listed in the report. Not tuned.
+- [x] Phase 4 safety remediation (rules-v14): saved-answer bypass closed, shared evidence boundary, English-only answer reading, table can't grant Supported until approved. See docs/MILESTONE_11_PHASE_4_REMEDIATION_REPORT.md.
+- [ ] Still not ready to enable: no independent evidence, honest paraphrases 0 of 18 on both new splits, hosted retention unverified.
+- [x] Milestone 11, Phase 5 design and shadow proof of concept: a local model reads answers, and code decides what that's worth. See docs/MILESTONE_11_PHASE_5_DESIGN.md. Not integrated.
+- [x] Phase 5 production fixes (rules-v15) and local shadow run behind INTERPRETATION_SHADOW_ENABLED, off by default. See docs/MILESTONE_11_PHASE_5_SHADOW_REPORT.md.
+- [x] Follow-up workflow for local testing behind FOLLOW_UP_WORKFLOW_ENABLED (rules-v16), with the delegation fix. See docs/MILESTONE_11_PHASE_5_FOLLOW_UP_REPORT.md.
+- [x] Phase 5 fix round (rules-v17): contextual corrections, brief exposure kept but limited, time claims longer than listed roles ask for earlier roles, hand-off replies refused. New 100-scenario blind split: 1 false Supported, 7 unsafe Possible remain. See docs/PHASE5_FIX_ROUND_REPORT.md and docs/MULTILINGUAL_ANSWERS_INVESTIGATION.md.
+- [x] Phase 5.2 (rules-v18): clause reader (clauses.ts), involvement from the main verb, corrections that retract only what they contradict, refusal messages by cause, code-chosen follow-up questions, replies that cannot reverse the answer. Sealed split m11_followup3 (120): criteria not met (3 false Supported, 7 unsafe hands-on Possible, 2 bad replies accepted, recognition 35 vs 37 of 75). See docs/PHASE5_2_EVALUATION_REPORT.md.
+- [x] Phase 5.3 (rules-v19), local and unpushed, flags off: Stage 1 title and date credit (docs/PHASE5_3_STAGE1_REPORT.md), Stage 2 follow-up validation (docs/PHASE5_3_STAGE2_REPORT.md), Stage 3 parser evaluation, no parser adopted (docs/PHASE5_3_STAGE3_PARSER_REPORT.md), Stage 4A structured ownership design (docs/PHASE5_3_STAGE4A_STRUCTURED_OWNERSHIP_DESIGN.md), description simulation, no rule adopted (docs/PHASE5_3_DESCRIPTION_SIMULATION_REPORT.md). Sealed split m11_followup4 still unopened.
+- [x] Equivalence batch 1 (finance and office): 8 groups approved as revised, budgeting rejected (owner decision 2026-11-07). See docs/EQUIVALENCE_REVIEW_BATCH1.md and tests/ai-equivalence-batch1.test.ts.
+- [ ] Equivalence batches 2–4 (42 groups in all) and batch 5 (two proposed groups, kept separate), each for the owner's decision.
+- [ ] Reader issues found in equivalence review, recorded for later and not yet fixed (owner, 2026-11-07):
+  - Payroll processing credited Supported from collecting timesheets and sending them to the payroll company: the requirement's word appears only in someone else's name.
+  - Budgeting credited Supported from managing a small office holiday-party budget.
+  - Accounts payable missed: "I paid vendor invoices" is dropped by the done-elsewhere rule, which reads "paid … vendor" as outsourcing.
+  - Medication administration missed: "I passed medications" (a medication pass) is read as handing things over (assisted).
+  - Medication administration credited Supported from "give medications back to the pharmacy for disposal" and "administer the medication reimbursement forms".
+- [ ] Recognition losses from the batch 1 revisions, to revisit with recognition work: "Kept the books for three family restaurants" (bookkeeping) and "matched the statement activity … to the ledger" (bank reconciliation) now get nothing.
+- [ ] Owner labels the 30-scenario blind packet (docs/PHASE5_BLIND_LABEL_PACKET.md) before any blind results are opened.
+- [ ] Blind split: 2 false Supported and 7 unsafe Possible of 80, from the answer reader, against agent labels. Decide whether to keep patching word lists.
+- [ ] Production migrations now include 20261104010000 and 20261105010000. Needs approval.
+- [ ] Owner sign-off on the 42 equivalence groups (docs/EQUIVALENCE_REVIEW_PACKET.md); none are owner-reviewed yet.
+- [ ] Semantic promotion stays disabled. Waiting on the owner's two review packets and decision before any Set K freeze.
+- [ ] Retire the frozen Python rules after set H confirms the TypeScript engine. Needs approval.
+- [ ] Production migrations before any deploy: 20261028010000, 20261030010000, 20261031010000, 20261102010000, 20261103010000, 20261104010000. Needs approval.
+- [ ] Remote access: plan only (docs/REMOTE_ACCESS_PLAN.md); nothing is configured. Needs approval.

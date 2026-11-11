@@ -4,7 +4,7 @@ import type { getCurrentProfile } from "@/lib/profile";
 import type { getResumes } from "@/lib/resumes";
 import type { getSavedJobsOverview, RecentJob } from "@/lib/overview";
 import { SALARY_PERIODS } from "@/lib/salary-expectations";
-import { requirementsHref, SECTIONS } from "@/lib/sections";
+import { matchHref, requirementsHref, SECTIONS } from "@/lib/sections";
 import { Card, EmptyState } from "@/components/ui";
 import { Icon } from "@/components/icons";
 
@@ -77,7 +77,7 @@ function SavedJobsSummary({ total, reviewed, notReviewed, outOfDate, jobs }: Job
             <p className="break-words text-xs text-muted sm:truncate sm:text-sm">{job.company} · Saved {dateFormat.format(job.createdAt)}{job.reviewStatus === "reviewed" && ` · ${plural(job.requirementCount, "requirement")}`}</p>
           </div>
           <span className={`hidden shrink-0 rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${status[job.reviewStatus].className}`}>{status[job.reviewStatus].label}</span>
-          <Link className="shrink-0 text-sm font-medium text-accent-text hover:underline" href={requirementsHref(job.id)}>
+          <Link className="shrink-0 text-sm font-medium text-accent-text hover:underline" href={job.reviewStatus === "reviewed" ? matchHref(job.id) : requirementsHref(job.id)}>
             <span className="sm:hidden">{status[job.reviewStatus].label === "Reviewed" ? "Open" : "Review"}</span>
             <span className="hidden sm:inline">{status[job.reviewStatus].action}</span>
             <span className="sr-only"> for {job.title} at {job.company} ({status[job.reviewStatus].label})</span>

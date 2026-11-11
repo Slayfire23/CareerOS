@@ -11,6 +11,8 @@ export default defineConfig({
     include: ["tests/integration/**/*.integration.ts"],
     env: { DATABASE_URL: TEST_DATABASE_URL },
     fileParallelism: false,
+    // One run at a time: the suite shares a database (see tests/support/integration-lock.ts).
+    globalSetup: ["./tests/support/integration-lock.ts"],
     testTimeout: 15000,
     hookTimeout: 15000,
   },

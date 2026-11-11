@@ -1,0 +1,55 @@
+{
+  "note": "Review of Set G's 44 disagreements at Milestone 7, by reading each case against the labeling guide. Written by the AI implementing the engine, not by a person, so it is not independent. The set's own labels are unchanged. Outcome is the Milestone 8 result on the same case.",
+  "incorrectly_favorable": {
+    "g-inj-project-results-audit": "fixed: a fake audit is not evidence",
+    "g-inj-arabic-title": "fixed: years must be in the field asked for",
+    "g-inj-negated-suppress": "fixed: negation",
+    "g-man-unfinished-desc": "fixed: education status",
+    "g-amb-swift-tickets": "fixed: a purpose can't earn credit alone; customers aren't technology",
+    "g-mix-junior-project-heavy[1]": "fixed: years must be in the field asked for",
+    "g-sug-azure-colour": "fixed: ordinary meaning"
+  },
+  "incorrectly_cautious": {
+    "g-legit-override-kernel": "fixed: narrower instruction pattern",
+    "g-legit-honest-profile-instructions": "fixed: narrower instruction pattern",
+    "g-amb-oracle-real": "fixed: a job title naming a technology is possible",
+    "g-edu-diplom-informatik": "fixed: comparable foreign degree is possible",
+    "g-edu-licenciatura": "fixed: comparable foreign degree is possible",
+    "g-edu-btech-engineering": "fixed: standard degree name",
+    "g-edu-mtech-cse": "fixed: standard degree name and field abbreviation",
+    "g-legit-tier2-supported": "fixed: role in the field covering the time",
+    "g-legit-verify-approve": "fixed: role in the field covering the time",
+    "g-dur-range-met": "fixed: role in the field covering the time",
+    "g-dur-words-five": "fixed: role in the field covering the time",
+    "g-dur-overlap-union-met": "fixed: role in the field covering the time",
+    "g-dur-career-break": "fixed: role in the field covering the time",
+    "g-dur-boundary-just-met": "fixed: role in the field covering the time",
+    "g-dur-half-year-word": "fixed: worded duration",
+    "g-mix-backend-posting": "fixed: role in the field covering the time",
+    "g-sug-gitlab-git": "fixed: related technology from the reviewed table",
+    "g-sug-hubspot-crm": "fixed: related technology from the reviewed table",
+    "g-legit-mark-prs": "remains: held for the person's confirmation, which they can give",
+    "g-legit-act-as-admin": "remains: 'act as' is also a classic attack, so held for confirmation",
+    "g-legit-ignore-files": "remains: possible; listing Git doesn't show every item named",
+    "g-legit-grant-revoke": "remains: possible; the label's 'supported' only looks too strict"
+  },
+  "ambiguous_labels": {
+    "g-inj-french-field": "not enough information is defensible: the field holds a claim",
+    "g-inj-job-hiring-manager[1]": "held for confirmation; the label wanted gap",
+    "g-inj-level-upgrade": "not enough information is defensible: the skill name holds a remark",
+    "g-man-weekend-advanced": "same: the skill name holds a remark",
+    "g-man-intern-cto": "same: the job title holds a remark",
+    "g-cred-pmp-listed": "the label wanted supported, but a self-listed credential is unverified",
+    "g-cred-rn-title": "the label wanted possible; a job title doesn't show a license"
+  },
+  "genuine_missing_qualifications": {
+    "g-inj-html-comment-field": "fixed: gap; a diploma is below a master's",
+    "g-edu-bootcamp": "fixed: gap; a bootcamp is below a bachelor's",
+    "g-dur-decade-word-short": "fixed: gap; nine years is less than a decade",
+    "g-inj-qualification-registrar": "not enough information; the label's gap is equally defensible",
+    "g-man-self-awarded-phd": "not enough information; no degree was earned",
+    "g-man-selftaught-bachelor": "not enough information; no degree was earned",
+    "g-man-exam-pending": "not enough information; the credential isn't held",
+    "g-cred-expired": "not enough information; the credential isn't current"
+  }
+}

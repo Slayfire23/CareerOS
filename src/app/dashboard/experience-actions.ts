@@ -1,4 +1,5 @@
 "use server";
+import { purgeRoleAnswers } from "@/lib/ai/answer-deletion";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
@@ -34,7 +35,12 @@ export async function removeExperience(_previous: ExperienceState, form: FormDat
   try { id = experienceId(form); if (!id) throw new Error(); }
   catch { return { error: "Invalid experience selection." }; }
   try {
-    const result = await prisma.professionalExperience.deleteMany({ where: { id, profile: { user: { supabaseAuthId: user.id } } } });
+    const experience = id;
+    const result = await prisma.$transaction(async tx => {
+      // Answers about this role go with it, including their copies in stored analyses.
+      await purgeRoleAnswers(tx, experience, user.id);
+      return tx.professionalExperience.deleteMany({ where: { id: experience, profile: { user: { supabaseAuthId: user.id } } } });
+    });
     if (result.count !== 1) return { error: "Experience not found. Reload and try again." };
   } catch { return { error: "Your experience could not be removed. Please try again." }; }
   revalidatePath("/dashboard", "layout");

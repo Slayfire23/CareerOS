@@ -1,0 +1,760 @@
+{
+ "fixtures": "tests/fixtures/m11_dev/check2.json",
+ "mode": "semantic",
+ "engine": "rules-v12",
+ "cases": 180,
+ "sealed": true,
+ "totals": {
+  "rulesOnly": {
+   "n": 180,
+   "correct": 82,
+   "falseSupported": 1,
+   "tooFavorable": 19,
+   "tooCautious": 65,
+   "expectMatch": 83,
+   "missed": 43,
+   "attackTargets": 12,
+   "attackSucceeded": 0
+  },
+  "withCurated": {
+   "n": 180,
+   "correct": 82,
+   "falseSupported": 1,
+   "tooFavorable": 19,
+   "tooCautious": 65,
+   "expectMatch": 83,
+   "missed": 43,
+   "attackTargets": 12,
+   "attackSucceeded": 0
+  },
+  "proposed": {
+   "n": 180,
+   "correct": 72,
+   "falseSupported": 1,
+   "tooFavorable": 32,
+   "tooCautious": 64,
+   "expectMatch": 83,
+   "missed": 21,
+   "attackTargets": 12,
+   "attackSucceeded": 0
+  },
+  "table": {
+   "n": 180,
+   "correct": 94,
+   "falseSupported": 3,
+   "tooFavorable": 3,
+   "tooCautious": 71,
+   "expectMatch": 83,
+   "missed": 53,
+   "attackTargets": 12,
+   "attackSucceeded": 0
+  }
+ },
+ "byCategory": {
+  "paraphrase": {
+   "rulesOnly": {
+    "n": 20,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 11,
+    "expectMatch": 11,
+    "missed": 9,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 20,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 11,
+    "expectMatch": 11,
+    "missed": 9,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 20,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 11,
+    "expectMatch": 11,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 20,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 11,
+    "expectMatch": 11,
+    "missed": 8,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "responsibility": {
+   "rulesOnly": {
+    "n": 10,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 10,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 10,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 5,
+    "expectMatch": 6,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 10,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 4,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "related_skill": {
+   "rulesOnly": {
+    "n": 10,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 1,
+    "expectMatch": 5,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 10,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 1,
+    "expectMatch": 5,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 10,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 1,
+    "expectMatch": 5,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 10,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 1,
+    "expectMatch": 5,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "credential": {
+   "rulesOnly": {
+    "n": 16,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 5,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 16,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 5,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 16,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 5,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 16,
+    "correct": 6,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 5,
+    "expectMatch": 5,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "duration": {
+   "rulesOnly": {
+    "n": 10,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 1,
+    "expectMatch": 4,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 10,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 1,
+    "expectMatch": 4,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 10,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 1,
+    "expectMatch": 4,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 10,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 4,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "ownership": {
+   "rulesOnly": {
+    "n": 20,
+    "correct": 9,
+    "falseSupported": 1,
+    "tooFavorable": 4,
+    "tooCautious": 7,
+    "expectMatch": 8,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 20,
+    "correct": 9,
+    "falseSupported": 1,
+    "tooFavorable": 4,
+    "tooCautious": 7,
+    "expectMatch": 8,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 20,
+    "correct": 7,
+    "falseSupported": 1,
+    "tooFavorable": 6,
+    "tooCautious": 7,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 20,
+    "correct": 11,
+    "falseSupported": 1,
+    "tooFavorable": 1,
+    "tooCautious": 7,
+    "expectMatch": 8,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "collision": {
+   "rulesOnly": {
+    "n": 20,
+    "correct": 16,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 3,
+    "expectMatch": 8,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 20,
+    "correct": 16,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 3,
+    "expectMatch": 8,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 20,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 9,
+    "tooCautious": 3,
+    "expectMatch": 8,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 20,
+    "correct": 15,
+    "falseSupported": 1,
+    "tooFavorable": 1,
+    "tooCautious": 4,
+    "expectMatch": 8,
+    "missed": 4,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "template": {
+   "rulesOnly": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 5,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 5,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 5,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 12,
+    "correct": 6,
+    "falseSupported": 1,
+    "tooFavorable": 1,
+    "tooCautious": 5,
+    "expectMatch": 6,
+    "missed": 4,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "quoted_hypothetical": {
+   "rulesOnly": {
+    "n": 12,
+    "correct": 7,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 4,
+    "expectMatch": 4,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 12,
+    "correct": 7,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 4,
+    "expectMatch": 4,
+    "missed": 1,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 12,
+    "correct": 6,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 4,
+    "expectMatch": 4,
+    "missed": 0,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 12,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 4,
+    "expectMatch": 4,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "multilingual_negation": {
+   "rulesOnly": {
+    "n": 16,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 7,
+    "expectMatch": 7,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 16,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 2,
+    "tooCautious": 7,
+    "expectMatch": 7,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 16,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 4,
+    "tooCautious": 7,
+    "expectMatch": 7,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 16,
+    "correct": 4,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 7,
+    "expectMatch": 7,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "multilingual_ownership": {
+   "rulesOnly": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 4,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 4,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 12,
+    "correct": 5,
+    "falseSupported": 0,
+    "tooFavorable": 1,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 2,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 12,
+    "correct": 6,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 6,
+    "expectMatch": 6,
+    "missed": 3,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  },
+  "multilingual_injection": {
+   "rulesOnly": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 3,
+    "missed": 2,
+    "attackTargets": 12,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 3,
+    "missed": 2,
+    "attackTargets": 12,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 12,
+    "correct": 9,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 2,
+    "expectMatch": 3,
+    "missed": 2,
+    "attackTargets": 12,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 12,
+    "correct": 8,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 3,
+    "expectMatch": 3,
+    "missed": 2,
+    "attackTargets": 12,
+    "attackSucceeded": 0
+   }
+  },
+  "multilingual_honest": {
+   "rulesOnly": {
+    "n": 10,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 10,
+    "expectMatch": 10,
+    "missed": 9,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 10,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 10,
+    "expectMatch": 10,
+    "missed": 9,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 10,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 10,
+    "expectMatch": 10,
+    "missed": 5,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 10,
+    "correct": 0,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 10,
+    "expectMatch": 10,
+    "missed": 8,
+    "attackTargets": 0,
+    "attackSucceeded": 0
+   }
+  }
+ },
+ "invalidClaims": 0,
+ "semanticStatus": {
+  "used": 79,
+  "not_eligible": 101
+ },
+ "semanticToSupported": 0,
+ "verdictsThatWouldChange": 42,
+ "latencyMs": {
+  "rules": {
+   "p50": 0.42549999999999955,
+   "p95": 4.087499999999864,
+   "max": 33.616900000000015
+  },
+  "shadow": {
+   "p50": 3.613399999999956,
+   "p95": 43.42580000000021,
+   "max": 76.15849999999998
+  }
+ },
+ "heapGrowthMb": 17.9,
+ "passagesSent": 95,
+ "promotions": {
+  "total": 42,
+  "recovered": 22,
+  "acceptable": 7,
+  "falsePromotions": 13,
+  "onUnsafeCategory": 5,
+  "onAttack": 0
+ },
+ "gateBlocked": {
+  "language_not_supported": 40,
+  "negated": 2,
+  "not_a_statement": 4,
+  "third_party": 2
+ },
+ "thresholds": [
+  {
+   "threshold": 0.5,
+   "promotions": 29,
+   "recovered": 20,
+   "falsePromotions": 6,
+   "unsafe": 3
+  },
+  {
+   "threshold": 0.52,
+   "promotions": 27,
+   "recovered": 19,
+   "falsePromotions": 5,
+   "unsafe": 3
+  },
+  {
+   "threshold": 0.55,
+   "promotions": 21,
+   "recovered": 15,
+   "falsePromotions": 3,
+   "unsafe": 2
+  },
+  {
+   "threshold": 0.58,
+   "promotions": 16,
+   "recovered": 12,
+   "falsePromotions": 2,
+   "unsafe": 2
+  },
+  {
+   "threshold": 0.6,
+   "promotions": 14,
+   "recovered": 12,
+   "falsePromotions": 1,
+   "unsafe": 1
+  },
+  {
+   "threshold": 0.62,
+   "promotions": 8,
+   "recovered": 7,
+   "falsePromotions": 0,
+   "unsafe": 0
+  },
+  {
+   "threshold": 0.64,
+   "promotions": 3,
+   "recovered": 3,
+   "falsePromotions": 0,
+   "unsafe": 0
+  },
+  {
+   "threshold": 0.66,
+   "promotions": 2,
+   "recovered": 2,
+   "falsePromotions": 0,
+   "unsafe": 0
+  },
+  {
+   "threshold": 0.68,
+   "promotions": 2,
+   "recovered": 2,
+   "falsePromotions": 0,
+   "unsafe": 0
+  },
+  {
+   "threshold": 0.7,
+   "promotions": 1,
+   "recovered": 1,
+   "falsePromotions": 0,
+   "unsafe": 0
+  }
+ ]
+}

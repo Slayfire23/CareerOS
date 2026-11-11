@@ -1,0 +1,175 @@
+{
+ "fixtures": "tests/fixtures/m11_review/check.json",
+ "engine": "rules-v13",
+ "sealed": true,
+ "totals": {
+  "jobs": 30,
+  "requirements": 145,
+  "before": {
+   "acceptable": 52,
+   "supported": 5,
+   "falseSupported": 0,
+   "settled": 13,
+   "settledCorrect": 13
+  },
+  "after": {
+   "acceptable": 86,
+   "supported": 27,
+   "falseSupported": 1,
+   "overstatedSupported": 0,
+   "settled": 44
+  },
+  "truly": 75,
+  "trulyMissedBefore": 60,
+  "recoveredPossibleOrBetter": 31,
+  "recoveredSupported": 21,
+  "stillMissed": 29,
+  "questionsTotal": 132,
+  "questionsFirstScreen": [
+   5,
+   4,
+   4,
+   5,
+   5,
+   5,
+   4,
+   4,
+   5,
+   5,
+   4,
+   4,
+   4,
+   5,
+   3,
+   5,
+   4,
+   4,
+   5,
+   4,
+   5,
+   5,
+   4,
+   4,
+   4,
+   4,
+   4,
+   3,
+   4,
+   5
+  ],
+  "answeredQuestions": 123,
+  "questionsResolved": 53,
+  "questionsMovedToSupportedOrNot": 31,
+  "honestSubmitted": 58,
+  "honestRefused": 4,
+  "vagueSubmitted": 11,
+  "vagueAccepted": 8,
+  "attacks": 9,
+  "attacksMovedVerdict": 1,
+  "attacksSaved": 7,
+  "invalidCitations": 0,
+  "repeatsPossible": 15,
+  "repeatsAvoided": 0,
+  "repeatsAskedAnyway": 15,
+  "differentQuestions": 6,
+  "wronglySuppressed": 0,
+  "notAskedOverLimit": 0
+ },
+ "questionsPerJob": {
+  "median": 4,
+  "max": 5
+ },
+ "byType": {
+  "no_answer": {
+   "n": 8,
+   "acceptable": 5,
+   "supported": 5,
+   "falseSupported": 0,
+   "before": 5
+  },
+  "honest_paraphrase": {
+   "n": 29,
+   "acceptable": 0,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "honest_specific": {
+   "n": 21,
+   "acceptable": 14,
+   "supported": 14,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "denial": {
+   "n": 8,
+   "acceptable": 8,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "honest_terse": {
+   "n": 8,
+   "acceptable": 6,
+   "supported": 3,
+   "falseSupported": 0,
+   "before": 1
+  },
+  "credential": {
+   "n": 11,
+   "acceptable": 9,
+   "supported": 4,
+   "falseSupported": 0,
+   "before": 5
+  },
+  "incorrect_claim": {
+   "n": 9,
+   "acceptable": 8,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "duration_claim": {
+   "n": 9,
+   "acceptable": 8,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 8
+  },
+  "skip": {
+   "n": 6,
+   "acceptable": 6,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 6
+  },
+  "third_party": {
+   "n": 9,
+   "acceptable": 7,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 9
+  },
+  "vague": {
+   "n": 11,
+   "acceptable": 9,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 11
+  },
+  "negated": {
+   "n": 7,
+   "acceptable": 1,
+   "supported": 1,
+   "falseSupported": 1,
+   "before": 2
+  },
+  "injection": {
+   "n": 9,
+   "acceptable": 5,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 5
+  }
+ }
+}

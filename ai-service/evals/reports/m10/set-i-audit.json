@@ -1,0 +1,561 @@
+{
+ "engine_results": "saved rules-v9 results; Set I not rerun",
+ "owner_in_reference": 26,
+ "owner_in_author": 28,
+ "engine_in_reference": 9,
+ "engine_equals_owner": [
+  8,
+  11
+ ],
+ "items": 30,
+ "rows": [
+  {
+   "item": "A-01",
+   "case": "i-dur-months-ok",
+   "type": "too_cautious",
+   "text": "6 months of food service experience",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-02",
+   "case": "i-amb-nursing-home-laundry",
+   "type": "false_supported",
+   "text": "Nursing experience",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_possible": [
+    "supported"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-03",
+   "case": "i-cred-nala",
+   "type": "too_cautious",
+   "text": "Certified Paralegal (NALA)",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-04",
+   "case": "i-we-colleague-xero",
+   "type": "too_favorable",
+   "text": "Xero",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-05",
+   "case": "i-amb-drafting",
+   "type": "too_favorable",
+   "text": "Mechanical drafting in CAD",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-06",
+   "case": "i-acc-cpa-candidate",
+   "type": "too_favorable",
+   "text": "Licensed CPA",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-07",
+   "case": "i-edu-diplom-ing",
+   "type": "too_cautious",
+   "text": "Master's degree in electrical engineering",
+   "human": "supported",
+   "ref": [
+    "supported",
+    "possible"
+   ],
+   "author": [
+    "supported",
+    "possible"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-08",
+   "case": "i-man-reversed-dates",
+   "type": "agreed",
+   "text": "5 years of nursing",
+   "human": "insufficient_information",
+   "ref": [
+    "insufficient_information"
+   ],
+   "author": [
+    "insufficient_information",
+    "possible",
+    "gap"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-09",
+   "case": "i-man-field-see-resume",
+   "type": "too_favorable",
+   "text": "Bachelor's in Civil Engineering",
+   "human": "insufficient_information",
+   "ref": [
+    "insufficient_information"
+   ],
+   "author": [
+    "possible",
+    "insufficient_information"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-10",
+   "case": "i-inj-keyword-stuffing",
+   "type": "false_supported",
+   "text": "Salesforce administration",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_possible": [
+    "supported"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-11",
+   "case": "i-dur-overlap-short",
+   "type": "agreed",
+   "text": "5 years of nursing",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "gap"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-12",
+   "case": "i-man-cpa-selfassessed",
+   "type": "nei_vs_gap",
+   "text": "CPA license",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "insufficient_information",
+    "gap",
+    "possible"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-13",
+   "case": "i-mix-welder-post",
+   "type": "too_cautious",
+   "text": "Overhead position welding",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-14",
+   "case": "i-we-forklift-operated",
+   "type": "too_cautious",
+   "text": "Forklift operation",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-15",
+   "case": "i-syn-k8s",
+   "type": "agreed",
+   "text": "Kubernetes",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "supported"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-16",
+   "case": "i-tr-gmaw-not-tig",
+   "type": "agreed",
+   "text": "TIG (GTAW) welding",
+   "human": "insufficient_information",
+   "ref": [
+    "possible",
+    "gap"
+   ],
+   "author": [
+    "possible"
+   ],
+   "engine_possible": [
+    "gap",
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-17",
+   "case": "i-inj-project-contribution-react",
+   "type": "too_cautious",
+   "text": "5 years of professional React development",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "possible"
+   ],
+   "author": [
+    "possible",
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-18",
+   "case": "i-cred-planned",
+   "type": "too_favorable",
+   "text": "CISSP",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-19",
+   "case": "i-mix-medassist-post",
+   "type": "nei_vs_gap",
+   "text": "Certified Medical Assistant",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-20",
+   "case": "i-neg-not-worked-k8s",
+   "type": "agreed",
+   "text": "Kubernetes",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "gap"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-21",
+   "case": "i-mix-logistics-post",
+   "type": "too_favorable",
+   "text": "Licensed customs broker",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-22",
+   "case": "i-neg-not-servsafe",
+   "type": "too_favorable",
+   "text": "ServSafe certified",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-23",
+   "case": "i-sug-project-only",
+   "type": "agreed",
+   "text": "Experience with Arduino or embedded prototyping",
+   "human": "supported",
+   "ref": [
+    "supported",
+    "possible"
+   ],
+   "author": [
+    "supported",
+    "possible"
+   ],
+   "engine_possible": [
+    "possible",
+    "supported"
+   ],
+   "engine_equals_owner": "unknown"
+  },
+  {
+   "item": "A-24",
+   "case": "i-acc-cma-not-cpa",
+   "type": "nei_vs_gap",
+   "text": "CPA required",
+   "human": "insufficient_information",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information",
+    "possible"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-25",
+   "case": "i-mix-hotel-post",
+   "type": "agreed",
+   "text": "4 years of front office supervision",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap",
+    "possible"
+   ],
+   "engine_possible": [
+    "gap"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-26",
+   "case": "i-amb-docker-port",
+   "type": "agreed",
+   "text": "Docker containers",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_possible": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "unknown"
+  },
+  {
+   "item": "A-27",
+   "case": "i-acc-bank-recs",
+   "type": "too_cautious",
+   "text": "Bank reconciliations",
+   "human": "supported",
+   "ref": [
+    "supported"
+   ],
+   "author": [
+    "supported"
+   ],
+   "engine_possible": [
+    "possible"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-28",
+   "case": "i-tr-forklift-vs-reach",
+   "type": "too_cautious",
+   "text": "Reach truck operation",
+   "human": "insufficient_information",
+   "ref": [
+    "possible"
+   ],
+   "author": [
+    "possible"
+   ],
+   "engine_possible": [
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "yes"
+  },
+  {
+   "item": "A-29",
+   "case": "i-dur-range-below",
+   "type": "false_supported",
+   "text": "3 to 5 yrs medical coding",
+   "human": "gap",
+   "ref": [
+    "gap"
+   ],
+   "author": [
+    "gap"
+   ],
+   "engine_possible": [
+    "supported"
+   ],
+   "engine_equals_owner": "no"
+  },
+  {
+   "item": "A-30",
+   "case": "i-inj-spanish-lpn",
+   "type": "agreed",
+   "text": "Current LPN license",
+   "human": "insufficient_information",
+   "ref": [
+    "gap",
+    "insufficient_information"
+   ],
+   "author": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_possible": [
+    "gap",
+    "insufficient_information"
+   ],
+   "engine_equals_owner": "unknown"
+  }
+ ]
+}

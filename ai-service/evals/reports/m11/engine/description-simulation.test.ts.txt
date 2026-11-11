@@ -1,0 +1,69 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
+import type { Evidence, MatchRequest } from "@/lib/ai/evidence";
+import { answerStatements } from "@/lib/ai/evidence-boundary";
+import { specificTerms } from "@/lib/ai/rules/answer-review";
+import { assessRequirements } from "@/lib/ai/rules/engine";
+import { ownNegative } from "@/lib/ai/rules/profile-fields";
+import { canonicalTerms, containsPhrase, isKnownTechnology, ordinaryMeaning, otherSense } from "@/lib/ai/skill-relations";
+import { qualificationText } from "@/lib/ai/untrusted-text";
+
+// Phase 5.3 role-description simulation. Runs the rules-v19 engine unchanged and asks, for every credit that quotes a role
+// description, whether the proposed rule would keep it. Spent and opened sets only; never Set K or a sealed split.
+// Deleted after the report.
+type Raw = { as_of_month: string; cases: { id: string; requirements: { text: string; category: string; allowed?: string[] }[]; evidence: (Partial<Evidence> & { id: string; kind: string })[] }[] };
+const DEFAULTS: Record<string, Record<string, unknown>> = {
+  skill: { proficiency: null }, experience: { end_month: null, description: null },
+  education: { field_of_study: null, end_month: null, description: null }, project: { description: null, contribution: null, results: null, skills: [] },
+};
+const expand = (short: string) => `${short.split(":")[0]}:00000000-0000-4000-8000-${short.split(":")[1].padStart(12, "0")}`;
+const stem = (w: string) => w.replace(/(ing|ings|ed|es|s)$/, "").replace(/e$/, "");
+
+it.skipIf(!process.env.SIM_OUT)("description simulation", () => {
+  const rows: unknown[] = [];
+  for (const file of process.env.SIM_CASES!.split(",")) {
+    const data = JSON.parse(readFileSync(file, "utf8")) as Raw;
+    for (const c of data.cases) {
+      const evidence = c.evidence.map(e => ({ ...DEFAULTS[e.kind], ...e, id: expand(e.id) })) as Evidence[];
+      const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e01", provider: "rules", as_of_month: data.as_of_month, evidence, requirements: c.requirements.map((r, index) => ({ index, text: r.text, category: r.category as never, priority: "Required" as never })) };
+      for (const f of assessRequirements(request)) {
+        if (f.verdict !== "supported" && f.verdict !== "possible") continue;
+        const fromDescription = f.citations.filter(cit => {
+          const item = evidence.find(e => e.id === cit.evidence_id) as { kind: string; job_title?: string; description?: string | null } | undefined;
+          return item?.kind === "experience" && cit.quote !== item.job_title && !!item.description?.includes(cit.quote);
+        });
+        if (!fromDescription.length) continue;
+        const requirement = qualificationText(c.requirements[f.requirement_index].text);
+        const wanted = specificTerms(requirement);
+        // Other evidence the finding also cites (a listed skill, a title): the proposed rule doesn't touch that credit.
+        const otherSupport = f.citations.length > fromDescription.length;
+        const judged = fromDescription.map(cit => {
+          const item = evidence.find(e => e.id === cit.evidence_id) as unknown as { description: string; job_title: string };
+          const description = item.description;
+          const at = description.indexOf(cit.quote);
+          const statements = answerStatements(description);
+          const own = statements.find(s => s.start <= at && at + cit.quote.length <= s.start + s.text.length);
+          const sentence = (description.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).find(s => s.includes(cit.quote)) ?? "";
+          const ownDoing = !!own && own.subject === "self" && own.act !== "says_little" && !own.exposureOnly && own.ownership === "performed";
+          const readable = own?.readable ?? "";
+          const have = new Set([...canonicalTerms(readable)].flatMap(t => [t, stem(t)]));
+          const shared = wanted.filter(t => have.has(t) || have.has(stem(t)));
+          const quoteTerms = [...canonicalTerms(cit.quote)];
+          const tool = quoteTerms.some(t => isKnownTechnology(t) && !ordinaryMeaning(readable || cit.quote, t) && otherSense(requirement, t) === otherSense(readable || cit.quote, t));
+          const phrase = containsPhrase(readable, requirement);
+          const strong = tool || shared.length >= 2 || phrase;
+          let cause = "kept";
+          if (!ownDoing) cause = !own ? (ownNegative(sentence) || /\b(?:wish|hope|would|could|plan|want)\b/i.test(sentence) ? "negated_or_hypothetical" : "not_a_statement_of_the_person") : own.subject !== "self" ? "someone_else" : own.ownership !== "performed" ? `involvement_${own.ownership}` : own.exposureOnly ? "exposure_only" : "says_little";
+          else if (!strong) cause = "single_word";
+          return { quote: cit.quote, keep: ownDoing && strong, cause, shared, tool, phrase, sentence: sentence.trim().slice(0, 200), title: item.job_title };
+        });
+        const keep = otherSupport || judged.some(j => j.keep);
+        rows.push({ key: `${file.split("/").pop()}:${c.id}/${f.requirement_index}`, requirement, verdict: f.verdict, basis: f.basis, allowed: c.requirements[f.requirement_index].allowed ?? null, proposed: keep ? f.verdict : "insufficient_information", otherSupport, judged });
+      }
+    }
+  }
+  writeFileSync(process.env.SIM_OUT!, JSON.stringify(rows, null, 1));
+});

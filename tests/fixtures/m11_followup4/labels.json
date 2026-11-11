@@ -1,0 +1,1204 @@
+{
+ "labels": [
+  {
+   "id": "fx-001",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-002",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "crew and contractor do work"
+  },
+  {
+   "id": "fx-003",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-004",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "cashier, not licensed"
+  },
+  {
+   "id": "fx-005",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "apprentice; reply specific personal work"
+  },
+  {
+   "id": "fx-006",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "unlisted prior job caps at possible"
+  },
+  {
+   "id": "fx-007",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "grader note ignored"
+  },
+  {
+   "id": "fx-008",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "student externship, supervised"
+  },
+  {
+   "id": "fx-009",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "dental bridges, different sense"
+  },
+  {
+   "id": "fx-010",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "supervised",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-011",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-012",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "phone screens self; in-person led by manager"
+  },
+  {
+   "id": "fx-013",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-014",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "freelancer creates content"
+  },
+  {
+   "id": "fx-015",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-016",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "one class session only"
+  },
+  {
+   "id": "fx-017",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "took back forklift claim"
+  },
+  {
+   "id": "fx-018",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "foreman; reply specific"
+  },
+  {
+   "id": "fx-019",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-020",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "helper; grouting only"
+  },
+  {
+   "id": "fx-021",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-022",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-023",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-024",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "bare yes; license"
+  },
+  {
+   "id": "fx-025",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-026",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "about 3 of 5 years; reply contradicts"
+  },
+  {
+   "id": "fx-027",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-028",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "setting requirement; front desk"
+  },
+  {
+   "id": "fx-029",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "managerial; involvement ambiguous"
+  },
+  {
+   "id": "fx-030",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-031",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "tutorials only; injection ignored"
+  },
+  {
+   "id": "fx-032",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "insect bugs, different sense"
+  },
+  {
+   "id": "fx-033",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "EA signed and e-filed"
+  },
+  {
+   "id": "fx-034",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-035",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "polishing only; no scaling"
+  },
+  {
+   "id": "fx-036",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "counter work; reply contradicts"
+  },
+  {
+   "id": "fx-037",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "manager approves and submits"
+  },
+  {
+   "id": "fx-038",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-039",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "unlisted prior job caps at possible"
+  },
+  {
+   "id": "fx-040",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "audit firm does testing"
+  },
+  {
+   "id": "fx-041",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "leader title only; echo reply"
+  },
+  {
+   "id": "fx-042",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-043",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-044",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "workshop plus one flyer; proficiency"
+  },
+  {
+   "id": "fx-045",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "took back med pass claim"
+  },
+  {
+   "id": "fx-046",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "drugstore front/pickup, setting only"
+  },
+  {
+   "id": "fx-047",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "physical install only, no config"
+  },
+  {
+   "id": "fx-048",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-049",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-050",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-051",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "data pipelines, different sense"
+  },
+  {
+   "id": "fx-052",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "level 2 present"
+  },
+  {
+   "id": "fx-053",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "injection reply ignored"
+  },
+  {
+   "id": "fx-054",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-055",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "supervised",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-056",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "not_enough",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts tenure"
+  },
+  {
+   "id": "fx-057",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "aide; reply contradicts"
+  },
+  {
+   "id": "fx-058",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-059",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-060",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-061",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-062",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-063",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "reply explains change; 2 months use"
+  },
+  {
+   "id": "fx-064",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "bare yes"
+  },
+  {
+   "id": "fx-065",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "coordinated",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "schedules operators only"
+  },
+  {
+   "id": "fx-066",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-067",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-068",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "kennel attendant; limited tasks"
+  },
+  {
+   "id": "fx-069",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "in-house tests only"
+  },
+  {
+   "id": "fx-070",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "not_enough",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "reply: about 3 years actual"
+  },
+  {
+   "id": "fx-071",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "social networking, different sense"
+  },
+  {
+   "id": "fx-072",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "30-min orientation only"
+  },
+  {
+   "id": "fx-073",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-074",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "trainee, permit, no passengers"
+  },
+  {
+   "id": "fx-075",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "vet performs surgery"
+  },
+  {
+   "id": "fx-076",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "past framing unlisted; not since PM"
+  },
+  {
+   "id": "fx-077",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "requested",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "Paychex runs payroll"
+  },
+  {
+   "id": "fx-078",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "helper title; reply specific"
+  },
+  {
+   "id": "fx-079",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "grader note ignored"
+  },
+  {
+   "id": "fx-080",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-081",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-082",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "reply credibly explains change"
+  },
+  {
+   "id": "fx-083",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "cooks; planned only one menu partly"
+  },
+  {
+   "id": "fx-084",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-085",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "unlisted prior years"
+  },
+  {
+   "id": "fx-086",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-087",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-088",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-089",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-090",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-091",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-092",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "market coverage, different sense"
+  },
+  {
+   "id": "fx-093",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "reviewed, not independent"
+  },
+  {
+   "id": "fx-094",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-095",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "counting/labeling only"
+  },
+  {
+   "id": "fx-096",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "reply contradicts without explanation"
+  },
+  {
+   "id": "fx-097",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "license claimed in reply; unverified"
+  },
+  {
+   "id": "fx-098",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "bare yes, echo reply"
+  },
+  {
+   "id": "fx-099",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-100",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "nephew does website"
+  },
+  {
+   "id": "fx-101",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-102",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "unlisted prior job caps at possible"
+  },
+  {
+   "id": "fx-103",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "job fair demo only"
+  },
+  {
+   "id": "fx-104",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-105",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "API ref rewritten; onboarding guide own"
+  },
+  {
+   "id": "fx-106",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "shots self; calving assisted"
+  },
+  {
+   "id": "fx-107",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "injection reply ignored"
+  },
+  {
+   "id": "fx-108",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-109",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-110",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "VLOOKUP yes, pivots only refreshed"
+  },
+  {
+   "id": "fx-111",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "setting requirement; kitchen"
+  },
+  {
+   "id": "fx-112",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "coffee, different sense"
+  },
+  {
+   "id": "fx-113",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "fit-up/tacks only; reply contradicts"
+  },
+  {
+   "id": "fx-114",
+   "answer_verdict": "possible",
+   "after_reply_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "inspector makes all calls"
+  },
+  {
+   "id": "fx-115",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "supervised",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "echo reply"
+  },
+  {
+   "id": "fx-116",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-117",
+   "answer_verdict": "not_supported",
+   "after_reply_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fx-118",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fx-119",
+   "answer_verdict": "not_enough",
+   "after_reply_verdict": "not_enough",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "about 3 months kitchen"
+  },
+  {
+   "id": "fx-120",
+   "answer_verdict": "supported",
+   "after_reply_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  }
+ ]
+}

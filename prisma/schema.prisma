@@ -19,9 +19,188 @@ model User {
   updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
   careerProfile  CareerProfile?
   savedJobs SavedJob[]
+  /// Explicit consent to send job or profile text to a cloud AI provider. Null means no consent.
+  /// Not needed for the local deterministic rules engine; enforced before any cloud provider.
+  aiCloudConsentAt DateTime? @db.Timestamptz(3)
+  /// Which consent text the user accepted; a new provider, model family, or field list bumps it.
+  aiCloudConsentVersion Int?
+  aiAnalysisRuns   AiAnalysisRun[]
+  jobMatchAnalyses JobMatchAnalysis[]
+  clarifications   CandidateClarification[]
+  clarificationEvents ClarificationEvent[]
+  clarificationFollowUps ClarificationFollowUp[]
+  clarificationParts ClarificationPart[]
+}
+
+/// ROLE_DETAIL_ADDED: a description of work in one role. ENTRY_ADDED: a typed education or credential
+/// entry. DECLINED: the person said no, which changes no verdict.
+enum ClarificationOutcome {
+  ROLE_DETAIL_ADDED
+  ENTRY_ADDED
+  DECLINED
+  DENIED
+  SKIPPED
+}
+
+enum ClarificationStatus {
+  ACTIVE
+  SUPERSEDED
+  REVOKED
+}
+
+/// The person's own statement of their part in the work (structured ownership, Phase 5.3). Self-reported, never verified.
+/// REQUESTED covers "I arranged it, requested it, or handled the paperwork for it" (O2); TAUGHT is "I taught or trained
+/// others to do it" (O1). NOT_DONE is "Actually, I haven't done this", stored with outcome DENIED.
+enum Involvement {
+  PERFORMED
+  PART
+  SUPERVISED
+  REQUESTED
+  ASSISTED
+  OBSERVED_TRAINED
+  TAUGHT
+  NOT_DONE
+}
+
+enum WorkFrequency {
+  MOST_DAYS
+  WEEKLY
+  MONTHLY
+  FEW_TIMES
+  ONCE
+}
+
+enum WorkRecency {
+  CURRENT
+  WITHIN_YEAR
+  ONE_TO_THREE_YEARS
+  OVER_THREE_YEARS
+}
+
+enum FollowUpStatus {
+  PROPOSED
+  ANSWERED
+  DENIED
+  SKIPPED
+  REVOKED
+  CLOSED
+}
+
+/// A question a local model suggested about an answer, and the person's reply. Holds offsets, not a copy of
+/// the answer's words. One per requirement, per person, ever, so it's never asked twice.
+model ClarificationFollowUp {
+  id              String                 @id @default(uuid()) @db.Uuid
+  userId          String                 @db.Uuid
+  clarificationId String                 @db.Uuid
+  savedJobId      String?                @db.Uuid
+  experienceId    String                 @db.Uuid
+  questionKey     String                 @db.VarChar(64)
+  requirementText String                 @db.VarChar(500)
+  quoteStart      Int
+  quoteEnd        Int
+  status          FollowUpStatus         @default(PROPOSED)
+  detail          String?
+  createdAt       DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime               @updatedAt @db.Timestamptz(3)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clarification   CandidateClarification @relation(fields: [clarificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionKey])
+  @@index([clarificationId])
+  @@index([savedJobId])
+}
+
+/// Append-only audit trail for answers. Never holds an answer's words, so it survives permanent deletion.
+model ClarificationEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @db.Uuid
+  clarificationId String?  @db.Uuid
+  savedJobId      String?  @db.Uuid
+  action          String   @db.VarChar(20)
+  questionKey     String?  @db.VarChar(64)
+  requirementText String?  @db.VarChar(500)
+  verdictBefore   String?  @db.VarChar(30)
+  verdictAfter    String?  @db.VarChar(30)
+  /// The structured choice at the time, for the audit trail. Never the person's words.
+  involvement     String?  @db.VarChar(20)
+  rulesVersion    String   @db.VarChar(40)
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([savedJobId, createdAt])
+}
+
+/// For a compound requirement ("conduit bending and installation"), whether the person says they did each part
+/// themselves (O3). Holds the requirement's own part wording, never the person's words. Deleted with its answer.
+model ClarificationPart {
+  id              String                 @id @default(uuid()) @db.Uuid
+  userId          String                 @db.Uuid
+  clarificationId String                 @db.Uuid
+  partIndex       Int                    @db.SmallInt
+  partText        String                 @db.VarChar(300)
+  checked         Boolean
+  createdAt       DateTime               @default(now()) @db.Timestamptz(3)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clarification   CandidateClarification @relation(fields: [clarificationId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@unique([clarificationId, partIndex])
+  @@index([userId])
+}
+
+/// What a person said about a requirement, kept with where it came from. All of it is self-reported:
+/// CareerOS has no independent verification. A role detail is read by the rules like any work description.
+model CandidateClarification {
+  id              String                  @id @default(uuid()) @db.Uuid
+  userId          String                  @db.Uuid
+  /// The job that prompted this. The answer outlives the job: it's about the person, not the posting.
+  savedJobId      String?                 @db.Uuid
+  requirementText String                  @db.VarChar(500)
+  outcome         ClarificationOutcome
+  experienceId    String?                 @db.Uuid
+  educationId     String?                 @db.Uuid
+  detail          String?                 @db.VarChar(1000)
+  /// Stays the same however a reviewed name writes the question, so it isn't asked again.
+  questionKey     String?                 @db.VarChar(64)
+  /// Other questions the same answer covers, when one question grouped several requirements.
+  coveredKeys     String[]                @default([])
+  status          ClarificationStatus     @default(ACTIVE)
+  supersedesId    String?                 @db.Uuid
+  /// The id citations use, kept so stored results can be masked after a revocation.
+  evidenceId      String?                 @db.VarChar(60)
+  revokedAt       DateTime?               @db.Timestamptz(3)
+  createdAt       DateTime                @default(now()) @db.Timestamptz(3)
+  // Structured ownership (Phase 5.3). All null on answers given before it ("not stated"), which are read as text, as
+  // before. A database CHECK keeps the combinations to what the form can produce (see the migration).
+  involvement     Involvement?
+  /// "Did you also do any of it yourself?", asked only after SUPERVISED, REQUESTED, ASSISTED or TAUGHT.
+  alsoDidSome     Boolean?
+  frequency       WorkFrequency?
+  recency         WorkRecency?
+  /// "About how long in total?" for time requirements. A claim, never dates.
+  claimedMonths   Int?                    @db.SmallInt
+  /// "consistent" | "text_mismatch" | "text_unread" | "no_text"; recomputed on read, kept for the audit trail.
+  consistency     String?                 @db.VarChar(30)
+  /// 1: a free-text answer (every answer before structured ownership). 2: a structured answer.
+  formVersion     Int                     @default(1) @db.SmallInt
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedJob        SavedJob?               @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
+  experience      ProfessionalExperience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  followUps       ClarificationFollowUp[]
+  parts           ClarificationPart[]
+  education       Education?              @relation(fields: [educationId], references: [id], onDelete: SetNull)
+
+  // Lets ClarificationPart reference (answer, owner) so the database rejects a part attached to another account's answer.
+  @@unique([id, userId])
+  @@index([userId, createdAt])
+  @@index([savedJobId])
+  @@index([experienceId])
+  @@index([educationId])
+  @@index([userId, questionKey, status])
 }
 
 model SavedJob {
+ clarifications CandidateClarification[]
  requirements Json @default("[]")
  reviewedDescription String? @db.VarChar(30000)
  reviewVersion Int @default(0)
@@ -34,7 +213,11 @@ model SavedJob {
  createdAt DateTime @default(now()) @db.Timestamptz(3)
  updatedAt DateTime @updatedAt @db.Timestamptz(3)
  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ aiAnalysisRuns AiAnalysisRun[]
+ jobMatchAnalyses JobMatchAnalysis[]
  @@index([userId, createdAt])
+ // Lets JobMatchAnalysis reference (job, owner) so the database rejects cross-account links.
+ @@unique([id, userId])
 }
 
 model CareerProfile {
@@ -90,6 +273,7 @@ model ProfessionalExperience {
  endMonth String? @db.VarChar(7)
  description String? @db.VarChar(5000)
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ clarifications CandidateClarification[]
  @@index([profileId])
 }
 
@@ -103,6 +287,7 @@ model Education {
  fieldOfStudy String? @db.VarChar(100)
  description String? @db.VarChar(5000)
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ clarifications CandidateClarification[]
  @@index([profileId])
 }
 
@@ -117,4 +302,98 @@ model ProjectAccomplishment {
  links String[] @default([])
  profile CareerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
  @@index([profileId])
+}
+
+enum AiAnalysisStatus {
+  STARTED
+  SUCCEEDED
+  FAILED
+}
+
+/// NONE: local provider, no cost. RESERVED: call in flight, worst case held. CONFIRMED: charge
+/// computed from provider-reported usage. UNRESOLVED: may have been billed, worst case held until
+/// reconciled. RELEASED: the provider did not process the request, nothing held.
+enum AiBillingState {
+  NONE
+  RESERVED
+  CONFIRMED
+  UNRESOLVED
+  RELEASED
+}
+
+/// One row per analysis attempt, used for the daily limit, history, and audit.
+/// Metadata only: no job, profile, or finding text.
+model AiAnalysisRun {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @db.Uuid
+  /// Becomes null if the job is deleted, so the daily limit and audit trail survive.
+  savedJobId String?          @db.Uuid
+  status     AiAnalysisStatus @default(STARTED)
+  provider   String           @db.VarChar(40)
+  /// A rules-only recheck after an answer: free, and outside the analysis limits.
+  isRecheck  Boolean          @default(false)
+  /// Machine-readable code only (e.g. "service_unavailable"), never message text.
+  errorCode  String?          @db.VarChar(60)
+  startedAt  DateTime         @default(now()) @db.Timestamptz(3)
+  finishedAt DateTime?        @db.Timestamptz(3)
+  /// False only for failures that never reached an analysis (service down, provider busy).
+  countsTowardLimit Boolean @default(true)
+  model             String?  @db.VarChar(60)
+  /// Cost ledger (cloud providers). Amounts are micro-USD. A reservation is the worst case for
+  /// one call; it is held until the charge is confirmed from provider-reported usage, released
+  /// (not billed), or reconciled by hand. Estimates are never recorded as confirmed charges.
+  billingState      AiBillingState @default(NONE)
+  reservedMicroUsd  Int            @default(0)
+  confirmedMicroUsd Int?
+  inputTokens       Int?
+  outputTokens      Int?
+  cacheReadTokens   Int?
+  cacheWriteTokens  Int?
+  providerRequestId String?  @db.VarChar(100)
+  reconciledAt      DateTime? @db.Timestamptz(3)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedJob   SavedJob?        @relation(fields: [savedJobId], references: [id], onDelete: SetNull)
+  analysis   JobMatchAnalysis?
+
+  @@index([userId, startedAt])
+  @@index([savedJobId, startedAt])
+  /// Global budget sums across all users.
+  @@index([startedAt, billingState])
+  @@unique([id, userId])
+}
+
+/// A validated analysis of one saved job's reviewed requirements against the owner's profile.
+model JobMatchAnalysis {
+  id                  String        @id @default(uuid()) @db.Uuid
+  userId              String        @db.Uuid
+  savedJobId          String        @db.Uuid
+  runId               String        @unique @db.Uuid
+  /// The SavedJob.reviewVersion analysed. A later review makes this analysis out of date.
+  requirementsVersion Int
+  /// SHA-256 of the evidence sent. A changed profile makes this analysis out of date.
+  profileFingerprint  String        @db.Char(64)
+  provider            String        @db.VarChar(40)
+  model               String?       @db.VarChar(100)
+  methodVersion       String        @db.VarChar(40)
+  /// Snapshot of the reviewed requirements that were analysed (the owner's own job data).
+  requirements        Json
+  findings            Json
+  verdictCounts       Json
+  /// AI suggestions shown beside the findings. They never change a finding or its verdict.
+  aiSuggestions       Json          @default("[]")
+  /// Whether local AI could help with this analysis: "used", "unavailable", "not_needed", or null.
+  aiAssist            String?       @db.VarChar(20)
+  /// The owner's Agree/Disagree feedback, keyed by requirement index.
+  feedback            Json          @default("{}")
+  feedbackVersion     Int           @default(0)
+  createdAt           DateTime      @default(now()) @db.Timestamptz(3)
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Composite reference: the analysed job must belong to the same user.
+  savedJob            SavedJob      @relation(fields: [savedJobId, userId], references: [id, userId], onDelete: Cascade)
+  /// Composite reference: the run must belong to the same user.
+  run                 AiAnalysisRun @relation(fields: [runId, userId], references: [id, userId], onDelete: Cascade)
+
+  @@index([savedJobId, createdAt])
+  @@index([userId, createdAt])
+  @@unique([runId, userId])
 }

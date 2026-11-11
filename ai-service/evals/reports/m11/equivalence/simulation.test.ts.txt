@@ -1,0 +1,59 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
+import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
+import type { MatchRequirement } from "@/lib/ai/evidence";
+import { readAnswer } from "@/lib/ai/rules/answer-review";
+
+// Equivalence review simulation, evaluation only: what each group would change if approved, and whether the shared boundary
+// still stops the answers it must not credit. `assumeApproved` is evaluation-only; production never sets it.
+// Spent and opened data only; never a sealed split. Deleted after the packet.
+const req = (text: string): MatchRequirement => ({ index: 0, text, category: "Skills", priority: "Required" });
+
+it.skipIf(!process.env.EQ_OUT)("equivalence simulation", () => {
+  const answers: { src: string; requirement: string; answer: string; label: string | null }[] = [];
+  const add = (src: string, requirement: string, answer: string | null | undefined, label: string | null = null) => { if (answer) answers.push({ src, requirement, answer, label }); };
+  for (const f of ["m11_review/train", "m11_review/check", "m11_remediation/dev", "m11_remediation/check"]) for (const j of JSON.parse(readFileSync(`tests/fixtures/${f}.json`, "utf8")).jobs) for (const r of j.requirements) add(f, r.text, r.answer?.detail, r.expected ?? r.answer?.expected ?? null);
+  for (const f of ["m11_interpret/dev", "m11_interpret/check", "m11_shadow/dev", "m11_shadow/check"]) for (const c of JSON.parse(readFileSync(`tests/fixtures/${f}.json`, "utf8")).cases) add(f, c.requirement, c.answer, c.qualifies === undefined ? null : c.qualifies ? "qualifies" : "does_not_qualify");
+  for (const d of ["m11_followup", "m11_followup2", "m11_followup3"]) {
+    const labels = new Map((JSON.parse(readFileSync(`tests/fixtures/${d}/labels.json`, "utf8")).labels as { id: string; answer_verdict: string }[]).map(l => [l.id, l.answer_verdict]));
+    for (const s of JSON.parse(readFileSync(`tests/fixtures/${d}/scenarios.json`, "utf8")).scenarios) add(`${d}:${s.id}`, s.requirement, s.answer, labels.get(s.id) ?? null);
+  }
+  const bench = new Map((JSON.parse(readFileSync("tests/fixtures/ownership_benchmark/labels.json", "utf8")).labels as { id: string; ownership: string }[]).map(l => [l.id, l.ownership]));
+  for (const it of JSON.parse(readFileSync("tests/fixtures/ownership_benchmark/corpus.json", "utf8")).items) if (it.kind === "answer") add(`benchmark:${it.id}`, it.requirement, it.text, `ownership:${bench.get(it.id)}`);
+
+  const out: Record<string, unknown> = {};
+  for (const g of equivalences.groups) {
+    const source = `equivalence:${g.canonical}`;
+    // Historical answers whose reading changes when the groups are approved, attributed to this group by its source.
+    const changes = answers.flatMap(a => {
+      const before = readAnswer(req(a.requirement), a.answer);
+      const after = readAnswer(req(a.requirement), a.answer, { assumeApproved: true });
+      return before.verdict !== after.verdict && after.sourceId === source ? [{ ...a, before: before.verdict, after: after.verdict, quote: after.quote }] : [];
+    });
+    // Probes written from the group's own phrases, read as an answer to its first name.
+    const asked = g.asks[0];
+    const phrase = g.descriptions[0];
+    const verb = g.verbs[0] ?? phrase.split(" ")[0];
+    const object = g.objects[0] ?? phrase.split(" ").slice(1).join(" ");
+    const probes: [string, string, "credit" | "no_credit"][] = [
+      ["own work, exact phrase", `I ${phrase} every week at my last job.`, "credit"],
+      ...(g.verbs.length && g.objects.length ? [["own work, pattern", `Most days I ${verb} the ${object} for our team.`, "credit"] as [string, string, "credit"]] : []),
+      ["introductory class", `I took a one-day class where we practiced how to ${verb} ${object}.`, "no_credit"],
+      ["supervision", `I supervise the staff who ${phrase} and I approve their work.`, "no_credit"],
+      ["helping", `I helped the specialist who ${phrase}, mostly fetching supplies.`, "no_credit"],
+      ["someone else", `My coworker ${phrase}; I just watched.`, "no_credit"],
+      ["negated", `I have never ${phrase}.`, "no_credit"],
+      ["hypothetical", `I could ${verb} ${object} if needed.`, "no_credit"],
+    ];
+    const probeResults = probes.map(([kind, text, want]) => {
+      const v = readAnswer(req(asked), text, { assumeApproved: true }).verdict;
+      const got = v === "supported" || v === "possible" ? "credit" : "no_credit";
+      return { kind, text, verdict: v, ok: got === want || (want === "credit" && v === "possible") };
+    });
+    out[g.canonical] = { group: g, changes, probes: probeResults };
+  }
+  writeFileSync(process.env.EQ_OUT!, JSON.stringify({ answers: answers.length, groups: out }, null, 1));
+});
