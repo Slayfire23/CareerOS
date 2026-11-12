@@ -217,3 +217,30 @@ Additive schema for structured ownership, migration `20261110010000_structured_o
 - 2,452 unit tests, 183 integration tests, TypeScript, lint and the production build pass.
 - Engine baseline: 0 of 2,121 rows changed.
 - Both sealed splits are unchanged.
+
+## Phase 5.3 structured ownership Stage 2 - November 11, 2026 (local commit, not pushed)
+
+**New:**
+- **`src/lib/ai/rules/structured-answer.ts`:** the deterministic rule table (`readStructuredAnswer`). It covers design sections 4-5, D1-D3 and O1-O3. It is pure and structured-only: what the explanation shows is a supplied consistency state, and Stage 3 computes that.
+- **`requirement-structure.ts`:** gains `explicitRecency` (D2) and the compound splitter (`proposeCompoundSplit`, O3).
+- **`review-queue.ts`:** gains `partQuestionKey` and `compoundQuestionKey`.
+- **Isolation:** nothing in matching or the review queue calls any of these; a test enforces it.
+
+**Tests:** `tests/ai-structured-answer.test.ts` has 46 tests:
+- an exhaustive table of more than 5,000 combinations of choice, requirement kind, frequency, recency and consistency state, against an independent oracle;
+- property tests (never Supported without consistent text that shows the work; a contradiction never raises and always asks; unread text equals no text; no free-text access);
+- D2 window cases, O1/O2/O3 cases, clarification reasons, the splitter, and the keys.
+
+**Owner-review split report** over the 2,121 baseline requirements (1,553 distinct texts) is in docs/PHASE5_3_STAGE2_SPLIT_PROPOSALS.md, with evidence in ai-service/evals/reports/m11/structured/:
+- 16 proposed splits;
+- 93 ambiguous cases;
+- 1,402 single.
+
+No split is active.
+
+**Results:**
+- Historical: 0 of 1,266 changed.
+- Engine baseline: 0 of 2,121 changed.
+- 2,498 unit and 183 integration tests, TypeScript, lint and schema checks pass.
+- Sealed-split integrity guard passes (hashes only; neither split was opened).
+

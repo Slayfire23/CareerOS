@@ -235,3 +235,115 @@ export function answerUntrustedSpans(text: string): Span[] {
  * requirement for any profile, so the person can always confirm what the analysis asks about. */
 export const mayNeedConfirmation = (text: string) =>
   parseRequirement(text).needsReview || segments(text).some(([s, e]) => CLAIM.test(text.slice(s, e)));
+
+// --- Structured ownership (Phase 5.3 Stage 2). Read only by structured-answer.ts and the owner-review report; matching and
+// the review queue don't use these yet. ---
+
+const NUMBER_WORDS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, twelve: 12, eighteen: 18, "twenty-four": 24 };
+const COUNT = "(\\d+|one|two|three|four|five|six|seven|eight|nine|ten|twelve|eighteen|twenty-four)";
+const RECENCY_WINDOW = new RegExp(`\\b(?:within|in|during|over|from)\\s+the\\s+(?:last|past|previous|most\\s+recent)\\s+${COUNT}\\s+(years?|months?)\\b`, "i");
+const RECENCY_ONE = /\b(?:within|in|during|over)\s+the\s+(?:last|past|previous)\s+(year|twelve\s+months|month)\b/i;
+const RECENT_WORK = /\brecent(?:ly)?\s+(?:\w+\s+){0,3}?(?:experience|work(?:ed|ing)?|hands[- ]on|practice|performed|employment)\b|\b(?:experience|work)\s+(?:must\s+be|should\s+be|that\s+is|is)\s+recent\b/i;
+const CURRENT_WORK = /\bcurrent(?:ly)?\s+(?:working|performing|doing|employed|practicing|using|hands[- ]on|experience)\b|\bin\s+a\s+current\s+role\b/i;
+
+/** Whether a requirement explicitly asks for recent or current experience (D2), and its window in months when stated.
+ * Only explicit wording counts; an unclear requirement is treated as not asking. "Recent graduates" isn't recent work. */
+export type RecencyRequirement = { asks: boolean; windowMonths: number | null; current: boolean; phrase: string | null };
+export function explicitRecency(text: string): RecencyRequirement {
+  const window = text.match(RECENCY_WINDOW);
+  if (window) {
+    const n = /^\d+$/.test(window[1]) ? Number(window[1]) : NUMBER_WORDS[window[1].toLowerCase()];
+    return { asks: true, windowMonths: /^month/i.test(window[2]) ? n : n * 12, current: false, phrase: window[0] };
+  }
+  const one = text.match(RECENCY_ONE);
+  if (one) return { asks: true, windowMonths: /^month/i.test(one[1]) ? 1 : 12, current: false, phrase: one[0] };
+  const current = text.match(CURRENT_WORK);
+  if (current) return { asks: true, windowMonths: 0, current: true, phrase: current[0] };
+  const recent = text.match(RECENT_WORK);
+  if (recent) return { asks: true, windowMonths: null, current: false, phrase: recent[0] };
+  return { asks: false, windowMonths: null, current: false, phrase: null };
+}
+
+/** A proposed split of a requirement into necessary parts (O3). Proposals only: nothing uses a split until the owner
+ * approves it. `single` and `item_list` propose no new split (item lists are already read piece by piece). */
+export type CompoundKind = "single" | "alternatives" | "item_list" | "task_compound" | "ambiguous";
+export type CompoundProposal = { requirement: string; core: string; kind: CompoundKind; parts: string[]; pattern: string | null; reason: string };
+
+const LEAD_IN = /^(?:(?:at\s+least|minimum(?:\s+of)?|over)\s+)?(?:\d+\s*\+?|one|two|three|four|five|six|seven|eight|nine|ten)\s*\+?\s*(?:years?|yrs?|months?)\s+(?:of\s+)?|^(?:(?:demonstrated|proven|hands[- ]on|strong|solid|working|prior|previous|recent|professional|practical|direct|extensive|some)\s+)*(?:experience|proficiency|knowledge|familiarity|background|skills?|expertise)\s+(?:in|with|of|using|performing|doing|on)\s+|^(?:hands[- ]on\s+)?experience\s+(?=\w+ing\b)|^(?:must\s+be\s+)?(?:able|ability)\s+to\s+|^(?:responsible\s+for|responsibilities\s+include|duties\s+include)\s+/i;
+const COORDINATION = /\s*,\s*(?:and\s+|&\s+)?|\s+(?:and|&|as\s+well\s+as)\s+/i;
+const ACTION = /(?:ing|tion|sion|ment|ance|ence|ysis)$/i;
+const MODIFIER = /(?:al|ic|ive|ous|ful|ble|en|ary|ish|less)$/i;
+const isAction = (w: string) => w.length > 4 && ACTION.test(w);
+const isModifier = (w: string) => w.length > 3 && MODIFIER.test(w) && !isAction(w);
+const words = (s: string) => s.split(/\s+/).filter(Boolean);
+// A named item is a whole reviewed term or a listed skill ("Python", "SQL"), not a phrase that merely contains one.
+const namedItem = (part: string, listed: ReadonlySet<string>) => words(part).length <= 3 && !words(part).some(isAction) && (VOCABULARY.has(part.toLowerCase()) || listed.has(part.toLowerCase()));
+
+/** The requirement's own task phrase: the head clause without lead-ins ("3+ years of", "Experience with", "Ability to"). */
+export function requirementCore(text: string, listed: ReadonlySet<string> = new Set()): string {
+  const head = parseRequirement(text, listed).head || text;
+  // Examples after "including" or "such as" illustrate one task; they aren't separate requirements.
+  let core = head.replace(/\s*[([{].*$/, "").replace(/\s*,?\s*\b(?:including|such\s+as|e\.g\.|for\s+example)\b.*$/i, "").replace(/[.;:]+$/, "").trim();
+  for (let i = 0; i < 4; i++) {
+    const next = core.replace(LEAD_IN, "").trim();
+    if (next === core) break;
+    core = next;
+  }
+  return core;
+}
+
+export function proposeCompoundSplit(text: string, listed: ReadonlySet<string> = new Set()): CompoundProposal {
+  const core = requirementCore(text, listed);
+  const make = (kind: CompoundKind, parts: string[], pattern: string | null, reason: string): CompoundProposal => ({ requirement: text, core, kind, parts, pattern, reason });
+  const hasAnd = /\s(?:and|&|as\s+well\s+as)\s|,/i.test(core);
+  const hasOr = /\bor\b|\band\/or\b/i.test(core);
+  if (!hasAnd) return make(hasOr ? "alternatives" : "single", [], null, hasOr ? "any one alternative is enough" : "one task");
+  if (hasOr) return make("ambiguous", [], null, "mixes 'and' with 'or'");
+  if (VOCABULARY.has(core.toLowerCase())) return make("single", [], null, "a reviewed single term");
+  const parts = core.split(COORDINATION).map(p => p.trim()).filter(Boolean);
+  if (parts.length < 2) return make("single", [], null, "one task");
+  const [l0, r0] = [words(parts[0]), words(parts[parts.length - 1])];
+  if (parts.length === 2 && ((l0.length >= 2 && r0.length === 1 && isModifier(r0[0])) || (r0.length >= 2 && isModifier(l0[l0.length - 1]) && isModifier(r0[0]))))
+    return make("single", [], null, "coordinated modifiers of one thing");
+  if (parts.every(p => namedItem(p, listed))) return make("item_list", [], null, "a list of named items, already read piece by piece");
+  if (parts.length > 3) return make("ambiguous", parts, null, "more than three parts");
+  if (parts.some(p => /\b\d+\s*\+?\s*(?:years?|yrs?|months?)\b|\b(?:certifi\w*|licen[cs]\w*|degree|diploma|bachelor\w*)\b/i.test(p)))
+    return make("ambiguous", parts, null, "mixes a credential or a length of time with other parts");
+  const [L, R] = [words(parts[0]), words(parts[parts.length - 1])];
+
+  if (parts.length === 2) {
+    // "Conduit bending and installation": the second action shares the first one's object.
+    if (L.length >= 2 && R.length === 1) {
+      if (isAction(L[L.length - 1]) && isAction(R[0])) return make("task_compound", [parts[0], [...L.slice(0, -1), R[0]].join(" ")], "shared_object_before", "two actions on one object");
+      // Only when neither side could be a task ("removal and replacement" could be two).
+      if (!isAction(R[0]) && !isAction(L[L.length - 1]) && (isModifier(R[0]) || isModifier(L[L.length - 1]))) return make("single", [], null, "coordinated modifiers of one thing");
+      return make("ambiguous", parts, null, "unclear whether the second word is a separate task");
+    }
+    // "Installing and maintaining HVAC systems": two actions sharing the object after them.
+    if (L.length === 1 && R.length >= 2) {
+      if (isModifier(L[0]) && isModifier(R[0])) return make("single", [], null, "coordinated modifiers of one thing");
+      if (isAction(L[0]) && isAction(R[0])) return make("task_compound", [[L[0], ...R.slice(1)].join(" "), parts[1]], "shared_object_after", "two actions on one object");
+      // "Pruning and tree felling": a task word, then a task phrase with its own object. Keep both as written.
+      if (isAction(L[0]) && !isAction(R[0]) && R.some(isAction)) return make("task_compound", parts, "full_phrases", "a task and a separate task phrase");
+      return make("ambiguous", [[L[0], ...R.slice(1)].join(" "), parts[1]], "shared_object_after", "the first word may or may not be a separate task");
+    }
+    if (L.length === 1 && R.length === 1) {
+      if (isAction(L[0]) || isAction(R[0])) return make("ambiguous", parts, null, "two words that may name one area of work or two tasks");
+      return make("single", [], null, "a two-word pairing naming one thing");
+    }
+    // "Patient scheduling and insurance verification": two full task phrases.
+    if (L.some(isAction) && R.some(isAction)) return make("task_compound", parts, "full_phrases", "two task phrases");
+    return make("ambiguous", parts, "full_phrases", "two phrases, not both clearly tasks");
+  }
+
+  // Three parts. "Plan, prepare and serve meals": single actions sharing the last part's object.
+  const singles = parts.slice(0, -1).every(p => words(p).length === 1);
+  if (singles && R.length >= 2) {
+    const shared = R.slice(1).join(" ");
+    const expanded = [...parts.slice(0, -1).map(p => `${p} ${shared}`), parts[parts.length - 1]];
+    if (parts.slice(0, -1).some(p => isModifier(p)) || isModifier(R[0])) return make("single", [], null, "coordinated modifiers of one thing");
+    return make([...parts.slice(0, -1), R[0]].every(isAction) ? "task_compound" : "ambiguous", expanded, "shared_object_after", "three actions on one object");
+  }
+  if (parts.every(p => words(p).some(isAction))) return make("task_compound", parts, "full_phrases", "three task phrases");
+  return make("ambiguous", parts, null, "three parts, not all clearly tasks");
+}

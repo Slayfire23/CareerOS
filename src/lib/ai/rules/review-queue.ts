@@ -29,6 +29,20 @@ export function questionKey(requirementText: string, kind: ClarificationKind): s
   return createHash("sha256").update(`${family}\u0000${[...new Set(terms)].sort().join("\u0001")}\u0000${grades.join("\u0001")}`, "utf8").digest("hex").slice(0, 32);
 }
 
+/** Structured ownership (O3), not used by the queue yet: the question about one part of a compound requirement. It equals
+ * the key of a single-task requirement for the same work ("Conduit bending"), so that work is never asked about twice. */
+export function partQuestionKey(partText: string): string {
+  return questionKey(partText, "work_detail");
+}
+
+/** Structured ownership (O3), not used by the queue yet: the question about a whole compound requirement. Built from its
+ * parts' keys under its own prefix, so it never equals the key of any one part, and is never merged with a question
+ * about only one of them. */
+export function compoundQuestionKey(partTexts: string[]): string {
+  const parts = [...new Set(partTexts.map(partQuestionKey))].sort();
+  return createHash("sha256").update(`compound\u0000${parts.join("\u0001")}`, "utf8").digest("hex").slice(0, 32);
+}
+
 /** The key for a requirement, as the queue would compute it: the same however its finding reads. */
 export function keyForRequirement(requirement: MatchRequirement): string {
   const open: Finding = { requirementIndex: requirement.index, verdict: "insufficient_information", explanation: "", citations: [], caveats: [] };
