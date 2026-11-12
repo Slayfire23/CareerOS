@@ -12,7 +12,8 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
 - **Group 1 (P1–P16) was decided on 2026-11-11** (see "Group 1 owner decisions" below):
   - 10 approved for the structured questionnaire: 7 as proposed, 2 with edited wording, 1 with clarification;
   - 6 kept unsplit.
-- **A1–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 1 (A1–A18) was decided on 2026-11-11:** all 18 are kept unsplit, and A1's credential reading is flagged as unresolved.
+- **A19–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -117,6 +118,31 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 - No unreviewed split is activated.
 - Existing matching outcomes don't change.
 - D1–D3 and O1–O3 are preserved.
+
+### Ambiguous batch 1 owner decisions (A1–A18, 2026-11-11, owner-approved)
+
+**All 18 are kept unsplit in the structured ownership questionnaire.** These decisions are recorded only, not implemented; matching is unchanged.
+
+| # | Original requirement (unchanged) | Decision |
+|---|---|---|
+| A1 | Certified rigger and signal person | Keep unsplit, with the original wording preserved. **The credential interpretation is flagged as unresolved:** don't assume two separate certifications are required. Credential verification stays separate from structured activity ownership |
+| A2 | Bachelor's in Chemistry, minimum | Keep unsplit. The credential, duration, role-qualifier and employment-history checks are preserved, not turned into separate activity questions |
+| A3 | Experience with AWS and 3+ years of DevOps work | Keep unsplit (as A2) |
+| A4 | Forklift certification and 1+ year operating material handling equipment | Keep unsplit (as A2) |
+| A5 | Litigation paralegal, 3 years | Keep unsplit (as A2) |
+| A6 | State teaching certificate, secondary mathematics | Keep unsplit (as A2) |
+| A7 | Supported Windows and Active Directory users for at least 2 years | Keep unsplit (as A2) |
+| A8 | Verify and approve all invoices: 3 years of accounts payable experience | Keep unsplit (as A2) |
+| A9 | AWS and either Terraform or CloudFormation | Keep unsplit; the existing alternative and mixed and/or logic is preserved (X3) |
+| A10 | Python or R, plus SQL | Keep unsplit (X3) |
+| A11 | AWS, Azure, or GCP | Keep unsplit (X3) |
+| A12 | Bachelor's degree or equivalent combination of education and experience | Keep unsplit (X3) |
+| A13 | Degree in Mathematics, Statistics, or Physics | Keep unsplit (X3) |
+| A14 | Degree in Statistics, Mathematics or Economics | Keep unsplit (X3) |
+| A15 | Write and maintain automated tests using Selenium or Cypress | Keep unsplit (X3) |
+| A16 | You will evaluate vendors and mark each as approved or rejected; procurement experience required | Keep unsplit (X3) |
+| A17 | HTML, CSS, and JavaScript | Keep unsplit; the existing item-level evaluation is preserved |
+| A18 | *(requirement with embedded instructions; text omitted)* | Keep unsplit; embedded instructions are still treated as untrusted data |
 
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
