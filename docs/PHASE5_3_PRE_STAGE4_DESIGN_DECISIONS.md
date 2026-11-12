@@ -4,6 +4,18 @@ November 11, 2026. **Proposals for owner approval. Nothing here is implemented.*
 
 The compound split review is complete: 33 approved and 76 unsplit, all inactive (docs/PHASE5_3_SPLIT_REVIEW.md). Five design questions came out of it. Each must be settled before any approved split is used. The first two shape the Stage 4 questionnaire itself.
 
+## Owner decisions (2026-11-11)
+
+| # | Decision |
+|---|---|
+| DD1 | **Conditionally approved:** an independent per-part evidence model. Each part must be supported by evidence specific to that activity. A Supported verdict for the whole requirement never establishes every part. **Exact marker matching is not the final recognition design:** people must not lose legitimate credit for using different words. The recognition approach must be conservative, built from: owner-reviewed distinguishing markers; explicitly approved equivalent wording where justified; first-person ownership and clause-level attribution; correction and contradiction handling; and targeted follow-up questions when evidence is incomplete. No broad semantic equivalences, and related activities are never treated as identical automatically. It must be simulated against all 33 approved splits before implementation |
+| DD2 | **Approved:** one explanation field for the whole requirement, with unticked per-part checkboxes. One explanation may establish several parts when it genuinely evidences each, and no duplicate writing is required. Checkboxes alone give Possible at most (D1), never Supported. Targeted follow-ups are asked only for unresolved parts, and an answered question is never repeated |
+| DD3 | **Approved in principle**, subject to separate implementation and full regression testing. A correction that transfers responsibility to another person invalidates the earlier claim for that activity. A correction that only narrows scope preserves genuine experience within that scope. A87 and A78 become permanent regression examples, with nearby positive and negative controls. rules-v20 is unchanged for now |
+| DD4 | **Separate review track.** Existing verdicts are preserved. A complete inventory of the gaps is to be prepared, including A40–A43, A47, A73, A78, A92 and the A56 and A60 observations. No equivalence or verdict change without separate review and approval |
+| DD5 | **Approved:** A1 stays unsplit, with its certification interpretation unresolved. Credential verification stays separate from structured ownership |
+
+The DD1/DD2 specification and its simulation are in docs/PHASE5_3_DD1_DD2_SPEC.md.
+
 Fixed points every proposal keeps:
 - D1–D3 and O1–O7;
 - no Supported from a checkbox or an unsupported self-report;
@@ -85,7 +97,7 @@ The follow-up reply reader already refuses replies that undercut themselves (rea
 
 ## 4. Recognition gaps (documented; no verdict changes)
 
-Eight labeled-supported answers that rules-v20 doesn't credit. They are recorded in full in the split review, and all eight requirements stay unsplit.
+Ten labeled-supported answers that rules-v20 doesn't credit (eight from the split review, plus A56 and A60 per the DD4 decision). The first eight are recorded in full in the split review, and those eight requirements stay unsplit. A56 and A60 are approved splits (inactive).
 
 | # | Requirement | Current reading | Likely cause | What it needs |
 |---|---|---|---|---|
@@ -97,11 +109,16 @@ Eight labeled-supported answers that rules-v20 doesn't credit. They are recorded
 | A73 | Schedule and coordinate shipments with freight carriers | Not enough | "book pickups", "loads" for scheduling shipments; ownership read correctly | Equivalence review |
 | A78 | Conduct customer site surveys and measurements | Not enough | The self-correction makes the reader drop the narrowed own statement | §3 correction handling, plus your residential-scope decision |
 | A92 | Prune, plant and maintain landscape beds | Not enough | "dig them in", "cut back" for planting and pruning; ownership read correctly | Equivalence review |
+| A56 (fw-076, benchmark pc-176; added to the inventory 2026-11-11) | Develop and deliver sales presentations to clients | Not enough (reader and engine) | "I build the decks in PowerPoint for every prospect and present them in person or on Zoom" (Account Executive, 26 months; labeled supported, performed, hands-on). Neither "develop" nor "deliver … presentations" appears; "build the decks" and "present them" do. In the DD1 simulation, both approved parts are shown and the structured path reaches Supported | A text-path vocabulary gap only; the approved split's markers already cover it. Any text-path fix goes through the equivalence review |
+| A60 (fw-088, benchmark pc-188; added to the inventory 2026-11-11) | Plan and execute paid search campaigns in Google Ads | Possible (reader); Not enough (engine) | "I plan and run our Google Ads search campaigns — keyword research, ad copy, bids and weekly budget adjustments…" (Digital Marketing Specialist, 20 months; labeled supported). "Run" isn't matched to "execute". Reply: "My manager approves the monthly budget". In the DD1 simulation, both parts are shown and the structured path reaches Supported | A text-path vocabulary gap ("run" for "execute"). Equivalence review. The reply's manager approval is about the budget, not the campaigns |
 
 **Recommended route:**
 - **Vocabulary gaps** (A42, A43, A47, A73, A92, and A40's vocabulary part): a future equivalence batch under the existing process, with simulation, the no-new-false-Supported bar and per-group approval.
 - **A41, A78 and A40's scope:** need your interpretation first.
-- **Also observed during the review, not recorded as gaps:** A56 (sales presentations) and A60 (Google Ads) answers labeled supported read Not enough and Possible. They can be added on request.
+- **The complete DD4 inventory is the 10 rows above:** A40–A43, A47, A73, A78, A92, A56, A60.
+  - The full evidence for the first eight is in the split review's recognition-gap section. A56 and A60 are recorded here.
+  - Existing verdicts are preserved, and nothing is implemented.
+  - A56 and A60 are text-path gaps that the approved splits would cover on the structured path (DD1 simulation).
 
 ## 5. A1: unresolved credential interpretation (preserved)
 
