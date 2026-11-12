@@ -144,7 +144,21 @@ In both cases the existing consistency check reads the text as consistent with "
 
 **Proposed order:** R1, R2 and R4 can be decided now. R3 with DD3 is one rules change, regression-tested, before activation. Stage 4 (the form, DD2) can then be built against the approved list. Activation waits for R3/DD3 and the R4 independent check.
 
+## 8. Owner decisions on R1–R5 (2026-11-12)
+
+**The V4b results aren't approval to activate the design or begin Stage 4.**
+
+| # | Decision |
+|---|---|
+| R1 | **Review required before approval.** The 66 draft markers and 52 candidate equivalents aren't adopted. A review table covers all 33 splits: the original requirement, the exact approved parts, the draft marker, candidate equivalents, why each equivalent is valid, ambiguity or over-credit risk, and a recommendation (approve, revise, reject, or needs owner interpretation). It's reviewed in batches, starting with the first 8 splits (docs/PHASE5_3_R1_MARKER_REVIEW.md). The owner-approved part wording is never changed: markers and equivalents are separate recognition proposals |
+| R2 | **Conditionally approved:** hiring, verifying and approving can be responsibilities the person performs directly. Narrow exceptions recognize real personal participation in hiring decisions, invoice verification, or payment approval. General supervision, forwarding paperwork, recommending candidates, and requesting approval never count as performing them. The exceptions must not weaken O1/O2 or become broad exemptions for management verbs |
+| R3 | **The reader-fix design and implementation plan are approved; code changes aren't.** The plan covers six things: semicolons dropping first-person clauses; transfer corrections; narrowing corrections; hiring, verifying and approving read as overseeing; contradictions overriding unsupported checkbox claims; and clause-level ownership. **D1 safeguard:** when the explanation says someone else performed an activity, "I did it myself" doesn't give Possible for that contradicted activity, and credit for distinct activities the person genuinely did is preserved. A87, A78, A93, A26, A52, A60 and P13 are targeted regression examples, with positive and negative controls (docs/PHASE5_3_R3_READER_FIX_PLAN.md) |
+| R4 | **An independent evaluation design is approved:** one agent writes scenarios, and a separate agent labels them independently. It covers genuine full experience, partial experience, supervision and delegation, corrections and narrowed claims, third-party work, several activities in one explanation, synonyms and natural variation, contradictory checkboxes, injection attempts, and non-English explanations (D3). It stays separate from the implementer's design probes. No existing sealed split is inspected or scored (docs/PHASE5_3_R4_EVAL_PROTOCOL.md) |
+| R5 | **Approved:** A93 stays at Possible at most, with a targeted question, unless independently sufficient evidence establishes the activity. Entering values into a budget template, or supplying labor numbers for someone else's forecast, never establishes full ownership of budgeting or forecasting |
+
 ## Appendix: draft markers and candidate equivalents (for owner review; none approved)
+
+*Superseded for review purposes by docs/PHASE5_3_R1_MARKER_REVIEW.md, where each item gets a recommendation. Kept as the simulation's exact input.*
 
 Patterns are case-insensitive. `\w*` means any word ending; `[^.]{0,30}` means within about 30 characters in the same sentence.
 
