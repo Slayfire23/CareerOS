@@ -16,7 +16,8 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
 - **Ambiguous batch 2 (A19–A34) was decided on 2026-11-11:**
   - 8 splits approved with edited wording (A19–A26);
   - 8 kept unsplit (A27–A34).
-- **A35–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 3 (A35–A50) was decided on 2026-11-11:** all 16 are kept unsplit. Five recognition gaps (A40–A43, A47) are recorded in their own follow-up section, separate from split approval.
+- **A51–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -180,6 +181,29 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 
 **Open design item, required before any split is activated:** don't make a person write duplicate explanations when one explanation genuinely covers several parts. For example, "I run the calendars for our CEO and two VPs … and book the hotels, cars and flights for their trips" covers both A22 parts. This behavior is to be designed and approved separately, and it is distinct from X2.
 
+### Ambiguous batch 3 owner decisions (A35–A50, 2026-11-11, owner-approved)
+
+**All 16 are kept unsplit in the structured ownership questionnaire.** These decisions are recorded only; matching is unchanged.
+
+| # | Original requirement (unchanged) | Decision |
+|---|---|---|
+| A35 | Develop curriculum and assessments for online courses | Keep unsplit |
+| A36 | Experience with SQL queries and database reporting | Keep unsplit |
+| A37 | *(requirement with embedded instructions; text omitted)* | Keep unsplit; still untrusted data |
+| A38 | *(requirement with embedded instructions; text omitted)* | Keep unsplit; still untrusted data |
+| A39 | Microsoft Outlook and calendar management | Keep unsplit |
+| A40 | Operate a commercial dishwasher and maintain kitchen sanitation | Keep unsplit (recognition gap recorded separately below) |
+| A41 | Operate forklifts and pallet jacks safely | Keep unsplit (recognition gap recorded separately below) |
+| A42 | Operate point-of-sale systems and process returns | Keep unsplit (recognition gap recorded separately below) |
+| A43 | Perform merchandising and visual displays | Keep unsplit (recognition gap recorded separately below) |
+| A44 | Perform patient transfers and mobility assistance | Keep unsplit |
+| A45 | Perform phlebotomy and specimen collection | Keep unsplit |
+| A46 | Perform spay and neuter surgeries | Keep unsplit |
+| A47 | Process accounts payable and vendor invoices | Keep unsplit (recognition gap recorded separately below) |
+| A48 | Wound care and dressing changes | Keep unsplit |
+| A49 | Write SQL that can DROP TABLE and re-create it safely during migrations | Keep unsplit |
+| A50 | You will have override authority on the POS and approve voids | Keep unsplit |
+
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
 **Recommendation tally:**
@@ -329,6 +353,33 @@ Durations, credentials and alternatives are already read from the profile entrie
 | # | Requirement | Splitter's parts | Opened data | Recommendation | Rationale |
 |---|---|---|---|---|---|
 | A93 | Forecasting and budgeting | `Forecasting` · `budgeting` | engine I; answers I | **Split (edited parts)** | `Forecasting` · `Budgeting`. Distinct FP&A tasks; budgeting was already rejected as a broad equivalence (Batch 1). Partial experience is common |
+## Recognition-gap follow-up (documentation only; separate from split approval)
+
+Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all five requirements stay unsplit.
+
+**Source and labels.**
+- All five come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
+- Labels are the set's whole-entry labels (`answer_verdict`, `personally_did`, `involvement`, `hands_on`), written by a separate labeling agent.
+- "Engine" is the title-only engine reading of that scenario's role. "Reader" is the answer reader on the answer text alone.
+- A follow-up reply exists in the data, but it isn't part of the answer reading below.
+
+| # | Exact requirement | Opened evidence (answer; role; follow-up reply) | Current verdict | Labeled expected | Full requirement or only part? | Ambiguity to clarify |
+|---|---|---|---|---|---|---|
+| A40 (fw-075, benchmark pc-175) | Operate a commercial dishwasher and maintain kitchen sanitation | "I run the Hobart dish machine every shift, check the sanitizer and temps, and break down and clean the machine and the dish pit at close." Role: Dishwasher, 8 months. No reply | Reader: Not enough information. Engine: Possible | Supported (performed, hands-on) | **Largely full:** operating the machine is explicit. Sanitation is shown for the dish station (sanitizer, temperatures, cleaning the machine and the pit) but not for the kitchen as a whole | Does "maintain kitchen sanitation" mean the dish station's sanitation, or kitchen-wide duties? |
+| A41 (fw-019, benchmark pc-119) | Operate forklifts and pallet jacks safely | "I'm on a sit-down Toyota forklift most of my shift, unloading trailers and putting pallets up on the top racks. Got certified by the company when I started." Role: Warehouse Associate, 25 months. Reply: "About two years, 8 to 10 trailers a shift on my own. Electric pallet jack too for staging." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Only part, in the answer:** the forklift only; pallet jacks aren't mentioned. Pallet jacks appear **only in the follow-up reply**. "Safely" rests on the company certification alone | **Don't raise this to Supported automatically.** Should a reply count toward the second equipment type? (Follow-up replies currently reach Possible at most, as Self-reported.) Is the certification enough for "safely"? |
+| A42 (fw-112, benchmark pc-212) | Operate point-of-sale systems and process returns | "I operate the Square POS at the register and process returns and exchanges myself, including the manager override ones when I'm keyholder." Role: Store Associate, 15 months. Reply: "Most shifts I'm the only one on register, a year and a quarter now." | Reader: Possible. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full:** both parts are stated in the person's own words (operates a named POS; processes returns themselves) | Little: Square is a point-of-sale system. The open question is why "the Square POS" isn't matched to "point-of-sale systems" |
+| A43 (fw-105, benchmark pc-205) | Perform merchandising and visual displays | "Every Sunday night I change out the front tables and windows to match the new promo — picking which items go up front, folding them in color order and putting the signs up so they catch your eye from the mall." Role: Retail Associate, 14 months. Reply: "My manager sends the corporate photo and I build it on my own, about a year now." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance, none in wording:** visual displays (windows, tables, signs) and merchandising (choosing and arranging items) are described, but neither requirement word appears | The reply shows the layout comes from a corporate photo, and the person builds it. Does building a display to plan count as "merchandising", or should the plan be the person's own? |
+| A47 (fw-014, benchmark pc-114) | Process accounts payable and vendor invoices | "Bills come into a shared inbox, I match each one to the PO and what the warehouse says we got, code it to the right expense line and schedule the check run every other Friday. I'm the only one in the office who does it." Role: Bookkeeper, 36 months. Reply: "Around 300 bills a month for three years. I also chase the vendors when an amount doesn't match." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance:** three-way match, coding, payment runs, done alone. "Bills" stands for vendor invoices, and "accounts payable" isn't named | Little. It's a vocabulary gap ("bills", "PO", "check run" for accounts payable), the kind the equivalence review covers. Any fix goes through that review, with its no-new-false-Supported bar |
+
+**What this follow-up does not do:**
+- It doesn't change verdicts or matching rules, add equivalences, or relabel anything.
+- It doesn't count follow-up replies as evidence.
+
+Any later fix must go through:
+1. its own approval;
+2. the full regression comparison (historical answers, probes, replies, engine baseline);
+3. the no-new-false-Supported bar.
+
 ## Decision sheet
 
 A reply can be as short as "X1–X4 as recommended; Group 1 as recommended except P13 split; Group 2 split candidates approved, clarify items kept whole, the rest kept whole". Anything you don't decide stays inactive.
