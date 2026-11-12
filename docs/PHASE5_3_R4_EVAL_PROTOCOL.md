@@ -2,6 +2,8 @@
 
 November 12, 2026. **A protocol only. Nothing is written, generated or run yet.** It follows the Stage 0 pattern (`m11_structured`): one agent writes, a different agent labels, the result is committed unopened, and it's scored once at freeze.
 
+**Owner note (2026-11-12):** this protocol is approved **for planning only**. No sealed evaluation answers are created or inspected until a separate approval.
+
 **Separation rules:**
 - **The writer and labeler never see** the implementation, the markers, the candidate equivalents, the DD1 design probes, or any simulation output.
 - **The implementer never opens** the scenarios or labels before freeze.

@@ -159,6 +159,14 @@ Also kept permanently:
 - **Suites:** unit, integration, TypeScript, lint and schema. The sealed hash guards run only.
 - **Order:** implement F1–F7 under the opt-in; run the comparison; stop and report any unexpected change; commit locally only on a clean result; adopt only by owner decision.
 
+## Owner safeguard on verdict reductions (2026-11-12)
+
+The rules-v21 implementation must tell **intentional removal of incorrect credit** apart from **unjustified loss of genuine experience**:
+- **Contradicted checkbox claims don't keep automatic Possible** (F6).
+- **Genuine experience within a narrowed scope** (F4) **and separately performed activities** (F6) are preserved.
+- **Every intentional verdict reduction is documented one by one** in the comparison report, with its opened evidence and label: what the answer says, why the earlier credit was incorrect, and which fix removes it. A reduction on an answer labeled qualified is a labeled loss, never an "intentional reduction". It blocks adoption.
+- **No regression gate is weakened**: zero new false Supported, zero labeled-qualified losses, zero good replies newly refused, and the ICD-10 gain kept. The gates are applied unchanged, and none is waived silently.
+
 ## Risks to watch
 
 - **F2 over-cutting:** product names and capitalized words before verbs ("Excel builds", "Google Ads runs"). Name detection needs controls, and the comparison will show any loss.
