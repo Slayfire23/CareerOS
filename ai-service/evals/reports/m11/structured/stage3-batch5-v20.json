@@ -1,0 +1,372 @@
+{
+ "note": "Batch 5 re-simulation under rules-v20 (both groups held; nothing written to the table).",
+ "probes": [
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I sprayed pesticides in apartment units and placed bait stations along foundations for a pest control company.",
+   "credit"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I treated homes for pests every day as a licensed technician.",
+   "credit"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I set out the sticky traps myself and tell him where we've seen mice. He sprays and does the bait stations.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I arranged a monthly visit from an exterminator and keep the binder ready for the health inspector.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I sprayed pesticides on my own vegetable garden.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I applied pesticides to the crop-duster's invoices as a billing clerk.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I teach new technicians how to apply pesticides.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I'm learning to apply pesticides for my license exam.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I placed bait stations orders with the supplier.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I fumigated buildings once on a job-shadow day while the technician did the work.",
+   "no"
+  ],
+  [
+   "pestcontrol",
+   "Pest control treatment",
+   "I sprayed pesticides every week at my last job.",
+   "credit"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "I took a one-day class where the instructor sprayed pesticides and we watched.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "I supervise the people who sprayed pesticides and I approve their work.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "I helped the specialist who sprayed pesticides, mostly fetching supplies.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "We hired an outside firm that sprayed pesticides for us.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "My coworker sprayed pesticides; I just watched.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "I have never sprayed pesticides.",
+   "no"
+  ],
+  [
+   "pestcontrol:ownership",
+   "Pest control treatment",
+   "I could spray pesticides if needed.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "At the dealership I do the cycle counts on the bins every week, chase down the variances, and set reorder points on the fast movers so we're not out of filters and wiper blades.",
+   "credit"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I investigated inventory variances and adjusted reorder points for 3,000 SKUs at the distribution center.",
+   "credit"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I teach new clerks how to set reorder points.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I'm learning to set reorder points in my supply chain class.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I need to set reorder points but my manager won't let me.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I set reorder points reminders in my calendar for the buyer.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I reviewed the inventory variances the analysts reconciled.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I reconciled inventory variances reports for the auditors by filing them.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I counted stock for my garage sale.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "My manager adjusted reorder points; I just entered the counts.",
+   "no"
+  ],
+  [
+   "inventorycontrol",
+   "Inventory control",
+   "I adjusted reorder points every week at my last job.",
+   "credit"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "I took a one-day class where the instructor adjusted reorder points and we watched.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "I supervise the people who adjusted reorder points and I approve their work.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "I helped the specialist who adjusted reorder points, mostly fetching supplies.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "We hired an outside firm that adjusted reorder points for us.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "My coworker adjusted reorder points; I just watched.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "I have never adjusted reorder points.",
+   "no"
+  ],
+  [
+   "inventorycontrol:ownership",
+   "Inventory control",
+   "I could adjust reorder points if needed.",
+   "no"
+  ]
+ ],
+ "readings": {
+  "current": [
+   "possible",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information"
+  ],
+  "pestcontrol__approved": [
+   "supported",
+   "supported",
+   "insufficient_information",
+   "insufficient_information",
+   "possible",
+   "supported",
+   "insufficient_information",
+   "insufficient_information",
+   "supported",
+   "supported",
+   "supported",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information"
+  ],
+  "inventorycontrol__approved": [
+   "possible",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "supported",
+   "supported",
+   "possible",
+   "insufficient_information",
+   "insufficient_information",
+   "supported",
+   "insufficient_information",
+   "supported",
+   "possible",
+   "insufficient_information",
+   "supported",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information",
+   "insufficient_information"
+  ]
+ },
+ "historical_changes": {
+  "pestcontrol__approved": [],
+  "inventorycontrol__approved": [
+   {
+    "answer": {
+     "src": "m11_shadow/dev",
+     "requirement": "Inventory management",
+     "answer": "I ran weekly cycle counts in the stockroom, set reorder points on our top sellers, and worked out why the shrink on razors kept climbing.",
+     "label": "qualifies"
+    },
+    "current": "insufficient_information",
+    "approved": "supported"
+   },
+   {
+    "answer": {
+     "src": "m11_followup2:fv-012",
+     "requirement": "Inventory control",
+     "answer": "At the dealership I do the cycle counts on the bins every week, chase down the variances, and set reorder points on the fast movers so we're not out of filters and wiper blades.",
+     "label": "supported"
+    },
+    "current": "insufficient_information",
+    "approved": "supported"
+   },
+   {
+    "answer": {
+     "src": "benchmark:pc-012",
+     "requirement": "Inventory control",
+     "answer": "At the dealership I do the cycle counts on the bins every week, chase down the variances, and set reorder points on the fast movers so we're not out of filters and wiper blades.",
+     "label": "ownership:yes"
+    },
+    "current": "insufficient_information",
+    "approved": "supported"
+   }
+  ]
+ }
+}

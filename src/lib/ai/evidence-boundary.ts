@@ -119,7 +119,66 @@ const OVERSAW = /\b(?:arranged\s+(?:for\s+)?(?:a|an|the)?\s*(?:[\p{L}-]+\s+){0,2
 const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisting|supported|support|supports|supporting|handed|hand|hands|passed|pass\s+(?:him|her|them|the)|fetched|fetch|held\s+the|hold\s+the|gave\s+(?:him|her|them)\s+(?:the|my|our|a|an)\s+(?:[\p{L}-]+\s+)?(?:logins?|access|keys?|files?|specs?|tools?|passwords?|credentials?|paperwork|list|numbers?|data)|set\s+(?:him|her|them)\s+up|prepped\s+for|tagged\s+along|stocked|sweep|swept)\b/iu;
 /** Who did what the sentence describes. */
 /** What the person's part in it was. Only "performed" is doing the work; the rest count where that's what's asked. */
-export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed";
+/** "taught" is produced only by rules-v20: teaching others to do the work, which isn't doing it (O1). */
+export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed" | "taught";
+
+/** Which text rules read an answer. "v19" is current matching and the default everywhere. "v20" (Phase 5.3 Stage 3) adds
+ * the clause rules below; it is opt-in until the owner adopts it, and only evaluations and tests ask for it. */
+export type TextRules = "v19" | "v20";
+
+// rules-v20, by sentence structure (no lists of ambiguous words):
+// Teaching or training others to do it: "I teach new hires how to operate a forklift". Not the person's own execution.
+const TEACH_VERB = /^(?:teach|teaches|taught|teaching|train|trains|trained|training|show|shows|showed|showing|instruct|instructs|instructed|instructing|coach|coaches|coached|coaching|mentor|mentors|mentored|mentoring)$/;
+// Learning, intending, wishing or planning to do it: work not done. Same treatment as today's hypotheticals.
+const INTENT = /\b(?:learning\s+(?:how\s+)?to|learn\s+(?:how\s+)?to|need\s+to\s+learn|have\s+to\s+learn|hate\s+to|studying\s+(?:to|for)|training\s+to\s+(?:become|be)\b|would\s+like\s+to|wish\s+(?:i|to)|aspir\w*\s+to|i['’]ll\s+\p{L}+|i\s+will\s+\p{L}+|once\s+i\s+(?:finish|start|get|complete|pass)|when\s+i\s+(?:finish|start|get|complete|pass)\s+my)\b/iu;
+// Personal, not occupational, context: "for my own guitar practice", "on my own vegetable garden", "for my family vacation".
+// "My own" counts only as a beneficiary or place ("for/on/with my own …"): "write my own quizzes" is the person doing it.
+const PERSONAL = /\b(?:for|on|with|at|in)\s+my\s+own\s+(?!practice\b)(?!(?:[\p{L}-]+\s+){0,2}(?:business|company|shop|clients?|customers?|crews?|teams?|firm|caseload|accounts?|route|store|restaurant|patients?|students?|classroom|salon|clinic|office|farm)\b)\p{L}+|\b(?:for|on|in)\s+(?:my|our)\s+(?:family|kids|wedding|vacation|honeymoon|road\s+trip|garage\s+sale|hobby|house|home|apartment|record\s+collection|personal\s+use|own\s+use)\b|\bas\s+a\s+hobby\b|\bfor\s+fun\b|\bfor\s+myself\b|\bin\s+my\s+spare\s+time\b|\bpersonal\s+project\b|\bas\s+a\s+patient\b/iu;
+// What the person's clause names as someone else's purpose, or someone else's finished work, isn't the person's act:
+// "the books people use to read blueprints", "the hangers used to hang ductwork", "the contracts the attorneys drafted".
+const PURPOSE_OF_OTHERS = /,?\s*\b(?:that|which)?\s*(?:people|others|customers|clients|users|staff|workers|technicians|students|employees|someone|they|crews?|teams?)\s+(?:use|used|uses|need|needs)\s+to\s+[^,.;]*/giu;
+const USED_FOR = /(?<!\b(?:i|we)\s)(?<!\b(?:i|we)\s\p{L}+\s)\b(?:used|needed|meant|designed)\s+(?:to|for)\s+[^,.;]*/giu;
+const FOR_OTHERS_TO = /\b(?:for|so\s+(?:that\s+)?)\s*(?:people|others|customers|clients|users|staff|workers|technicians|students|employees|them|crews?)\s+(?:to|can|could)\s+[^,.;]*/giu;
+// Other people as the doers of a past act: an agent noun ("attorneys", "pickers", "analysts") or a group ("the sales team").
+const AGENTS = "(?:[\\p{L}-]+(?:ers|ors|ists|ants|ians|eys)|teams?|crews?|staff|department|office|doctors?|nurses?|managers?|clients?|customers?|patients?|students?|parents|vendors?|contractors?|people|attorneys?|associates|reps|techs|analysts|clerks)";
+const PAST_ACT = "(?:\\p{L}+ed|wrote|made|drew|built|kept|held|did|gave|sent|ran|took|brought|bought|sold|chose|set|cut|put|left)";
+const OTHERS_FINISHED = new RegExp(`(?<=\\p{L}{3})\\s+(?:that\\s+|which\\s+)?(?:the|our|my|their|his|her)\\s+(?:[\\p{L}-]+\\s+)?${AGENTS}\\s+${PAST_ACT}\\b[^,.;]*`, "giu");
+// Paperwork for others (O2): collecting, sending, filing or printing something for or to another party.
+const PAPERWORK_VERB = /^(?:collect|collects|collected|collecting|send|sends|sent|sending|forward|forwards|forwarded|submit|submits|submitted|deliver|delivers|delivered|file|files|filed|filing|print|prints|printed|printing|copy|copies|copied|scan|scans|scanned|distribute|distributes|distributed|mail|mails|mailed|fax|faxes|faxed|upload|uploads|uploaded)$/;
+// The other party has to follow the paperwork verb closely: "send them to the payroll company", "filed the lesson plans for
+// the teachers". A party named later in the sentence belongs to some other act.
+const FOR_ANOTHER_PARTY = new RegExp(`^\\p{L}+(?:\\s+[\\p{L}'’-]+){0,6}?\\s+(?:for|to)\\s+(?:the|our|my|their|his|her|each|a|an)\\s+(?:[\\p{L}-]+\\s+)?(?:${AGENTS}|company|firm|office|agency|pharmacy|bank|department)\\b`, "iu");
+/** Where filing, submitting or sending is itself the work asked for, doing it for someone is doing the work. */
+export const PAPERWORK_ASKED = /\b(?:fil(?:e|es|ed|ing)|submit\w*|print\w*|mail\w*|scan\w*|send\w*|deliver\w*|distribut\w*|collect\w*|upload\w*|fax\w*|cop(?:y|ies|ying))\b/i;
+// Paying documents isn't hiring a firm: "paid vendor invoices" is accounts payable work (a B1 recognition gap).
+const PAYS_DOCUMENTS = /\b(paid|pay|pays|paying|processed|process|processes|processing)\s+(?:vendor|supplier|contractor)\s+(?=(?:invoices?|bills?|statements?|payments?)\b)/giu;
+// "Passed medications" is administering them on a nursing unit, not handing something over (a B2 recognition gap).
+const PASSED_MEDS = /\bpass(?:ed|es|ing)?\s+(?:meds|medications?|medicines?)\b/i;
+
+/** rules-v20: the text speaks of learning, intending or planning to do it, not of having done it. */
+export const statesIntent = (text: string) => INTENT.test(text) || HYPOTHETICAL.test(text);
+
+/** rules-v20: paperwork done for another party, read from the person's main verb onward. */
+function paperworkForOthers(clause: string): boolean {
+  const verb = headVerb(clause)?.verb ?? "";
+  if (!PAPERWORK_VERB.test(verb)) return false;
+  const at = clause.toLowerCase().search(new RegExp(`\\b${verb}\\b`));
+  return at >= 0 && FOR_ANOTHER_PARTY.test(clause.slice(at));
+}
+
+/** rules-v20: the clause with others' purposes and finished work taken out, so only the person's own act is read. */
+const withoutOthersWork = (readable: string) => readable.replace(PURPOSE_OF_OTHERS, " ").replace(FOR_OTHERS_TO, " ").replace(USED_FOR, " ").replace(OTHERS_FINISHED, " ").replace(/\s{2,}/g, " ").trim();
+
+/** rules-v20: the person teaches or trains someone else to do it ("I train new hires to read blueprints"). Training
+ * themselves ("I trained to be a welder", "I trained as an electrician") is learning, read by the intent rule instead. */
+export function teachesOthers(text: string): boolean {
+  const head = headVerb(text);
+  if (!head || !TEACH_VERB.test(head.verb)) return false;
+  const { after } = head;
+  if (/^(?:to|as|for|on|in|at|with|under)$/.test(after[0] ?? "")) return false;
+  const to = after.indexOf("to");
+  return to > 0 && to <= 6;
+}
 
 export type Statement = {
   text: string;
@@ -135,6 +194,8 @@ export type Statement = {
   /** Part of an answer about a class, demo, tutorial, or trial: limited familiarity at most. */
   brief?: boolean;
   ownership: Ownership;
+  /** rules-v20: paperwork done for another party (O2). It still counts where that paperwork is what's asked. */
+  paperwork?: boolean;
 };
 
 /** Where a word sits as a verb: after the person, a helper word, a joiner, or a comma. "I help the PTs" is helping;
@@ -279,7 +340,20 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
 
 /** Sentences of an answer that are plainly this person's own statement of having done something. Nothing
  * comes back unless the whole answer is plainly English: other answers stay unresolved. */
-export function answerStatements(detail: string): Statement[] {
+export function answerStatements(detail: string, rules: TextRules = "v19"): Statement[] {
+  const v20 = rules === "v20";
+  const readableOf = (text: string) => (v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
+  const ownershipOf = (clause: string): Ownership => {
+    if (!v20) return involvement(clause);
+    if (PASSED_MEDS.test(clause)) return "performed";
+    if (teachesOthers(clause)) return "taught";
+    // Reviewing or checking what others finished is overseeing it: "I reviewed the lesson plans our teachers prepared".
+    if (checksOthersWork(clause) && new RegExp(OTHERS_FINISHED.source, "iu").test(clause)) return "oversaw";
+    // Paperwork for another party (O2): "I collect timesheets and send them to the payroll company".
+    if (paperworkForOthers(clause)) return "requested";
+    return involvement(clause);
+  };
+  const personal = (whole: string) => v20 && PERSONAL.test(whole);
   // An answer with an instruction in it gets no credit at all, however good the rest looks.
   if (answerLanguage(detail) !== "en" || hasDirectedText(detail)) return [];
   // A brief try colours everything said beside it: "Clicked around for an evening. Drew a box or two."
@@ -298,7 +372,7 @@ export function answerStatements(detail: string): Statement[] {
     if (clause.subject === "other") continue;
     const whole = clause.text.trim();
     const wholeStart = match.index + clause.start + clause.text.indexOf(whole);
-    if (HANDED_OFF.test(whole) || DONE_ELSEWHERE.test(whole) || opensOnNamedOther(whole, true) || (!SUBJECT_AT.test(whole) && SOMEONE_ELSE_MIDWAY.test(whole))) continue;
+    if (HANDED_OFF.test(whole) || DONE_ELSEWHERE.test(v20 ? whole.replace(PAYS_DOCUMENTS, "$1 ") : whole) || opensOnNamedOther(whole, true) || (!SUBJECT_AT.test(whole) && SOMEONE_ELSE_MIDWAY.test(whole))) continue;
     const span = ownSpan(whole, true);
     if (!span) continue;
     // "Property claims keep the office busy, and I've picked up a good sense of it": the part naming the
@@ -316,7 +390,7 @@ export function answerStatements(detail: string): Statement[] {
       const opening = own.slice(0, subject.index + 1).replace(/(?:[,;:]\s*(?:and|so|then|but)?|\s+(?:and|so|then|but))\s*$/i, "").trim();
       if (opening && /^\W*(?!\p{L}+ing\b)\p{L}/u.test(opening) && readAct(opening).subject === "self" && readAct(opening).act === "concrete" && !/\b(?:is|are|was|were|be|been)\b/i.test(opening) && !ownNegative(opening) && !HYPOTHETICAL.test(opening)) {
         const at = wholeStart + whole.indexOf(opening, span[0]);
-        if (!barred.some(([s, e]) => s < at + opening.length && at < e)) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(opening), ownership: involvement(opening) });
+        if (!barred.some(([s, e]) => s < at + opening.length && at < e) && !(v20 && INTENT.test(opening))) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(opening), ownership: ownershipOf(opening) });
       }
       span[0] += subject.index + subject[0].search(/\p{L}/u);
     }
@@ -325,18 +399,19 @@ export function answerStatements(detail: string): Statement[] {
     const end = start + text.length;
     if (text.length < 3 || barred.some(([s, e]) => s < end && start < e)) continue;
     if (ownNegative(whole) || HYPOTHETICAL.test(ownClauses(whole).replace(WHAT_I_CAN, " ")) || NOT_DOING.test(whole) || notAStatement(whole) || keywordDump(text) || labelledList(text)) continue;
+    if (v20 && INTENT.test(ownClauses(whole))) continue;
     if (someoneElsesWork(text, text)) continue;
     // Judged on the first clause: "I build the screens, and I hand them to engineering" is doing the work.
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
-    const ownership: Ownership = involvement(firstClause);
+    const ownership: Ownership = ownershipOf(firstClause);
     const read = readAct(text);
-    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole), brief, readable: ownClauses(text.replace(THE_ONE_WHO, "I ")), ownership });
+    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole) || personal(whole), brief, readable: readableOf(text.replace(THE_ONE_WHO, "I ")), ownership, ...(v20 && paperworkForOthers(firstClause) ? { paperwork: true } : {}) });
     // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
     const mine = read.subject === "team" ? /(?:,\s*(?:and|so|then|but)\s+|\s+and\s+)(?=i\s)/i.exec(text) : null;
     if (mine) {
       const own = text.slice(mine.index + mine[0].length);
       const firstOwn = own.split(/,\s*(?:and|then|but)\s+/i)[0];
-      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole), brief, readable: ownClauses(own), ownership: involvement(firstOwn) });
+      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(own), ownership: ownershipOf(firstOwn) });
     }
   }
   return [...leading, ...out].sort((x, y) => x.start - y.start);

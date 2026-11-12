@@ -244,3 +244,25 @@ No split is active.
 - 2,498 unit and 183 integration tests, TypeScript, lint and schema checks pass.
 - Sealed-split integrity guard passes (hashes only; neither split was opened).
 
+## Phase 5.3 structured ownership Stage 3 - November 11, 2026 (local commit, not pushed)
+
+**Matching is unchanged (rules-v19).**
+- **rules-v20:** clause rules for teaching others, learning or intent, others' purpose and finished work, reviewing others' work, paperwork for others (O2), personal context, plus two recognition fixes. They sit behind `readAnswer(..., { textRules: "v20" })`, which only tests and evaluations use.
+- **Consistency module:** new `src/lib/ai/rules/structured-consistency.ts` turns a choice plus an explanation into the rule table's consistency state; non-English text is never read (D3).
+
+**Tests:** `tests/ai-rules-v20.test.ts` has 53 tests: traps and keeps per rule, 8 labeled regression cases, consistency, end-to-end D1–D3, and isolation.
+
+**Results, v19 → v20:**
+- **Historical:** 1 change on the 1,266 answers, a labeled gain, with 0 labeled losses.
+- **Ownership benchmark:** unchanged.
+- **Probes:** 11 distinct false Supported removed, 0 new, 0 positives lowered.
+- **Engine:** 0 of 2,121 changed.
+- **Suites:** 2,551 unit and 183 integration tests pass.
+- **Sealed splits:** the hash guard only.
+
+**O4 (scratch only, not adopted):** the modifier rule would lose 62 labeled-qualified Supported, and the targeted-question rule 90.
+
+**Batch 5 under v20:** both groups still fail (3 and 2 false Supported), and both stay held.
+
+Report: docs/PHASE5_3_STAGE3_REPORT.md.
+

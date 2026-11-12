@@ -311,6 +311,7 @@ describe("Stage 2 is isolated from matching and the review workflow", () => {
   };
   it("no application code uses the rule table, the splitter, recency detection or the compound keys", () => {
     const users = walk("src").filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && /structured-answer|proposeCompoundSplit|explicitRecency|compoundQuestionKey|partQuestionKey/.test(readFileSync(f, "utf8")));
-    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts"].includes(f))).toEqual([]);
+    // structured-consistency.ts (Stage 3) uses the rule table's types; it is itself unused by the app (tests/ai-rules-v20.test.ts).
+    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts"].includes(f))).toEqual([]);
   });
 });
