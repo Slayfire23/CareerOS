@@ -16,11 +16,12 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
 - **Ambiguous batch 2 (A19–A34) was decided on 2026-11-11:**
   - 8 splits approved with edited wording (A19–A26);
   - 8 kept unsplit (A27–A34).
-- **Ambiguous batch 3 (A35–A50) was decided on 2026-11-11:** all 16 are kept unsplit. Five recognition gaps (A40–A43, A47) are recorded in their own follow-up section, separate from split approval.
+- **Ambiguous batch 3 (A35–A50) was decided on 2026-11-11:** all 16 are kept unsplit. Five recognition gaps (A40–A43, A47; A73 added later) are recorded in their own follow-up section, separate from split approval.
 - **Ambiguous batch 4 (A51–A63) was decided on 2026-11-11:**
   - 11 splits approved (A51–A60, A63);
   - 2 kept unsplit (A61, A62).
-- **A64–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 5 (A64–A75) was decided on 2026-11-11:** A67 approved as a split; the other 11 kept unsplit. A73 was added to the recognition-gap follow-up.
+- **A76–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -236,6 +237,34 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 - The original requirement text and the exact approved part wording are both preserved.
 - No split is activated, and matching behavior is unchanged.
 
+### Ambiguous batch 5 owner decisions (A64–A75, 2026-11-11, owner-approved)
+
+**One split approved for future use in the structured ownership questionnaire only (A67); 11 kept unsplit. Recorded only, not implemented or active.**
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| A67 | Load and unload freight from trucks | Approved | `Loading freight onto trucks` · `Unloading freight from trucks`. Partial credit is preserved for someone who personally does only one of the two (for example inbound unloading only). Neither activity establishes the other |
+| A64 | Grant and revoke admin permissions in Active Directory | Keep unsplit | — |
+| A65 | Harvest and pack fresh produce | Keep unsplit | — |
+| A66 | Linux and Bash scripting | Keep unsplit | — |
+| A68 | Mark and cut steel to specification | Keep unsplit | — |
+| A69 | Prepare and cook menu items following standardized recipes | Keep unsplit | — |
+| A70 | Prepare and file court documents | Keep unsplit | — |
+| A71 | Prepare and serve coffee drinks on espresso machines | Keep unsplit | — |
+| A72 | Prepare and teach daily lessons in high school mathematics | Keep unsplit | — |
+| A73 | Schedule and coordinate shipments with freight carriers | Keep unsplit (recognition gap added to the follow-up section; no rule change) | — |
+| A74 | Troubleshoot and repair network connectivity issues | Keep unsplit | — |
+| A75 | Write and test system prompts for LLM applications | Keep unsplit | — |
+
+**Safeguards still in force:**
+- Approved splits apply only to the future structured questionnaire.
+- X2 stays unresolved.
+- One genuine explanation may cover several activities, but only after that behavior is explicitly designed and tested.
+- Supported is never granted automatically from a checkbox or an unsupported self-report.
+- Supervising, observing, requesting or arranging someone else's work never counts as personally performing it.
+- D1–D3 and O1–O7 are preserved.
+- No split is activated, and matching behavior is unchanged.
+
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
 **Recommendation tally:**
@@ -387,10 +416,10 @@ Durations, credentials and alternatives are already read from the profile entrie
 | A93 | Forecasting and budgeting | `Forecasting` · `budgeting` | engine I; answers I | **Split (edited parts)** | `Forecasting` · `Budgeting`. Distinct FP&A tasks; budgeting was already rejected as a broad equivalence (Batch 1). Partial experience is common |
 ## Recognition-gap follow-up (documentation only; separate from split approval)
 
-Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all five requirements stay unsplit.
+Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all six requirements (A40–A43, A47, A73) stay unsplit.
 
 **Source and labels.**
-- All five come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
+- All six come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
 - Labels are the set's whole-entry labels (`answer_verdict`, `personally_did`, `involvement`, `hands_on`), written by a separate labeling agent.
 - "Engine" is the title-only engine reading of that scenario's role. "Reader" is the answer reader on the answer text alone.
 - A follow-up reply exists in the data, but it isn't part of the answer reading below.
@@ -402,6 +431,7 @@ Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is cha
 | A42 (fw-112, benchmark pc-212) | Operate point-of-sale systems and process returns | "I operate the Square POS at the register and process returns and exchanges myself, including the manager override ones when I'm keyholder." Role: Store Associate, 15 months. Reply: "Most shifts I'm the only one on register, a year and a quarter now." | Reader: Possible. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full:** both parts are stated in the person's own words (operates a named POS; processes returns themselves) | Little: Square is a point-of-sale system. The open question is why "the Square POS" isn't matched to "point-of-sale systems" |
 | A43 (fw-105, benchmark pc-205) | Perform merchandising and visual displays | "Every Sunday night I change out the front tables and windows to match the new promo — picking which items go up front, folding them in color order and putting the signs up so they catch your eye from the mall." Role: Retail Associate, 14 months. Reply: "My manager sends the corporate photo and I build it on my own, about a year now." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance, none in wording:** visual displays (windows, tables, signs) and merchandising (choosing and arranging items) are described, but neither requirement word appears | The reply shows the layout comes from a corporate photo, and the person builds it. Does building a display to plan count as "merchandising", or should the plan be the person's own? |
 | A47 (fw-014, benchmark pc-114) | Process accounts payable and vendor invoices | "Bills come into a shared inbox, I match each one to the PO and what the warehouse says we got, code it to the right expense line and schedule the check run every other Friday. I'm the only one in the office who does it." Role: Bookkeeper, 36 months. Reply: "Around 300 bills a month for three years. I also chase the vendors when an amount doesn't match." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance:** three-way match, coding, payment runs, done alone. "Bills" stands for vendor invoices, and "accounts payable" isn't named | Little. It's a vocabulary gap ("bills", "PO", "check run" for accounts payable), the kind the equivalence review covers. Any fix goes through that review, with its no-new-false-Supported bar |
+| A73 (fw-039, benchmark pc-139; added 2026-11-11) | Schedule and coordinate shipments with freight carriers | "I book LTL and full truckload pickups with our carriers, get the quotes, send the BOLs, and track the loads until they're delivered. When a carrier misses a pickup I'm the one rebooking it." Role: Logistics Coordinator, 31 months. Reply: "Around 25 shipments a week across six carriers. I negotiate the spot rates too." | Reader: Not enough information ("no relationship"). Engine: Not enough information | Supported (personally did; involvement "coordinated", hands-on no; reply OK) | **Full in substance:** booking pickups is scheduling, and quotes, bills of lading, tracking and rebooking are coordinating. All of it is with carriers and done by the person | **Likely cause (checked, not fixed):** the reader reads the person's part correctly (both statements are "performed"; neither is read as paperwork). The miss is vocabulary: "book … pickups" and "loads" aren't matched to "schedule … shipments". Read whole, the requirement finds no relationship. Read as one part at a time, each part reaches only Possible, through the shared word "carriers". Coordinating is the work asked here, so O2 doesn't limit it. Any fix goes through the equivalence review and its no-new-false-Supported bar |
 
 **What this follow-up does not do:**
 - It doesn't change verdicts or matching rules, add equivalences, or relabel anything.
