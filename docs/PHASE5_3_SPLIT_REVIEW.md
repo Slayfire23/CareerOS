@@ -22,7 +22,8 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
   - 2 kept unsplit (A61, A62).
 - **Ambiguous batch 5 (A64–A75) was decided on 2026-11-11:** A67 approved as a split; the other 11 kept unsplit. A73 was added to the recognition-gap follow-up.
 - **Ambiguous batch 6 (A76–A90) was decided on 2026-11-11:** A76 and A77 approved as splits; the other 13 kept unsplit. A78 was added to the recognition gaps, and the A87 possible false-Supported issue was flagged.
-- **A91–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **A91–A93 were decided on 2026-11-11:** A93 approved as a split; A91 and A92 kept unsplit. A92 was added to the recognition gaps.
+- **Every one of the 109 cases now has an owner decision** (see the reconciliation below). None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -296,6 +297,14 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 - Evidence shared across parts must be explicitly designed and tested.
 - All approved splits stay inactive.
 
+### Final ambiguous decisions (A91–A93, 2026-11-11, owner-approved)
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| A91 | Pick, pack and ship customer orders | Keep unsplit | — |
+| A92 | Prune, plant and maintain landscape beds | Keep unsplit (recognition gap recorded in the follow-up section) | — |
+| A93 | Forecasting and budgeting | Approved (future structured questionnaire only; inactive) | `Forecasting` · `Budgeting`. Personally owning or performing the budgeting or forecasting stays distinct from merely providing numbers, filling in a template, requesting the work, or reviewing someone else's results. Supported never comes from a self-report or a structured checkbox alone |
+
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
 **Recommendation tally:**
@@ -445,12 +454,41 @@ Durations, credentials and alternatives are already read from the profile entrie
 | # | Requirement | Splitter's parts | Opened data | Recommendation | Rationale |
 |---|---|---|---|---|---|
 | A93 | Forecasting and budgeting | `Forecasting` · `budgeting` | engine I; answers I | **Split (edited parts)** | `Forecasting` · `Budgeting`. Distinct FP&A tasks; budgeting was already rejected as a broad equivalence (Batch 1). Partial experience is common |
+
+## Reconciliation of all 109 cases (2026-11-11, documentation only)
+
+Checked by a script that reads every owner-decision table in this document. The wording was compared with the part wording in each of the owner's approval messages.
+
+| Check | Result |
+|---|---|
+| Every case appears exactly once in the owner-decision tables | **Yes:** 109 of 109 (P1–P16, A1–A93); none missing, none duplicated, no extras |
+| P1–P16 | **10 approved, 6 unsplit** |
+| A1–A93 | **23 approved, 70 unsplit** |
+| Overall | **33 approved, 76 unsplit** |
+| Approved wording matches the owner's exact wording | **Yes:** 33 of 33, no mismatches |
+| Restricted to the future structured questionnaire | **Yes:** each of the eight decision sections states it |
+| All approved splits inactive | **Yes:** nothing in matching, the review queue or the questionnaire reads any split. Outside its own module, the splitter (`proposeCompoundSplit`) is called only by its tests (`tests/ai-structured-answer.test.ts`). The Stage 2 report came from a one-off evaluation |
+| No approved-splits runtime list | **Yes:** no file holds approved splits, and no approved part wording appears in application code. The one textual match is a Stage 2 code comment in the splitter ("Patient scheduling and insurance verification": two full task phrases), not a list |
+
+**Approved (33):**
+- **Group 1:** P1, P2, P3, P6, P7, P8, P11, P12, P13, P14.
+- **Ambiguous:** A19–A26, A51–A60, A63, A67, A76, A77, A93.
+
+**Unsplit (76):** every other case.
+
+**Open before any split is used** (see docs/PHASE5_3_PRE_STAGE4_DESIGN_DECISIONS.md):
+- X2;
+- shared evidence across parts;
+- correction and contradiction handling (A87);
+- the eight recognition gaps;
+- A1's credential interpretation.
+
 ## Recognition-gap follow-up (documentation only; separate from split approval)
 
-Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all seven requirements (A40–A43, A47, A73, A78) stay unsplit.
+Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all eight requirements (A40–A43, A47, A73, A78, A92) stay unsplit.
 
 **Source and labels.**
-- All seven come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
+- All eight come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
 - Labels are the set's whole-entry labels (`answer_verdict`, `personally_did`, `involvement`, `hands_on`), written by a separate labeling agent.
 - "Engine" is the title-only engine reading of that scenario's role. "Reader" is the answer reader on the answer text alone.
 - A follow-up reply exists in the data, but it isn't part of the answer reading below.
@@ -463,8 +501,8 @@ Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is cha
 | A43 (fw-105, benchmark pc-205) | Perform merchandising and visual displays | "Every Sunday night I change out the front tables and windows to match the new promo — picking which items go up front, folding them in color order and putting the signs up so they catch your eye from the mall." Role: Retail Associate, 14 months. Reply: "My manager sends the corporate photo and I build it on my own, about a year now." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance, none in wording:** visual displays (windows, tables, signs) and merchandising (choosing and arranging items) are described, but neither requirement word appears | The reply shows the layout comes from a corporate photo, and the person builds it. Does building a display to plan count as "merchandising", or should the plan be the person's own? |
 | A47 (fw-014, benchmark pc-114) | Process accounts payable and vendor invoices | "Bills come into a shared inbox, I match each one to the PO and what the warehouse says we got, code it to the right expense line and schedule the check run every other Friday. I'm the only one in the office who does it." Role: Bookkeeper, 36 months. Reply: "Around 300 bills a month for three years. I also chase the vendors when an amount doesn't match." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance:** three-way match, coding, payment runs, done alone. "Bills" stands for vendor invoices, and "accounts payable" isn't named | Little. It's a vocabulary gap ("bills", "PO", "check run" for accounts payable), the kind the equivalence review covers. Any fix goes through that review, with its no-new-false-Supported bar |
 | A73 (fw-039, benchmark pc-139; added 2026-11-11) | Schedule and coordinate shipments with freight carriers | "I book LTL and full truckload pickups with our carriers, get the quotes, send the BOLs, and track the loads until they're delivered. When a carrier misses a pickup I'm the one rebooking it." Role: Logistics Coordinator, 31 months. Reply: "Around 25 shipments a week across six carriers. I negotiate the spot rates too." | Reader: Not enough information ("no relationship"). Engine: Not enough information | Supported (personally did; involvement "coordinated", hands-on no; reply OK) | **Full in substance:** booking pickups is scheduling, and quotes, bills of lading, tracking and rebooking are coordinating. All of it is with carriers and done by the person | **Likely cause (checked, not fixed):** the reader reads the person's part correctly (both statements are "performed"; neither is read as paperwork). The miss is vocabulary: "book … pickups" and "loads" aren't matched to "schedule … shipments". Read whole, the requirement finds no relationship. Read as one part at a time, each part reaches only Possible, through the shared word "carriers". Coordinating is the work asked here, so O2 doesn't limit it. Any fix goes through the equivalence review and its no-new-false-Supported bar |
-
 | A78 (fw-031, benchmark pc-131; added 2026-11-11) | Conduct customer site surveys and measurements | "I do the in-home measures for every sale. Well, not all of them — on the big commercial jobs our estimator goes out, and I only measure the residential rooms." Role: Flooring Sales Representative, 21 months. Reply: "Residential I measure myself, about ten a week. Commercial is all the estimator." | Reader: Not enough information ("no own statement"). Engine: Not enough information | Supported (performed, hands-on, reply OK; labeler's note: "residential only") | **Partial in scope, full in kind:** the person measures residential jobs themselves, and the estimator does the commercial ones. "Site surveys" isn't named; in-home measuring is the survey work for residential flooring | **Likely cause (checked, not fixed):** this isn't mainly a vocabulary miss. The reader finds *no statement of the person's own* at all, for the whole requirement and for each phrase. The self-correction ("Well, not all of them —") seems to set aside the first sentence, and the narrowed "I only measure the residential rooms" isn't taken up. Vocabulary ("measures" vs "measurements", nothing for "site surveys") may also play a part, unverified. Open question: should residential-only measuring meet the requirement in full (the label says yes), or only in part? |
+| A92 (fw-017, benchmark pc-117; added 2026-11-11) | Prune, plant and maintain landscape beds | "Well, I've been doing beds for this HOA since I started, all 30 of the common areas. I mean, I pick the plants, dig them in and cut back the shrubs twice a year on my own." Role: Groundskeeper, 44 months. Reply: "Spring is planting annuals and mulching, fall is the hard pruning. Nobody else on the crew does beds." | Reader: Not enough information ("no relationship"). Each phrase alone reads Possible ("part of what is asked", on the first sentence). Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance:** choosing and planting ("pick the plants, dig them in"), pruning ("cut back the shrubs") and ongoing care of 30 beds, done personally | **Likely cause (checked, not fixed):** vocabulary. The person's part is read correctly: both statements are "performed", and "on my own" no longer counts as personal context since the rules-v20 adoption fix. But "dig them in" isn't matched to "plant", "cut back" isn't matched to "prune", and only "beds" overlaps. Any fix goes through the equivalence review and its no-new-false-Supported bar |
 
 ### Possible false-Supported safety issue (A87; documentation only, not fixed)
 
