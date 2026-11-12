@@ -1,0 +1,413 @@
+{
+ "note": "rules-v20 adoption (2026-11-11): before = 6497f66 (v19 default), after = v20 default with the two adoption fixes. Opened sets only; sealed splits not opened.",
+ "history": {
+  "answers": 1266,
+  "benchmark_answers": 220,
+  "changed": [
+   {
+    "src": "m11_shadow/check",
+    "requirement": "ICD-10 medical coding",
+    "answer": "I entered the codes doctors picked into the billing system and fixed rejected claims. I never assigned them from the charts myself.",
+    "label": "does_not_qualify",
+    "before": "possible",
+    "after": "insufficient_information"
+   }
+  ],
+  "verdicts_before": {
+   "possible": 217,
+   "insufficient_information": 947,
+   "supported": 102
+  },
+  "verdicts_after": {
+   "possible": 216,
+   "insufficient_information": 948,
+   "supported": 102
+  },
+  "explicit_v19_equals_old_default": true
+ },
+ "probes": {
+  "probes": 392,
+  "changed": [
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I paid vendor invoices every week at my last job.",
+    "want": "credit",
+    "before": "insufficient_information",
+    "after": "supported"
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I passed medications to 30 residents on the evening shift.",
+    "want": "credit",
+    "before": "insufficient_information",
+    "after": "supported"
+   },
+   {
+    "group": "blocker-B1",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I sell the hangers people use to hang ductwork.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I'll install ductwork once I finish my apprenticeship.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I sell the books people use to read blueprints.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I'll read blueprints once I start my apprenticeship.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I am learning to read blueprints in night school.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I need to learn to read blueprints.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I teach new hires how to operate a forklift.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I teach new reps how to handle customer complaints.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I reviewed the stock counts the clerks submitted.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I audited the orders the pickers filled from the shelves.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled appointments with my own doctors after surgery.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I planned lessons for my own guitar practice.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I reviewed the lesson plans our teachers prepared.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I printed and filed the lesson plans for the teachers.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I filed the contracts the attorneys drafted.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I hate to make cold calls.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I'm learning to make cold calls in a sales course.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:teach",
+    "requirement": "Forklift operation",
+    "text": "I teach new hires how to operate a forklift.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "s3:teach",
+    "requirement": "Customer service",
+    "text": "I teach new reps how to handle customer complaints.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Cold calling",
+    "text": "I hate to make cold calls.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Cold calling",
+    "text": "I'm learning to make cold calls in a sales course.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Blueprint reading",
+    "text": "I am learning to read blueprints in night school.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Blueprint reading",
+    "text": "I need to learn to read blueprints.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Blueprint reading",
+    "text": "I'll read blueprints once I start my apprenticeship.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:intent",
+    "requirement": "Ductwork installation",
+    "text": "I'll install ductwork once I finish my apprenticeship.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:purpose",
+    "requirement": "Blueprint reading",
+    "text": "I sell the books people use to read blueprints.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:purpose",
+    "requirement": "Ductwork installation",
+    "text": "I sell the hangers people use to hang ductwork.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:purpose",
+    "requirement": "Forklift operation",
+    "text": "I maintain the chargers used to power the forklifts.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:others",
+    "requirement": "Contract drafting",
+    "text": "I filed the contracts the attorneys drafted.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "s3:others",
+    "requirement": "Lesson planning",
+    "text": "I reviewed the lesson plans our teachers prepared.",
+    "want": "no",
+    "before": "supported",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:others",
+    "requirement": "Cycle counting",
+    "text": "I reviewed the stock counts the clerks submitted.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:others",
+    "requirement": "Order picking",
+    "text": "I audited the orders the pickers filled from the shelves.",
+    "want": "no",
+    "before": "possible",
+    "after": "insufficient_information"
+   },
+   {
+    "group": "s3:personal",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled appointments with my own doctors after surgery.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "s3:personal",
+    "requirement": "Lesson planning",
+    "text": "I planned lessons for my own guitar practice.",
+    "want": "no",
+    "before": "supported",
+    "after": "possible"
+   },
+   {
+    "group": "s3:recognition",
+    "requirement": "Accounts payable",
+    "text": "I paid vendor invoices for the warehouse every week.",
+    "want": "keep",
+    "before": "insufficient_information",
+    "after": "supported"
+   },
+   {
+    "group": "s3:recognition",
+    "requirement": "Medication administration",
+    "text": "I passed medications to 20 residents on every shift.",
+    "want": "keep",
+    "before": "insufficient_information",
+    "after": "supported"
+   }
+  ]
+ },
+ "replies": {
+  "replies": 320,
+  "changed_final": [],
+  "changed_before_fixes": [
+   {
+    "id": "m11_followup2:fv-064",
+    "before": {
+     "outcome": "possible_candidate",
+     "reason": "describes_own_work",
+     "reply_ok": true
+    },
+    "after": {
+     "outcome": "unresolved",
+     "reason": "repeats_the_question",
+     "reply_ok": true
+    }
+   },
+   {
+    "id": "m11_followup3:fw-037",
+    "before": {
+     "outcome": "possible_candidate",
+     "reason": "describes_own_work",
+     "reply_ok": true
+    },
+    "after": {
+     "outcome": "unresolved",
+     "reason": "no_own_work",
+     "reply_ok": true
+    }
+   }
+  ]
+ },
+ "engine": {
+  "rows": 2121,
+  "changed": 0
+ },
+ "followup_regression": {
+  "m11_followup/dev": {
+   "scenarios": 40,
+   "rows_changed": 0,
+   "rows_changed_before_fixes": []
+  },
+  "m11_followup/blind": {
+   "scenarios": 80,
+   "rows_changed": 0,
+   "rows_changed_before_fixes": []
+  },
+  "m11_followup2/blind": {
+   "scenarios": 100,
+   "rows_changed": 0,
+   "rows_changed_before_fixes": [
+    "fv-064"
+   ]
+  },
+  "m11_followup3/blind": {
+   "scenarios": 120,
+   "rows_changed": 0,
+   "rows_changed_before_fixes": []
+  }
+ }
+}

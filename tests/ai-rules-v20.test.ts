@@ -5,20 +5,22 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import type { MatchRequirement, Verdict } from "@/lib/ai/evidence";
-import { answerStatements } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES } from "@/lib/ai/evidence-boundary";
+import { RULES_VERSION } from "@/lib/ai/rules/engine";
 import { readAnswer } from "@/lib/ai/rules/answer-review";
+import { readFollowUpReply } from "@/lib/ai/rules/follow-up-reply";
 import { readStructuredAnswer, type Involvement } from "@/lib/ai/rules/structured-answer";
 import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
 
-// Phase 5.3 Stage 3: rules-v20 clause rules and the consistency checks. rules-v20 is opt-in (`textRules: "v20"`); matching
-// stays on v19 until the owner adopts it, so every v20 expectation here is paired with the unchanged v19 reading.
+// Phase 5.3 Stage 3: rules-v20 clause rules and the consistency checks. rules-v20 is the matching default since the owner
+// adopted it (2026-11-11); v19 stays selectable (`textRules: "v19"`), so every v20 expectation is paired with the v19 reading.
 const req = (text: string, category: MatchRequirement["category"] = "Skills"): MatchRequirement => ({ index: 0, text, category, priority: "Required" });
-const v19 = (r: string, a: string) => readAnswer(req(r), a).verdict;
+const v19 = (r: string, a: string) => readAnswer(req(r), a, { textRules: "v19" }).verdict;
 const v20 = (r: string, a: string) => readAnswer(req(r), a, { textRules: "v20" }).verdict;
 
 describe("rules-v20 removes the clause-level false Supported results (traps)", () => {
   const traps: [string, string, string, Verdict][] = [
-    // rule, requirement, answer, v19 reading today (kept visible as the open blocker until v20 is adopted)
+    // rule, requirement, answer, the v19 reading (kept visible as the blocker v20 closes)
     ["teaching others (B4-TEACH, O1)", "Forklift operation", "I teach new hires how to operate a forklift.", "supported"],
     ["teaching others (B4-TEACH, O1)", "Customer service", "I teach new reps how to handle customer complaints.", "supported"],
     ["learning or intent (B4-INTENT)", "Cold calling", "I hate to make cold calls.", "supported"],
@@ -155,7 +157,7 @@ describe("end to end with the Stage 2 rule table: D1–D3 hold", () => {
   });
 });
 
-describe("Stage 3 is isolated: matching stays on rules-v19", () => {
+describe("rules-v20 is the matching default; v19 stays selectable; the consistency module stays unconnected", () => {
   const walk = (dir: string, out: string[] = []): string[] => {
     for (const n of readdirSync(dir)) {
       const p = join(dir, n);
@@ -163,12 +165,80 @@ describe("Stage 3 is isolated: matching stays on rules-v19", () => {
     }
     return out;
   };
-  it("no application code asks for rules-v20 or uses the consistency module", () => {
+  it("no application code picks a reader version (all of it takes the one default) or uses the consistency module", () => {
     const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts"];
     const users = walk("src").filter(f => !allowed.includes(f) && /textRules|"v20"|structured-consistency|assessConsistency/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
   });
-  it("the default reading is v19", () => {
-    expect(readAnswer(req("Cold calling"), "I hate to make cold calls.").verdict).toBe("supported");
+  it("the default reading is v20, and v19 can still be asked for", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v20");
+    expect(RULES_VERSION).toBe("rules-v20");
+    expect(readAnswer(req("Cold calling"), "I hate to make cold calls.").verdict).not.toBe("supported");
+    expect(readAnswer(req("Cold calling"), "I hate to make cold calls.", { textRules: "v19" }).verdict).toBe("supported");
+    expect(answerStatements("I teach new hires how to operate a forklift.")[0]?.ownership).toBe("taught");
+    expect(answerStatements("I teach new hires how to operate a forklift.", "v19")[0]?.ownership).toBe("performed");
+  });
+});
+
+describe("adoption regressions: misreadings found when rules-v20 became the default (2026-11-11)", () => {
+  // Found by the follow-up reply reader, which Stage 3 couldn't compare. Both replies are labeled good (reply_ok) in their opened sets.
+  it.each([
+    ["m11_followup2 fv-064", "Customer onboarding",
+      "When people come in to open accounts I go through their ID, explain the account options, set up online banking with them right there, and order the debit card. I follow up a week later to make sure direct deposit came through.",
+      "I open around fifteen accounts a week. A small business owner came in Tuesday, I walked her through the business checking setup, got her signers added, and showed her mobile deposit."],
+    ["m11_followup3 fw-037", "Conduct employee safety training sessions",
+      "So far I've sat in on the forklift and lockout/tagout trainings our safety manager runs and helped sign people in.",
+      "Since October the manager handed me the monthly new hire orientation, I've led three sessions on my own with about 12 people each."],
+  ])("a good follow-up reply is accepted: %s", (_id, requirement, answer, reply) => {
+    const reading = readFollowUpReply(req(requirement), answer, reply, answer);
+    expect(reading.outcome).toBe("possible_candidate");
+    expect(reading.reason).toBe("describes_own_work");
+  });
+
+  it("\"on my own\" meaning by myself is the person's own work, not personal context", () => {
+    expect(answerStatements("I operate the forklift on my own every shift.")[0].exposureOnly).toBe(false);
+    expect(answerStatements("I've led three sessions on my own with about 12 people each.")[0].exposureOnly).toBe(false);
+  });
+  it.each([
+    ["Forklift operation", "I operate the forklift on my own every shift.", "supported"],
+    ["Forklift operation", "I operate the forklift on my own.", "supported"],
+    ["Forklift operation", "I operate the forklift on my own now that I'm certified.", "supported"],
+    ["Forklift operation", "I operate the forklift on my own initiative during peak season.", "supported"],
+    ["Welding", "I weld trailer frames with my own hands every day.", "supported"],
+    ["Payroll processing", "I process payroll on my own for 40 employees.", "supported"],
+    ["Bookkeeping", "I did the bookkeeping on my own after the controller left.", "supported"],
+  ])("by myself, kept: %s / %s", (requirement, answer, verdict) => {
+    expect(v19(requirement, answer)).toBe(verdict);
+    expect(v20(requirement, answer)).toBe(verdict);
+    expect(readAnswer(req(requirement), answer).verdict).toBe(verdict);
+  });
+  it.each([
+    ["Lesson planning", "I planned lessons for my own guitar practice."],
+    ["Appointment scheduling", "I scheduled appointments with my own doctors after surgery."],
+  ])("genuine personal context still gets no more than Possible: %s / %s", (requirement, answer) => {
+    expect(v19(requirement, answer)).toBe("supported");
+    expect(v20(requirement, answer)).toBe("possible");
+  });
+  it.each([
+    "I sprayed pesticides on my own lawn.",
+    "I replaced the wiring on my own house.",
+    "I kept the books for my own family budget.",
+  ])("personal context is still read as exposure: %s", answer => {
+    expect(answerStatements(answer).every(s => s.exposureOnly)).toBe(true);
+  });
+
+  it("a causative (\"got her signers added\") is the person bringing it about, not overseeing someone else's finished work", () => {
+    const own = answerStatements("I walked her through the business checking setup, got her signers added, and showed her mobile deposit.");
+    expect(own.map(s => s.ownership)).not.toContain("oversaw");
+    expect(answerStatements("I got the new hires enrolled in benefits during their first week.").map(s => s.ownership)).not.toContain("oversaw");
+  });
+  it.each([
+    ["Lesson planning", "I reviewed the lesson plans our teachers prepared.", "insufficient_information"],
+    ["Report writing", "I checked the reports the analysts wrote.", "insufficient_information"],
+    ["Order picking", "I audited the orders the pickers filled from the shelves.", "insufficient_information"],
+    ["Contract drafting", "I filed the contracts the attorneys drafted.", "possible"],
+  ])("genuine supervision or third-party work stays below Supported: %s / %s", (requirement, answer, verdict) => {
+    expect(v20(requirement, answer)).toBe(verdict);
+    expect(readAnswer(req(requirement), answer).verdict).toBe(verdict);
   });
 });

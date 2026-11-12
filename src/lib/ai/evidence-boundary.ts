@@ -122,9 +122,10 @@ const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisti
 /** "taught" is produced only by rules-v20: teaching others to do the work, which isn't doing it (O1). */
 export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed" | "taught";
 
-/** Which text rules read an answer. "v19" is current matching and the default everywhere. "v20" (Phase 5.3 Stage 3) adds
- * the clause rules below; it is opt-in until the owner adopts it, and only evaluations and tests ask for it. */
+/** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; the owner adopted it as the
+ * matching default on 2026-11-11. "v19" stays selectable so evaluations and tests can compare the two. */
 export type TextRules = "v19" | "v20";
+export const DEFAULT_TEXT_RULES: TextRules = "v20";
 
 // rules-v20, by sentence structure (no lists of ambiguous words):
 // Teaching or training others to do it: "I teach new hires how to operate a forklift". Not the person's own execution.
@@ -133,7 +134,10 @@ const TEACH_VERB = /^(?:teach|teaches|taught|teaching|train|trains|trained|train
 const INTENT = /\b(?:learning\s+(?:how\s+)?to|learn\s+(?:how\s+)?to|need\s+to\s+learn|have\s+to\s+learn|hate\s+to|studying\s+(?:to|for)|training\s+to\s+(?:become|be)\b|would\s+like\s+to|wish\s+(?:i|to)|aspir\w*\s+to|i['’]ll\s+\p{L}+|i\s+will\s+\p{L}+|once\s+i\s+(?:finish|start|get|complete|pass)|when\s+i\s+(?:finish|start|get|complete|pass)\s+my)\b/iu;
 // Personal, not occupational, context: "for my own guitar practice", "on my own vegetable garden", "for my family vacation".
 // "My own" counts only as a beneficiary or place ("for/on/with my own …"): "write my own quizzes" is the person doing it.
-const PERSONAL = /\b(?:for|on|with|at|in)\s+my\s+own\s+(?!practice\b)(?!(?:[\p{L}-]+\s+){0,2}(?:business|company|shop|clients?|customers?|crews?|teams?|firm|caseload|accounts?|route|store|restaurant|patients?|students?|classroom|salon|clinic|office|farm)\b)\p{L}+|\b(?:for|on|in)\s+(?:my|our)\s+(?:family|kids|wedding|vacation|honeymoon|road\s+trip|garage\s+sale|hobby|house|home|apartment|record\s+collection|personal\s+use|own\s+use)\b|\bas\s+a\s+hobby\b|\bfor\s+fun\b|\bfor\s+myself\b|\bin\s+my\s+spare\s+time\b|\bpersonal\s+project\b|\bas\s+a\s+patient\b/iu;
+// "My own" has to head a noun phrase. The idiom "on my own" (by myself) is followed by a function word, an adverb, a number
+// or nothing ("on my own every shift", "on my own with 12 people", "on my own."), and "with my own hands" or "on my own
+// initiative" says the person did it: none of those is personal context.
+const PERSONAL = /\b(?:for|on|with|at|in)\s+my\s+own\s+(?!practice\b)(?!(?:every|each|all|most|many|several|some|any|no|a|an|the|this|that|these|those|and|or|but|nor|so|yet|as|because|since|while|when|whenever|until|after|before|during|for|from|in|into|on|onto|at|to|by|with|without|through|throughout|under|over|across|around|about|per|like|than|then|now|today|again|too|also|there|here|once|twice|mostly|initiative|authority|accord|hands|two|entirely|completely|independently|alone|usually|regularly|daily|weekly|monthly|nightly|largely)\b)(?!(?:[\p{L}-]+\s+){0,2}(?:business|company|shop|clients?|customers?|crews?|teams?|firm|caseload|accounts?|route|store|restaurant|patients?|students?|classroom|salon|clinic|office|farm)\b)\p{L}+|\b(?:for|on|in)\s+(?:my|our)\s+(?:family|kids|wedding|vacation|honeymoon|road\s+trip|garage\s+sale|hobby|house|home|apartment|record\s+collection|personal\s+use|own\s+use)\b|\bas\s+a\s+hobby\b|\bfor\s+fun\b|\bfor\s+myself\b|\bin\s+my\s+spare\s+time\b|\bpersonal\s+project\b|\bas\s+a\s+patient\b/iu;
 // What the person's clause names as someone else's purpose, or someone else's finished work, isn't the person's act:
 // "the books people use to read blueprints", "the hangers used to hang ductwork", "the contracts the attorneys drafted".
 const PURPOSE_OF_OTHERS = /,?\s*\b(?:that|which)?\s*(?:people|others|customers|clients|users|staff|workers|technicians|students|employees|someone|they|crews?|teams?)\s+(?:use|used|uses|need|needs)\s+to\s+[^,.;]*/giu;
@@ -142,7 +146,10 @@ const FOR_OTHERS_TO = /\b(?:for|so\s+(?:that\s+)?)\s*(?:people|others|customers|
 // Other people as the doers of a past act: an agent noun ("attorneys", "pickers", "analysts") or a group ("the sales team").
 const AGENTS = "(?:[\\p{L}-]+(?:ers|ors|ists|ants|ians|eys)|teams?|crews?|staff|department|office|doctors?|nurses?|managers?|clients?|customers?|patients?|students?|parents|vendors?|contractors?|people|attorneys?|associates|reps|techs|analysts|clerks)";
 const PAST_ACT = "(?:\\p{L}+ed|wrote|made|drew|built|kept|held|did|gave|sent|ran|took|brought|bought|sold|chose|set|cut|put|left)";
-const OTHERS_FINISHED = new RegExp(`(?<=\\p{L}{3})\\s+(?:that\\s+|which\\s+)?(?:the|our|my|their|his|her)\\s+(?:[\\p{L}-]+\\s+)?${AGENTS}\\s+${PAST_ACT}\\b[^,.;]*`, "giu");
+// "Got her signers added", "had the vendors paid": after a causative verb the person is the one who brought it about, so
+// the agent that follows isn't someone else who finished the work.
+const CAUSATIVE = "(?:got|get|gets|getting|gotten|had|have|has|having|make|makes|made|making|let|lets|letting)";
+const OTHERS_FINISHED = new RegExp(`(?<=\\p{L}{3})(?<!\\b${CAUSATIVE})\\s+(?:that\\s+|which\\s+)?(?:the|our|my|their|his|her)\\s+(?:[\\p{L}-]+\\s+)?${AGENTS}\\s+${PAST_ACT}\\b[^,.;]*`, "giu");
 // Paperwork for others (O2): collecting, sending, filing or printing something for or to another party.
 const PAPERWORK_VERB = /^(?:collect|collects|collected|collecting|send|sends|sent|sending|forward|forwards|forwarded|submit|submits|submitted|deliver|delivers|delivered|file|files|filed|filing|print|prints|printed|printing|copy|copies|copied|scan|scans|scanned|distribute|distributes|distributed|mail|mails|mailed|fax|faxes|faxed|upload|uploads|uploaded)$/;
 // The other party has to follow the paperwork verb closely: "send them to the payroll company", "filed the lesson plans for
@@ -340,7 +347,7 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
 
 /** Sentences of an answer that are plainly this person's own statement of having done something. Nothing
  * comes back unless the whole answer is plainly English: other answers stay unresolved. */
-export function answerStatements(detail: string, rules: TextRules = "v19"): Statement[] {
+export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT_RULES): Statement[] {
   const v20 = rules === "v20";
   const readableOf = (text: string) => (v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
   const ownershipOf = (clause: string): Ownership => {

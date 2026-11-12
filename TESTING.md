@@ -266,3 +266,22 @@ No split is active.
 
 Report: docs/PHASE5_3_STAGE3_REPORT.md.
 
+
+## Phase 5.3 rules-v20 adopted for matching - November 11, 2026 (local commit, not pushed)
+
+**Matching now reads with rules-v20** (`DEFAULT_TEXT_RULES`, `RULES_VERSION = "rules-v20"`); `textRules: "v19"` stays available for comparisons. Adoption found two misreadings in the follow-up reply reader, both fixed:
+- "on my own" (by myself) was read as personal context;
+- "got her signers added" (a causative) was read as overseeing others' finished work.
+
+**Tests:** 20 adoption regression tests in `tests/ai-rules-v20.test.ts`.
+
+**Results, before (v19) → after (v20):**
+- **Historical (1,266, including the 220-answer benchmark):** 1 change, the expected ICD-10 labeled gain; 0 labeled losses; 0 new Supported.
+- **Probes (392):** 11 distinct false Supported removed, 0 new, 0 positives lowered.
+- **Follow-up replies (320):** 0 changed.
+- **Follow-up regression sets (4):** 0 rows changed.
+- **Engine:** 0 of 2,121 changed.
+- **Suites:** 2,571 unit and 183 integration tests pass.
+- **Sealed splits:** the hash guard only.
+
+Report: docs/PHASE5_3_RULES_V20_ADOPTION.md.

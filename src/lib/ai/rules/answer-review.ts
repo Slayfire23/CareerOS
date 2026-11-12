@@ -43,7 +43,7 @@ const stem = (word: string) => word.replace(/(ing|ings|ed|es|s)$/, "").replace(/
 
 export type AnswerReading = { verdict: Verdict; quote: string | null; reason: string; sourceId: string | null };
 /** `assumeApproved`: evaluation and tests only, to measure what the owner's sign-off would change. Nothing in production sets it. */
-/** `textRules: "v20"` opts into the Phase 5.3 Stage 3 clause rules; matching keeps "v19" until the owner adopts them. */
+/** `textRules`: which text rules read the answer. Matching uses the default (rules-v20); "v19" is for comparisons only. */
 export type ReadOptions = { assumeApproved?: boolean; textRules?: TextRules };
 
 /** A listed verb shortly before a listed object, in the one sentence: "I drain and refill the oil". */
@@ -160,10 +160,10 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
 /** "I have seven years" when the listed roles cover less: they may have earlier work that isn't listed. That's
  * Possible, never more, and the person is asked to add the roles so the dates can show it. Only the dates can
  * make it Supported. */
-function claimsMoreTime(requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding): RawFinding {
+function claimsMoreTime(requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding, options: ReadOptions): RawFinding {
   const needed = requiredMonths(qualificationText(requirement.text));
   if (needed === null || answerLanguage(answer.detail) !== "en") return f;
-  const claim = answerStatements(answer.detail).find(s => !s.brief && (requiredMonths(s.text) ?? 0) >= needed);
+  const claim = answerStatements(answer.detail, options.textRules).find(s => !s.brief && (requiredMonths(s.text) ?? 0) >= needed);
   if (!claim) return f;
   return {
     ...f,
@@ -229,7 +229,7 @@ export function applyAnswers(request: MatchRequest, findings: RawFinding[], answ
       if (lowered) return lowered;
     }
     if (f.verdict === "supported") return f;
-    if (f.verdict === "gap") return f.basis === "employment_dates" && answer.action === "confirm" ? claimsMoreTime(requirement, answer, f) : f;
+    if (f.verdict === "gap") return f.basis === "employment_dates" && answer.action === "confirm" ? claimsMoreTime(requirement, answer, f, options) : f;
     if (answer.action === "deny") {
       return { ...f, verdict: "gap", explanation: "You said you don't have this. You can correct or revoke that answer.", citations: [], caveats: [], basis: "candidate_denied" as RuleBasis, rules_only_verdict: f.verdict };
     }
