@@ -13,7 +13,10 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
   - 10 approved for the structured questionnaire: 7 as proposed, 2 with edited wording, 1 with clarification;
   - 6 kept unsplit.
 - **Ambiguous batch 1 (A1–A18) was decided on 2026-11-11:** all 18 are kept unsplit, and A1's credential reading is flagged as unresolved.
-- **A19–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 2 (A19–A34) was decided on 2026-11-11:**
+  - 8 splits approved with edited wording (A19–A26);
+  - 8 kept unsplit (A27–A34).
+- **A35–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -143,6 +146,39 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 | A16 | You will evaluate vendors and mark each as approved or rejected; procurement experience required | Keep unsplit (X3) |
 | A17 | HTML, CSS, and JavaScript | Keep unsplit; the existing item-level evaluation is preserved |
 | A18 | *(requirement with embedded instructions; text omitted)* | Keep unsplit; embedded instructions are still treated as untrusted data |
+
+### Ambiguous batch 2 owner decisions (A19–A34, 2026-11-11, owner-approved)
+
+**Eight splits approved for future use in the structured questionnaire only, with the exact edited part wording below. Recorded only, not implemented or active.**
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| A19 | Conduct inventory cycle counts and reconcile variances | Approved, edited | `Inventory cycle counts` · `Reconciling inventory variances` |
+| A20 | Hands-on brake and suspension repair | Approved, edited | `Brake repair` · `Suspension repair` |
+| A21 | Install drywall and finish joints | Approved, edited | `Drywall installation` · `Drywall joint finishing` |
+| A22 | Manage executive calendars and coordinate travel arrangements | Approved, edited | `Executive calendar management` · `Travel coordination` |
+| A23 | Manage social media accounts and create content | Approved, edited | `Social media account management` · `Content creation` |
+| A24 | Perform venipuncture and start IV lines | Approved, edited | `Venipuncture` · `Starting IV lines` |
+| A25 | Schedule service appointments and dispatch technicians | Approved, edited | `Scheduling service appointments` · `Dispatching technicians` |
+| A26 | Prepare tax returns for individuals and small businesses | Approved, edited | `Individual tax return preparation` · `Small-business tax return preparation` |
+| A27 | 20 years as a tool and die maker | Keep unsplit | — |
+| A28 | A year and a half of phlebotomy | Keep unsplit | — |
+| A29 | Able to follow system instructions and use override controls on CNC machines | Keep unsplit | — |
+| A30 | Administer medications and document on the MAR | Keep unsplit | — |
+| A31 | Administer user accounts and permissions in Microsoft 365 | Keep unsplit | — |
+| A32 | Comfy on a ladder & good with hand tools | Keep unsplit | — |
+| A33 | Conduct background checks and onboarding paperwork | Keep unsplit | — |
+| A34 | De-escalate conflicts and handle difficult customer interactions | Keep unsplit | — |
+
+**Safeguards attached to these approvals:**
+- They apply only to the future structured questionnaire.
+- No split is activated or implemented yet, and existing matching behavior isn't changed.
+- X2 stays unresolved: a Supported whole-requirement explanation isn't automatically evidence for every part.
+- Original requirement wording is preserved.
+- Unreviewed cases stay pending.
+- D1–D3 and O1–O3 are preserved.
+
+**Open design item, required before any split is activated:** don't make a person write duplicate explanations when one explanation genuinely covers several parts. For example, "I run the calendars for our CEO and two VPs … and book the hotels, cars and flights for their trips" covers both A22 parts. This behavior is to be designed and approved separately, and it is distinct from X2.
 
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
