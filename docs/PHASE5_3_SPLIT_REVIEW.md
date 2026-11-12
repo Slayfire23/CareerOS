@@ -9,7 +9,10 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
 - **X2** is held. A whole-requirement Supported explanation is *not* assumed to show every part.
 - **X3** is approved: mixed and/or requirements stay unsplit for now.
 - **X4** is approved: owner-reviewed wording edits are allowed if they preserve the requirement's meaning.
-- **P1–P16 and A1–A93 are all pending.** No approved-splits list exists.
+- **Group 1 (P1–P16) was decided on 2026-11-11** (see "Group 1 owner decisions" below):
+  - 10 approved for the structured questionnaire: 7 as proposed, 2 with edited wording, 1 with clarification;
+  - 6 kept unsplit.
+- **A1–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -83,6 +86,37 @@ Legend for the data column: S Supported, P Possible, I Not enough information, G
 - approve with edit: 2 (P7, P8);
 - clarify first: 4 (P9, P13, P15, P16);
 - keep unsplit: 3 (P4, P5, P10).
+
+### Group 1 owner decisions (2026-11-11, owner-approved)
+
+These apply **to the structured questionnaire only (X1)**. They are recorded here and **not implemented or activated**: no approved-splits list exists yet.
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| P1 | Bookkeeping and month-end reconciliation | Approved as proposed | `Bookkeeping` · `month-end reconciliation` |
+| P2 | Cash handling and till reconciliation | Approved as proposed | `Cash handling` · `till reconciliation` |
+| P3 | Crane signaling and rigging | Approved as proposed | `Crane signaling` · `Crane rigging` |
+| P6 | Experience with grant reporting and compliance | Approved as proposed | `grant reporting` · `grant compliance` |
+| P11 | Pipe threading and fitting | Approved as proposed | `Pipe threading` · `Pipe fitting` |
+| P12 | Pruning and tree felling | Approved as proposed | `Pruning` · `tree felling` |
+| P14 | Recruiting and onboarding new staff | Approved as proposed | `Recruiting new staff` · `onboarding new staff` |
+| P7 | Handle patient scheduling and insurance verification | Approved with edited wording | `Patient scheduling` · `Insurance verification` |
+| P8 | Perform bookkeeping and monthly financial reporting | Approved with edited wording | `Bookkeeping` · `Monthly financial reporting` |
+| P13 | Recruiting and hiring staff | Approved with clarification | `Recruiting staff` · `Hiring staff`. *Recruiting* means sourcing and screening candidates. *Hiring* means taking part directly in selection or hiring decisions. Recruiting alone never establishes hiring experience |
+| P4 | Data engineering, building ETL pipelines | Keep unsplit | — |
+| P5 | Experience operating a cash register and handling cash transactions | Keep unsplit | — |
+| P9 | Perform data cleaning and transformation in Python | Keep unsplit | — |
+| P10 | Perform welding and fabrication of steel structures | Keep unsplit | — |
+| P15 | Soil testing and analysis | Keep unsplit | — |
+| P16 | Standard costing and variance analysis | Keep unsplit | — |
+
+**Safeguards attached to these approvals:**
+- No split is used in the free-text matching engine.
+- X2 stays held: a whole-requirement Supported explanation doesn't grant every part.
+- The original requirement wording and the approved part wording are both kept.
+- No unreviewed split is activated.
+- Existing matching outcomes don't change.
+- D1–D3 and O1–O3 are preserved.
 
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
