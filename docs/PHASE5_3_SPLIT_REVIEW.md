@@ -17,7 +17,10 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
   - 8 splits approved with edited wording (A19–A26);
   - 8 kept unsplit (A27–A34).
 - **Ambiguous batch 3 (A35–A50) was decided on 2026-11-11:** all 16 are kept unsplit. Five recognition gaps (A40–A43, A47) are recorded in their own follow-up section, separate from split approval.
-- **A51–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 4 (A51–A63) was decided on 2026-11-11:**
+  - 11 splits approved (A51–A60, A63);
+  - 2 kept unsplit (A61, A62).
+- **A64–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -203,6 +206,35 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 | A48 | Wound care and dressing changes | Keep unsplit |
 | A49 | Write SQL that can DROP TABLE and re-create it safely during migrations | Keep unsplit |
 | A50 | You will have override authority on the POS and approve voids | Keep unsplit |
+
+### Ambiguous batch 4 owner decisions (A51–A63, 2026-11-11, owner-approved)
+
+**Eleven splits approved for future use in the structured ownership questionnaire only, with the exact part wording below. Recorded only, not implemented or active.**
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| A51 | Pour and finish concrete flatwork | Approved | `Pouring concrete flatwork` · `Finishing concrete flatwork` |
+| A52 | Verify and approve all invoices before payment | Approved | `Verifying invoices` · `Approving invoices for payment` |
+| A53 | Build and maintain Excel financial models | Approved | `Building Excel financial models` · `Maintaining Excel financial models` |
+| A54 | Configure and maintain AWS cloud infrastructure | Approved | `Configuring AWS cloud infrastructure` · `Maintaining AWS cloud infrastructure` |
+| A55 | Design and develop RESTful APIs | Approved | `Designing RESTful APIs` · `Developing RESTful APIs` |
+| A56 | Develop and deliver sales presentations to clients | Approved | `Developing sales presentations for clients` · `Delivering sales presentations to clients` |
+| A57 | Install and maintain security camera systems | Approved | `Installing security camera systems` · `Maintaining security camera systems` |
+| A58 | Install and repair residential plumbing | Approved | `Installing residential plumbing` · `Repairing residential plumbing` |
+| A59 | Order and manage pharmacy inventory | Approved | `Ordering pharmacy inventory` · `Managing pharmacy inventory` |
+| A60 | Plan and execute paid search campaigns in Google Ads | Approved | `Planning paid search campaigns in Google Ads` · `Executing paid search campaigns in Google Ads` |
+| A63 | Cut and style hair | Approved | `Cutting hair` · `Styling hair` |
+| A61 | Able to override and reset PLC faults on the line | Keep unsplit | — |
+| A62 | Clean and sanitize patient rooms per infection control standards | Keep unsplit | — |
+
+**Interpretation safeguards attached to these approvals:**
+- Each approved part is a distinct activity. Completing one part doesn't establish the other.
+- Partial experience stays eligible for Possible when consistent with D1–D3 and the existing evidence rules.
+- Supervising, observing, requesting, arranging, or reviewing someone else's work never counts automatically as personally performing a part.
+- X2 stays unresolved: a whole-requirement verdict doesn't grant Supported for every part.
+- One genuine explanation may support several parts without duplicate text. That must be designed and tested before activation (the open design item above).
+- The original requirement text and the exact approved part wording are both preserved.
+- No split is activated, and matching behavior is unchanged.
 
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
