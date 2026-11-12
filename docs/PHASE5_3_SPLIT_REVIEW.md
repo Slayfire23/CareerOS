@@ -21,7 +21,8 @@ November 11, 2026. **For the owner's decisions. Nothing is approved, activated o
   - 11 splits approved (A51–A60, A63);
   - 2 kept unsplit (A61, A62).
 - **Ambiguous batch 5 (A64–A75) was decided on 2026-11-11:** A67 approved as a split; the other 11 kept unsplit. A73 was added to the recognition-gap follow-up.
-- **A76–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
+- **Ambiguous batch 6 (A76–A90) was decided on 2026-11-11:** A76 and A77 approved as splits; the other 13 kept unsplit. A78 was added to the recognition gaps, and the A87 possible false-Supported issue was flagged.
+- **A91–A93 are pending.** None of the splits is implemented or active, and no approved-splits list exists.
 
 **Sources.** Only the Stage 2 evidence (`ai-service/evals/reports/m11/structured/stage2-split-proposals.json`) and opened data were used. Neither sealed split (`m11_followup4`, `m11_structured`) was opened. The opened data:
 - the engine baseline cases;
@@ -265,6 +266,36 @@ These apply **to the structured questionnaire only (X1)**. They are recorded her
 - D1–D3 and O1–O7 are preserved.
 - No split is activated, and matching behavior is unchanged.
 
+### Ambiguous batch 6 owner decisions (A76–A90, 2026-11-11, owner-approved)
+
+**Two splits approved for future use in the structured ownership questionnaire only; 13 kept unsplit. Recorded only, not implemented or active.**
+
+| # | Original requirement (unchanged) | Decision | Approved parts (exact wording) |
+|---|---|---|---|
+| A76 | CNC lathe setup and operation | Approved | `CNC lathe setup` · `CNC lathe operation` |
+| A77 | Accounts receivable aging and collections | Approved | `Accounts receivable aging analysis` · `Accounts receivable collections` |
+| A78 | Conduct customer site surveys and measurements | Keep unsplit (recognition gap recorded in the follow-up section) | — |
+| A79 | Coordinate maintenance service requests with vendors and tenants | Keep unsplit | — |
+| A80 | Draft architectural drawings in AutoCAD and Revit | Keep unsplit | — |
+| A81 | Experience with event planning and logistics | Keep unsplit | — |
+| A82 | Guest check-in and check-out | Keep unsplit | — |
+| A83 | Install residential electrical wiring and fixtures | Keep unsplit | — |
+| A84 | Manage project budgets and timelines | Keep unsplit | — |
+| A85 | Patient transfer and lifting | Keep unsplit | — |
+| A86 | Perform IT hardware repair and replacement | Keep unsplit | — |
+| A87 | Perform bicycle repairs and tune-ups | Keep unsplit (possible false-Supported safety issue recorded in the follow-up section) | — |
+| A88 | Perform dental cleanings and scaling | Keep unsplit | — |
+| A89 | Quality inspection with calipers and micrometers | Keep unsplit | — |
+| A90 | Transmission removal and replacement | Keep unsplit | — |
+
+**Safeguards still in force:**
+- D1–D3 and O1–O7 are preserved.
+- Supported never comes from a checkbox or an unsupported self-report alone.
+- There's no credit for someone else's work.
+- X2 stays unresolved.
+- Evidence shared across parts must be explicitly designed and tested.
+- All approved splits stay inactive.
+
 ## Group 2: the 93 ambiguous cases, by type of ambiguity
 
 **Recommendation tally:**
@@ -416,10 +447,10 @@ Durations, credentials and alternatives are already read from the profile entrie
 | A93 | Forecasting and budgeting | `Forecasting` · `budgeting` | engine I; answers I | **Split (edited parts)** | `Forecasting` · `Budgeting`. Distinct FP&A tasks; budgeting was already rejected as a broad equivalence (Batch 1). Partial experience is common |
 ## Recognition-gap follow-up (documentation only; separate from split approval)
 
-Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all six requirements (A40–A43, A47, A73) stay unsplit.
+Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is changed.** These are labeled-supported answers that the current reader (rules-v20) doesn't credit. They are kept for a later, separately approved recognition review. They have no bearing on the split decisions above: all seven requirements (A40–A43, A47, A73, A78) stay unsplit.
 
 **Source and labels.**
-- All six come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
+- All seven come from the opened, spent follow-up set `m11_followup3`; each answer is repeated in the ownership benchmark.
 - Labels are the set's whole-entry labels (`answer_verdict`, `personally_did`, `involvement`, `hands_on`), written by a separate labeling agent.
 - "Engine" is the title-only engine reading of that scenario's role. "Reader" is the answer reader on the answer text alone.
 - A follow-up reply exists in the data, but it isn't part of the answer reading below.
@@ -432,6 +463,24 @@ Recorded 2026-11-11 at the owner's request. **No verdict or matching rule is cha
 | A43 (fw-105, benchmark pc-205) | Perform merchandising and visual displays | "Every Sunday night I change out the front tables and windows to match the new promo — picking which items go up front, folding them in color order and putting the signs up so they catch your eye from the mall." Role: Retail Associate, 14 months. Reply: "My manager sends the corporate photo and I build it on my own, about a year now." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance, none in wording:** visual displays (windows, tables, signs) and merchandising (choosing and arranging items) are described, but neither requirement word appears | The reply shows the layout comes from a corporate photo, and the person builds it. Does building a display to plan count as "merchandising", or should the plan be the person's own? |
 | A47 (fw-014, benchmark pc-114) | Process accounts payable and vendor invoices | "Bills come into a shared inbox, I match each one to the PO and what the warehouse says we got, code it to the right expense line and schedule the check run every other Friday. I'm the only one in the office who does it." Role: Bookkeeper, 36 months. Reply: "Around 300 bills a month for three years. I also chase the vendors when an amount doesn't match." | Reader: Not enough information. Engine: Not enough information | Supported (performed, hands-on, reply OK) | **Full in substance:** three-way match, coding, payment runs, done alone. "Bills" stands for vendor invoices, and "accounts payable" isn't named | Little. It's a vocabulary gap ("bills", "PO", "check run" for accounts payable), the kind the equivalence review covers. Any fix goes through that review, with its no-new-false-Supported bar |
 | A73 (fw-039, benchmark pc-139; added 2026-11-11) | Schedule and coordinate shipments with freight carriers | "I book LTL and full truckload pickups with our carriers, get the quotes, send the BOLs, and track the loads until they're delivered. When a carrier misses a pickup I'm the one rebooking it." Role: Logistics Coordinator, 31 months. Reply: "Around 25 shipments a week across six carriers. I negotiate the spot rates too." | Reader: Not enough information ("no relationship"). Engine: Not enough information | Supported (personally did; involvement "coordinated", hands-on no; reply OK) | **Full in substance:** booking pickups is scheduling, and quotes, bills of lading, tracking and rebooking are coordinating. All of it is with carriers and done by the person | **Likely cause (checked, not fixed):** the reader reads the person's part correctly (both statements are "performed"; neither is read as paperwork). The miss is vocabulary: "book … pickups" and "loads" aren't matched to "schedule … shipments". Read whole, the requirement finds no relationship. Read as one part at a time, each part reaches only Possible, through the shared word "carriers". Coordinating is the work asked here, so O2 doesn't limit it. Any fix goes through the equivalence review and its no-new-false-Supported bar |
+
+| A78 (fw-031, benchmark pc-131; added 2026-11-11) | Conduct customer site surveys and measurements | "I do the in-home measures for every sale. Well, not all of them — on the big commercial jobs our estimator goes out, and I only measure the residential rooms." Role: Flooring Sales Representative, 21 months. Reply: "Residential I measure myself, about ten a week. Commercial is all the estimator." | Reader: Not enough information ("no own statement"). Engine: Not enough information | Supported (performed, hands-on, reply OK; labeler's note: "residential only") | **Partial in scope, full in kind:** the person measures residential jobs themselves, and the estimator does the commercial ones. "Site surveys" isn't named; in-home measuring is the survey work for residential flooring | **Likely cause (checked, not fixed):** this isn't mainly a vocabulary miss. The reader finds *no statement of the person's own* at all, for the whole requirement and for each phrase. The self-correction ("Well, not all of them —") seems to set aside the first sentence, and the narrowed "I only measure the residential rooms" isn't taken up. Vocabulary ("measures" vs "measurements", nothing for "site surveys") may also play a part, unverified. Open question: should residential-only measuring meet the requirement in full (the label says yes), or only in part? |
+
+### Possible false-Supported safety issue (A87; documentation only, not fixed)
+
+Recorded 2026-11-11 at the owner's request. **Flagged for targeted contradiction and correction handling before any new matching rule or compound split is activated.**
+
+| Item | Detail |
+|---|---|
+| Requirement (exact) | Perform bicycle repairs and tune-ups (A87, kept unsplit) |
+| Complete answer (fw-103, benchmark pc-203) | "I do tune-ups at the shop. Mostly I write them up at the counter and the mechanics in back do the work, I only fix flats." |
+| Role and reply | Bike Shop Sales Associate, 9 months. Reply: "I do the flats and tubes myself, a few a day. Brakes and gears go to the back." |
+| Label | Possible (personally did: yes; involvement: mixed; hands-on: yes; labeler's note: "flats only") |
+| The person's own correction | The mechanics do the tune-ups; the person writes them up and personally fixes only flats and tubes |
+| Whole requirement today | **Not enough information** (no relationship). Below Supported, so nothing is over-credited on this requirement |
+| The defect | Read alone, the isolated phrase is over-credited. `tune-ups` reads **Supported** ("stated work", quoting "I do tune-ups at the shop"). "Bicycle tune-ups" and "Perform bicycle tune-ups" read **Possible** on the same quote. The reader takes "I do tune-ups" as the person's work and misses the correction in the next sentence ("Mostly … the mechanics in back do the work, I only fix flats") |
+| Why it matters | A requirement worded just "tune-ups", or a split part, would be given Supported for work the person says someone else does. That breaks "no credit for someone else's work" |
+| Required before activation | Targeted handling for in-answer corrections and contradictions ("I do X … mostly someone else does X, I only do Y"), with probes and the full regression comparison. Do it before any new matching rule or compound split is activated. **No fix implemented yet** |
 
 **What this follow-up does not do:**
 - It doesn't change verdicts or matching rules, add equivalences, or relabel anything.
