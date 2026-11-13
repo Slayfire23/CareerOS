@@ -238,7 +238,43 @@ These are listed as owner interpretations so the exclusion is your decision.
   - `\bbusiness (tax )?returns?\b`
   - Equivalents: `\b1120-?S\b`, `\b1065s?\b`, `\bS[- ]corp\w*\b[^.]{0,15}\breturns?\b`, `\bpartnership returns?\b`, `\bSchedule C\b`
 
-## Batch 3 of 4: A51–A60 (presented 2026-11-12; pending owner decisions)
+## Batch 3 owner decisions (2026-11-12, owner-approved for the recognition specification; not implemented)
+
+All 7 proposed approvals and all 17 revisions are approved, subject to these interpretations. The approved part wording is unchanged. Nothing is implemented or active, and no list exists.
+
+| # | Part (exact) | Owner decision |
+|---|---|---|
+| A51 | Pouring concrete flatwork | **Approved:** the revised patterns. Personally **placing, spreading or raking** concrete are relevant equivalents when the evidence establishes actual participation in placing flatwork. **Merely transporting concrete or materials, including wheelbarrowing without evidence of placement, doesn't establish pouring.** Finishing is never inferred from pouring or placing |
+| A51 | Finishing concrete flatwork | **Approved:** the concrete-specific finishing, troweling, floating and edging patterns |
+| A52 | Verifying invoices | **Approved:** the revised invoice- and bill-specific patterns |
+| A52 | Approving invoices for payment | **Approved, only for evidence that the person exercised payment-approval authority themselves.** "Handling approvals", submitting invoices for approval, routing them, or asking someone else to approve doesn't count. Verb forms stay distinct from nouns ("approvals") |
+| A53 | Building Excel financial models | **Approved:** the financial-model patterns, **but full Supported on this Excel-specific part needs evidence of Excel use.** Building financial models in another spreadsheet tool can be relevant transferable experience, justifying Possible with a clarification, but never establishes Excel proficiency automatically |
+| A53 | Maintaining Excel financial models | **Approved, with the same Excel requirement.** Personally maintaining the model's assumptions, formulas or structure is distinct from merely using or reviewing an existing model |
+| A54 | Configuring / Maintaining AWS cloud infrastructure | **Approved:** the revised AWS-object patterns. Generic setup, provisioning or maintenance isn't AWS infrastructure work |
+| A55 | Designing RESTful APIs | **Approved:** the revised API- and endpoint-specific patterns, plus writing API contracts or OpenAPI specifications as design evidence |
+| A55 | Developing RESTful APIs | **Approved:** the revised implementation patterns. Writing handlers, routes or endpoints can establish development; writing documentation or merely describing endpoints doesn't |
+| A56 | Developing / Delivering sales presentations | **Approved:** the revised patterns. Personally creating presentations and personally delivering them to clients stay distinct |
+| A57 | Installing / Maintaining security camera systems | **Approved:** the camera-system patterns. Installation and maintenance stay separate activities |
+| A58 | Installing / Repairing residential plumbing | **Approved:** the plumbing-specific patterns. **Taking repair calls, or coordinating repair work, doesn't establish personally performing repairs** |
+| A59 | Ordering / Managing pharmacy inventory | **Approved:** the revised pharmacy patterns. Personally ordering stock and managing inventory stay distinct |
+| A60 | Planning / Executing paid search campaigns in Google Ads | **Approved:** the revised object-specific patterns. Keyword research may show planning; personally adjusting bids on active campaigns may show execution. Execution is never inferred from planning, or the reverse. **The Google Ads platform requirement is kept for full credit where the part names it** |
+| A19 follow-up | Reconciling inventory variances | **Option (a):** the approved reconciliation equivalent stays unchanged and isn't fitted further to fw-002. fw-002 keeps Possible and the targeted clarification. The independent R4 evaluation decides whether the equivalent generalizes |
+
+**For all batch 3 patterns:**
+- the exact approved split wording is preserved;
+- first-person activity ownership and clause-level attribution are required;
+- evidence in another person's clause never establishes the person's experience;
+- corrections, narrowed scope and contradictions are respected;
+- Supported never comes from checkboxes alone;
+- there are no broad equivalences;
+- D1–D3 and O1–O7 are preserved.
+
+**Implementation notes, for when patterns are built (not now):**
+- **A51:** the placing equivalent (spread, rake, place, screed concrete) is approved. **"wheelbarrow" is removed from the candidate**: transporting alone doesn't count. On fw-101 ("I wheelbarrow the mud and spread it with a rake"), "spread it" still establishes placing.
+- **A58:** "I take the … repair calls" is a coordination form, not a performance form. The noun-compound pattern ("… repair calls") added for the design probe is **dropped**. "Repair calls/jobs" alone stays below the repair part (Possible with a question).
+- **A53 and A60:** these parts name a tool or platform (Excel, Google Ads). A part is shown for Supported only when the person's own clause also names it, in the same answer. A financial model or paid-search campaign without the named tool is **partial relevance**: Possible with a targeted clarification ("Was this model built in Excel?"). This adds a "named tool required" field to the approved-split data (spec §2), to be confirmed in the implementation design.
+
+## Batch 3 of 4: A51–A60 (presented 2026-11-12; decided above)
 
 **These are the lifecycle-pair splits:** two verbs on one object (pour/finish concrete, verify/approve invoices, build/maintain models…). So the drafted bare verbs fire anywhere in an answer:
 - "pour" (wine service), "finish" (finishing school);
@@ -331,3 +367,83 @@ Where raw patterns still match a risk probe (for example "…the finishers do th
 - **A58 Repairing:** VO(`repair\w*|fix(es|ed|ing)?|unclog\w*|replac\w*|snak\w*`, PLUMB), plus Compound(PLUMB, `repairs?|replacements?`)
 - **A59 Ordering:** VO(`order(ed|ing)?|I order|we order|purchas\w*`, PHARM), gap 30, plus `\bplac\w* (the |our )?([\w-]+ )?orders?\b`
 - **A60 Planning:** VO(`plan(s|ned|ning)?|strategi\w*|strategy`, ADS)
+
+## Batch 4 of 4 (final): A63, A67, A76, A77, A93 (presented 2026-11-12; pending owner decisions)
+
+The same method: verbs bound to the requirement's own object, tested on the design probes, each split's opened answer, and all 1,266 opened answers.
+
+| # | Original requirement | Approved part (exact) | Draft | Candidate equivalent | Why valid | False-Supported / generic risk (measured) | Possible genuine loss | Recommendation |
+|---|---|---|---|---|---|---|---|---|
+| A63 | Cut and style hair | Cutting hair | "cut…" | fades, trims | Fades and trims are haircuts | **"cut" fires on 32 opened answers** (plasma cutting, cutting pipe, cutting glass) | — | **Revise:** cut, trim, fade or shape before hair, bangs, beards, clients, layers, bobs, fades…, "haircut(s)", or "do the cuts/fades/trims" (32 → 1, a cosmetology answer). The opened assistant answer ("blow-dry once **they** finish cutting") correctly no longer shows cutting |
+| | | Styling hair | "styl…" | blow-dry; blowout; updo | Blowouts and updos are styling services | "styl…" matches "stylist" (an agent noun, which the attribution rule excludes) | — | **Revise:** verb forms only (style, styles, styled, styling). **Owner interpretation** on blow-drying (Q1) |
+| A67 | Load and unload freight from trucks | Loading freight onto trucks | "load(ed/ing)" | stacking or staging pallets onto trucks | Putting freight onto the truck is loading | **"load" fires on 17 opened answers** ("load the programs", "load the jaws", "load boards") | — | **Revise:** load before trucks, trailers, freight, pallets, vans, containers, deliveries, shipments or outbound (17 → 3, all genuine). **Approve** the equivalent |
+| | | Unloading freight from trucks | "unload…" | breaking down inbound trailers | Breaking down a trailer is unloading it | 7 hits, mostly genuine forklift unloading | "I only unload" (with the object named earlier in the answer) is no longer shown; see Q4 | **Revise:** unload before the freight objects. **Approve** the equivalent |
+| A76 | CNC lathe setup and operation | CNC lathe setup | "set up"; "setup(s)" | touching off tools; setting offsets | Touching off and setting offsets are lathe setup steps | **"set up" fires on 32 opened answers;** "setups" on internal controls and monitoring | **"I do the lathe setups"** needed a noun-compound form (added, tested). "The setup guy does the setups" stays someone else's work | **Revise:** set up or setup(s) before lathes, CNC, machines, jobs, chucks, jaws, tools, programs or parts, or "lathe/CNC/machine/job setup(s)". **Approve** the equivalents |
+| | | CNC lathe operation | operate, run | — | — | **"run/operate" fires on 147 opened answers** | — | **Revise:** operate or run before lathes, CNC, machines, jobs, parts or production ("run parts", the machinist idiom, counts) (147 → 16; the rest are genuine machine operation in other requirements) |
+| A77 | Accounts receivable aging and collections | Accounts receivable aging analysis | "aging" | — | — | 0 unrelated hits. **But "I review the aging report" is blocked by the review-verb rule**, although reviewing the report *is* aging analysis | See Q2 | **Approve** the marker. **Owner interpretation** on review verbs (Q2) |
+| | | Accounts receivable collections | "collect…" | calling or chasing past-due or overdue balances | Calling past-due customers is collections work | "collect…" fires on "Postman collections", "collected evidence" and "collects the SOC 2 evidence" | **"I … handle collections"** needed a form without an object (added, tested) | **Revise:** collect before payments, receivables, past-due, balances, accounts, invoices, money, debts or customers, or "collection calls", "collections work/queue", "handle/do/work the collections" (6 → 0 unrelated). **Approve** the equivalent |
+| A93 | Forecasting and budgeting | Forecasting | "forecast…" | projections | Building projections is forecasting | "forecast" fires on **a weather forecast** and **"I use the forecast to schedule staff"** (using a forecast isn't forecasting) | — | **Revise:** an own-work verb (build, prepare, create, develop, run, produce, update, do, handle, own, model, set, draft) before forecasts, forecasting or projections, or "I/we forecast" (tested: weather and using-a-forecast excluded) |
+| | | Budgeting | "budget…" | spending plan | A spending plan is a budget | "budget" fires on **"I manage the department budget"** (spending within a budget) and PMP rollout budgets. **R5: "fill in the budget template" must not count** | — | **Revise:** an own-work verb before budget(s), budgeting or spending plans. "Fill in the template" and "give my numbers" excluded, per R5 (tested). **Owner interpretation** on managing an existing budget (Q3) |
+
+**Batch 4 summary (by item):**
+- **Approve:** 5 (A67's two equivalents, A76's setup equivalents, A77 "aging", A77's past-due equivalent).
+- **Revise:** 9.
+- **Reject:** 0.
+- **Owner interpretation:** 4 questions:
+  1. **A63:** do blow-drying, blowouts and updos count as *Styling hair*? The opened assistant answer (fw-065, labeled possible: "I shampoo the clients, mix color for the stylists and blow-dry once they finish cutting") would show styling only, and stays Possible. *Recommended: yes. A blowout is a styling service, and cutting stays separately required.*
+  2. **A77:** should reviewing, analyzing, flagging or working the AR aging report count as *Accounts receivable aging analysis*, as an exception to the review-verb rule like R2? Reviewing the report is the analysis itself. Reviewing **other people's** work (for example "the collectors' notes") stays oversight, and collections stays a separate part. *Recommended: yes, limited to the aging report as the object.*
+  3. **A93:** does managing or tracking spending against an **existing** department budget count as *Budgeting*? The revision excludes it, so it gives Possible with a clarification. *Recommended: not by itself. Budgeting means building or setting the budget.*
+  4. **Attribution design (all splits):** an elided or pronoun object. A narrowed or second clause sometimes names only the verb, with the object earlier in the same answer. Examples: "I load and unload trucks … **I only unload**"; "I do cycle counts … **I just count**"; "marketing builds the decks, **I just present them**". *Proposed rule (spec, not a pattern):* a part's verb in the person's own clause, with no object or with "them/it", counts when the person's own earlier clause in the same answer names that part's object. It never counts through someone else's clause. *Recommended: approve for the spec, with the four probe cases as tests. Today these stay Possible with a question; no verdict changes.*
+
+## Full recognition re-simulation, all 33 splits (scratch; opened data and design probes only)
+
+**Patterns used:**
+- batches 1–3 as you approved them, including P12 shrubs and hedges, the conditional A19 equivalent, A51 placing without "wheelbarrow", and A58 without the "repair calls" compound;
+- batch 4 as proposed above.
+
+The named-tool requirement (A53 Excel, A60 Google Ads) isn't simulated yet.
+
+**Results (V4b design):**
+- **0 false Supported** across all 132 partial, supervision and correction probes.
+- **0 verdict changes against the drafts:**
+  - genuine both-parts probes: 63 of 66 Supported;
+  - partial probes: 62 of 66 Possible, 4 Not enough information;
+  - the 6 labeled-supported opened answers stay Supported, with no labeled losses.
+
+**Part-level attribution changes against the drafts: 10, none changing a verdict.**
+- **Intended by your decisions (5):**
+  - A51: "spread it" now shows pouring (opened fw-101 and its correction probe);
+  - A58: "repair calls" no longer shows repairing;
+  - A93: "fill in the budget template" no longer shows budgeting (R5);
+  - A59: "the wholesaler orders" is now recognized.
+- **Narrowed wording no longer attributed (5), each Possible with a targeted question:**
+  - "I just count" (A19), "I only unload" (A67) and "I just present them" (A56): addressed by Q4;
+  - "I only keep the calendars" (A22): no executive context in that clause; under Q4 the earlier "executive calendars" would supply it;
+  - "I just hang the board" (A21): your batch 2 decision limited the objects to drywall, sheetrock, gypsum board and wallboard; Q4 would not change this.
+
+Evidence: `ai-service/evals/reports/m11/structured/r1-recognition-simulation.json`.
+
+**Batch 4 revised patterns (exact; scratch-tested, not adopted).** VO(verbs, objects) is as defined in batch 3.
+
+*Object lists:*
+- **HAIR** = `hair|bangs|beards?|clients?|customers?|layers|bobs?|pixies?|fades|kids|men|women`
+- **FREIGHT** = `trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound`
+- **LATHE** = `lathes?|CNC|machines?|jobs?|chucks?|jaws|tool(s|ing)?|programs?|parts|production`
+- **AR** = `payments?|receivables|past[- ]due|overdue|balances?|accounts|invoices|money|debts?|customers`
+- **OWN** = `build\w*|built|prepar\w*|creat\w*|develop\w*|run\w*|produc\w*|updat\w*|do|does|did|handl\w*|own(s|ed)?|model\w*|set(s|ting)?|draft\w*`
+
+*Per part:*
+- **A63 Cutting:** VO(`cut(s|ting)?|trim(s|med|ming)?|fad(e|es|ing)|shap\w*`, HAIR), plus `\bhaircuts?\b` and `\b(do|does|did|doing)\s+(the\s+|all\s+the\s+)?(cuts|fades|trims)\b`
+- **A63 Styling:** `\bstyl(e|es|ed|ing)\b`. Q1 equivalents: `\bblow-?dr\w*`, `\bblowouts?\b`, `\bupdos?\b`
+- **A67 Loading:** VO(`load(ed|ing)?|I load|we load`, FREIGHT). Equivalent: `\b(stag\w*|stack\w*)\b[^.]{0,25}\bonto (the )?(delivery )?(trucks?|trailers?)\b`
+- **A67 Unloading:** VO(`unload\w*`, FREIGHT). Equivalent: `\bbreak\w* down (the )?(inbound )?trailers\b`
+- **A76 Setup:** VO(`set(ting)? ?up|setups?`, LATHE), plus `\b(lathe|CNC|machine|job)\s+set[- ]?ups?\b`. Equivalents: `\btouch\w* off\b`, `\bset\w* (the )?offsets\b`
+- **A76 Operation:** VO(`operat\w*|run(s|ning)?|ran`, LATHE)
+- **A77 Aging analysis:** `\baging\b`
+- **A77 Collections:** VO(`collect(s|ed|ing)?`, AR), plus:
+  - `\bcollection calls?\b`
+  - `\bcollections (calls?|work|queue|accounts)\b`
+  - `\b(handl\w*|do|does|did|doing|work\w*|run\w*)\s+(the\s+|all\s+the\s+|our\s+)?collections\b`
+  - Equivalent: `\b(call\w*|chas\w*)\b[^.]{0,30}\b(past[- ]due|overdue)\b`
+- **A93 Forecasting:** VO(OWN, `forecasts?|forecasting|projections?`), plus `\b(I|we)\s+forecast\b`
+- **A93 Budgeting:** VO(OWN, `budgets?|budgeting|spending plans?`)
