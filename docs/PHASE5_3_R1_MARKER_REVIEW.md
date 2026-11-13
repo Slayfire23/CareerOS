@@ -109,7 +109,45 @@ Every revision keeps the genuine design probes and opened answers that the draft
 - **P12 Pruning equivalent, if limbs and branches only:**
   - `\b(trim\w*|cut\w* back)\b[^.]{0,25}\b(limbs?|branch\w*)\b`
 
-## Batch 2 of 4: A19–A26 (presented 2026-11-12; pending owner decisions)
+## Batch 2 owner decisions (2026-11-12, owner-approved; recognition proposals only, not implemented)
+
+The approved part wording is unchanged. Nothing is implemented or active, and no list exists.
+
+| # | Part (exact) | Owner decision |
+|---|---|---|
+| A19 | Inventory cycle counts | **Approved:** the revised inventory-specific patterns. Generic "count" never counts without inventory context |
+| A19 | Reconciling inventory variances | **Approved:** the revised marker. **Conditionally approved:** the equivalent covering discovering count discrepancies, investigating their cause, and **personally** resolving or correcting them. Merely reporting a mismatch to someone else doesn't establish reconciliation. **The equivalent was partly fitted to fw-002, so that limitation is kept, and it needs the independent R4 evaluation before adoption** |
+| A20 | Brake repair | **Approved:** the revised repair-specific patterns. Personally replacing brake pads or rotors counts as brake repair, even without every type of brake repair. Inspection alone, and unrelated uses of "brake" or "calipers", never count |
+| A20 | Suspension repair | **Approved:** the revised suspension-specific patterns. Actual repair activity is required. Tie rods are removed as an equivalent. Sway-bar links count when personally repaired or replaced |
+| A21 | Drywall installation | **Approved:** the drywall, sheetrock, gypsum-board and wallboard patterns |
+| A21 | Drywall joint finishing | **Approved:** the joint-finishing patterns and equivalent |
+| A22 | Executive calendar management | **Approved:** the revised executive-context patterns, with these interpretations:<ul><li>A manager's calendar **may** count when the evidence establishes executive-level scheduling responsibility.</li><li>An attorney's or physician's calendar doesn't count automatically because of the profession.</li><li>**When the role or responsibility level is unclear**, partial relevance is kept and a targeted clarification is asked, never automatic Supported.</li></ul> |
+| A22 | Travel coordination | **Approved:** the revised patterns requiring actual coordination, or booking for others. Booking personal travel never establishes travel coordination for others |
+| A23 | Social media account management | **Approved:** the revised social-media-specific patterns. Generic sales-account management never counts |
+| A23 | Content creation | **Approved:** the revised patterns requiring actual creation, and the photo/video equivalent where the person creates the content |
+| A24 | Venipuncture | **Approved:** the revised patterns. Arterial blood draws alone never establish venipuncture |
+| A24 | Starting IV lines | **Approved** as proposed |
+| A25 | Scheduling service appointments | **Approved:** the revised service-appointment patterns and the booking-appointments equivalent |
+| A25 | Dispatching technicians | **Approved:** the revised technician and field-service patterns and "routing techs". Dispatching freight drivers alone never counts. Dispatching drivers who also do field-service technical work **may** be relevant when that role is explicitly evidenced; otherwise a clarification is asked |
+| A26 | Individual tax return preparation | **Approved:** the revised tax-return patterns, including Form 1040 preparation |
+| A26 | Small-business tax return preparation | **Approved:** the small-business patterns and the 1120-S, 1065, S-corp, partnership and Schedule C equivalents. **Form 1120 alone is never proof of a small-business return.** A C-corporation 1120 **may** qualify when the evidence establishes it was a small business's return and the person personally prepared it |
+
+**For all of A19–A26:**
+- the exact approved split wording is preserved;
+- the clause-level ownership and third-party attribution safeguards stay;
+- Supported never comes from a checkbox alone;
+- equivalences aren't broadened beyond the reviewed scope;
+- a targeted clarification is kept wherever evidence is ambiguous;
+- D1–D3 and O1–O7 are preserved.
+
+**Implementation notes, for when patterns are built (not now).** The "may count when the evidence establishes…" cases aren't pattern matches. The pattern excludes them, so they reach at most Possible, with a targeted clarification question:
+- A22: a manager's calendar at executive level;
+- A25: drivers who also do technical field work;
+- A26: a small C-corporation's 1120.
+
+Only an owner-approved follow-up rule could raise them.
+
+## Batch 2 of 4: A19–A26 (presented 2026-11-12; decided above)
 
 The same method as batch 1. Each revision was re-tested against the DD1 design probes, the split's opened answer, and all 1,266 opened answers. "Kept" means every genuine case the draft matched still matches.
 
@@ -199,3 +237,97 @@ These are listed as owner interpretations so the exclusion is your decision.
   - `\bsmall[- ]business\b[^.]{0,20}\b(returns?|tax\w*)\b`
   - `\bbusiness (tax )?returns?\b`
   - Equivalents: `\b1120-?S\b`, `\b1065s?\b`, `\bS[- ]corp\w*\b[^.]{0,15}\breturns?\b`, `\bpartnership returns?\b`, `\bSchedule C\b`
+
+## Batch 3 of 4: A51–A60 (presented 2026-11-12; pending owner decisions)
+
+**These are the lifecycle-pair splits:** two verbs on one object (pour/finish concrete, verify/approve invoices, build/maintain models…). So the drafted bare verbs fire anywhere in an answer:
+- "pour" (wine service), "finish" (finishing school);
+- "approve" (26 opened hits), "set up" (32);
+- "maintain/service/repair" (54), "plan" (70, including "plant" and "plane");
+- "develop/build/code" (121);
+- "fix" ("fixtures").
+
+**The consistent revision binds each verb to the requirement's own object:** the verb shortly before the object, or the verb on "them/it/each one" after the object is named. The reverse order (object, then verb) isn't used, because it crosses into another person's clause ("the forecasting model, **she built**"). Noun compounds are allowed where natural ("toilet repair calls", "water heater installs").
+
+**Full re-simulation (V4b) with the revised patterns for batches 1–3** (26 splits; your approved batch 1 and 2 patterns plus these proposals):
+- 0 false Supported across all partial, supervision and correction probes;
+- **verdicts identical to the drafts**: no genuine probe or opened answer lost credit;
+- the 6 labeled-supported opened answers that reach Supported are kept.
+
+Where raw patterns still match a risk probe (for example "…the finishers do the troweling"), the clause attribution and correction rules remove it, as the simulation shows.
+
+| # | Original requirement | Approved part (exact) | Draft | Candidate equivalent | Why valid | Generic-match / false-Supported risk (measured) | Genuine evidence possibly missed | Recommendation |
+|---|---|---|---|---|---|---|---|---|
+| A51 | Pour and finish concrete flatwork | Pouring concrete flatwork | "pour…" | placing concrete or slabs | Placing is pouring | "pour" fires on wine service and classroom answers (12 opened hits, all unrelated) | Opened fw-101 (labeled possible): "I wheelbarrow the mud and spread it with a rake ahead of the finishers" isn't shown by the revision (see the question) | **Revise:** pour, place or screed before concrete, slabs, flatwork, driveways, sidewalks, patios, floors or "mud" (12 → 0 unrelated) |
+| | | Finishing concrete flatwork | "finish…" | troweling | Troweling is finishing | **"finish" fires on 22 opened answers** ("finished my degree") | — | **Revise:** finish, trowel, float or edge before the concrete objects (22 → 4, all concrete- or floor-related) |
+| A52 | Verify and approve all invoices before payment | Verifying invoices | "verif…" | matching to POs | Matching invoices to POs is verification (a three-way match) | "verif…" fires on sanitation and license verification. **"Checked incoming trailers against the bills of lading"** isn't invoice verification | — | **Revise:** verify, check, match or audit before invoices or bills (never "bills of lading"). POs only as what they're compared against (tested). R2: counts as the person's own act |
+| | | Approving invoices for payment | "approv…" | signing off on invoices or payments | Signing off is approving | **"approv…" fires on 26 opened answers.** The noun "approvals" ("I handle approvals…") and "submit for approval" aren't approving | — | **Revise:** verb forms only (approve, approves, approved, approving; sign off on) before invoices, bills, payments or check runs (tested: 26 → 0 unrelated; "I submit invoices for approval" excluded). R2: only the person's own approving |
+| A53 | Build and maintain Excel financial models | Building Excel financial models | build, create or develop near "model(s)" | — | — | **Bare "models" fires on "build dbt models"** and would on ML models | — | **Revise:** a financial-model context (Excel, financial, forecast, three-statement, operating, budget, DCF, LBO, valuation, cash flow) or "model in Excel" (tested: dbt and ML excluded) |
+| | | Maintaining Excel financial models | maintain or update near models or assumptions | — | — | Same "models" risk | — | **Revise:** as above; "assumptions" stays |
+| A54 | Configure and maintain AWS cloud infrastructure | Configuring AWS cloud infrastructure | "configur…", "provision…", "set up" | — | — | **"set up" fires on 32 opened answers**; "provision" fires on a tax provision | — | **Revise:** configure, provision, set up or stand up before AWS objects (AWS, EC2, VPCs, RDS, IAM, S3, Lambda, ECS, EKS, CloudFormation, Terraform, infrastructure, instances, cloud) (38 → 2, both genuine) |
+| | | Maintaining AWS cloud infrastructure | maintain, patch, upgrade | — | — | 14 opened hits ("maintain the dashboards") | — | **Revise:** maintain, patch or upgrade before AWS objects (14 → 0 unrelated) |
+| A55 | Design and develop RESTful APIs | Designing RESTful APIs | "design…" | writing or defining API contracts or OpenAPI specs | Writing the contract or spec is API design | "design" fires on planograms and network design (13 opened hits) | — | **Revise:** design before APIs, endpoints, routes or API contracts. **Approve** the equivalent |
+| | | Developing RESTful APIs | develop, build, implement, code | writing handlers or endpoints | Writing the handlers is development | **121 opened hits.** "Write up each endpoint" is documentation, and "write Postman collections for our API" is testing | — | **Revise:** develop, build, implement or code before APIs or endpoints, and "write" only for handlers, endpoints or routes, never "write up" (121 → 4, all genuine API building) |
+| A56 | Develop and deliver sales presentations to clients | Developing sales presentations for clients | build, create, develop or put together near decks, presentations or slides | — | — | Already object-bound; 0 unrelated hits | — | **Approve** |
+| | | Delivering sales presentations to clients | deliver, present, pitch | — | — | **"deliver…" fires on 15** ("delivery routes", "delivered units") | — | **Revise:** deliver, present, pitch or give before decks, presentations, pitches or demos, or "present to clients/prospects/customers/buyers". The opened labeled-supported answer (fw-076: "…present them in person or on Zoom") is kept (tested) |
+| A57 | Install and maintain security camera systems | Installing security camera systems | install, mount | — | — | "mount" fires on tire mounting; "install" on panelboards | — | **Revise:** install, mount or wire before cameras, camera systems, CCTV, NVRs, DVRs or recorders (12 → 0 unrelated) |
+| | | Maintaining security camera systems | maintain, service, repair | — | — | **54 opened hits** | — | **Revise:** maintain, service, repair, replace, re-aim or troubleshoot before the camera objects (54 → 2, both the opened answer's contractor clause, which attribution assigns to the contractor) |
+| A58 | Install and repair residential plumbing | Installing residential plumbing | install, rough in | — | — | "rough in" fires on electrical roughing-in | — | **Revise:** install, rough in or plumb before plumbing objects (plumbing, pipes, fixtures, water heaters, toilets, faucets, sinks, supply or drain lines, bathrooms), or "… installs" (tested) |
+| | | Repairing residential plumbing | repair, fix | — | — | **"fix" matches "fixtures"; 31 opened hits** | The design probe "I take the faucet and toilet **repair calls**" needed a noun-compound form (added). Opened fw-120 (labeled possible): "I take the faucet, toilet and garbage disposal jobs" names no repair verb, so it stays Possible with a question, as today | **Revise:** repair, fix (not "fixtures"), unclog, replace or snake before plumbing objects, or "… repair(s)/replacement(s)" (31 → 1, genuine) |
+| A59 | Order and manage pharmacy inventory | Ordering pharmacy inventory | ordered/ordering; place orders; "I order" | — | — | "the physician ordered the drugs" (others' act; clause attribution handles it). **The noun "orders" read as the verb** ("review the orders and inventory reports") | "I place the **wholesaler** orders" needed one extra word allowed (added) | **Revise:** ordered/ordering, "I/we order" or purchase before inventory, stock, medications or the wholesaler, or "place (the) [word] orders"; never the noun "orders" (tested) |
+| | | Managing pharmacy inventory | manage, rotate or track near inventory or stock | overstock returns; pulling expired drugs | Both are inventory-management acts | Object-bound; 0 unrelated hits | — | **Approve** the marker and both equivalents |
+| A60 | Plan and execute paid search campaigns in Google Ads | Planning paid search campaigns in Google Ads | "plan…", "strateg…" | keyword research | Keyword research is campaign planning | **"plan" fires on 70 opened answers** (lesson plans, "plant", "plane") | — | **Revise:** plan, strategize or strategy before campaigns, keywords, Google Ads, ads or search (70 → 2, genuine). **Approve** the equivalent |
+| | | Executing paid search campaigns in Google Ads | execute, run, launch or optimize near campaigns or ads | adjusting bids | Bid adjustment is campaign execution | Object-bound; the 2 unrelated hits are genuine ad-running answers | — | **Approve** the marker and equivalent |
+
+**Batch 3 summary (by item):**
+- **Approve:** 7.
+- **Revise:** 17.
+- **Reject:** 0.
+- **Owner interpretation:** 4 questions, below.
+
+**Owner interpretation questions:**
+1. **A51:** does placing labor (wheeling, spreading or raking concrete) count as *Pouring concrete flatwork*? A candidate equivalent was tested. It makes the opened fw-101 answer (labeled possible) show the pouring part, but its verdict stays Possible either way, because finishing isn't shown and is the finishers' work. *Recommended: yes, as an equivalent, since placing concrete is part of the pour.*
+2. **A52 (R2):** confirm that only the person's own approving counts (verb forms). "Handling approvals", "submitting for approval" and "routing for approval" don't. *Recommended: confirm.*
+3. **A53:** must **Excel** be named, or does a financial model in another spreadsheet tool (Google Sheets) count? The revised pattern needs a financial-model context but not the word "Excel". *Recommended: the model counts; whether the tool must be Excel is your call.*
+4. **A19 follow-up (your conditional approval in batch 2):** under clause-level attribution, the reader removes the conditional clause "If the numbers don't line up…" from fw-002. So the approved equivalent, which needs both halves in one clause, **never fires there**: fw-002 stays Possible with a targeted question. The options:
+   - (a) keep it as approved: safe, and the question is asked;
+   - (b) revise it to the own-clause form ("find out why … then fix/correct the record or count"), which fits that one answer even more closely.
+
+   *Recommended: (a); let the independent R4 evaluation decide whether a broader form is justified.*
+
+**Revised patterns (exact; scratch-tested, not adopted).**
+
+*Building blocks:*
+- **VO(verbs, objects)** = `\b(verbs)\b[^.]{0,40}\b(objects)\b` **or** `\b(objects)\b[^.]*\b(verbs)\s+(them|it|each one|each)\b`
+- **Compound(objects, nouns)** = `\b(objects)\s+(nouns)\b`
+
+*Object lists:*
+- **CONC** = `concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud`
+- **INV** = `invoices?|bills?(?! of lading)`
+- **MODEL** = `(excel|financial|forecast\w*|three-statement|operating|budget|DCF|LBO|valuation|cash flow)[\w-]*\s+models?|models?\s+in\s+excel`
+- **AWS** = `AWS|EC2|VPCs?|RDS|IAM|S3|Lambda|ECS|EKS|CloudFormation|Terraform|infrastructure|instances|cloud`
+- **API** = `APIs?|endpoints?|routes|handlers|API contracts?`
+- **DECK** = `decks?|presentations?|slides|pitch(es)?|demos?`
+- **CAM** = `cameras?|camera systems?|CCTV|NVRs?|DVRs?|recorders`
+- **PLUMB** = `plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?`
+- **PHARM** = `inventory|stock|medications|meds|drugs|wholesaler`
+- **ADS** = `campaigns?|keywords?|Google Ads|ads|ad groups?|search`
+
+*Per part:*
+- **A51 Pouring:** VO(`pour\w*|plac\w*|screed\w*`, CONC). Candidate, Q1: VO(`spread\w*|rak\w*|wheelbarrow\w*`, CONC)
+- **A51 Finishing:** VO(`finish(es|ed|ing)?|trowel\w*|float\w*|edg(e|es|ed|ing)`, CONC)
+- **A52 Verifying:** VO(`verif\w*|check\w*|match\w*|audit\w*`, INV)
+- **A52 Approving:** VO(`approv(e|es|ed|ing)|sign(s|ed|ing)? off( on)?`, INV|`payments?|check runs?`)
+- **A53 Building:** VO(`buil\w*|creat\w*|develop\w*|design\w*`, MODEL), gap 45
+- **A53 Maintaining:** VO(`maintain\w*|updat\w*|refresh\w*|roll\w* forward`, MODEL|`assumptions`), gap 45
+- **A54 Configuring:** VO(`configur\w*|provision\w*|set\w* up|stood up|stand\w* up|deploy\w* (the |our )?infrastructure`, AWS)
+- **A54 Maintaining:** VO(`maintain\w*|patch\w*|upgrad\w*`, AWS)
+- **A55 Designing:** VO(`design\w*`, API)
+- **A55 Developing:** VO(`develop\w*|build\w*|built|implement\w*|cod(e|es|ed|ing)`, API), plus `\b(writ(e|es|ing)|wrote)\b(?!\s+up)[^.]{0,25}\b(handlers|endpoints?|routes)\b`
+- **A56 Delivering:** VO(`deliver\w*|present(s|ed|ing)?|pitch(es|ed|ing)?|giv(e|es|ing)|gave`, DECK), plus `\bpresent(s|ed|ing)?\b[^.]{0,10}\bto (clients?|prospects?|customers?|buyers?|purchasing|the client)\b`
+- **A57 Installing:** VO(`install\w*|mount\w*|wir(e|es|ed|ing)`, CAM)
+- **A57 Maintaining:** VO(`maintain\w*|servic\w*|repair\w*|replac\w*|re-?aim\w*|troubleshoot\w*`, CAM)
+- **A58 Installing:** VO(`install\w*|rough\w* in|plumb\w*`, PLUMB), plus Compound(PLUMB, `install(s|ations?)?`)
+- **A58 Repairing:** VO(`repair\w*|fix(es|ed|ing)?|unclog\w*|replac\w*|snak\w*`, PLUMB), plus Compound(PLUMB, `repairs?|replacements?`)
+- **A59 Ordering:** VO(`order(ed|ing)?|I order|we order|purchas\w*`, PHARM), gap 30, plus `\bplac\w* (the |our )?([\w-]+ )?orders?\b`
+- **A60 Planning:** VO(`plan(s|ned|ning)?|strategi\w*|strategy`, ADS)
