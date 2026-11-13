@@ -121,6 +121,13 @@ It includes DD3 (approved in principle) and R2 (conditionally approved).
 
 **Control (must keep credit):** "I manage the schedule and also onboard the new hires myself".
 
+### Proposed additions F8–F9 (found by the V5 simulation, 2026-11-12; pending owner approval, design only)
+
+- **F8. "I'm assigned to …" read as overseeing.** Today "I'm assigned to the trailers at door 4, and I only unload" gives an *oversaw* statement, so the person's own work is lost. **Fix:** "assigned to [a place, station, line or route]" describes where the person works, not assigning work to others. "I assign the trailers to the crew" stays oversight.
+  - *Control (must stay oversight):* "I assign the pickers to the trailers."
+- **F9. An over-cut in the person's readable text.** Today "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first" is truncated to "I pull the AR aging every week, flag". **Fix:** find the rule responsible and narrow it, so that coordinated own verbs ("flag …", "decide …") stay in the person's clause.
+  - *Control:* a genuine third-party clause after a comma ("…, the controller decides which accounts to call") must still be cut.
+
 ## Targeted regression examples (permanent tests)
 
 | Example | Today | Required after R3 | Positive control | Negative control |

@@ -156,6 +156,83 @@ In both cases the existing consistency check reads the text as consistent with "
 | R4 | **An independent evaluation design is approved:** one agent writes scenarios, and a separate agent labels them independently. It covers genuine full experience, partial experience, supervision and delegation, corrections and narrowed claims, third-party work, several activities in one explanation, synonyms and natural variation, contradictory checkboxes, injection attempts, and non-English explanations (D3). It stays separate from the implementer's design probes. No existing sealed split is inspected or scored (docs/PHASE5_3_R4_EVAL_PROTOCOL.md) |
 | R5 | **Approved:** A93 stays at Possible at most, with a targeted question, unless independently sufficient evidence establishes the activity. Entering values into a budget template, or supplying labor numbers for someone else's forecast, never establishes full ownership of budgeting or forecasting |
 
+## 9. Design updates from the R1 review (2026-11-12; specification only, not implemented)
+
+### 9.1 Named-tool parts (A53 Excel, A60 Google Ads)
+
+An approved split may set a **named tool** per part, as a new field in §2's data. A part with a named tool is **shown for Supported only when the person's own clause that shows the part also names the tool.**
+- Other tools (Google Sheets, Microsoft Advertising), an unspecified tool ("in a spreadsheet"), the tool named only in someone else's clause, or the tool named elsewhere in the answer but not for this work ("I know Excel well. I build the model in Python") all mean **partial relevance**: Possible, with a targeted clarification ("Was this model built in Excel?").
+- Other tools never establish the named tool's proficiency.
+
+### 9.2 A77: aging analysis, conditional (no blanket "review")
+
+*Accounts receivable aging analysis* is shown only by the person's **own analytical act** on aging content:
+- analyzing, flagging, identifying, categorizing, prioritizing, sorting, breaking down, tracking or working through overdue balances, aging categories or buckets, outstanding receivables, payment trends or collection priorities;
+- running, performing or preparing "the (AR) aging analysis";
+- setting collection priorities;
+- deciding which accounts to call.
+
+**Never shown by** receiving, opening, forwarding or reading the aging report, by "review" alone, or by reviewing another person's analysis (that stays oversight). Whether *preparing or running the aging report* counts is an open question (§11 Q1).
+
+### 9.3 Q4: elided objects and pronouns (conditional design)
+
+When a part's verb appears in the person's own clause with no object, or with "them/it" ("I only unload", "I just present them", "I just count"), the object may be inherited **only** when all of these hold:
+1. The antecedent is an **earlier clause of the person's own activity, with "I" as its subject**. The simulation showed this guard is essential. Without it, "Actually, marketing builds the decks, I just present them" inherited "decks" from marketing's clause, because the reader returns that clause as a statement.
+2. The antecedent isn't **retracted or contradicted**. Retracted claims are already moved out of the person's statements by the reader.
+3. The antecedent names the part's object, for this split's activity (not an unrelated activity: "unload the dishwasher").
+4. The antecedent offers **no other plausible object** ("the decks and the pricing spreadsheets"). Otherwise it's ambiguous: no inheritance, a targeted clarification.
+
+Corrections and narrowed scope take precedence. The same rule supplies missing *context* (A22: "I'm the executive assistant to our CEO… I only keep the calendars"). Inherited evidence never reaches Supported on its own: it shows the part like any other evidence, with every other rule (D1–D3, X2 held, a checkbox gives Possible at most) unchanged.
+
+## 10. V5 scratch simulation (named tools, Q4, A77, P13/P14)
+
+**Inputs:**
+- every reviewed pattern (batches 1–4 as approved, plus the supplementary P13/P14 proposals);
+- the §9 rules;
+- **30 targeted probes** written for this check (not an evaluation set; each states its expected parts and verdict);
+- the 226 earlier rows (28 opened answers and 198 design probes).
+
+Opened data only; no sealed split. Evidence: `ai-service/evals/reports/m11/structured/v5-simulation.json`.
+
+| Check | Result |
+|---|---|
+| Targeted probes behaving as expected | **27 of 30** |
+| False Supported, targeted probes | **0** |
+| False Supported, 132 earlier partial, supervision and correction probes | **0** |
+| Earlier rows changed against V4b | 2, both A77, both attribution only: "I prepare the AR aging reports" and "I only run the aging report" no longer show aging analysis (§11 Q1). No verdict changed |
+
+**Named tools (11 probes, all as expected):**
+- genuine Excel and Google Ads work reaches Supported;
+- other tools, an unspecified tool, the tool only in someone else's clause, and the tool named for unrelated work all give Possible with a clarification;
+- "maintaining someone else's Excel model" shows maintaining only.
+
+**Q4 (12 probes, 11 as expected):**
+- **Inherited correctly:** "the trailers… I only unload" (blocked by a reader issue, below); "I build the client decks… I present them myself" (Supported); "executive assistant to our CEO… I only keep the calendars"; "on the inventory team for the stock room… I just count".
+- **Refused correctly:** retracted claims ("I load and unload trucks. Actually… I only unload"); unrelated activity (the dishwasher); another person's work ("The outbound crew loads the trucks; I only unload", "Marketing builds the decks. I just present them"); several antecedents ("the decks and the pricing spreadsheets", "the stock room and the cash drawers"). Each refusal gives Possible with a clarification, never Supported.
+
+**A77 (7 probes, 5 as expected):**
+- **Not shown, correctly:** forwarding, receiving and reading, reviewing another's analysis, and bare "review".
+
+**The three failures are existing reader behaviors or a missing equivalent, not design flaws:**
+1. **"I'm assigned to the trailers at door 4, and I only unload":** today's reader reads "I'm assigned to…" as *overseeing*, so the statement isn't the person's own performed work. That's a new R3 item.
+2. **"I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first":** today's reader already truncates the person's readable text to "I pull the AR aging every week, flag". An existing over-cut in the shared reader; a new R3 item.
+3. **"…identify the overdue balances and call those customers until they pay":** genuine collections that no approved pattern covers. A candidate equivalent was tested (contacting customers or accounts "until they pay", "to collect", "for payment", "about their balances/invoices"). It matches no unrelated opened answer, and excludes calls about deliveries or orders (§11 Q2).
+
+## 11. Remaining decisions before implementation is proposed
+
+| # | Decision | Recommendation |
+|---|---|---|
+| Q1 | **A77:** does *preparing or running the AR aging report* count as aging analysis? Your conditional approval lists analysis acts and excludes receiving, reading and forwarding, but doesn't decide preparing or running. Today two probes lose that attribution (verdicts unchanged) | Count it only together with an analysis act in the same clause. Preparing or running the report alone gives Possible with a clarification ("What did you do with the aging report?") |
+| Q2 | **A77 collections equivalent:** contacting, calling or chasing customers or accounts "until they pay / to collect / for payment / about their balances or invoices" | Approve, as tested |
+| Q3 | **The supplementary P13/P14 batch** (omitted from batches 1–4; see the R1 review), including Q-P1 (volunteers) and Q-P2 (the R2 hiring boundary) | Decide as presented |
+| Q4 | **Two new R3 reader items:** (a) "I'm assigned to …" read as overseeing; (b) the existing readable over-cut ("flag everything over 60 days …" truncated). Add both to the R3 plan as F8 and F9, with these probes as tests | Approve, as additions to the R3 design only (no code) |
+| Q5 | **Named-tool field and Q4 antecedent guard:** confirm both in the §2 data and §9.3 design | Approve |
+
+**What remains before any implementation is proposed:**
+- these decisions;
+- then the R3/DD3 rules-v21 implementation plan, now covering F1–F9;
+- the R4 independent evaluation, which alone can show whether the reviewed patterns generalize beyond my probes and the opened data.
+
 ## Appendix: draft markers and candidate equivalents (for owner review; none approved)
 
 *Superseded for review purposes by docs/PHASE5_3_R1_MARKER_REVIEW.md, where each item gets a recommendation. Kept as the simulation's exact input.*

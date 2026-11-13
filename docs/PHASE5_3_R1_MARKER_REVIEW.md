@@ -368,7 +368,25 @@ Where raw patterns still match a risk probe (for example "…the finishers do th
 - **A59 Ordering:** VO(`order(ed|ing)?|I order|we order|purchas\w*`, PHARM), gap 30, plus `\bplac\w* (the |our )?([\w-]+ )?orders?\b`
 - **A60 Planning:** VO(`plan(s|ned|ning)?|strategi\w*|strategy`, ADS)
 
-## Batch 4 of 4 (final): A63, A67, A76, A77, A93 (presented 2026-11-12; pending owner decisions)
+## Batch 4 owner decisions (2026-11-12, owner-approved for the recognition specification; not implemented)
+
+The 5 approvals and 9 revisions are approved, subject to these clarifications. The approved part wording is unchanged. Nothing is implemented or active.
+
+| # | Part (exact) | Owner decision |
+|---|---|---|
+| A63 | Cutting hair | **Approved:** the revised hair-specific patterns. Cutting, trimming or fading hair must be the person's own activity. Unrelated cutting (plasma, pipe, glass) never counts |
+| A63 | Styling hair | **Approved:** personally blow-drying, blowouts and updos count as hairstyling. They don't establish haircutting. **"Stylist" is never proof that the person performed styling** |
+| A67 | Loading freight onto trucks | **Approved:** the revised freight- and truck-specific patterns. Personally stacking freight onto trucks may establish loading |
+| A67 | Unloading freight from trucks | **Approved:** the revised patterns. Personally unloading, or breaking down trailers, may establish unloading. **Loading and unloading stay distinct; neither is inferred from the other** |
+| A76 | CNC lathe setup | **Approved:** the revised CNC-lathe patterns, including touching off tools, setting offsets, and genuine lathe setups. Generic machine setup unrelated to CNC lathes never counts |
+| A76 | CNC lathe operation | **Approved:** the revised operation patterns with CNC-lathe context. Operating unrelated machines never counts |
+| A77 | Accounts receivable aging analysis | **Conditionally approved:** the aging-report-specific patterns. Personally **analyzing** overdue balances, aging categories, outstanding receivables, payment trends or collection priorities can establish aging analysis. **There's no blanket exception for "review."** Merely receiving, opening, forwarding or reading an aging report doesn't count. Reviewing another person's analysis stays oversight unless the person shows their own analysis |
+| A77 | Accounts receivable collections | **Approved:** the revised collections patterns. Personally contacting past-due customers, collecting outstanding payments, or resolving receivable balances may establish collections. Unrelated meanings of "collections" never count |
+| A93 | Forecasting | **Approved:** the revised own-work patterns. Using someone else's forecast (for scheduling, say), or reviewing an existing forecast, doesn't establish preparing forecasts |
+| A93 | Budgeting | **Approved:** the revised own-work patterns. Personally developing, preparing or setting budgets may establish budgeting. Managing spending against an existing budget, entering figures into a template, or providing inputs to another person's budget is **relevant but not full ownership**: Possible with a targeted clarification, unless the person explicitly contradicts owning the activity |
+| Q4 | Elided objects and pronouns ("it", "them") | **Conditionally approved as a design.** An object may be inherited **only from a clearly attributable earlier clause describing the person's own activity**. It's never inherited from: another person's work; a contradicted or retracted claim; an unrelated activity; or an ambiguous reference with several plausible objects. Corrections and narrowed scope take precedence over earlier claims. An ambiguous reference keeps its uncertainty and gets a targeted clarification, never Supported. Targeted probes are required for "I only unload", "I just present them", "I only keep the calendars", "I just count", pronouns referring to another person's work, corrections that cancel an earlier activity, and several possible antecedents |
+
+## Batch 4 of 4 (final): A63, A67, A76, A77, A93 (presented 2026-11-12; decided above)
 
 The same method: verbs bound to the requirement's own object, tested on the design probes, each split's opened answer, and all 1,266 opened answers.
 
@@ -394,6 +412,54 @@ The same method: verbs bound to the requirement's own object, tested on the desi
   2. **A77:** should reviewing, analyzing, flagging or working the AR aging report count as *Accounts receivable aging analysis*, as an exception to the review-verb rule like R2? Reviewing the report is the analysis itself. Reviewing **other people's** work (for example "the collectors' notes") stays oversight, and collections stays a separate part. *Recommended: yes, limited to the aging report as the object.*
   3. **A93:** does managing or tracking spending against an **existing** department budget count as *Budgeting*? The revision excludes it, so it gives Possible with a clarification. *Recommended: not by itself. Budgeting means building or setting the budget.*
   4. **Attribution design (all splits):** an elided or pronoun object. A narrowed or second clause sometimes names only the verb, with the object earlier in the same answer. Examples: "I load and unload trucks … **I only unload**"; "I do cycle counts … **I just count**"; "marketing builds the decks, **I just present them**". *Proposed rule (spec, not a pattern):* a part's verb in the person's own clause, with no object or with "them/it", counts when the person's own earlier clause in the same answer names that part's object. It never counts through someone else's clause. *Recommended: approve for the spec, with the four probe cases as tests. Today these stay Possible with a question; no verdict changes.*
+
+## Reconciliation of all 33 approved splits (2026-11-12)
+
+A script compared three sources:
+- the owner-approved part wording, from the split review's decision tables;
+- the owner-decision tables of R1 batches 1–4;
+- the patterns used in the simulations.
+
+| Check | Result |
+|---|---|
+| Approved splits / parts | 33 / 66 |
+| Split wording changed anywhere | **No.** Every approved part appears verbatim in the split review, and the simulation inputs use the identical wording |
+| R1 decision rows using non-approved part wording | **None** |
+| Parts with an owner recognition decision | **62 of 66.** 50 in rows with their exact wording; 12 in the six grouped batch 3 rows (A54, A56, A57, A58, A59, A60), which your batch 3 message also grouped |
+| **Parts without a recognition decision** | **4: P13 (*Recruiting staff*, *Hiring staff*) and P14 (*Recruiting new staff*, *onboarding new staff*).** My batching (P1–P12, then A19–A26, A51–A60, A63–A93) left these two Group 1 splits out of every R1 batch. They are presented below as a supplementary batch |
+
+## Supplementary batch (P13, P14), omitted from batches 1–4 (presented 2026-11-12; pending owner decisions)
+
+The same method; tested on the design probes and all 1,266 opened answers. R2 applies to *Hiring staff*.
+
+| # | Original requirement | Approved part (exact) | Draft | Candidate equivalent | Why valid | Risk (measured) | Possible genuine loss | Recommendation |
+|---|---|---|---|---|---|---|---|---|
+| P13 | Recruiting and hiring staff | Recruiting staff | "recruit…" | sourcing or screening candidates, applicants or resumes | Sourcing and screening is recruiting | "recruit…" matches **"recruiter"** (an agent noun) and **recruiting volunteers** | — | **Revise:** recruit before staff, employees, candidates, applicants, hires, or named roles (nurses, drivers, techs…), or "do/handle/run the recruiting". Volunteers excluded (Q-P1). **Approve** the equivalent |
+| | | Hiring staff | "hire/hired/hiring" | making offer decisions; extending offers | Offer decisions are hiring decisions | **"hire" fires on 19 opened answers, including the noun "new hires".** "We hired a contractor" is engaging a service (O2), not hiring staff | — | **Revise (R2):** personally hiring people ("I hire the seasonal cashiers"), "make the (final/hiring/offer/selection) decisions", "decide/choose who we hire", "extend offers". **Never** the noun "new hires", hiring a contractor or firm, recommending candidates, sitting in on interviews, or submitting hiring paperwork (all tested). "The owner decides who we hire" matches only in the owner's clause, which attribution assigns to the owner. Note: today's reader reads "I hire the staff" as overseeing; R3 F5 is needed before these patterns can reach Supported |
+| P14 | Recruiting and onboarding new staff | Recruiting new staff | as P13 | as P13 | as P13 | as P13 | — | **Revise** as P13. **Approve** the equivalent |
+| | | onboarding new staff | "onboard…" | new-hire orientation | Running new-hire orientation is onboarding | "onboarding" matches **onboarding passengers** (an air-traffic answer) | "I onboard every **new hire**" (singular) needed adding (done, tested) | **Revise:** onboard people (staff, employees, new hire(s)…), "new-hire onboarding", "onboarding (of) new staff". **Approve** "new-hire orientation", and add "run/lead/give the orientation for new employees" (tested) |
+
+**Owner questions:**
+- **Q-P1:** does recruiting **volunteers** count as *Recruiting staff*? *Recommended: no, not automatically (Possible with a clarification).*
+- **Q-P2:** confirm the R2 boundary for *Hiring staff* as listed above: direct hiring decisions count; recommending, sitting in, and paperwork don't.
+
+**Effect:** in the V5 simulation, P13 and P14 have 0 false Supported, and every genuine probe is kept. P13's own-wording probe stays blocked until R3 F5 (the reader reads "hire" as overseeing).
+
+**Revised patterns (exact; scratch-tested, not adopted).** PEOPLE = `staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew`
+- **Recruiting (P13 and P14):**
+  - `\brecruit(s|ed|ing)?\b[^.]{0,25}\b(PEOPLE)\b`
+  - `\b(do|does|did|handl\w*|run\w*|own\w*)\s+(the\s+|all\s+the\s+|our\s+)?recruiting\b`
+  - Equivalent: `\b(sourc\w*|screen\w*)\b[^.]{0,25}\b(candidates?|applicants?|resumes?)\b`
+- **Hiring staff:**
+  - `\b(hire|hires|hired|hiring)\b\s+(the\s+|our\s+|all\s+(the\s+)?|new\s+|every\s+)?([\w-]+\s+)?(PEOPLE)\b`
+  - `\b(make|makes|made|making)\b[^.]{0,20}\b(hiring|final|offer|selection)\s+decisions?\b`
+  - `\b(decide|decides|decided|choose|chooses|chose|select|selects|selected|pick|picks|picked)\s+(who|which\s+\w+)\s+(we\s+|to\s+)?(hire|bring on)\b`
+  - `\bextend\w*\s+(the\s+)?offers?\b`
+- **onboarding new staff:**
+  - `\bonboard(s|ed|ing)?\b[^.]{0,25}\b(PEOPLE)\b`
+  - `\bnew[- ]hire onboarding\b`
+  - `\bonboarding\s+(of\s+)?(all\s+)?(new\s+)?(PEOPLE)\b`
+  - Equivalents: `\bnew[- ]hire orientation\b` and `\b(run\w*|lead\w*|led|do|does|did|give\w*|gave)\b[^.]{0,15}\borientation\b[^.]{0,20}\b(new\s+)?(PEOPLE)\b`
 
 ## Full recognition re-simulation, all 33 splits (scratch; opened data and design probes only)
 
