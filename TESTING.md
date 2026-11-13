@@ -285,3 +285,23 @@ Report: docs/PHASE5_3_STAGE3_REPORT.md.
 - **Sealed splits:** the hash guard only.
 
 Report: docs/PHASE5_3_RULES_V20_ADOPTION.md.
+
+## Phase 5.3 Stage B, rules-v21 opt-in reader - November 13, 2026 (local commit, not pushed)
+
+**rules-v21 is selectable with `textRules: "v21"` only.** `DEFAULT_TEXT_RULES` stays `"v20"`; nothing in the app asks for v21, and a test enforces that. It adds F1–F9, the DD3 correction precedence, and F6 (a contradicted checkbox gives no credit) in the structured rule table.
+
+**Tests:** 28 in `tests/ai-rules-v21.test.ts`, with positive and negative controls for each fix.
+
+**Results, v20 → v21 (opened data only):**
+- **Historical (1,266):** 2 changes, both labeled gains.
+- **Structured, with a tick (1,266):** 19 changes: 4 gains, 15 corrections, all matching their labels.
+- **Stage 3 probes (392):** 0 changed.
+- **Design rows (226):** 16 changes; no false Supported; no genuine row lowered.
+- **V5 probes:** 45 of 47 pass (v20: 43); 46 of 47 with the simulated Stage D consumer for failure 3.
+- **Follow-up replies (320):** 0 changed.
+- **Engine (2,121 rows, default path):** byte-identical.
+- **Suites:** 2,603 unit and 183 integration tests pass. TypeScript, lint and schema are clean. Sealed splits: hash guard and parts validate mode only.
+
+**Stage D dependency (owner-approved):** V5 failure 3 ("…until they pay"). The reader keeps the person's own end condition in a verdict-inert `bounded` field. Recognizing collections from it is future Stage D work; it is unimplemented and unverified.
+
+Report: docs/PHASE5_3_STAGE_B_REPORT.md. Stage G policy proposal: docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md.

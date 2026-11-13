@@ -199,12 +199,16 @@ export function untrustedEvidenceSpans(text: string): Span[] {
 export type UntrustedKind = "directed" | "remark" | "negated" | "not_done" | "list" | "template" | "quoted";
 /** "Keep the count for each picker" is a tally, not a claim that something counts for something. */
 const NOUN_COUNT = /\b(?:the|a|an|each|every|daily|weekly|nightly|head|inventory|cycle|bin|pallet|my|our|their)\s+counts?\s+(?:for|of|on|toward)\b/gi;
-export function answerUntrustedParts(text: string): { span: Span; kind: UntrustedKind }[] {
+/** rules-v21: "the individual 1040s", "the user accounts", "the employee handbook" use the word as an adjective, not to
+ * talk about a candidate ("the individual has…", "the candidate meets…"). Only that adjective use is set aside. */
+const META_AS_ADJECTIVE = /\b(?:this|the)\s+(?:individual|employee|user|person)\s+(?!(?:is|was|were|has|had|have|does|did|can|could|will|would|should|must|meets?|met|shows?|showed|demonstrates?|demonstrated|possess(?:es)?|possessed|appears?|seems?|needs?|lacks?|qualif(?:y|ies)|['’]s)\b)(?=[\p{L}\p{N}])/giu;
+
+export function answerUntrustedParts(text: string, v21 = false): { span: Span; kind: UntrustedKind }[] {
   const parts: { span: Span; kind: UntrustedKind }[] = [];
   for (const span of directedSpans(text)) parts.push({ span, kind: "directed" });
   for (const [s, e] of segments(text)) {
     const segment = text.slice(s, e);
-    if (PROFILE_META.test(segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment.replace(NOUN_COUNT, " ")) || isRelationClaim(segment) || evaluationLanguage(segment.replace(/\binstead\s+of\s+\p{L}+ing\b/giu, " "))) parts.push({ span: [s, e], kind: "remark" });
+    if (PROFILE_META.test(v21 ? segment.replace(META_AS_ADJECTIVE, " ") : segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment.replace(NOUN_COUNT, " ")) || isRelationClaim(segment) || evaluationLanguage(segment.replace(/\binstead\s+of\s+\p{L}+ing\b/giu, " "))) parts.push({ span: [s, e], kind: "remark" });
   }
   // A negative about someone else ("clients who never paid") doesn't bar the person's own work beside it.
   const sentences = [...text.matchAll(/[^.!?;\n]+/g)];
@@ -225,9 +229,9 @@ export function answerUntrustedParts(text: string): { span: Span; kind: Untruste
   }
   return parts;
 }
-export function answerUntrustedSpans(text: string): Span[] {
+export function answerUntrustedSpans(text: string, v21 = false): Span[] {
   const spans = new Map<string, Span>();
-  for (const { span } of answerUntrustedParts(text)) spans.set(span.join(":"), span);
+  for (const { span } of answerUntrustedParts(text, v21)) spans.set(span.join(":"), span);
   return [...spans.values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 }
 

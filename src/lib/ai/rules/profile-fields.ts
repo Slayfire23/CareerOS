@@ -31,12 +31,29 @@ export const hasNegation = (text: string) => new RegExp(NEGATION.source, "i").te
 
 const LEADING_OTHER = /^[^,;:]*?(?:[,;:]\s*(?:and\s+|so\s+|then\s+)?|\s+(?:so|and|then)\s+)(?=(?:i|we)(?:['’]\p{L}+)?\s)/iu;
 const SIDE_CLAUSE = /\b(?:whenever|when|if|because|since|so\s+that|so(?=\s+(?:the|a|an|our|my|their|his|her|it|they|he|she|nobody|none|nothing|no\s+one|drivers?|customers?|clients?|patients?|users?|kids|students|people|staff|nothing|bugs?)\b)|until|unless|while|after|before|once(?=\s+(?:the|a|an|our|my|it|they|he|she)\b)|where|though|although)\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)|\b(?:who|whose|which|that|whatever|whichever|anything|everything)(?:['’](?:ve|d|re))?\s+(?!(?:i|we)\b)[^,;:.!?]*?(?=\s+(?:i|we)(?:['’]\p{L}+)?\s|[,;:.!?]|$)/giu;
+/** rules-v21 (F9): the person's own object or indirect question isn't a clause about someone else. "flag everything over
+ * 60 days" names what the person flags; "decide which accounts to call first" is the person deciding. Only a pronoun
+ * followed by a clause of its own ("anything customers break", "who never bought from us") is set aside. */
+const OWN_OBJECT_PRONOUN = /\b(?:everything|anything|whatever|whichever)(?=\s+(?:over|under|above|below|older|past|due|overdue|outstanding|late|on|in|at|from|with|for|that\s+(?:is|are|was|were)|\d))/giu;
+// Only after a verb of deciding: "decide which accounts to call first". "said who to bring back" stays a side clause.
+const INDIRECT_QUESTION = /\b(?:decide[sd]?|deciding|choose|chooses|chose|choosing|pick|picks|picked|picking|figure\s+out|figured\s+out|determine[sd]?|determining|work\s+out|worked\s+out|select|selects|selected|prioriti[sz]e[sd]?)\s+(?:which|what|who|whom|where|when|how)\s+(?:[\p{L}-]+\s+)?to\s+\p{L}+/giu;
 /** A sentence without what it says about others: "customers can't log in, so I reset their accounts", "who
- * never bought from us". A negative left over is the person's own. An opening that negates ("Not once...") stays. */
-export function ownClauses(sentence: string): string {
+ * never bought from us". A negative left over is the person's own. An opening that negates ("Not once...") stays.
+ * `v21` keeps the person's own objects and indirect questions (F9); everything else is unchanged. */
+/** rules-v21: how long the person kept doing their own act, closing the clause: "call those customers until they pay".
+ * "they" is the people the person acts on; what they do is never the person's work. Only `ownClausesWithBounds` keeps it. */
+const OWN_ACT_BOUND = /\b(?:until|till)\s+(?:they|he|she)\s+(?!(?:i|we)\b)(?:[\p{L}'’-]+\s+){0,3}?[\p{L}'’-]+(?=\s*(?:[,;:.!?]|$))/giu;
+
+export function ownClauses(sentence: string, v21 = false, keepBounds = false): string {
   const lead = LEADING_OTHER.exec(sentence);
   const keepLead = !lead || /\b(?:i|we|my)\b/i.test(lead[0]) || /^\W*(?:no|not|never|nor|neither|hardly|without|nothing)\b/i.test(lead[0]);
-  return (keepLead ? sentence : sentence.slice(lead[0].length)).replace(SIDE_CLAUSE, " ");
+  const body = keepLead ? sentence : sentence.slice(lead[0].length);
+  if (!v21) return body.replace(SIDE_CLAUSE, " ");
+  // Mask the person's own objects and indirect questions, remove the side clauses, then put the masked words back.
+  const kept: string[] = [];
+  const mask = (m: string) => (kept.push(m), `\u0000${kept.length - 1}\u0000`);
+  const masked = (keepBounds ? body.replace(OWN_ACT_BOUND, mask) : body).replace(INDIRECT_QUESTION, mask).replace(OWN_OBJECT_PRONOUN, mask);
+  return masked.replace(SIDE_CLAUSE, " ").replace(/\u0000(\d+)\u0000/g, (_, i) => kept[Number(i)]);
 }
 const PLAIN_NEGATIVE = /\b(?:no|not|never|none|without|nothing|cannot|neither|nor)\b(?!-)|n['’]t\b/i;
 /** The person says they didn't: strict about any plain negative, but only in their own clauses. */

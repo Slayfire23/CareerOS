@@ -166,9 +166,15 @@ describe("rules-v20 is the matching default; v19 stays selectable; the consisten
     return out;
   };
   it("no application code picks a reader version (all of it takes the one default) or uses the consistency module", () => {
-    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts"];
+    // The reader library may accept an opt-in (rules-v21 adds the reply reader, Stage B); application code never passes one.
+    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts"];
     const users = walk("src").filter(f => !allowed.includes(f) && /textRules|"v20"|structured-consistency|assessConsistency/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
+  });
+  it("rules-v21 stays opt-in: only the reader library names it, and nothing in the app asks for it", () => {
+    const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts"];
+    expect(walk("src").filter(f => !library.includes(f) && /\bv21\b/.test(readFileSync(f, "utf8")))).toEqual([]);
+    expect(DEFAULT_TEXT_RULES).toBe("v20");
   });
   it("the default reading is v20, and v19 can still be asked for", () => {
     expect(DEFAULT_TEXT_RULES).toBe("v20");

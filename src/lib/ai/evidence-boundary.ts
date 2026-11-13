@@ -3,7 +3,7 @@ import { isPersonClause, splitBySubject } from "@/lib/ai/clauses";
 import type { Evidence } from "@/lib/ai/evidence";
 import { answerUntrustedSpans, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import { notAStatement, ownClauses, ownNegative } from "@/lib/ai/rules/profile-fields";
-import { HANDED_OFF, IRREGULAR_PAST, keywordDump, labelledList, opensOnNamedOther, ownSpan, someoneElsesWork, WORK_VERB_WORDS } from "@/lib/ai/skill-relations";
+import { HANDED_OFF, IRREGULAR_PAST, keywordDump, labelledList, opensOnNamedOther, ownSpan, someoneElsesWork, VOCABULARY, WORK_VERB_WORDS } from "@/lib/ai/skill-relations";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
 // The one place text is cleared before it can count. Resume and profile text goes through the checks that
@@ -15,7 +15,7 @@ import { hasDirectedText } from "@/lib/ai/untrusted-text";
 export type TextOrigin = "profile" | "answer";
 
 /** Spans of text that can never be evidence. */
-export const untrustedSpans = (text: string, origin: TextOrigin) => (origin === "answer" ? answerUntrustedSpans(text) : untrustedEvidenceSpans(text));
+export const untrustedSpans = (text: string, origin: TextOrigin, v21 = false) => (origin === "answer" ? answerUntrustedSpans(text, v21) : untrustedEvidenceSpans(text));
 
 /** An answer's entry. It keeps its role's title and dates only so a citation can point at it. */
 export const isAnswerEvidence = (item: Evidence) => item.kind === "experience" && item.source === "clarification";
@@ -45,34 +45,57 @@ function claimBefore(detail: string, at: number): [number, number] | null {
   if (!prior.trim()) return null;
   return [prior.search(/[^.!?;\n]*$/), prior.length];
 }
+// rules-v21 (DD3, F3): "Mostly …" and "In practice …" open a correction too, and "the mechanics do the work" hands the work off.
+// "Mostly", "Really" and "In practice" open a correction only at the start of a sentence: ", mostly heat maps" is a list.
+const CORRECTION_MARKER_V21 = /(?:(?:^|[.!?;,]\s*)(?:well|actually|i\s+mean|to\s+be\s+honest|honestly|in\s+reality|truthfully|ok(?:ay)?|correction|sorry)|(?:^|[.!?]\s+)(?:mostly|really|in\s+practice))\b[,:]?\s*([^.!?;\n]*)/giu;
+const HANDS_THIS_OFF_V21 = /(?:^|[^\p{L}])(?!(?:i|we)\s)([\p{L}'’-]+)\s+(?:(?:in\s+back|out\s+back|upstairs|downstairs|themselves)\s+)?(?:handles?|handled|does|do|did|takes?\s+care\s+of|took\s+care\s+of|runs?|ran|owns?|covers?|covered)\s+(?:that|those|it|this|them|all\s+of\s+(?:that|it|them)|(?:all\s+)?the\s+(?:actual\s+|real\s+|heavy\s+)?work|all\s+of\s+the\s+work)\b|\bunder\s+contract\b|\b(?:that|this|it|those)(?:['’]s|\s+is|\s+are)\s+(?:all\s+)?(?:handled|done|covered|outsourced|contracted)\b/iu;
+/** Verbs that only say "deals with it", so a hand-off with them covers whatever the person just claimed. */
+const GENERIC_ACT = /^(?:do|handle|take|cover|own|manage|run|work|deal)$/;
+
 /** The parts of an answer it takes back. "Yes, I teach it. Well, volunteers teach it" takes back the first sentence and
- * nothing else; the correcting words are read like any others. A marker means nothing by itself. */
-export function retractions(detail: string): [number, number][] {
+ * nothing else; the correcting words are read like any others. A marker means nothing by itself.
+ * `v21` (DD3): more correction openers; a hand-off of a *different* act ("I plan the campaigns; our agency runs them")
+ * keeps the person's own claim; and in a sentence where the person also speaks, only the other person's clause goes. */
+export function retractions(detail: string, v21 = false): [number, number][] {
   const out: [number, number][] = [];
-  for (const match of detail.matchAll(CORRECTION_MARKER)) {
+  for (const match of detail.matchAll(v21 ? CORRECTION_MARKER_V21 : CORRECTION_MARKER)) {
     const markerAt = match.index + match[0].search(/\p{L}/u);
     if (!detail.slice(0, markerAt).trim() || !contradicts(match[1].trim())) continue;
     const claim = claimBefore(detail, markerAt);
     if (claim) out.push(claim);
   }
   for (const sentence of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) {
-    const hand = HANDS_THIS_OFF.exec(sentence[0]);
+    const hand = (v21 ? HANDS_THIS_OFF_V21 : HANDS_THIS_OFF).exec(sentence[0]);
     if (!hand || NOT_A_DOER.has((hand[1] ?? "").toLowerCase())) continue;
+    const others = v21 ? splitBySubject(sentence[0]) : [];
+    if (v21 && others.some(c => c.subject === "self")) {
+      // "I write them up and the mechanics do the work, I only fix flats": the person's own clauses stay readable.
+      for (const c of others) if (c.subject === "other") out.push([sentence.index + c.start, sentence.index + c.start + c.text.length]);
+    } else out.push([sentence.index, sentence.index + sentence[0].length]);
     // "The month-end close, our accountant does that part" is about its own topic. "Finance handles that" is about
     // what the person just said, so that goes too.
-    out.push([sentence.index, sentence.index + sentence[0].length]);
     const topic = sentence[0].slice(0, hand.index).match(/\p{L}{3,}/gu) ?? [];
     if (topic.filter(w => !/^(?:the|and|but|though|really|honestly|actually|well|that|this|all|our|their)$/i.test(w)).length < 2) {
       const claim = claimBefore(detail, sentence.index + sentence[0].search(/\S|$/));
-      if (claim) out.push(claim);
+      if (!claim) continue;
+      if (v21) {
+        // A specific hand-off verb ("runs them") over a different, specific act of the person's ("I plan the campaigns")
+        // is a division of the work, not a take-back. A generic one ("handles that", "does the work") takes it back.
+        const handVerb = verbBase((hand[0].match(/\b(handles?|handled|does|do|did|takes?|took|runs?|ran|owns?|covers?|covered)\b/i)?.[1] ?? "").toLowerCase());
+        const mine = verbAndObject(detail.slice(claim[0], claim[1]))?.verb ?? "";
+        if (!GENERIC_ACT.test(handVerb) || handVerb === "run") {
+          if (mine && !GENERIC_ACT.test(mine) && mine !== handVerb) continue;
+        }
+      }
+      out.push(claim);
     }
   }
   return out;
 }
 /** What an answer says someone else did, or takes back: other people's clauses and retracted claims, one part each. Never
  * the person's own work, and only ever used to hold credit back. `peopleOnly` leaves out a thing's part. */
-export function othersParts(detail: string, peopleOnly = false, withRetractions = true): string[] {
-  const parts: string[] = withRetractions ? retractions(detail).map(([s, e]) => detail.slice(s, e)) : [];
+export function othersParts(detail: string, peopleOnly = false, withRetractions = true, v21 = false): string[] {
+  const parts: string[] = withRetractions ? retractions(detail, v21).map(([s, e]) => detail.slice(s, e)) : [];
   for (const sentence of detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []) {
     for (const clause of splitBySubject(sentence)) if (clause.subject === "other" && (!peopleOnly || isPersonClause(clause.text))) parts.push(clause.text);
     // A whole sentence about someone else, with no "I" or "we" in it. One where the person speaks gives only the other clause.
@@ -123,8 +146,10 @@ const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisti
 export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed" | "taught";
 
 /** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; the owner adopted it as the
- * matching default on 2026-11-11. "v19" stays selectable so evaluations and tests can compare the two. */
-export type TextRules = "v19" | "v20";
+ * matching default on 2026-11-11. "v19" stays selectable so evaluations and tests can compare the two.
+ * "v21" (Phase 5.3 Stage B, R3 F1–F9 and DD3) is OPT-IN ONLY: nothing in the app asks for it until the owner adopts it
+ * (Stage C). It includes every v20 rule. */
+export type TextRules = "v19" | "v20" | "v21";
 export const DEFAULT_TEXT_RULES: TextRules = "v20";
 
 // rules-v20, by sentence structure (no lists of ambiguous words):
@@ -176,6 +201,48 @@ function paperworkForOthers(clause: string): boolean {
 /** rules-v20: the clause with others' purposes and finished work taken out, so only the person's own act is read. */
 const withoutOthersWork = (readable: string) => readable.replace(PURPOSE_OF_OTHERS, " ").replace(FOR_OTHERS_TO, " ").replace(USED_FOR, " ").replace(OTHERS_FINISHED, " ").replace(/\s{2,}/g, " ").trim();
 
+// rules-v21 (F2): someone else's present-tense work inside the person's clause, with no "that": "the spec Kevin designs",
+// "the campaigns the agency plans", "systems another crew installed", "the forecasts my analysts prepare".
+const AGENT_ONE = "(?:[\\p{L}-]+(?:er|or|ist|ant|ian)|team|crew|staff|department|office|agency|firm|company|vendor|contractor|manager|owner|doctor|nurse|tech|analyst|clerk|attorney|accountant|controller|lead)";
+const AGENT_MANY = `(?:${AGENTS}|agencies|firms|companies)`;
+const DETERMINER = "(?:the|our|my|their|his|her|another|a|an)";
+// Only right after a noun phrase the person acts on ("the spec Kevin designs", "camera systems another crew installed"),
+// never right after the person's own verb ("pay our vendor invoices", "write our foundation grant proposals").
+const AFTER_NOUN_PHRASE = String.raw`(?<=(?:\b(?:the|a|an|our|my|their|these|those|this|that|his|her)\s+(?:[\p{L}-]+\s+){0,3}?[\p{L}-]{3,}|\b\p{L}{3,}s))`;
+const OTHERS_DOING = new RegExp(
+  `${AFTER_NOUN_PHRASE}(?<!\\b${CAUSATIVE})\\s+(?:that\\s+|which\\s+)?${DETERMINER}\\s+(?:[\\p{L}-]+\\s+)?(?:${AGENT_ONE}\\s+\\p{Ll}{2,}(?:s|es)|${AGENT_MANY}\\s+(?!(?:and|or|for|to|in|on|at|of|with|from|by|the|a|an|who|that|myself|ourselves|himself|herself|themselves|itself|yourself|personally|directly|every|each|daily|weekly|monthly|yearly|too|also|here|there|now|today|first|last)\\b)\\p{Ll}{3,}|(?:${AGENT_ONE}|${AGENT_MANY})\\s+${PAST_ACT})\\b[^,.;]*`,
+  "gu",
+);
+// A first name doing it: "the spec Kevin designs". Never a known technology or product ("Excel models", "Salesforce reports"),
+// never a word right after a determiner or count ("our Haas lathes", "a dozen Java services": a brand before a plural noun),
+// and only when what follows reads as a verb's object or the clause ends ("Kevin designs the API", "the spec Kevin wrote").
+const NAME_DOING = new RegExp(
+  String.raw`${AFTER_NOUN_PHRASE}\s+(?:that\s+)?(?<!\p{Lu}[\p{L}-]*\s+)(?<!\b(?:the|a|an|our|my|their|these|those|this|his|her|its|dozen|several|few|many|some|all|both|two|three|four|five|six|ten)\s+)(\p{Lu}\p{Ll}+)\s+\p{Ll}{2,}(?:s|es|ed)\b(?=\s*(?:[,.;]|$)|\s+(?:the|a|an|our|my|his|her|their|its|it|them|this|these|those|each|every|all|\d))[^,.;]*`,
+  "gu",
+);
+const withoutNamedOthersWork = (text: string) => text.replace(NAME_DOING, (m, name: string) => (VOCABULARY.has(name.toLowerCase()) || /^(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|english|spanish)$/i.test(name) ? m : " "));
+// rules-v21 (F2): "send plumbers out to install", "ask the techs to restock": the people sent do the work after "to".
+const SEND_TO = /\b(?:send|sends|sent|ask|asks|asked|tell|tells|told|get|gets|got|have|has|had)\s+(?:[\p{L}-]+\s+){1,3}?(?:out\s+)?to\s+(?!(?:the|a|an|our|my|their|his|her|each|every|all|\d)\b)\p{L}+[^,.;]*/giu;
+/** rules-v21: the readable clause, with others' present-tense work and sent work taken out, and the person's own objects
+ * and indirect questions kept (F9). */
+const withoutOthersWorkV21 = (readable: string) => withoutNamedOthersWork(withoutOthersWork(readable).replace(OTHERS_DOING, " ").replace(SEND_TO, " ")).replace(/\s{2,}/g, " ").trim();
+
+// rules-v21 (F7): supervising the people who do it, or reviewing what they prepare in the present tense, is overseeing.
+const SUPERVISES_WHO = /^\W*(?:(?:well|so|mostly|now)\W+)?(?:i\s+)?(?:[\p{L}'’]+\s+)?(?:manage|manages|managed|supervise|supervises|supervised|coach|coaches|coached|oversee|oversees|oversaw|lead|leads|led|direct|directs|directed|run|runs|ran|train|trains|trained)\s+(?:the|our|my|a|an|two|three|four|five|\d+)?\s*(?:[\p{L}-]+\s+){0,3}?(?:who|that)\s+\p{Ll}+/iu;
+// F7 applies only to real review verbs, and only to what comes after the person's verb ("I walk through the spill kit"
+// and "my students get goggles, I …" aren't reviewing others' work).
+const REVIEWS = /^(?:review|reviews|reviewed|check|checks|checked|spot-check|spot-checks|spot-checked|audit|audits|audited|inspect|inspects|inspected|verify|verifies|verified|approve|approves|approved|proofread|proofreads|edit|edits|edited)$/;
+const afterHeadVerb = (clause: string) => {
+  const verb = headVerb(clause)?.verb;
+  if (!verb) return "";
+  const at = clause.toLowerCase().search(new RegExp(`\\b${verb}\\b`));
+  return at < 0 ? "" : clause.slice(at);
+};
+// rules-v21 (F8): being assigned to a station, line or route says where the person works, not that they assign others.
+const ASSIGNED_TO = /\b(i['’]m|i\s+am|i\s+was|i['’]ve\s+been|i\s+have\s+been|i\s+got|i\s+get|i\s+usually\s+get)\s+assigned\s+to\b/giu;
+// rules-v21 (F4): the person narrows their own claim: "I only measure the residential rooms", "I just count".
+const NARROWS = /\b(?:i\s+(?:only|just)\b|not\s+all\s+of\s+(?:them|it)\b|except\b)/i;
+
 /** rules-v20: the person teaches or trains someone else to do it ("I train new hires to read blueprints"). Training
  * themselves ("I trained to be a welder", "I trained as an electrician") is learning, read by the intent rule instead. */
 export function teachesOthers(text: string): boolean {
@@ -203,6 +270,12 @@ export type Statement = {
   ownership: Ownership;
   /** rules-v20: paperwork done for another party (O2). It still counts where that paperwork is what's asked. */
   paperwork?: boolean;
+  /** rules-v21 (F4): the person narrowed their own claim after a correction. Genuine within its scope: Possible at most. */
+  narrowed?: boolean;
+  /** rules-v21: `readable` with the person's own act's end condition kept ("call those customers until they pay"), only
+   * where one was set aside. What follows "until" is the other people's act, never the person's work: no verdict reads
+   * this. It is for a recognition layer that matches an approved phrase naming that condition. */
+  bounded?: string;
 };
 
 /** Where a word sits as a verb: after the person, a helper word, a joiner, or a comma. "I help the PTs" is helping;
@@ -348,14 +421,25 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
 /** Sentences of an answer that are plainly this person's own statement of having done something. Nothing
  * comes back unless the whole answer is plainly English: other answers stay unresolved. */
 export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT_RULES): Statement[] {
-  const v20 = rules === "v20";
-  const readableOf = (text: string) => (v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
-  const ownershipOf = (clause: string): Ownership => {
-    if (!v20) return involvement(clause);
+  const v21 = rules === "v21";
+  const v20 = rules === "v20" || v21;
+  const readableOf = (text: string) => (v21 ? withoutOthersWorkV21(ownClauses(text, true)) : v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
+  const boundsOf = (text: string): { bounded?: string } => {
+    if (!v21) return {};
+    const bounded = withoutOthersWorkV21(ownClauses(text, true, true));
+    return bounded !== readableOf(text) ? { bounded } : {};
+  };
+  const ownershipOf = (raw: string): Ownership => {
+    if (!v20) return involvement(raw);
+    // F8: "I'm assigned to the trailers" is where the person works.
+    const clause = v21 ? raw.replace(ASSIGNED_TO, "$1 working at") : raw;
     if (PASSED_MEDS.test(clause)) return "performed";
     if (teachesOthers(clause)) return "taught";
     // Reviewing or checking what others finished is overseeing it: "I reviewed the lesson plans our teachers prepared".
     if (checksOthersWork(clause) && new RegExp(OTHERS_FINISHED.source, "iu").test(clause)) return "oversaw";
+    // F7: the same in the present tense, and supervising the people who do it.
+    if (v21 && REVIEWS.test(headVerb(clause)?.verb ?? "") && new RegExp(OTHERS_DOING.source, "u").test(afterHeadVerb(clause))) return "oversaw";
+    if (v21 && SUPERVISES_WHO.test(clause)) return "oversaw";
     // Paperwork for another party (O2): "I collect timesheets and send them to the payroll company".
     if (paperworkForOthers(clause)) return "requested";
     return involvement(clause);
@@ -367,15 +451,34 @@ export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT
   // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
   // What the answer takes back is out; everything else is read. The word before a hand-off verb has to be someone:
   // "...and run them on the analyzer" is still the person.
-  const taken = retractions(detail);
+  const taken = retractions(detail, v21);
+  // F4: after a correction, the person's narrowed claim stays theirs, within its scope (Possible at most).
+  const narrowedIn = (whole: string) => v21 && taken.length > 0 && NARROWS.test(whole);
   if (/\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\b(?:not|wasn['’]t|isn['’]t)\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b|\bnever\s+(?:used|touched|opened)\s+it\s+again\b/i.test(detail)) return [];
   // A class, demo, tutorial, or trial is limited familiarity: everything said beside it is read as that, and no more.
   const brief = BRIEF_TRY.test(detail);
-  const barred = [...untrustedSpans(detail, "answer"), ...taken];
+  const barred = [...untrustedSpans(detail, "answer", v21), ...taken];
   const out: Statement[] = [];
   const leading: Statement[] = [];
   // Each sentence is read clause by clause where it changes hands: another person's clause is theirs, never the person's.
-  for (const match of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) for (const clause of splitBySubject(match[0])) {
+  // F4 (v21): "…, I only fix flats" / "…, and I only measure the residential rooms" starts the person's own narrowed clause,
+  // so it's read on its own and isn't lost with the correction or the other person's clause before it.
+  const clausesOf = (sentence: string) => {
+    const clauses = splitBySubject(sentence);
+    if (!v21) return clauses;
+    return clauses.flatMap(c => {
+      if (c.subject === "other") return [c];
+      const pieces: typeof clauses = [];
+      let from = 0;
+      for (const cut of c.text.matchAll(/,\s*(?:and\s+|but\s+)?(?=i\s+(?:only|just)\b)/gi)) {
+        pieces.push({ ...c, text: c.text.slice(from, cut.index), start: c.start + from });
+        from = cut.index + cut[0].length;
+      }
+      pieces.push({ ...c, text: c.text.slice(from), start: c.start + from, subject: from > 0 ? "self" : c.subject });
+      return pieces.filter(p => p.text.trim());
+    });
+  };
+  for (const match of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) for (const clause of clausesOf(match[0])) {
     if (clause.subject === "other") continue;
     const whole = clause.text.trim();
     const wholeStart = match.index + clause.start + clause.text.indexOf(whole);
@@ -397,7 +500,7 @@ export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT
       const opening = own.slice(0, subject.index + 1).replace(/(?:[,;:]\s*(?:and|so|then|but)?|\s+(?:and|so|then|but))\s*$/i, "").trim();
       if (opening && /^\W*(?!\p{L}+ing\b)\p{L}/u.test(opening) && readAct(opening).subject === "self" && readAct(opening).act === "concrete" && !/\b(?:is|are|was|were|be|been)\b/i.test(opening) && !ownNegative(opening) && !HYPOTHETICAL.test(opening)) {
         const at = wholeStart + whole.indexOf(opening, span[0]);
-        if (!barred.some(([s, e]) => s < at + opening.length && at < e) && !(v20 && INTENT.test(opening))) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(opening), ownership: ownershipOf(opening) });
+        if (!barred.some(([s, e]) => s < at + opening.length && at < e) && !(v20 && INTENT.test(opening))) leading.push({ text: opening, start: at, ...readAct(opening), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(opening), ...boundsOf(opening), ownership: ownershipOf(opening) });
       }
       span[0] += subject.index + subject[0].search(/\p{L}/u);
     }
@@ -412,13 +515,14 @@ export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT
     const firstClause = text.split(/,\s*(?:and|then|but)\s+/i)[0];
     const ownership: Ownership = ownershipOf(firstClause);
     const read = readAct(text);
-    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole) || personal(whole), brief, readable: readableOf(text.replace(THE_ONE_WHO, "I ")), ownership, ...(v20 && paperworkForOthers(firstClause) ? { paperwork: true } : {}) });
+    const narrowed = narrowedIn(whole);
+    out.push({ text, start, ...read, exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole) || personal(whole) || narrowed, brief, readable: readableOf(text.replace(THE_ONE_WHO, "I ")), ...boundsOf(text.replace(THE_ONE_WHO, "I ")), ownership, ...(v20 && paperworkForOthers(firstClause) ? { paperwork: true } : {}), ...(narrowed ? { narrowed: true } : {}) });
     // "We use a calm corner, and I call home early": the "I" clause is the person's own, apart from the "we".
     const mine = read.subject === "team" ? /(?:,\s*(?:and|so|then|but)\s+|\s+and\s+)(?=i\s)/i.exec(text) : null;
     if (mine) {
       const own = text.slice(mine.index + mine[0].length);
       const firstOwn = own.split(/,\s*(?:and|then|but)\s+/i)[0];
-      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(own), ownership: ownershipOf(firstOwn) });
+      out.push({ text: own, start: start + mine.index + mine[0].length, ...readAct(own), exposureOnly: brief || EXPOSURE.test(whole) || personal(whole), brief, readable: readableOf(own), ...boundsOf(own), ownership: ownershipOf(firstOwn) });
     }
   }
   return [...leading, ...out].sort((x, y) => x.start - y.start);

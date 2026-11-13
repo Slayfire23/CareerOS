@@ -5,6 +5,7 @@ import { answerStatements, checksOthersWork, othersParts, othersText, PAPERWORK_
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
+import { ownNegative } from "@/lib/ai/rules/profile-fields";
 import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import type { RawFinding } from "@/lib/ai/rules/engine";
 import { actionMissing, canonicalTerms, containsPhrase, fragmentOfLongerName, GENERIC_TERMS, hasQualificationWords, isKnownTechnology, ordinaryMeaning, otherSense, relation, requiredSkillLevel, withoutPaperworkUses, words } from "@/lib/ai/skill-relations";
@@ -82,12 +83,79 @@ const aboutSomethingElse = (s: Statement) => {
 const ASKS_TO_TRAIN = /\b(?:teach\w*|instruct\w*|mentor\w*|coach\w*|onboard\w*|train\w*\s+(?:new\s+|other\s+|junior\s+)?(?:staff|employees|hires|workers|others|team\s+members|technicians|apprentices|students|users))\b/i;
 export const ownedFor = (piece: string, s: Statement) => s.ownership === "performed" || (s.ownership === "taught" && ASKS_TO_TRAIN.test(piece)) || (s.ownership === "oversaw" && ASKS_TO_OVERSEE.test(piece)) || (s.ownership === "requested" && ASKS_TO_REQUEST.test(piece)) || (s.ownership === "assisted" && ASKS_TO_ASSIST.test(piece)) || (s.ownership === "observed" && ASKS_TO_OBSERVE.test(piece));
 
+// rules-v21 (F5, owner R2): hiring, verifying and approving are work the person can do themselves. Overseeing counts as the
+// work only where oversight itself is asked; for hiring, recruiting, verifying or approving, only the person's own direct
+// act counts. Recommending, sitting in, forwarding, submitting or routing for approval never does.
+const OVERSIGHT_ASKED = /\b(?:schedul\w+|oversee\w*|oversight|supervis\w+|manag\w+|lead\w*|direct\w*|coordinat\w+|delegat\w+|vendor|contractor|procure\w*)\b/i;
+const ACT_ASKED = { hire: /\bhir(?:e|es|ed|ing)\b/i, recruit: /\brecruit\w*/i, approve: /\bapprov\w*/i, verify: /\bverif\w*/i };
+// The act's subject is the person: the words between "I" and the act never cross into someone else's relative clause
+// ("I oversee the AP clerks who verify and approve invoices").
+const OWN_ACT = {
+  recruit: /\bI\s+(?:(?!(?:who|that|which|whom)\b)[\p{L}'’-]+\s+){0,3}?(?:recruit|recruited|source|sourced|screen|screened)\b/iu,
+  hire: /\bI\s+(?:(?!(?:who|that|which|whom)\b)[\p{L}'’-]+\s+){0,3}?(?:hire|hired|make\s+(?:the\s+)?(?:final\s+)?(?:hiring|offer|selection)\s+decisions?|extend(?:ed)?\s+(?:the\s+)?(?:job\s+)?offers?|decide\s+who\s+(?:we\s+|to\s+)?hire|choose\s+who\s+(?:we\s+|to\s+)?hire|select\s+(?:the\s+)?(?:candidates?|hires?))\b/iu,
+  approve: /\bI\s+(?:(?!(?:who|that|which|whom)\b)[\p{L}'’-]+\s+){0,8}?(?:approve|approved|sign(?:ed)?\s+off\s+on)\b[^.;]{0,30}\b(?:invoices?|bills?|payments?|them|it|expenses?)\b/iu,
+  verify: /\bI\s+(?:(?!(?:who|that|which|whom)\b)[\p{L}'’-]+\s+){0,3}?(?:verif(?:y|ied)|check|checked|match|matched|audit|audited)\b[^.;]{0,25}\b(?:invoices?|bills?)\b/iu,
+};
+// What undoes each act, for that act only: recommending candidates isn't hiring, but it doesn't cancel the person's own
+// screening (owner decision, failure 4: recruiting is judged on its own); sending invoices for approval isn't approving.
+const WATCHING = String.raw`sit\s+in|sat\s+in|observ\w+`;
+const NOT_OWN_ACT: Record<keyof typeof OWN_ACT, RegExp> = {
+  recruit: new RegExp(String.raw`\b(?:${WATCHING})\b`, "i"),
+  hire: new RegExp(String.raw`\b(?:recommend\w*|${WATCHING}|forward\w*)\b`, "i"),
+  approve: new RegExp(String.raw`\b(?:${WATCHING}|forward\w*|submit\w*\s+(?:\S+\s+){0,3}?for\s+approval|rout\w+\s+(?:\S+\s+){0,3}?(?:for|to)\s+approval|ask\w*\s+(?:\S+\s+){0,3}?to\s+approve|request\w*\s+approval|get\s+(?:\S+\s+){0,3}?approved)\b`, "i"),
+  verify: new RegExp(String.raw`\b(?:${WATCHING}|forward\w*)\b`, "i"),
+};
+/** rules-v21 (F6): by the answer's own account, someone else does the WHOLE of this requirement: other people's clauses
+ * (never the person's own retracted words, never a thing being something: "our plant is SQF") cover every one of its own
+ * terms, or hand it off outright ("our pharmacists do that", "the mechanics do the work"). Covering part of it ("Kevin
+ * designs the API contracts" for "Design and develop RESTful APIs") leaves room for the person's distinct work. Used only
+ * to hold checkbox credit back, never to give it. */
+export function othersDoWholeRequirement(requirementText: string, detail: string): boolean {
+  const acts = othersParts(detail, true, false, true).filter(p => !/^\W*(?:[\p{L}'’-]+\s+){0,4}?(?:is|are|was|were|has|have|had)\b/iu.test(p));
+  const said = acts.join(" ");
+  if (!said.trim()) return false;
+  const wanted = specificTerms(qualificationText(requirementText));
+  const have = new Set([...canonicalTerms(said)].flatMap(t => [t, stem(t)]));
+  const whole = wanted.length > 0 && wanted.every(t => have.has(t) || have.has(stem(t)));
+  const handedOff = /\b(?:does|do|did|handles?|handled|takes?\s+care\s+of|took\s+care\s+of)\s+(?:that|those|it|this|them|all\s+of\s+(?:that|it|them)|(?:all\s+)?the\s+(?:actual\s+|real\s+)?work)\b/i.test(said);
+  return whole || handedOff;
+}
+
+/** rules-v21 (F6, D1): the person's own words deny doing the requirement's work: a sentence of theirs ("I", "we", or
+ * opening on the denial: "Never dealt with a union contract") that is negative and names every specific term asked. */
+export function deniesRequirement(requirementText: string, detail: string): boolean {
+  const asked = qualificationText(requirementText);
+  // The leading action word needn't be repeated: "Never dealt with a union contract" denies "Negotiating union contracts".
+  const action = /^\W*(\p{L}+ing)\b/iu.exec(asked)?.[1].toLowerCase();
+  const all = specificTerms(asked);
+  const wanted = action && all.length > 1 ? all.filter(t => stem(t) !== stem(action) && t !== action) : all;
+  if (!wanted.length) return false;
+  return (detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).some(s => {
+    if (!ownNegative(s)) return false;
+    if (!/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(s) && !/^\W*(?:never|not|no|haven['’]t|hasn['’]t|didn['’]t|have\s+not|did\s+not)\b/i.test(s)) return false;
+    const have = new Set([...canonicalTerms(s)].flatMap(t => [t, stem(t)]));
+    return wanted.every(t => have.has(t) || have.has(stem(t)));
+  });
+}
+
+/** rules-v21: the person's own direct hiring, approving or verifying act, where the piece asks for that act. */
+export function ownDirectAct(piece: string, text: string): boolean {
+  return (Object.keys(ACT_ASKED) as (keyof typeof ACT_ASKED)[]).some(k => ACT_ASKED[k].test(piece) && OWN_ACT[k].test(text) && !NOT_OWN_ACT[k].test(text));
+}
+/** rules-v21 ownership for a piece: as `ownedFor`, but overseeing counts only where oversight is asked, or as the
+ * person's own direct act where hiring, approving or verifying is asked (F5, R2). */
+export const ownedForV21 = (piece: string, s: Statement) =>
+  s.ownership === "performed" ? true
+  : s.ownership === "oversaw" ? OVERSIGHT_ASKED.test(piece) || ownDirectAct(piece, s.text)
+  : ownedFor(piece, s);
+
 function readPiece(piece: string, allStatements: Statement[], options: ReadOptions): { level: 2 | 1 | 0; quote: string | null; sourceId: string | null } {
   // When helping is what's asked, saying you helped is saying you did it.
   // rules-v20: teaching others to do the work, where that isn't what's asked, can be a lead and never more (O1).
   const leadOnly = (s: Statement) => s.ownership === "taught" && !ASKS_TO_TRAIN.test(piece);
   // rules-v20: paperwork for another party is the work itself where that paperwork is what's asked ("Filing customs entries").
-  const statements = allStatements.filter(s => s.subject !== "team" && !aboutSomethingElse(s) && (ownedFor(piece, s) || s.ownership === "taught" || (s.paperwork === true && PAPERWORK_ASKED.test(piece)))).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
+  const owned = options.textRules === "v21" ? ownedForV21 : ownedFor;
+  const statements = allStatements.filter(s => s.subject !== "team" && !aboutSomethingElse(s) && (owned(piece, s) || s.ownership === "taught" || (s.paperwork === true && PAPERWORK_ASKED.test(piece)))).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
   const groups = GROUPS.filter(g => askedBy(piece, g));
   let lead: string | null = null;
   for (const s of statements) {
@@ -139,7 +207,8 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   if (answerLanguage(detail) !== "en") return nothing("language_not_evaluated");
   // Someone else does part of what's asked, by the answer's own account: the person's part is Possible at most, and
   // checking that work ("My cooks prepare them. I spot-check the trays") is overseeing it, not doing it.
-  const others = new Set([...canonicalTerms(othersText(detail))].flatMap(t => [t, stem(t)]));
+  const othersSaid = options.textRules === "v21" ? othersParts(detail, false, true, true).join(" ") : othersText(detail);
+  const others = new Set([...canonicalTerms(othersSaid)].flatMap(t => [t, stem(t)]));
   const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
   const statements = answerStatements(detail, options.textRules).map(s => (shared && s.ownership === "performed" && checksOthersWork(s.text) ? { ...s, ownership: "oversaw" as const } : s));
   if (!statements.length) return nothing("no_own_statement");
@@ -197,7 +266,7 @@ function titleContradicted(request: MatchRequest, requirement: MatchRequirement,
     const have = new Set([...canonicalTerms(part)].flatMap(t => [t, stem(t)]));
     return wanted.some(t => have.has(t) || have.has(stem(t)));
   };
-  const theirs = othersParts(answer.detail, true).find(touches);
+  const theirs = othersParts(answer.detail, true, true, options.textRules === "v21").find(touches);
   if (!theirs || readAnswer(requirement, answer.detail, options).verdict !== "insufficient_information") return null;
   // "I do the individual 1040s and my manager takes the partnership returns": the work is split in one sentence, so the
   // person does part of it. That's mixed ownership: Possible at most, not taken away.

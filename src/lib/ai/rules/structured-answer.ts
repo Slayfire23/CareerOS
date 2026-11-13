@@ -25,7 +25,9 @@ export type WorkRecency = "CURRENT" | "WITHIN_YEAR" | "ONE_TO_THREE_YEARS" | "OV
 /** What the explanation shows relative to the choice. Supplied by the caller (Stage 3 computes it); never derived here. */
 export type Consistency =
   | { state: "consistent"; textShowsWork: boolean }
-  | { state: "text_mismatch"; textSuggests: Involvement | null }
+  /** `contradictedBy` (rules-v21, F6): the explanation says someone else performed the activity, or the person's own words
+   * deny doing it. Only v21 sets it. */
+  | { state: "text_mismatch"; textSuggests: Involvement | null; contradictedBy?: "other_person" | "own_denial" }
   | { state: "text_unread" }
   | { state: "no_text" };
 
@@ -40,7 +42,8 @@ export type StructuredAnswer = {
   /** The role the answer is attached to, from its dates: how long it lasted and how long ago it ended (null: current). */
   role?: { months: number; endedMonthsAgo: number | null } | null;
   /** Only for a requirement whose split the owner approved (O3). Without `approved: true` the parts are ignored. */
-  compound?: { approved: boolean; parts: { part: string; checked: boolean; textShowsWork?: boolean }[] } | null;
+  /** `contradicted` (rules-v21, F6): the explanation gives this part to someone else; its tick gives no credit. */
+  compound?: { approved: boolean; parts: { part: string; checked: boolean; textShowsWork?: boolean; contradicted?: boolean }[] } | null;
 };
 
 export type ClarificationReason =
@@ -191,6 +194,12 @@ export function readStructuredAnswer(answer: StructuredAnswer): StructuredReadin
     verdict = lower(lower(verdict, textReading), "possible");
     clarifications.add("text_mismatch");
     limits.push("text_mismatch");
+    // rules-v21 (F6): the explanation gives the activity to someone else, or denies doing it. The tick gives nothing, not
+    // even Possible.
+    if (consistency.contradictedBy) {
+      verdict = lower(verdict, "insufficient_information");
+      limits.push(consistency.contradictedBy === "other_person" ? "contradicted_by_other_person" : "contradicted_by_own_denial");
+    }
   }
 
   // Limits that only ever lower.
@@ -209,7 +218,14 @@ export function readStructuredAnswer(answer: StructuredAnswer): StructuredReadin
 
   // O3: an approved compound split takes the lowest verdict over its necessary parts.
   if (answer.compound?.approved && answer.compound.parts.length >= 2) {
-    const checked = answer.compound.parts.filter(p => p.checked);
+    // rules-v21 (F6): a part the explanation gives to someone else counts as not done, whatever its tick. Other parts the
+    // person genuinely did keep their credit (owner decision, failure 4: a contradiction doesn't cancel related activities).
+    const contradicted = answer.compound.parts.filter(p => p.checked && p.contradicted);
+    if (contradicted.length) {
+      clarifications.add("text_mismatch");
+      limits.push("contradicted_part");
+    }
+    const checked = answer.compound.parts.filter(p => p.checked && !p.contradicted);
     if (checked.length === 0) {
       verdict = lower(verdict, "insufficient_information");
       limits.push("no_compound_part");
