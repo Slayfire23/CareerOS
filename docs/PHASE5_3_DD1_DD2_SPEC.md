@@ -274,6 +274,17 @@ Evidence: `ai-service/evals/reports/m11/structured/v5-simulation.json`.
 | 3 | "I run the AR aging analysis, identify the overdue balances and call those customers until they pay." | both shown; Supported | analysis only; Possible | Today's reader truncates the clause to "…call those customers", dropping "until they pay", so the approved Q2 equivalent can't match | **R3 F9** (a second F9 control) |
 | 4 | "I recommend candidates to the owner, who decides who we hire." | nothing shown; **Possible** | nothing shown; **Not enough information** | The reader finds no own statement and calls it a contradiction. **Under your F6 safeguard (no checkbox Possible for a contradicted activity), Not enough information may be correct, and my expectation wrong.** The expectation isn't changed silently | **Owner decision:** keep Possible as expected, or record Not enough information as the intended result |
 
+### Owner decision on failure 4 (2026-11-13; recorded separately, history unchanged)
+
+**The probe and its original expectation stay in the simulation history as written:** "I recommend candidates to the owner, who decides who we hire", expected Possible, got Not enough information.
+
+**Owner decision:**
+- The *Hiring staff* part stays **Not enough information**, because recommending candidates doesn't establish personally making or directly taking part in hiring decisions.
+- **Recruiting staff is evaluated independently.** Where the evidence shows personally sourcing, screening or evaluating candidates, recruiting credit is preserved.
+- **The hiring contradiction is not a contradiction of every related activity.**
+
+This becomes an explicit rules-v21 (F6) regression target. For this exact probe, which names no sourcing or screening, recruiting isn't shown either, so the result stays Not enough information. A variant that adds own screening ("I screen the applicants and recommend the best ones to the owner, who decides who we hire") must show recruiting, giving Possible.
+
 **What remains before any implementation is proposed:**
 - these decisions;
 - then the R3/DD3 rules-v21 implementation plan, now covering F1–F9;

@@ -10,6 +10,28 @@ November 12, 2026. **A proposal for owner approval. Nothing here is started.** E
 - no production migration, push, merge or deploy without approval;
 - the sealed splits (`m11_followup4`, `m11_structured`) are never opened before Stage 7.
 
+## Owner approval (2026-11-13)
+
+The sequence is approved, with **explicit owner approval required after every stage**:
+
+| Stage | Content |
+|---|---|
+| A | Create and seal R4 |
+| B | rules-v21 as an opt-in, including F1–F9 and DD3 |
+| C | Review the full regression results, then separately approve or reject local adoption of rules-v21 |
+| D | The approved-split recognition module, inactive (the named-tool field included, inactive) |
+| E | The Stage 4 questionnaire |
+| F | Stages 5–6: persistence and follow-ups |
+| G | Freeze and the independent sealed evaluation |
+
+**Before Stage G**, a document must set out:
+- the exact acceptance criteria;
+- the baseline comparisons;
+- the integrity checks;
+- **what happens if the sealed evaluation fails**.
+
+There's no tuning against opened sealed cases after evaluation. **Only Stage A is authorized now.**
+
 ## Why R4 comes first
 
 The independent evaluation is only independent if it's written and sealed **before** the implementation exists, as Stage 0 did for the structured split. The writer and labeler must not see the code, the markers, the equivalents, the design probes, or any simulation output.

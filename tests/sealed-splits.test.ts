@@ -7,8 +7,10 @@ import { describe, expect, it } from "vitest";
 // development, tests and matching logic must never read them, and their bytes must never change.
 //   m11_structured: structured ownership (docs/PHASE5_3_STAGE0_STRUCTURED_EVAL_PROTOCOL.md), read only by tests/eval/structured.eval.ts.
 //   m11_followup4: the free-text follow-up split, read only by tests/eval/followup.eval.ts through FOLLOWUP_DIR at the freeze.
+//   m11_parts: the compound-split evaluation R4 (docs/PHASE5_3_R4_EVAL_PROTOCOL.md), read only by tests/eval/parts.eval.ts.
 const STRUCTURED = ["m11", "structured"].join("_");
 const FOLLOWUP4 = ["m11", "followup4"].join("_");
+const PARTS = ["m11", "parts"].join("_");
 // Hashes cover the content with line endings normalized to LF, so a checkout with CRLF endings (Windows) and one with LF
 // (CI on Linux) agree. Any other byte change still fails.
 const sha256 = (buf: Buffer | string) => createHash("sha256").update(buf.toString().replace(/\r\n/g, "\n")).digest("hex");
@@ -21,6 +23,7 @@ const FOLLOWUP4_HASHES: Record<string, string> = {
   "scenarios.json": "3f86f577935c9eae551874270be2474a8a813aa560db1cd4499b929632986ca2",
 };
 const STRUCTURED_FILES = ["scenarios.json", "for_labeling.json", "labels.json"];
+const PARTS_FILES = ["scenarios.json", "for_labeling.json", "labels.json"];
 
 const CODE = /\.(ts|tsx|mts|cts|js|mjs|cjs|py|json)$/;
 const SKIP_DIRS = new Set(["node_modules", ".next", "generated", ".venv", "__pycache__", ".git", "fixtures", "reports", ".pytest_cache", ".ruff_cache"]);
@@ -38,6 +41,7 @@ const SCANNED = [...walk("src"), ...walk("scripts"), ...walk("tests"), ...walk("
 const ALLOWED: Record<string, string[]> = {
   [STRUCTURED]: ["tests/eval/structured.eval.ts", "tests/sealed-splits.test.ts"],
   [FOLLOWUP4]: ["tests/sealed-splits.test.ts"],
+  [PARTS]: ["tests/eval/parts.eval.ts", "tests/sealed-splits.test.ts"],
 };
 
 describe("sealed splits are read only by their evaluation runners", () => {
@@ -46,7 +50,7 @@ describe("sealed splits are read only by their evaluation runners", () => {
     expect(SCANNED).toContain("src/lib/ai/rules/answer-review.ts");
   });
 
-  it.each([STRUCTURED, FOLLOWUP4])("no source, script, browser test or ordinary test names %s", name => {
+  it.each([STRUCTURED, FOLLOWUP4, PARTS])("no source, script, browser test or ordinary test names %s", name => {
     const offenders = SCANNED.filter(f => !ALLOWED[name].includes(f) && readFileSync(f, "utf8").includes(name));
     expect(offenders).toEqual([]);
   });
@@ -66,6 +70,11 @@ describe("sealed splits are read only by their evaluation runners", () => {
     const runner = readFileSync("tests/eval/structured.eval.ts", "utf8");
     for (const gate of ['process.env.STRUCTURED_UNSEAL === "1"', "STRUCTURED_FREEZE_COMMIT", "git status --porcelain", "integrity().ok"]) expect(runner).toContain(gate);
   });
+
+  it("the compound-split runner refuses to unseal without an explicit, frozen, clean run, and has no scoring before Stage G", () => {
+    const runner = readFileSync("tests/eval/parts.eval.ts", "utf8");
+    for (const gate of ['process.env.PARTS_UNSEAL === "1"', "PARTS_FREEZE_COMMIT", "git status --porcelain", "integrity().ok", "Refusing: Stage G scoring"]) expect(runner).toContain(gate);
+  });
 });
 
 describe("sealed splits are frozen", () => {
@@ -82,5 +91,16 @@ describe("sealed splits are frozen", () => {
     expect(sha256(STRUCTURED_FILES.map(f => `${f}:${actual[f]}`).join("\n"))).toBe(manifest.combined);
     expect(manifest.count).toBeGreaterThanOrEqual(160);
     expect(readdirSync(dir).sort()).toEqual(["MANIFEST.json", ...STRUCTURED_FILES].sort());
+  });
+
+  it(`${PARTS} matches its manifest (hashes only; the files are never parsed here)`, () => {
+    const dir = `tests/fixtures/${PARTS}`;
+    const manifest = JSON.parse(readFileSync(`${dir}/MANIFEST.json`, "utf8")) as { files: Record<string, string>; combined: string; count: number; frozen: string };
+    expect(Object.keys(manifest.files).sort()).toEqual([...PARTS_FILES].sort());
+    const actual = Object.fromEntries(PARTS_FILES.map(f => [f, sha256(readFileSync(`${dir}/${f}`))]));
+    for (const f of PARTS_FILES) expect(actual[f], f).toBe(manifest.files[f]);
+    expect(sha256(PARTS_FILES.map(f => `${f}:${actual[f]}`).join("\n"))).toBe(manifest.combined);
+    expect(manifest.count).toBeGreaterThanOrEqual(300);
+    expect(readdirSync(dir).sort()).toEqual(["MANIFEST.json", ...PARTS_FILES].sort());
   });
 });
