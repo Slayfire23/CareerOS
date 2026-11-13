@@ -121,7 +121,16 @@ It includes DD3 (approved in principle) and R2 (conditionally approved).
 
 **Control (must keep credit):** "I manage the schedule and also onboard the new hires myself".
 
-### Proposed additions F8–F9 (found by the V5 simulation, 2026-11-12; pending owner approval, design only)
+### F8–F9 (found by the V5 simulation; **approved 2026-11-12 as design additions only**, no code)
+
+**Regression targets carried from the V5 rerun** (each must pass after rules-v21, with its controls):
+- **F8 positive:** "I'm assigned to the trailers at door 4, and I only unload." Unloading shown (the object inherited under the Q4 guard): Possible.
+- **F8 negative:** "I assign the pickers to the trailers." Oversight, not the person's own unloading or loading.
+- **F9 positive 1:** "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first." The clause is kept whole; aging analysis shown.
+- **F9 positive 2:** "I run the AR aging analysis, identify the overdue balances and call those customers until they pay." The clause is kept whole ("until they pay"); both parts shown, Supported (via the approved Q2 equivalent).
+- **F9 negative:** "I pull the aging report, and the controller decides which accounts to call." The controller's clause is still cut; aging analysis isn't shown from "pull" alone (Q1).
+
+The original wording of the two additions follows.
 
 - **F8. "I'm assigned to …" read as overseeing.** Today "I'm assigned to the trailers at door 4, and I only unload" gives an *oversaw* statement, so the person's own work is lost. **Fix:** "assigned to [a place, station, line or route]" describes where the person works, not assigning work to others. "I assign the trailers to the crew" stays oversight.
   - *Control (must stay oversight):* "I assign the pickers to the trailers."

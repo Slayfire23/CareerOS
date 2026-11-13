@@ -158,7 +158,7 @@ In both cases the existing consistency check reads the text as consistent with "
 
 ## 9. Design updates from the R1 review (2026-11-12; specification only, not implemented)
 
-### 9.1 Named-tool parts (A53 Excel, A60 Google Ads)
+### 9.1 Named-tool parts (A53 Excel, A60 Google Ads). *Superseded in part by "9.1 (updated per Q5)" in §11: the tool may be established in an earlier own clause.*
 
 An approved split may set a **named tool** per part, as a new field in §2's data. A part with a named tool is **shown for Supported only when the person's own clause that shows the part also names the tool.**
 - Other tools (Google Sheets, Microsoft Advertising), an unspecified tool ("in a spreadsheet"), the tool named only in someone else's clause, or the tool named elsewhere in the answer but not for this work ("I know Excel well. I build the model in Python") all mean **partial relevance**: Possible, with a targeted clarification ("Was this model built in Excel?").
@@ -227,6 +227,52 @@ Opened data only; no sealed split. Evidence: `ai-service/evals/reports/m11/struc
 | Q3 | **The supplementary P13/P14 batch** (omitted from batches 1–4; see the R1 review), including Q-P1 (volunteers) and Q-P2 (the R2 hiring boundary) | Decide as presented |
 | Q4 | **Two new R3 reader items:** (a) "I'm assigned to …" read as overseeing; (b) the existing readable over-cut ("flag everything over 60 days …" truncated). Add both to the R3 plan as F8 and F9, with these probes as tests | Approve, as additions to the R3 design only (no code) |
 | Q5 | **Named-tool field and Q4 antecedent guard:** confirm both in the §2 data and §9.3 design | Approve |
+
+### Owner decisions on Q1–Q5 (2026-11-12)
+
+| # | Decision |
+|---|---|
+| Q1 | **Approved.** Preparing, generating, receiving or running an AR aging report alone doesn't establish aging analysis. It needs the person's own analysis of overdue balances, aging categories, payment patterns, collection priorities or similar financial information. When the analysis is unclear: Possible with a targeted clarification, unless the evidence contradicts ownership |
+| Q2 | **Approved:** the tested equivalent for personally calling, contacting or following up with customers about outstanding balances or overdue invoices, or to collect payment. Calls about unrelated deliveries, orders or customer-service matters don't count. First-person ownership and clause-level attribution are kept |
+| Q3 | **Approved:** the supplementary P13/P14 patterns, with the interpretations recorded in the R1 review (all four parts decided) |
+| Q4 | **Approved as design additions only:** F8 (being assigned to perform an activity versus supervising the people who perform it) and F9 (no truncation of genuine first-person statements, including the AR aging examples), each with positive and negative regression controls. rules-v21 isn't implemented |
+| Q5 | **Approved, with a clarification on named tools** (§9.1, updated): full Supported on A53 and A60 needs unambiguous evidence that the person used the named tool. The tool may be established in an earlier first-person clause when the connection to the later activity is clear and uncontradicted; "Excel" or "Google Ads" needn't be repeated in every clause. The Q4 guard is approved: an unambiguous, person-owned antecedent, never from another person's clause, a retracted statement or an unrelated activity |
+
+### 9.1 (updated per Q5): named tools across clauses
+
+A named-tool part is shown for Supported when the person's evidence for the part is in an own clause, **and** one of these holds:
+- **(a)** that same clause names the tool; or
+- **(b)** an **earlier own clause, with "I" as its subject**, names the tool **in use** together with this work's object ("I work in Excel all day on our FP&A models. I built the three-statement model…").
+
+In every case, **no rival tool** may be named anywhere in the person's own clauses for this work ("…I built our current model in Python", "I use Excel and Google Sheets"). A rival tool makes the evidence contradicted or ambiguous, so the result is a clarification.
+
+**Never sufficient:** the tool only in someone else's clause ("Our controller lives in Excel"); knowledge rather than use ("I'm proficient in Excel"); a different tool. A different tool can give Possible but never meets the named-tool requirement.
+
+## 12. V5 rerun with all approved decisions (2026-11-12)
+
+**Inputs:**
+- all owner-approved recognition decisions (batches 1–4, supplementary P13/P14, Q1–Q5);
+- **47 targeted probes**: the original 30, plus 8 cross-clause named-tool, 8 P13/P14 interpretation and 1 A77 Q1 probe. Expectations were written before running and **not changed afterwards**;
+- the 226 earlier rows.
+
+Evidence: `ai-service/evals/reports/m11/structured/v5-simulation.json`.
+
+| Check | Result |
+|---|---|
+| Targeted probes as expected | **43 of 47.** Not complete validation: the 4 failures below stay explicit regression targets |
+| False Supported (targeted probes, and the 132 earlier risk probes) | **0** |
+| Earlier rows changed against the previous V5 run | **0** |
+| Cross-clause named tool (8 new) | **8 of 8.** Tool in an earlier own clause gives Supported (Excel FP&A, Google Ads account). Knowledge only, another person's clause, two tools, and a later rival tool give Possible |
+| P13/P14 interpretations (8 new) | **7 of 8.** Volunteers, the noun "recruiter", observing interviews, a staffing contractor, onboarding paperwork and receiving packets aren't credited. Own screening plus extending offers, and running onboarding for new nurses, reach Supported |
+
+**The four failed probes (regression targets; none is a false Supported):**
+
+| # | Probe | Expected | Got | Cause | Target |
+|---|---|---|---|---|---|
+| 1 | "I'm assigned to the trailers at door 4, and I only unload." | unloading shown; Possible | nothing shown; Not enough information | Today's reader reads "assigned to" as overseeing | **R3 F8** |
+| 2 | "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first." | aging analysis shown; Possible | nothing shown; Possible | Today's reader truncates the person's clause to "…flag" | **R3 F9** |
+| 3 | "I run the AR aging analysis, identify the overdue balances and call those customers until they pay." | both shown; Supported | analysis only; Possible | Today's reader truncates the clause to "…call those customers", dropping "until they pay", so the approved Q2 equivalent can't match | **R3 F9** (a second F9 control) |
+| 4 | "I recommend candidates to the owner, who decides who we hire." | nothing shown; **Possible** | nothing shown; **Not enough information** | The reader finds no own statement and calls it a contradiction. **Under your F6 safeguard (no checkbox Possible for a contradicted activity), Not enough information may be correct, and my expectation wrong.** The expectation isn't changed silently | **Owner decision:** keep Possible as expected, or record Not enough information as the intended result |
 
 **What remains before any implementation is proposed:**
 - these decisions;

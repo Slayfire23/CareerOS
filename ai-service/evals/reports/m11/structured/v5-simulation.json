@@ -1,5 +1,102 @@
 {
- "note": "V5 scratch simulation, 2026-11-12: V4b plus named-tool (A53 Excel, A60 Google Ads; tool in the same own clause), Q4 elided objects (antecedent must be an earlier own clause with I as subject; no retracted, other-person, unrelated or ambiguous antecedents), A77 analysis markers, and the supplementary P13/P14 patterns. 30 targeted probes written for this check (not an evaluation set) plus the 226 earlier rows. Opened data only; no sealed split.",
+ "note": "V5 scratch simulation, rerun 2026-11-12 with all owner-approved recognition decisions (batches 1-4, supplementary P13/P14, Q1-Q5 incl. cross-clause named tool and the A77 collections equivalent). 47 targeted probes written for this check (not an evaluation set; expectations unchanged after running) plus the 226 earlier rows. Opened data only; no sealed split. Failed probes are kept as regression targets.",
+ "targeted_pass": 43,
+ "targeted_total": 47,
+ "failed": [
+  {
+   "cid": "A67",
+   "text": "I'm assigned to the trailers at door 4, and I only unload.",
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "verdict": "P",
+    "why": "object inherited from an own earlier clause"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "I"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": false
+  },
+  {
+   "cid": "A77",
+   "text": "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first.",
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "own analysis; no collections shown"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I pull the AR aging every week, flag"
+   ],
+   "pass": false
+  },
+  {
+   "cid": "A77",
+   "text": "I run the AR aging analysis, identify the overdue balances and call those customers until they pay.",
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own analysis and collections"
+   },
+   "got": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I run the AR aging analysis, identify the overdue balances and call those customers"
+   ],
+   "pass": false
+  },
+  {
+   "cid": "P13",
+   "text": "I recommend candidates to the owner, who decides who we hire.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "recommending is not hiring"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "I"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": false
+  }
+ ],
+ "earlier_rows_false_supported": [],
  "targeted_probes": [
   {
    "cid": "A53",
@@ -19,7 +116,13 @@
     ],
     "verdict": "S"
    },
-   "reasons": [],
+   "reasons": [
+    "part 1: tool in the same own clause",
+    "part 2: tool in the same own clause"
+   ],
+   "own_clauses": [
+    "I build our three-statement financial model in Excel and maintain it every quarter, updating the assumptions and formulas"
+   ],
    "pass": true
   },
   {
@@ -41,8 +144,11 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I build our financial models in Google Sheets and maintain them every quarter"
    ],
    "pass": true
   },
@@ -65,8 +171,11 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I build the cash flow model in Python and maintain it"
    ],
    "pass": true
   },
@@ -89,8 +198,11 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: tool not established for this work (partial relevance; ask)",
+    "part 2: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I build our financial models in a spreadsheet and update the assumptions monthly"
    ],
    "pass": true
   },
@@ -113,8 +225,12 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I know Excel well",
+    "I build our budget model in Python and update it monthly"
    ],
    "pass": true
   },
@@ -136,7 +252,12 @@
     ],
     "verdict": "P"
    },
-   "reasons": [],
+   "reasons": [
+    "part 2: tool in the same own clause"
+   ],
+   "own_clauses": [
+    "I maintain the Excel forecasting model"
+   ],
    "pass": true
   },
   {
@@ -157,7 +278,13 @@
     ],
     "verdict": "S"
    },
-   "reasons": [],
+   "reasons": [
+    "part 1: tool in the same own clause",
+    "part 2: tool in the same own clause"
+   ],
+   "own_clauses": [
+    "I plan our Google Ads search campaigns with keyword research and run them daily, adjusting bids"
+   ],
    "pass": true
   },
   {
@@ -179,8 +306,11 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I plan and run our paid search campaigns in Microsoft Advertising"
    ],
    "pass": true
   },
@@ -203,7 +333,10 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I plan the campaigns and write the ad copy"
    ],
    "pass": true
   },
@@ -226,8 +359,11 @@
     "verdict": "P"
    },
    "reasons": [
-    "part 1: tool not named in the same own clause (partial relevance, ask)",
-    "part 2: tool not named in the same own clause (partial relevance, ask)"
+    "part 1: tool not established for this work (partial relevance; ask)",
+    "part 2: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I plan and run our search ads every week"
    ],
    "pass": true
   },
@@ -249,7 +385,14 @@
     ],
     "verdict": "S"
    },
-   "reasons": [],
+   "reasons": [
+    "part 1: tool in the same own clause",
+    "part 2: tool in the same own clause"
+   ],
+   "own_clauses": [
+    "I do the keyword research and plan the Google Ads campaigns",
+    "I also run the Google Ads campaigns and adjust bids daily"
+   ],
    "pass": true
   },
   {
@@ -271,6 +414,7 @@
     "verdict": "I"
    },
    "reasons": [],
+   "own_clauses": [],
    "pass": false
   },
   {
@@ -293,6 +437,9 @@
    },
    "reasons": [
     "part 2: elided object not found in an earlier own clause"
+   ],
+   "own_clauses": [
+    "I only unload"
    ],
    "pass": true
   },
@@ -317,6 +464,10 @@
    "reasons": [
     "part 2: elided object not found in an earlier own clause"
    ],
+   "own_clauses": [
+    "I clean the break room and unload the dishwasher",
+    "On weekends I only unload"
+   ],
    "pass": true
   },
   {
@@ -339,6 +490,9 @@
    },
    "reasons": [
     "part 2: elided object not found in an earlier own clause"
+   ],
+   "own_clauses": [
+    "I only unload"
    ],
    "pass": true
   },
@@ -363,6 +517,10 @@
    "reasons": [
     "part 2: object inherited from \"I build the client decks in PowerPoint every week\""
    ],
+   "own_clauses": [
+    "I build the client decks in PowerPoint every week",
+    "I present them myself"
+   ],
    "pass": true
   },
   {
@@ -385,6 +543,9 @@
    },
    "reasons": [
     "part 2: elided object not found in an earlier own clause"
+   ],
+   "own_clauses": [
+    "I just present them"
    ],
    "pass": true
   },
@@ -409,6 +570,10 @@
    "reasons": [
     "part 2: ambiguous antecedent (the pricing spreadsheets)"
    ],
+   "own_clauses": [
+    "I put together the decks and the pricing spreadsheets",
+    "I just present them"
+   ],
    "pass": true
   },
   {
@@ -431,6 +596,10 @@
    },
    "reasons": [
     "part 1: context inherited from \"I'm the executive assistant to our CEO and two VPs\""
+   ],
+   "own_clauses": [
+    "I'm the executive assistant to our CEO and two VPs",
+    "I only keep the calendars"
    ],
    "pass": true
   },
@@ -455,6 +624,9 @@
    "reasons": [
     "part 1: context missing (ask)"
    ],
+   "own_clauses": [
+    "I only keep the calendars"
+   ],
    "pass": true
   },
   {
@@ -477,6 +649,10 @@
    },
    "reasons": [
     "part 1: object inherited from \"I'm on the inventory team for the stock room\""
+   ],
+   "own_clauses": [
+    "I'm on the inventory team for the stock room",
+    "I just count"
    ],
    "pass": true
   },
@@ -501,6 +677,9 @@
    "reasons": [
     "part 1: elided object not found in an earlier own clause"
    ],
+   "own_clauses": [
+    "I just count"
+   ],
    "pass": true
   },
   {
@@ -524,6 +703,10 @@
    "reasons": [
     "part 1: ambiguous antecedent (the cash drawers)"
    ],
+   "own_clauses": [
+    "I handle the stock room and the cash drawers",
+    "I just count them"
+   ],
    "pass": true
   },
   {
@@ -545,6 +728,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I pull the AR aging every week, flag"
+   ],
    "pass": false
   },
   {
@@ -566,6 +752,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I analyze the aging buckets and payment trends each month and set the collection priorities"
+   ],
    "pass": true
   },
   {
@@ -587,6 +776,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I forward the aging report to the controller every Monday"
+   ],
    "pass": true
   },
   {
@@ -608,6 +800,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I get the aging report every Monday and read it"
+   ],
    "pass": true
   },
   {
@@ -629,6 +824,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I review the aging analysis"
+   ],
    "pass": true
   },
   {
@@ -650,6 +848,9 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I review the aging report every week"
+   ],
    "pass": true
   },
   {
@@ -671,11 +872,440 @@
     "verdict": "P"
    },
    "reasons": [],
+   "own_clauses": [
+    "I run the AR aging analysis, identify the overdue balances and call those customers"
+   ],
    "pass": false
+  },
+  {
+   "cid": "A53",
+   "text": "I work in Excel all day on our FP&A models. I built the three-statement model and I maintain it every quarter.",
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "tool established in an earlier own clause, clearly connected"
+   },
+   "got": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S"
+   },
+   "reasons": [
+    "part 1: tool established in an earlier own clause",
+    "part 2: tool established in an earlier own clause"
+   ],
+   "own_clauses": [
+    "I work in Excel all day on our FP&A models",
+    "I built the three-statement model and I maintain it every quarter"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A53",
+   "text": "I'm proficient in Excel. I built the three-statement model and I maintain it every quarter.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "knowing a tool is not using it for this work"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: tool not established for this work (partial relevance; ask)",
+    "part 2: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I'm proficient in Excel",
+    "I built the three-statement model and I maintain it every quarter"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A53",
+   "text": "Our controller lives in Excel. I built the three-statement model and maintain it.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "tool only in another person's clause"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: tool not established for this work (partial relevance; ask)",
+    "part 2: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I built the three-statement model and maintain it"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A53",
+   "text": "I use Excel and Google Sheets. I built the three-statement model and maintain it.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two tools: ambiguous which one"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I use Excel and Google Sheets",
+    "I built the three-statement model and maintain it"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A53",
+   "text": "I used Excel for years. I built our current three-statement model in Python and maintain it there.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "later clause names a different tool: contradicted"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)",
+    "part 2: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I used Excel for years",
+    "I built our current three-statement model in Python and maintain it there"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A60",
+   "text": "I manage our Google Ads account for the clinic. I plan the search campaigns and run them, adjusting bids weekly.",
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "platform established in an earlier own clause"
+   },
+   "got": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S"
+   },
+   "reasons": [
+    "part 1: tool established in an earlier own clause",
+    "part 2: tool established in an earlier own clause"
+   ],
+   "own_clauses": [
+    "I manage our Google Ads account for the clinic",
+    "I plan the search campaigns and run them, adjusting bids weekly"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A60",
+   "text": "Our agency manages the Google Ads account. I plan the search campaigns and run them.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "platform only in the agency's clause"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: tool not established for this work (partial relevance; ask)"
+   ],
+   "own_clauses": [
+    "I plan the search campaigns and run them"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A60",
+   "text": "I work in Google Ads and Meta Ads. I plan the campaigns and run them weekly.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two platforms: ambiguous"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [
+    "part 1: another tool named for the work (ambiguous or contradicted; ask)"
+   ],
+   "own_clauses": [
+    "I work in Google Ads and Meta Ads",
+    "I plan the campaigns and run them weekly"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "P13",
+   "text": "I recruit volunteers for the food bank and help pick the new coordinators.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "volunteers are not staff; 'help pick' is not a hiring decision"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": true
+  },
+  {
+   "cid": "P13",
+   "text": "I work closely with our recruiter and sit in on the interviews.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "noun 'recruiter'; observing interviews"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I work closely with our recruiter and sit in on the interviews"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "P13",
+   "text": "I recommend candidates to the owner, who decides who we hire.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "recommending is not hiring"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "I"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": false
+  },
+  {
+   "cid": "P13",
+   "text": "We hired a staffing contractor to cover the night shift.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "notS",
+    "why": "engaging a contractor for services"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "I"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": true
+  },
+  {
+   "cid": "P13",
+   "text": "I screen applicants for our cashier openings and extend the offers myself.",
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own screening and authorized offers"
+   },
+   "got": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I screen applicants for our cashier openings and extend the offers myself"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "P14",
+   "text": "I process the onboarding paperwork for new hires and file it.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "paperwork is not conducting onboarding"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I process the onboarding paperwork for new hires and file it"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "P14",
+   "text": "I receive the onboarding packets from HR and hand them out.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "receiving paperwork"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [],
+   "pass": true
+  },
+  {
+   "cid": "P14",
+   "text": "I recruit our new nurses and run the onboarding for new nurses myself.",
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "conducting onboarding"
+   },
+   "got": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I recruit our new nurses and run the onboarding for new nurses myself"
+   ],
+   "pass": true
+  },
+  {
+   "cid": "A77",
+   "text": "I generate the AR aging report every Monday and send it to the controller.",
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "generating and sending the report is not analysis"
+   },
+   "got": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P"
+   },
+   "reasons": [],
+   "own_clauses": [
+    "I generate the AR aging report every Monday and  "
+   ],
+   "pass": true
   }
  ],
- "targeted_pass": 27,
- "earlier_rows_false_supported": [],
  "patterns": {
   "P1": {
    "requirement": "Bookkeeping and month-end reconciliation",
@@ -985,9 +1615,8 @@
      "\\b(do|does|did|handl\\w*|run\\w*|own\\w*)\\s+(the\\s+|all\\s+the\\s+|our\\s+)?recruiting\\b"
     ],
     [
-     "\\bonboard(s|ed|ing)?\\b[^.]{0,25}\\b(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
-     "\\bnew[- ]hire onboarding\\b",
-     "\\bonboarding\\s+(of\\s+)?(all\\s+)?(new\\s+)?(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b"
+     "\\bonboard(s|ed|ing)?\\b(?!\\s+(paperwork|forms?|packets?|documents?|files?))[^.]{0,25}\\b(staff|employees?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
+     "\\bnew[- ]hire onboarding\\b(?!\\s+(paperwork|forms?|packets?|documents?))"
     ]
    ],
    "equivalents": [
@@ -1366,7 +1995,11 @@
    "tool": [
     "\\b(Microsoft\\s+)?Excel\\b|\\.xlsx\\b",
     "\\b(Microsoft\\s+)?Excel\\b|\\.xlsx\\b"
-   ]
+   ],
+   "toolctx": {
+    "object": "models?|forecast\\w*|FP&A|financial|three-statement|budget",
+    "rivals": "Google\\s+Sheets|Python|\\bR\\b|LibreOffice|Numbers|Anaplan|Adaptive|Smartsheet"
+   }
   },
   "A54": {
    "requirement": "Configure and maintain AWS cloud infrastructure",
@@ -1592,7 +2225,11 @@
    "tool": [
     "\\bGoogle\\s+Ads\\b|\\bAdWords\\b",
     "\\bGoogle\\s+Ads\\b|\\bAdWords\\b"
-   ]
+   ],
+   "toolctx": {
+    "object": "campaigns?|ads|account|search|keywords?|bids?",
+    "rivals": "Microsoft\\s+Advertising|Bing\\s+Ads|Meta\\s+Ads|Facebook\\s+Ads|LinkedIn\\s+Ads|TikTok\\s+Ads|Amazon\\s+Ads"
+   }
   },
   "A63": {
    "requirement": "Cut and style hair",
@@ -1728,7 +2365,8 @@
    "equivalents": [
     [],
     [
-     "\\b(call\\w*|chas\\w*)\\b[^.]{0,30}\\b(past[- ]due|overdue)\\b"
+     "\\b(call\\w*|chas\\w*)\\b[^.]{0,30}\\b(past[- ]due|overdue)\\b",
+     "\\b(call\\w*|contact\\w*|chas\\w*|follow\\w* up with)\\b[^.]{0,25}\\b(customers?|clients?|accounts|debtors)\\b[^.]{0,30}\\b(until they pay|to collect|for payment|about (their |the )?(balances?|payments?|invoices?))\\b"
     ]
    ],
    "probes": {

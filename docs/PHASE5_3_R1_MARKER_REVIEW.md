@@ -428,7 +428,18 @@ A script compared three sources:
 | Parts with an owner recognition decision | **62 of 66.** 50 in rows with their exact wording; 12 in the six grouped batch 3 rows (A54, A56, A57, A58, A59, A60), which your batch 3 message also grouped |
 | **Parts without a recognition decision** | **4: P13 (*Recruiting staff*, *Hiring staff*) and P14 (*Recruiting new staff*, *onboarding new staff*).** My batching (P1–P12, then A19–A26, A51–A60, A63–A93) left these two Group 1 splits out of every R1 batch. They are presented below as a supplementary batch |
 
-## Supplementary batch (P13, P14), omitted from batches 1–4 (presented 2026-11-12; pending owner decisions)
+## Supplementary batch owner decisions (P13, P14; 2026-11-12, owner-approved for the recognition specification; not implemented)
+
+The approved part wording is unchanged. Nothing is implemented or active.
+
+| # | Part (exact) | Owner decision |
+|---|---|---|
+| P13 | Recruiting staff | **Approved:** the revised patterns. Personally sourcing or screening employment candidates may establish recruiting, and recruiting applicants for staff positions qualifies. **Recruiting volunteers alone doesn't count, and neither does the noun "recruiter" alone** |
+| P13 | Hiring staff | **Approved (R2, narrow):** personally selecting candidates, making or directly taking part in hiring decisions, or extending authorized employment offers may establish hiring. **Merely recommending candidates, observing interviews, forwarding paperwork, or engaging contractors for services doesn't count.** The R2 exception stays narrow; management verbs aren't broadly exempted from oversight checks |
+| P14 | Recruiting new staff | **Approved:** the same patterns and interpretations as P13 *Recruiting staff* |
+| P14 | onboarding new staff | **Approved:** personally conducting new-hire onboarding or employee orientation qualifies. **Passenger onboarding, merely receiving onboarding paperwork, or processing administrative paperwork alone doesn't count as conducting employee onboarding** (the pattern now excludes "onboarding paperwork/forms/packets/documents") |
+
+## Supplementary batch (P13, P14), omitted from batches 1–4 (presented 2026-11-12; decided above)
 
 The same method; tested on the design probes and all 1,266 opened answers. R2 applies to *Hiring staff*.
 
