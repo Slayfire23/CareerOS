@@ -224,3 +224,52 @@ Nothing outside the reader library changed. The doc-comment nit is in §4.
 ## 8. Artifacts (scratch; not committed)
 
 The patched module copies, the scratch vitest configs, the per-variant eval outputs and the adversarial and question-flow checks are all in the session scratchpad (`stagec/`). The repository's `src/` and tests were not modified during this review.
+
+## 9. Adopted locally (2026-11-14, owner approval of 2026-11-13)
+
+**rules-v21 is now the matching default, with D2: the save-time check follows it.** The change is local only; nothing is pushed or deployed.
+
+### 9.1 What changed
+
+| File | Change |
+|---|---|
+| `src/lib/ai/evidence-boundary.ts` | `DEFAULT_TEXT_RULES = "v21"`; doc comment |
+| `src/lib/ai/rules/answer-review.ts` | The three v21 tests resolve through the default: `(options.textRules ?? DEFAULT_TEXT_RULES) === "v21"`; doc comment |
+| `src/lib/ai/rules/follow-up-reply.ts` | `const rules = options.textRules ?? DEFAULT_TEXT_RULES`; doc comment |
+| `src/lib/ai/rules/structured-consistency.ts` | `input.textRules ?? DEFAULT_TEXT_RULES`; comment |
+| `src/lib/ai/rules/clarifications.ts` | **D2:** `answerUntrustedParts(text, DEFAULT_TEXT_RULES === "v21")`, with P1's protections |
+| `src/lib/ai/rules/engine.ts` | `RULES_VERSION = "rules-v21"` |
+| `tests/ai-rules-v12.test.ts` | Pins `"rules-v21"` |
+| `tests/ai-rules-v20.test.ts` | Default is `"v21"`, `RULES_VERSION` is `"rules-v21"`. The v21 allowlist gains `clarifications.ts` (D2) and ignores the `RULES_VERSION` stamp in `engine.ts` |
+| `tests/ai-rules-v21.test.ts` | The opt-in test becomes "the default reads exactly as the explicit v21 opt-in, in every reader" (answer, consistency, reply). New: "D2: the save-time check follows v21, with P1's protections" |
+
+### 9.2 Results
+
+| Check | Result |
+|---|---|
+| Unit / integration | **2,610** / **183** pass |
+| TypeScript, `prisma validate`, sealed guard (11 of 11), parts validate | Clean; pass |
+| Lint | 1 existing warning (`tests/eval/run-eval.eval.ts`), unchanged |
+| Default vs explicit v21 | Identical on all 1,266 answers and 320 replies |
+| Default vs the old default (v20) | 2 answers changed, both A26 gains (fw-024, pc-124: Not enough → **Possible**; labels `possible` / `partial`); 0 of 392 probes; 0 of 320 replies. **No new false Supported** |
+| ICD-10 | fv-077 / pc-077 stay **Possible** |
+| Save-time check | The A26 answer is now saved. The union-contract denial is still refused. The four P1 remarks are still refused (tested) |
+| V5 / failure-3 controls | 46 of 47 in simulation (the failure-4 history); 11 of 11 |
+| Engine basis (2,121 rows) | Identical to the v20 baseline **except the report's version label** (`"engine": "rules-v20"` → `"rules-v21"`), which is the `RULES_VERSION` stamp; every row is the same |
+| Follow-up sets (340 rows) | fu-059 (question no longer asked; justified) and fw-024 (now saved and Possible); 0 replies changed. Identical to the simulated variant B |
+
+### 9.3 Differences between the simulated and the actual adoption
+
+1. **`RULES_VERSION`** was bumped in the actual adoption only. The engine report's version label therefore reads `rules-v21`. The simulation left it at `rules-v20`, which is why it reported "byte-identical". Every engine row is identical in both.
+2. **Comments:** four source comments that still called v21 opt-in or v20 the default were corrected. No code effect.
+3. **Tests:** the simulation ran the existing suite, where 3 tests failed because they pin the v20 default. The adoption updates those tests and adds two. The opt-in guard's allowlist gains `clarifications.ts`, and it ignores the version stamp in `engine.ts`.
+
+Otherwise the code is line-for-line the simulated variant B (checked by diff), and every measured result matches the simulation.
+
+### 9.4 Still open
+
+- **Stage D:** the A77 collections consumer of `bounded` is not implemented. Adoption doesn't complete A77.
+- **The follow-up denial guard (§4):** the union-contract denial would get a "which part was yours?" question. It's unreachable while the save check refuses the answer.
+- **The limitations in §4:** A58, the reader artifacts, the Stage B residuals, and label quality.
+- **Structured readings** take effect only when Stages 5–6 connect them.
+

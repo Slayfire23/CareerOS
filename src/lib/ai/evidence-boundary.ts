@@ -145,12 +145,11 @@ const ASSISTED = /\b(?:helped|help|helps|helping|assisted|assist|assists|assisti
 /** "taught" is produced only by rules-v20: teaching others to do the work, which isn't doing it (O1). */
 export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "observed" | "taught";
 
-/** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; the owner adopted it as the
- * matching default on 2026-11-11. "v19" stays selectable so evaluations and tests can compare the two.
- * "v21" (Phase 5.3 Stage B, R3 F1–F9 and DD3) is OPT-IN ONLY: nothing in the app asks for it until the owner adopts it
- * (Stage C). It includes every v20 rule. */
+/** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; it was the matching default
+ * from 2026-11-11. "v21" (Phase 5.3 Stage B, R3 F1–F9, DD3 and P1) includes every v20 rule; the owner adopted it as the
+ * matching default on 2026-11-13 (Stage C). "v20" and "v19" stay selectable so evaluations and tests can compare. */
 export type TextRules = "v19" | "v20" | "v21";
-export const DEFAULT_TEXT_RULES: TextRules = "v20";
+export const DEFAULT_TEXT_RULES: TextRules = "v21";
 
 // rules-v20, by sentence structure (no lists of ambiguous words):
 // Teaching or training others to do it: "I teach new hires how to operate a forklift". Not the person's own execution.

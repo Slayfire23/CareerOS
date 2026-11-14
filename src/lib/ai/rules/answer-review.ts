@@ -1,7 +1,7 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { splitBySubject } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement, Verdict } from "@/lib/ai/evidence";
-import { answerStatements, checksOthersWork, othersParts, othersText, PAPERWORK_ASKED, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, checksOthersWork, DEFAULT_TEXT_RULES, othersParts, othersText, PAPERWORK_ASKED, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { requiredMonths, unquantifiedTime } from "@/lib/ai/match-validation";
 import { parseRequirement } from "@/lib/ai/requirement-structure";
@@ -44,7 +44,7 @@ const stem = (word: string) => word.replace(/(ing|ings|ed|es|s)$/, "").replace(/
 
 export type AnswerReading = { verdict: Verdict; quote: string | null; reason: string; sourceId: string | null };
 /** `assumeApproved`: evaluation and tests only, to measure what the owner's sign-off would change. Nothing in production sets it. */
-/** `textRules`: which text rules read the answer. Matching uses the default (rules-v20); "v19" is for comparisons only. */
+/** `textRules`: which text rules read the answer. Matching uses the default (rules-v21); "v20" and "v19" are for comparisons only. */
 export type ReadOptions = { assumeApproved?: boolean; textRules?: TextRules };
 
 /** A listed verb shortly before a listed object, in the one sentence: "I drain and refill the oil". */
@@ -154,7 +154,7 @@ function readPiece(piece: string, allStatements: Statement[], options: ReadOptio
   // rules-v20: teaching others to do the work, where that isn't what's asked, can be a lead and never more (O1).
   const leadOnly = (s: Statement) => s.ownership === "taught" && !ASKS_TO_TRAIN.test(piece);
   // rules-v20: paperwork for another party is the work itself where that paperwork is what's asked ("Filing customs entries").
-  const owned = options.textRules === "v21" ? ownedForV21 : ownedFor;
+  const owned = (options.textRules ?? DEFAULT_TEXT_RULES) === "v21" ? ownedForV21 : ownedFor;
   const statements = allStatements.filter(s => s.subject !== "team" && !aboutSomethingElse(s) && (owned(piece, s) || s.ownership === "taught" || (s.paperwork === true && PAPERWORK_ASKED.test(piece)))).map(s => (s.ownership === "assisted" ? { ...s, act: "concrete" as const } : s));
   const groups = GROUPS.filter(g => askedBy(piece, g));
   let lead: string | null = null;
@@ -207,7 +207,7 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   if (answerLanguage(detail) !== "en") return nothing("language_not_evaluated");
   // Someone else does part of what's asked, by the answer's own account: the person's part is Possible at most, and
   // checking that work ("My cooks prepare them. I spot-check the trays") is overseeing it, not doing it.
-  const othersSaid = options.textRules === "v21" ? othersParts(detail, false, true, true).join(" ") : othersText(detail);
+  const othersSaid = (options.textRules ?? DEFAULT_TEXT_RULES) === "v21" ? othersParts(detail, false, true, true).join(" ") : othersText(detail);
   const others = new Set([...canonicalTerms(othersSaid)].flatMap(t => [t, stem(t)]));
   const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
   const statements = answerStatements(detail, options.textRules).map(s => (shared && s.ownership === "performed" && checksOthersWork(s.text) ? { ...s, ownership: "oversaw" as const } : s));
@@ -266,7 +266,7 @@ function titleContradicted(request: MatchRequest, requirement: MatchRequirement,
     const have = new Set([...canonicalTerms(part)].flatMap(t => [t, stem(t)]));
     return wanted.some(t => have.has(t) || have.has(stem(t)));
   };
-  const theirs = othersParts(answer.detail, true, true, options.textRules === "v21").find(touches);
+  const theirs = othersParts(answer.detail, true, true, (options.textRules ?? DEFAULT_TEXT_RULES) === "v21").find(touches);
   if (!theirs || readAnswer(requirement, answer.detail, options).verdict !== "insufficient_information") return null;
   // "I do the individual 1040s and my manager takes the partnership returns": the work is split in one sentence, so the
   // person does part of it. That's mixed ownership: Possible at most, not taken away.

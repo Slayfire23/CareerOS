@@ -157,7 +157,7 @@ describe("end to end with the Stage 2 rule table: D1–D3 hold", () => {
   });
 });
 
-describe("rules-v20 is the matching default; v19 stays selectable; the consistency module stays unconnected", () => {
+describe("rules-v21 is the matching default (adopted 2026-11-13); v20 and v19 stay selectable; the consistency module stays unconnected", () => {
   const walk = (dir: string, out: string[] = []): string[] => {
     for (const n of readdirSync(dir)) {
       const p = join(dir, n);
@@ -171,14 +171,15 @@ describe("rules-v20 is the matching default; v19 stays selectable; the consisten
     const users = walk("src").filter(f => !allowed.includes(f) && /textRules|"v20"|structured-consistency|assessConsistency/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
   });
-  it("rules-v21 stays opt-in: only the reader library names it, and nothing in the app asks for it", () => {
-    const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts"];
-    expect(walk("src").filter(f => !library.includes(f) && /\bv21\b/.test(readFileSync(f, "utf8")))).toEqual([]);
-    expect(DEFAULT_TEXT_RULES).toBe("v20");
+  it("rules-v21 is the default: only the reader library and the save-time check (D2) name it; nothing in the app picks a version", () => {
+    const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts", "src/lib/ai/rules/clarifications.ts"];
+    // engine.ts names it only in the provenance stamp RULES_VERSION = "rules-v21".
+    expect(walk("src").filter(f => !library.includes(f) && /\bv21\b/.test(readFileSync(f, "utf8").replace(/RULES_VERSION = "rules-v21"/, "")))).toEqual([]);
+    expect(DEFAULT_TEXT_RULES).toBe("v21");
   });
-  it("the default reading is v20, and v19 can still be asked for", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v20");
-    expect(RULES_VERSION).toBe("rules-v20");
+  it("the default reading is v21, and v20 and v19 can still be asked for", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21");
+    expect(RULES_VERSION).toBe("rules-v21");
     expect(readAnswer(req("Cold calling"), "I hate to make cold calls.").verdict).not.toBe("supported");
     expect(readAnswer(req("Cold calling"), "I hate to make cold calls.", { textRules: "v19" }).verdict).toBe("supported");
     expect(answerStatements("I teach new hires how to operate a forklift.")[0]?.ownership).toBe("taught");

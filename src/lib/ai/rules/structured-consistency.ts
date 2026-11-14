@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import type { MatchRequirement } from "@/lib/ai/evidence";
-import { answerStatements, othersText, statesIntent, type Ownership, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES, othersText, statesIntent, type Ownership, type TextRules } from "@/lib/ai/evidence-boundary";
 import { deniesRequirement, othersDoWholeRequirement, ownDirectAct, readAnswer } from "@/lib/ai/rules/answer-review";
 import type { Consistency, Involvement } from "@/lib/ai/rules/structured-answer";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
@@ -11,7 +11,7 @@ import { hasDirectedText } from "@/lib/ai/untrusted-text";
 //
 // D3: text that isn't plainly English is never read: it's "text_unread", and nothing below looks at it.
 //
-// rules-v21 (Stage B, OPT-IN via `textRules: "v21"`): reads with rules-v21; the person's own direct hiring, approving or
+// rules-v21 (Stage B; the default since 2026-11-13, `textRules` picks another): reads with rules-v21; the person's own direct hiring, approving or
 // verifying act counts as doing it where the requirement asks for that act (F5); and when the explanation says someone
 // else performed the requirement's work and shows none of the person's own, the activity is contradicted: no checkbox
 // credit, not even Possible (F6, D1).
@@ -47,7 +47,7 @@ function partShownByText(text: string, rules: TextRules, requirementText: string
 }
 
 export function assessConsistency(input: { requirement: Pick<MatchRequirement, "text" | "category">; involvement: Involvement; explanation: string | null; textRules?: TextRules }): ConsistencyResult {
-  const rules: TextRules = input.textRules ?? "v20";
+  const rules: TextRules = input.textRules ?? DEFAULT_TEXT_RULES;
   const v21 = rules === "v21";
   const text = input.explanation?.trim() ?? "";
   if (!text) return { consistency: { state: "no_text" }, textInvolvement: null, refused: false, reason: "no_text" };

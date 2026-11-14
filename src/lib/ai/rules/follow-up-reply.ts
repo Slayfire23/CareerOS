@@ -1,7 +1,7 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { handsPartToSomeoneElse, isPersonClause, splitBySubject } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
-import { answerStatements, involvement, othersParts, othersText, verbAndObject, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES, involvement, othersParts, othersText, verbAndObject, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { asksForTime, needsCredentialEntry, ownedFor, ownedForV21, readAnswer, specificTerms } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
@@ -96,9 +96,9 @@ function disputed(answer: string, v21 = false): { verbs: Set<string>; objects: S
 
 /** Never Supported. The person has to say what they did themselves: no yes, no echo, nothing it takes back, and nothing
  * the answer itself rules out. `answer` is the whole answer the question was asked about. */
-/** `options.textRules: "v21"` reads with rules-v21 (opt-in, Stage B); the default is unchanged. */
+/** `options.textRules` picks the text rules; without it the reply is read with the matching default (rules-v21). */
 export function readFollowUpReply(requirement: MatchRequirement, quoted: string, reply: string, answer: string = quoted, options: { textRules?: TextRules } = {}): ReplyReading {
-  const rules = options.textRules;
+  const rules = options.textRules ?? DEFAULT_TEXT_RULES;
   const v21 = rules === "v21";
   const owned = v21 ? ownedForV21 : ownedFor;
   const unresolved = (reason: ReplyReason): ReplyReading => ({ outcome: "unresolved", reason, quote: null, provenance: "self_reported" });

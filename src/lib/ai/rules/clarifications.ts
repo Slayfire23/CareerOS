@@ -1,5 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { requiredMonths, unquantifiedTime, type Finding } from "@/lib/ai/match-validation";
+import { DEFAULT_TEXT_RULES } from "@/lib/ai/evidence-boundary";
 import { answerUntrustedParts } from "@/lib/ai/requirement-structure";
 import { asksForCredential } from "@/lib/ai/rules/engine";
 import { disguised, plainQualification, statesNotDoing } from "@/lib/ai/rules/profile-fields";
@@ -117,7 +118,8 @@ export function answerProblem(detail: string, requirementText: string): string |
   if (PRAISE.test(text) && all.length < PRAISE_ONLY_WORDS) return "Say what you actually did: the task, what you worked on, and for whom or how often. A yes alone can't be used.";
   if (statesNotDoing(text)) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
   // The message says what's actually wrong, so the person knows what to change.
-  const kinds = new Set(answerUntrustedParts(text).map(p => p.kind));
+  // rules-v21 (D2): the save-time check reads untrusted text with the matching default, P1 protections included.
+  const kinds = new Set(answerUntrustedParts(text, DEFAULT_TEXT_RULES === "v21").map(p => p.kind));
   if (kinds.has("directed") || kinds.has("remark")) return "Describe only your own work. Remarks about how this should be judged can't be used.";
   if (kinds.has("negated")) return "This reads as not having done it, or wanting to. If you haven't, choose \u201cNo, I don't have this\u201d. Add details only for work you've done.";
   if (kinds.has("not_done")) return "This reads as something you might do, or someone else's account, not work you've done. Describe what you did yourself.";

@@ -335,3 +335,17 @@ The F1 exception ("the individual 1040s") no longer lets remarks about the candi
 - **Suites:** 2,609 unit and 183 integration tests pass.
 - **Default path:** engine byte-identical; 0 of 340 follow-up rows changed.
 - **Stage C:** all 8 adoption gates now pass. v21 stays opt-in until the owner approves adoption.
+
+## Phase 5.3 Stage C, rules-v21 adopted for matching - November 14, 2026 (local commit, not pushed)
+
+**Matching now reads with rules-v21** (`DEFAULT_TEXT_RULES`, `RULES_VERSION = "rules-v21"`). The save-time answer check follows it too (D2), with P1's protections. `textRules: "v20"` and `"v19"` stay available for comparisons.
+
+**Results, before (v20 default) → after (v21 default):**
+- **Historical (1,266):** 2 changes, both labeled gains (A26: Not enough → Possible).
+- **Probes and replies:** 0 of 392 and 0 of 320 changed. No new false Supported; the ICD-10 gain is kept.
+- **Engine:** every row identical; only the report's version label changed.
+- **Follow-up sets:** fu-059 (question no longer asked) and fw-024 (now saved and Possible) changed; 0 replies changed. Matches the simulated adoption.
+- **Suites:** 2,610 unit and 183 integration tests pass.
+
+Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md §9.
+
