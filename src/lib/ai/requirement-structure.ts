@@ -200,15 +200,22 @@ export type UntrustedKind = "directed" | "remark" | "negated" | "not_done" | "li
 /** "Keep the count for each picker" is a tally, not a claim that something counts for something. */
 const NOUN_COUNT = /\b(?:the|a|an|each|every|daily|weekly|nightly|head|inventory|cycle|bin|pallet|my|our|their)\s+counts?\s+(?:for|of|on|toward)\b/gi;
 /** rules-v21: "the individual 1040s", "the user accounts", "the employee handbook" use the word as an adjective, not to
- * talk about a candidate ("the individual has…", "the candidate meets…"). Only that adjective use is set aside. */
-const META_AS_ADJECTIVE = /\b(?:this|the)\s+(?:individual|employee|user|person)\s+(?!(?:is|was|were|has|had|have|does|did|can|could|will|would|should|must|meets?|met|shows?|showed|demonstrates?|demonstrated|possess(?:es)?|possessed|appears?|seems?|needs?|lacks?|qualif(?:y|ies)|['’]s)\b)(?=[\p{L}\p{N}])/giu;
+ * talk about a candidate ("the individual has…", "the candidate meets…"). Only that adjective use is set aside.
+ * P1 (2026-11-13): never "the person"; never before a word for the candidate or their record ("the individual applicant",
+ * "the user profile", "the employee file"), or before words that point at whoever is being judged ("the employee in
+ * question", "the individual who wrote this", "the individual described above"). */
+const CANDIDATE_NOUN = String.raw`applicants?|candidates?|candidacy|profiles?|r[eé]sum[eé]s?|cvs?|curriculum|applications?|records?|files?|dossiers?|submissions?|portfolios?|bios?|biograph\w*|jobseekers?|job\s+seekers?|seekers?|nominees?|interviewees?|prospects?|talent|hires?|recruits?|contenders?|persons?|people|individuals?|employees?|users?|worker|staffer|member|professional|expert|specialist|here|herein|above|below|mentioned|named|described|listed|referenced|concerned|in\s+question|being|under|who|whom|whose|that|which|applying|submitting|reading|reviewing|evaluating|assessing|behind|writing`;
+const META_AS_ADJECTIVE = new RegExp(String.raw`\b(?:this|the)\s+(?:individual|employee|user)\s+(?!(?:is|was|were|has|had|have|does|did|can|could|will|would|should|must|meets?|met|shows?|showed|demonstrates?|demonstrated|possess(?:es)?|possessed|appears?|seems?|needs?|lacks?|qualif(?:y|ies)|['’]s|${CANDIDATE_NOUN})(?![\p{L}\p{N}]))(?=[\p{L}\p{N}])`, "giu");
+/** Judging words: in a segment that uses any of them, "the individual …" is never set aside as an adjective (P1). */
+const JUDGING = /\b(?:qualif\w*|requirements?|rated|rating|ratings|ranked|ranking|score[ds]?|scoring|grade[ds]?|grading|fit|fits|suitab\w+|eligib\w+|supported|unsupported|meets?|exceeds?|deserv\w+|recommend\w*|hire\s+(?:him|her|them)|strong(?:est)?\s+(?:match|fit|candidate)|ideal|perfect|best|top|excellent|outstanding\s+(?:candidate|fit|match|choice)|mark(?:ed)?\s+(?:as|it|this|them)|should\s+be|must\s+be|evaluat\w+|assess\w+|review(?:er|ers)?\s+(?:should|must|note))\b/iu;
+const withoutMetaAdjective = (segment: string) => (JUDGING.test(segment) ? segment : segment.replace(META_AS_ADJECTIVE, " "));
 
 export function answerUntrustedParts(text: string, v21 = false): { span: Span; kind: UntrustedKind }[] {
   const parts: { span: Span; kind: UntrustedKind }[] = [];
   for (const span of directedSpans(text)) parts.push({ span, kind: "directed" });
   for (const [s, e] of segments(text)) {
     const segment = text.slice(s, e);
-    if (PROFILE_META.test(v21 ? segment.replace(META_AS_ADJECTIVE, " ") : segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment.replace(NOUN_COUNT, " ")) || isRelationClaim(segment) || evaluationLanguage(segment.replace(/\binstead\s+of\s+\p{L}+ing\b/giu, " "))) parts.push({ span: [s, e], kind: "remark" });
+    if (PROFILE_META.test(v21 ? withoutMetaAdjective(segment) : segment) || PROFILE_LABEL.test(segment) || PROFILE_CLAIM.test(segment.replace(NOUN_COUNT, " ")) || isRelationClaim(segment) || evaluationLanguage(segment.replace(/\binstead\s+of\s+\p{L}+ing\b/giu, " "))) parts.push({ span: [s, e], kind: "remark" });
   }
   // A negative about someone else ("clients who never paid") doesn't bar the person's own work beside it.
   const sentences = [...text.matchAll(/[^.!?;\n]+/g)];

@@ -319,3 +319,19 @@ Report: docs/PHASE5_3_STAGE_B_REPORT.md. Stage G policy proposal: docs/PHASE5_3_
 **Result:** 7 of 8 gates pass. **Gate 4 fails:** F1's `META_AS_ADJECTIVE` stops flagging four adversarial remarks about the candidate, though no verdict rose. The recommendation is to defer until a narrow fix (P1).
 
 Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md.
+
+## Phase 5.3 P1, rules-v21 profile-meta fix - November 13, 2026 (local commit, not pushed)
+
+The F1 exception ("the individual 1040s") no longer lets remarks about the candidate through:
+- "the person" is out of it;
+- it never applies before a word for the candidate, their record, or whoever is being judged;
+- it never applies in a segment that uses judging words.
+
+**Tests:** 6 new groups (34 tests in `tests/ai-rules-v21.test.ts`).
+
+**Results:**
+- **Sweep:** 32 of 32 evaluator-style remarks stay flagged under v21; legitimate tax-return wording is read.
+- **Opened comparison:** identical to Stage B.
+- **Suites:** 2,609 unit and 183 integration tests pass.
+- **Default path:** engine byte-identical; 0 of 340 follow-up rows changed.
+- **Stage C:** all 8 adoption gates now pass. v21 stays opt-in until the owner approves adoption.

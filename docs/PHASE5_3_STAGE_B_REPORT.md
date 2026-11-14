@@ -283,3 +283,74 @@ Final code (including the `bounded` field), default path, compared row for row w
 | Engine basis (rerun on final code) | 2,121 | byte-identical |
 
 The final follow-up evaluation **completed successfully**: all **340** rows are unchanged, and the engine is unchanged.
+
+## 10. P1 follow-up: the F1 exception no longer lets remarks about the candidate through (2026-11-13)
+
+Owner-approved as a Stage B follow-up after the Stage C review found a gate-4 failure. rules-v21 is still opt-in, `DEFAULT_TEXT_RULES` is still `"v20"`, and `RULES_VERSION` is unchanged.
+
+### 10.1 Root cause
+
+The profile-meta rule flags "(this|the) (person|candidate|applicant|individual|employee|user)". F1's `META_AS_ADJECTIVE` blanked "the individual / person / employee / user" whenever the next word wasn't a verb, so that "the individual 1040s" could be read.
+
+When the next word was itself a word for the candidate ("the individual **applicant**", "this person **applicant**", "the user **profile**"), or pointed at whoever is judged ("the employee **in question**"), blanking removed the only part the rule matches. The remark passed unflagged.
+
+Verdicts never rose: the remark had no own statement. But the untrusted-text check, which the reader uses to bar spans and the save check uses to refuse text, was weaker.
+
+### 10.2 Exact change (`src/lib/ai/requirement-structure.ts`, v21 only)
+
+1. **"the person" is removed from the exception.** It's the canonical evaluator phrase, and no opened answer needed it.
+2. **The exception never applies before `CANDIDATE_NOUN`**, matched with a Unicode-aware boundary so "résumé" counts. That covers:
+   - words for the candidate or their record: applicant, candidate, candidacy, profile, résumé/resume, CV, curriculum, application, record, file, dossier, submission, portfolio, bio, jobseeker / job seeker, seeker, nominee, interviewee, prospect, talent, hire, recruit, contender, person, people, individual, employee, user, worker, staffer, member, professional, expert, specialist;
+   - words that point at whoever is judged: here, herein, above, below, mentioned, named, described, listed, referenced, concerned, "in question", being, under, who/whom/whose/that/which, applying, submitting, reading, reviewing, evaluating, assessing, behind, writing.
+3. **A segment that uses judging words** (`JUDGING`: qualified, requirements, rated/rating, ranked, score, grade, fit, suitable, eligible, Supported, meets/exceeds, deserves, recommend, best/ideal/perfect/top, "should be", "must be", evaluate/assess, …) **never gets the exception.** It's read exactly as under v20.
+4. The check reads `withoutMetaAdjective(segment)` instead of the bare replace.
+
+No other protection changed:
+- the directed-text, evaluation-language, label and claim checks;
+- SIDE_CLAUSE;
+- ownership, correction and contradiction handling.
+
+### 10.3 New tests (6 groups in `tests/ai-rules-v21.test.ts`; 34 in that file)
+
+- The four remarks from the Stage C finding: flagged under v20 and v21.
+- 17 related forms: candidate nouns, records, pointers at whoever is judged, and judging words.
+- Legitimate individual tax-return and Form 1040 work is read; A26 stays Possible.
+- Ordinary "applicant" / "candidate" wording without steering ("I screen every applicant…", "I interview each candidate…") isn't a remark. "the applicant tracking system" stays as v20 has it.
+- Third-party work and corrections aren't Supported.
+- Legitimate tax wording beside an evaluator instruction: the instruction is still flagged (directed), and the remark adds nothing to the verdict.
+
+### 10.4 Results
+
+| Check | Result |
+|---|---|
+| Untrusted-text sweep: 32 evaluator-style texts | 32 of 32 flagged under v20 and v21; **0 bypasses**. The first review found 4 bypasses among the 8 texts it tested (Stage C §3) |
+| Untrusted-text sweep: 10 legitimate texts | 9 read under v21. The tenth ("the applicant tracking system") is flagged under v20 too |
+| Remark + own work combinations (16) | Remark flagged in 16 of 16; no verdict above the own work alone |
+| Opened comparison (1,266 answers, ticks, 392 probes, 226 design rows, 320 replies) | **Identical to Stage B**: 0 new false Supported, 0 labeled losses, 0 replies changed; the A26 gain kept; ICD-10 gain kept |
+| Save-check kinds, v20 vs v21 (1,978 opened texts) | 3 differ, all legitimate (A26 ×2; the union denial, still refused as negated) |
+| Follow-up questions (1,266 answers) | The same 2 changes as in Stage C |
+| V5 / failure-3 controls | 46 of 47 in simulation (the failure-4 history); 11 of 11 |
+| Unit / integration | **2,609** / **183** pass |
+| TypeScript, `prisma validate`, sealed guard, parts validate | Clean; pass (counts only) |
+| Lint | 1 existing warning (`tests/eval/run-eval.eval.ts`), unchanged |
+| Engine basis and follow-up sets, current default path | §10.5 |
+
+### 10.5 Engine and follow-up sets after P1
+
+P1 code, default path (v20), compared row for row with the rules-v20 adoption baselines. All five runs exited 0.
+
+| Suite | Rows | Changed |
+|---|---|---|
+| Engine basis | 2,121 | **byte-identical** |
+| m11_followup dev / blind | 40 / 80 | 0 / 0 |
+| m11_followup2 blind | 100 | 0 |
+| m11_followup3 blind | 120 | 0 |
+
+The engine and the default follow-up behaviour are unchanged. Results under the simulated adoption patch are in the Stage C review §3.1.
+
+### 10.6 Remaining limitations
+
+- The candidate-noun list is broad but not provably complete; the judging-word guard is the second layer.
+- Work uses of "the applicant / the candidate" ("the applicant tracking system") are still flagged as remarks, exactly as under v20.
+- Everything listed in §6 and §7.5 still applies.
+
