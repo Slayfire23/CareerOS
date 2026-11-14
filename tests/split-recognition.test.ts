@@ -7,7 +7,7 @@ vi.mock("server-only", () => ({}));
 import type { MatchRequirement } from "@/lib/ai/evidence";
 import { readStructuredAnswer, type Consistency } from "@/lib/ai/rules/structured-answer";
 import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
-import { APPROVED_SPLITS, RECOGNITION_VERSION, recognizeParts } from "@/lib/ai/rules/split-recognition";
+import { APPROVED_SPLITS, delegatedWork, RECOGNITION_VERSION, recognizeParts } from "@/lib/ai/rules/split-recognition";
 
 // Phase 5.3 Stage D.1: the inactive split-recognition module. The parity fixture is the owner-reviewed V5 simulation's
 // output, frozen; any difference is a blocker, never a reason to change the approved patterns.
@@ -54,9 +54,9 @@ describe("the approved data is used verbatim", () => {
     expect(withBound).toEqual(["A77"]);
     expect(APPROVED_SPLITS.A77.bound_antecedent).toEqual([null, "overdue|past[- ]due|outstanding|unpaid|delinquent|owed|late"]);
   });
-  it("is version splits-v1", () => {
-    expect(RECOGNITION_VERSION).toBe("splits-v1");
-    expect(recognizeParts({ splitId: "A77", explanation: "I run the AR aging analysis." }).version).toBe("splits-v1");
+  it("is version splits-v1.1 (Stage D.2: delegated work)", () => {
+    expect(RECOGNITION_VERSION).toBe("splits-v1.1");
+    expect(recognizeParts({ splitId: "A77", explanation: "I run the AR aging analysis." }).version).toBe("splits-v1.1");
   });
 });
 
@@ -133,5 +133,104 @@ describe("the module is inactive", () => {
   it("nothing in the app imports it or its data", () => {
     const users = walk("src").filter(f => f !== "src/lib/ai/rules/split-recognition.ts" && /split-recognition|approved_splits/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
+  });
+});
+
+describe("D.2: work the person hands to someone else is never their own evidence", () => {
+  const read = (cid: string, text: string) => {
+    const r = recognizeParts({ splitId: cid, explanation: text });
+    return { shown: r.parts.map(p => p.shown), transferred: r.parts.map(p => p.transferred), transferAll: r.transferAll, verdict: structured(cid, text, r.parts.map(p => p.shown), r.transferAll).verdict, reasons: r.reasons };
+  };
+  it.each([
+    ["A77", "I run the AR aging analysis and have my clerk call the overdue customers until they pay.", [true, false], [false, true]],
+    ["A77", "I run the AR aging analysis and have my clerk call the past-due customers.", [true, false], [false, true]],
+    ["P13", "I have my assistant screen the applicants and I make the hiring decisions myself.", [false, true], [true, false]],
+  ] as const)("the three false-Supported cases are corrected: %s / %s", (cid, text, shown, transferred) => {
+    const r = read(cid, text);
+    expect(r.verdict).not.toBe("supported");
+    expect(r.shown).toEqual(shown);
+    expect(r.transferred).toEqual(transferred);
+  });
+
+  // The 10 conceptual cases of docs/PHASE5_3_STAGE_D2_FINDINGS.md section 3 (A58: installing | repairing residential plumbing).
+  it.each([
+    ["delegation with approved objects", "I send plumbers out to install water heaters and fix leaks.", [false, false], [true, true]],
+    ["the A58 design probe: 'systems' isn't an approved object (documented limitation)", "I run the plumbing company and send plumbers out to install and repair systems.", [false, false], [false, false]],
+    ["does one, delegates the other", "I install water heaters myself and send my apprentice out to fix leaks.", [true, false], [false, true]],
+    ["does and delegates the same work: not cancelled", "I install and repair plumbing myself, and on busy days I send my helper out to install water heaters too.", [true, true], [false, false]],
+    ["things, not people", "I install the water heaters and send the old ones out to be recycled.", [true, false], [false, false]],
+    ["certification, not delegation", "I got certified to install water heaters and fix leaks.", [false, false], [false, false]],
+    ["asks to be allowed", "I asked my supervisor to let me install the water heaters and fix leaks.", [false, false], [false, false]],
+    ["plain supervision", "I supervise the plumbers who install water heaters and fix leaks.", [false, false], [false, false]],
+    ["a correction gives it away", "I install water heaters. Well, actually I send my crew out to install them, I only quote the jobs.", [false, false], [false, false]],
+    ["personal performance", "I install water heaters and fix leaks in homes every week.", [true, true], [false, false]],
+  ] as const)("conceptual case: %s", (_why, text, shown, transferred) => {
+    const r = read("A58", text);
+    expect(r.shown).toEqual(shown);
+    expect(r.transferred).toEqual(transferred);
+    if (!shown.every(Boolean)) expect(r.verdict).not.toBe("supported");
+  });
+  it("own and delegated work of the same part keeps the person's reading and says so", () => {
+    const r = read("A58", "I install and repair plumbing myself, and on busy days I send my helper out to install water heaters too.");
+    expect(r.reasons).toContain("part 1: own and delegated (ask which part was the person's)");
+  });
+
+  it.each([
+    ["P13", "I screen the applicants myself and have my assistant schedule the interviews, and I hire the cashiers.", [true, true], [false, false]],
+    ["A51", "I pour the concrete myself and have the finishers trowel the slabs.", [true, false], [false, true]],
+  ] as const)("mixed personal and delegated work: %s / %s", (cid, text, shown, transferred) => {
+    const r = read(cid, text);
+    expect(r.shown).toEqual(shown);
+    expect(r.transferred).toEqual(transferred);
+  });
+  it("mixed work told in two clauses keeps the person's own part (A77)", () => {
+    const r = read("A77", "I call the past-due customers myself, and my clerk runs the aging analysis every week.");
+    expect(r.shown).toEqual([false, true]);
+    expect(r.transferred[1]).toBe(false);
+  });
+  it("known limitation (reader, not D.2): a causative in the same statement makes the whole statement 'oversaw', so the person's own part there is lost; never credited falsely", () => {
+    // The v21 reader reads "I call the past-due customers myself and have my clerk run the aging analysis every week" as
+    // overseeing, as D.1 did. The module takes only the person's own performed statements, so nothing is shown; the
+    // delegated aging analysis is still flagged.
+    const r = read("A77", "I call the past-due customers myself and have my clerk run the aging analysis every week.");
+    expect(r.shown).toEqual([false, false]);
+    expect(r.transferred).toEqual([true, false]);
+    expect(r.verdict).not.toBe("supported");
+  });
+
+  // The 12 false-positive controls from opened data (findings section 4): 4 'send/get/have ... to' that aren't
+  // delegation, and 8 causatives that aren't (two share one answer). None may yield delegated work.
+  it.each([
+    "When a lot fails, I tag and quarantine the parts, write up what's wrong against the drawing and send the paperwork to engineering for disposition.",
+    "After my crew finishes a floor, I go door to door checking beds, bathrooms and minibars, and send anything not up to standard back before releasing it.",
+    "When residents asked for city documents under FOIA, I pulled the files, blacked out exempt information, and got everything back to them inside the ten day deadline.",
+    "I debride what's within my scope, pack the deeper ones and pick the dressing based on drainage. One lady's heel ulcer closed in eleven weeks and I had the measurements to show it.",
+    "I write Apache Spark jobs in PySpark that roll up clickstream data every night, and I've tuned shuffle partitions to get them finished before 6am.",
+    "The alarm company comes twice a year. I just let them in and knock on doors to warn people about the noise.",
+    "When two people on a shift can't stand each other I get them in a room, let each say their piece, and we write down what both will do differently.",
+    "Our fire alarm testing is done under contract with an outside fire protection company. I let them in, escort them around the building, and keep the inspection reports on file.",
+    "When I walk into a room of second graders I set the rules out loud first thing, use a clap pattern to get them quiet and move kids' seats if two are feeding off each other. I've had full days with 28 kids and no one sent to the office.",
+    "People come to my window furious when trains are late or the card machine eats their money. I let them vent, keep my voice down, explain what I can actually fix and get them a refund form or a transfer pass. Most of them leave calmer than they came.",
+    "I open around fifteen accounts a week. A small business owner came in Tuesday, I walked her through the business checking setup, got her signers added, and showed her mobile deposit.",
+  ])("false-positive control (opened data) yields no delegated work: %s", text => {
+    expect(delegatedWork(text)).toEqual([]);
+  });
+  it("the people a person serves are never delegated to", () => {
+    expect(delegatedWork("I ask customers to sign the work order before I leave.")).toEqual([]);
+    expect(delegatedWork("I have my students read the passage aloud.")).toEqual([]);
+  });
+  it("instructions the person receives are not delegation", () => {
+    for (const t of ["My supervisor tells me to install water heaters and fix leaks.", "I was asked to install water heaters and fix leaks.", "My boss had me install the water heaters."]) expect(delegatedWork(t), t).toEqual([]);
+    expect(read("A58", "I was asked to install water heaters and fix leaks.").transferred).toEqual([false, false]);
+  });
+  it("the real delegations in opened data are found (informational)", () => {
+    expect(delegatedWork("Got my nephew to gut and redo both bathrooms in the duplex. I picked out the fixtures and hauled stuff to the dump.")).toEqual(["gut and redo both bathrooms in the duplex"]);
+    expect(delegatedWork("I do the 11 and 1 o'clock checks on my station. Last month the cold well crept to 46 so I moved everything to the reach-in and told the manager to get the unit looked at.")).toEqual(["get the unit looked at"]);
+    expect(delegatedWork("I run the plumbing company and send plumbers out to install and repair systems.")).toEqual(["install and repair systems"]);
+  });
+  it("`transferred` stays informational: the module gives no verdict, and transferAll keeps its rule", () => {
+    const r = recognizeParts({ splitId: "A58", explanation: "I send plumbers out to install water heaters and fix leaks." });
+    expect(Object.keys(r).sort()).toEqual(["parts", "read", "reasons", "splitId", "transferAll", "version"]);
+    expect(r.transferAll).toBe(false); // the person still has an own clause: the simulation's rule is unchanged
   });
 });

@@ -366,3 +366,22 @@ Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md §9.
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_D1_REPORT.md.
+
+## Phase 5.3 Stage D.2, delegated work in the split-recognition module - November 14, 2026 (local commit, not pushed)
+
+`splits-v1.1`: work the person hands to someone else ("I have my clerk call the overdue customers", "I send plumbers out to install…") is removed from the person's own evidence before markers are matched. Parts whose approved markers name it are flagged `transferred` (informational). Parts the person's own words show are never cancelled. Module only; no reader, engine or wiring change.
+
+**Tests:** 33 new in `tests/split-recognition.test.ts`:
+- the 3 false-Supported cases, now corrected;
+- the 10 conceptual cases;
+- mixed personal and delegated work;
+- the 12 opened-data false-positive controls, which find no delegation;
+- the people served, and instructions the person receives.
+
+**Results:**
+- **Parity:** 284 of 284 unchanged.
+- **Suites:** 2,953 unit and 183 integration tests pass.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_D2_REPORT.md.
+

@@ -16,8 +16,13 @@ import { hasDirectedText } from "@/lib/ai/untrusted-text";
 //
 // Added for safety, outside the simulation: text that isn't plainly English isn't read (D3), and instructions or other
 // directed text aren't read; both give nothing shown.
+//
+// splits-v1.1 (Stage D.2, owner-approved 2026-11-14): work the person hands to someone else ("I send plumbers out to
+// install…", "I have my clerk call…") is never the person's own evidence. It is taken out of the person's clauses before
+// any marker is matched, and a part whose approved markers name it is flagged `transferred` (informational). A part the
+// person's own words show independently keeps its reading: delegating some of it doesn't cancel doing it.
 
-export const RECOGNITION_VERSION = "splits-v1" as const;
+export const RECOGNITION_VERSION = "splits-v1.1" as const;
 
 export type ApprovedSplit = {
   requirement: string;
@@ -70,13 +75,44 @@ const OVERSIGHT = /^(?:review|reviews|reviewed|check|checks|checked|audit|audits
 const WRITE_UP = /\bI\s+(?:\w+\s+)?(?:write|writes|wrote)\s+up\b/i;
 const AGENT_NOUN = /(?:er|ers|or|ors|ist|ists)$/i;
 
+// D.2: delegated work. Narrow on purpose: the one directed must be someone who does work (a role, an agent noun, a
+// relation), never the people served, never a thing, never a bare pronoun; and the delegated act must not come back to
+// the person ("let me install", "help me"). Received instructions ("my supervisor tells me to…", "I was asked to…") have
+// no such object and never match.
+const WORKER = /^(?:\p{L}+(?:ers|ors|ists|ians)|crews?|teams?|staff|techs?|technicians?|guys|helpers?|apprentices?|assistants?|subs|subcontractors?|contractors?|employees?|workers?|associates?|reps?|agents?|analysts?|clerks?|nurses?|aides?|interns?|trainees?|leads?|foreman|foremen|managers?|supervisors?|plumber|electrician|installer|driver|technician|mechanic|nephews?|nieces?|sons?|daughters?|brothers?|sisters?|husband|wife|partner|cousins?|colleagues?|coworkers?|co-workers?)$/iu;
+// Plural "-ers" nouns that are things, and the people a person serves: never delegated to.
+const NOT_A_DOER = /^(?:orders|letters|papers|numbers|trailers|printers|computers|folders|stickers|filters|containers|meters|markers|binders|covers|registers|rosters|posters|flyers|fliers|vouchers|ledgers|transfers|offers|answers|layers|chambers|corners|centers|centres|matters|monitors|motors|sensors|errors|colors|colours|floors|doors|waters|leftovers|leftover|customers?|clients?|patients?|students?|kids|children|guests?|residents?|visitors?|callers?|buyers?|shoppers?|tenants?|members?|users?|people|families|parents|me|us|myself|them|him|her|it|everyone|everybody|anyone|anything|everything|something)$/iu;
+const COUNT_OR_OWNER = String.raw`(?:my|our|the|his|her|their|two|three|four|five|six|several|some|a\s+couple\s+of|a\s+few|\d+)`;
+// What the delegated person does: up to the end of the clause, or up to the person's own next clause ("…, and I …").
+const DELEGATED_ACT = String.raw`\p{L}+(?:(?!\s+(?:and|but|then|while|so|plus)\s+(?:i|we)\b)[^,.;:])*`;
+// "send / dispatch / assign / ask / tell / get <someone> (out) to <act>"
+const DELEGATE_TO = new RegExp(String.raw`\b(?:send|sends|sent|dispatch(?:es|ed)?|assign(?:s|ed)?|ask|asks|asked|tell|tells|told|get|gets|got)\s+((?:${COUNT_OR_OWNER}\s+)?(?:[\p{L}'’-]+\s+){0,2}?)([\p{L}'’-]+)\s+(?:out\s+)?to\s+(?!(?:the|a|an|our|my|their|his|her|each|every|all|be|\d)\b)(${DELEGATED_ACT})`, "giu");
+// "have <my / our / the … someone> <act>" (a causative; the one directed always has a determiner, owner or count)
+const HAVE_DO = new RegExp(String.raw`\b(?:have|has|had)\s+(${COUNT_OR_OWNER}\s+(?:[\p{L}'’-]+\s+){0,2}?)([\p{L}'’-]+)\s+(?!(?:to|in|on|at|for|with|from|of|out|back|up|down|and|or|who|that|which|been|be|done|ready|finished|a|an|the|my|our|no|not|any|all)\b)(${DELEGATED_ACT})`, "giu");
+const BACK_TO_PERSON = /\b(?:me|myself|us)\b/iu;
+const isDelegation = (head: string, act: string) => WORKER.test(head) && !NOT_A_DOER.test(head) && !BACK_TO_PERSON.test(act);
+/** The delegated acts in a text, in the person's own statements only ("I send plumbers out to install water heaters" →
+ * "install water heaters"). Exported for tests; nothing in the app uses it. */
+export function delegatedWork(text: string, rules: TextRules = DEFAULT_TEXT_RULES): string[] {
+  const acts: string[] = [];
+  for (const s of answerStatements(text, rules)) {
+    if (s.subject !== "self") continue;
+    for (const pattern of [DELEGATE_TO, HAVE_DO]) for (const m of s.text.matchAll(pattern)) if (isDelegation(m[2], m[3])) acts.push(m[3].trim());
+  }
+  return acts;
+}
+/** A clause with the delegated constructions taken out: what remains is the person's own. */
+const withoutDelegated = (clause: string) =>
+  clause.replace(DELEGATE_TO, (m, _o: string, head: string, act: string) => (isDelegation(head, act) ? " " : m))
+    .replace(HAVE_DO, (m, _o: string, head: string, act: string) => (isDelegation(head, act) ? " " : m));
+
 const ownStatements = (text: string, rules: TextRules) =>
   answerStatements(text, rules).filter(s => s.subject === "self" && s.ownership === "performed" && (!s.exposureOnly || !!s.narrowed) && !s.brief);
 
 function v4Clauses(text: string, rules: TextRules): string[] {
   const clauses: string[] = [];
   for (const s of ownStatements(text, rules)) {
-    let c = s.readable;
+    let c = withoutDelegated(s.readable);
     const cuts = [c.slice(1).search(SUBJECT_CHANGE) + 1, c.search(REL_SUBJECT)].filter(i => i > 0);
     if (cuts.length) c = c.slice(0, Math.min(...cuts));
     c = c.replace(INSTRUMENT, " ").replace(SEND_TO, " ");
@@ -184,12 +220,14 @@ function attributeV5(text: string, split: ApprovedSplit, rules: TextRules) {
     const only = text.match(ONLY);
     own.forEach((st, k) => {
       if (shown[i] || !st.bounded) return;
-      const hit = words(i).map(p => st.bounded!.match(new RegExp(p, "iu"))).find(m => m && !new RegExp(words(i).join("|"), "iu").test(st.readable));
+      // D.2: delegated work never reaches this rule either ("have my clerk call the overdue customers until they pay").
+      const bounded = withoutDelegated(st.bounded);
+      const hit = words(i).map(p => bounded.match(new RegExp(p, "iu"))).find(m => m && !new RegExp(words(i).join("|"), "iu").test(withoutDelegated(st.readable)));
       if (!hit) return;
       if (anyOf(words(i), othersSaid) || (only && CORRECTION.test(text) && !anyOf(words(i), only[1]))) { reasons.push(`part ${i + 1}: bound match cancelled (others or correction)`); return; }
-      const region = st.bounded!.slice(hit.index!, hit.index! + hit[0].length);
+      const region = bounded.slice(hit.index!, hit.index! + hit[0].length);
       if (/\b(?:those|these|them|the\s+same)\b/i.test(region)) {
-        const before = [...own.slice(0, k).map(o => o.readable), st.bounded!.slice(0, hit.index!)].join(" . ");
+        const before = [...own.slice(0, k).map(o => withoutDelegated(o.readable)), bounded.slice(0, hit.index!)].join(" . ");
         if (!anteRx.test(before)) { reasons.push(`part ${i + 1}: "${region.slice(0, 40)}" has no own antecedent`); return; }
         const rivals = [...before.matchAll(NP)].filter(m => GROUP.test(m[1]) && !anteRx.test(m[0])).map(m => m[0]);
         if (rivals.length) { reasons.push(`part ${i + 1}: ambiguous antecedent (${rivals.join(", ")})`); return; }
@@ -197,7 +235,16 @@ function attributeV5(text: string, split: ApprovedSplit, rules: TextRules) {
       shown[i] = true; reasons.push(`part ${i + 1}: approved phrase on the own act with its end condition`);
     });
   });
-  return { shown, partTransferred: base.partTransferred, transferAll: base.transferAll, reasons };
+  // D.2: a part whose approved markers name delegated work is flagged `transferred` (informational; no verdict reads it
+  // here). A part the person's own words show is never cancelled by it: they may both do and delegate the same work.
+  const partTransferred = [...base.partTransferred];
+  const delegated = delegatedWork(text, rules).join(" . ");
+  if (delegated) split.parts.forEach((_, i) => {
+    if (!anyOf(words(i), delegated)) return;
+    if (shown[i]) reasons.push(`part ${i + 1}: own and delegated (ask which part was the person's)`);
+    else { partTransferred[i] = true; reasons.push(`part ${i + 1}: delegated to someone else`); }
+  });
+  return { shown, partTransferred, transferAll: base.transferAll, reasons };
 }
 
 /** Which parts of an approved split the person's own explanation shows. Reads with the matching default (rules-v21) unless
