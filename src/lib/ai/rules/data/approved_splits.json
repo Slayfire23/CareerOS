@@ -1,0 +1,847 @@
+{
+ "_provenance": "Phase 5.3 Stage D.1 (2026-11-14). The 33 owner-approved compound splits (split review, docs commit 789b095) with their owner-approved recognition markers and equivalents (R1 batches 1-4, the P13/P14 supplementary batch, and Q1-Q5; docs/PHASE5_3_R1_MARKER_REVIEW.md, docs 17de105), copied verbatim from ai-service/evals/reports/m11/structured/v5-simulation.json `patterns`. Named tool (A53, A60), Q4 elided objects (A19, A56, A67) and A22 context are as configured there. `bound_antecedent` (A77 collections only) is the owner-approved Stage D specification of 2026-11-13 (docs/PHASE5_3_STAGE_B_REPORT.md section 7.3). Do not edit: any change needs owner approval and a new recognition version.",
+ "version": "splits-v1",
+ "splits": {
+  "P1": {
+   "requirement": "Bookkeeping and month-end reconciliation",
+   "parts": [
+    "Bookkeeping",
+    "month-end reconciliation"
+   ],
+   "markers": [
+    [
+     "\\bbookkeeping\\b",
+     "\\b(keep|keeps|kept|keeping|do|does|did|doing)\\s+(all\\s+)?the books\\b"
+    ],
+    [
+     "\\b(month[- ]end|monthly|end[- ]of[- ](the[- ])?month)\\b[^.]{0,40}\\breconcil\\w*",
+     "\\breconcil\\w*\\b[^.]{0,40}\\b(month[- ]end|monthly|every month|each month|close)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bpost\\w*\\b[^.]{0,30}\\bledger\\b"
+    ],
+    [
+     "\\bmatch\\w*\\b[^.]{0,30}\\bbank statements?\\b[^.]{0,40}\\b(month|close)\\b",
+     "\\b(month|close)\\b[^.]{0,40}\\bmatch\\w*\\b[^.]{0,30}\\bbank statements?\\b"
+    ]
+   ]
+  },
+  "P2": {
+   "requirement": "Cash handling and till reconciliation",
+   "parts": [
+    "Cash handling",
+    "till reconciliation"
+   ],
+   "markers": [
+    [
+     "\\b(handl\\w*|count\\w*|tak\\w*|accept\\w*|process\\w*|collect\\w*|deposit\\w*)\\b[^.]{0,20}\\bcash\\b(?!\\s*flow)",
+     "\\bcash\\s+(handling|drawers?|registers?|payments?|transactions?|deposits?)\\b"
+    ],
+    [
+     "\\b(reconcil\\w*|balanc\\w*|count\\w*)\\b[^.]{0,25}\\b(tills?|drawers?)\\b",
+     "\\b(tills?|drawers?)\\b[^.]{0,25}\\b(reconcil\\w*|balanc\\w*|counts?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "P3": {
+   "requirement": "Crane signaling and rigging",
+   "parts": [
+    "Crane signaling",
+    "Crane rigging"
+   ],
+   "markers": [
+    [
+     "\\bsignal\\w*"
+    ],
+    [
+     "\\brigging\\b",
+     "\\brig(s|ged)?\\b[^.]{0,15}\\b(loads?|lifts?|picks?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bdirect\\w* the (crane )?operator\\b",
+     "\\btalk\\w* the operator through\\b"
+    ],
+    [
+     "\\b(sling|slings|slinging|slung)\\b[^.]{0,15}\\b(the\\s+)?(loads?|lifts?)\\b",
+     "\\bchok\\w* (the )?loads?\\b"
+    ]
+   ]
+  },
+  "P6": {
+   "requirement": "Experience with grant reporting and compliance",
+   "parts": [
+    "grant reporting",
+    "grant compliance"
+   ],
+   "markers": [
+    [
+     "\\b(writ\\w*|wrote|draft\\w*|prepar\\w*|submit\\w*|complet\\w*)\\b[^.]{0,30}\\breports?\\b",
+     "\\b(progress|grant|federal|financial|performance)\\s+reports?\\b"
+    ],
+    [
+     "\\bcomplian\\w*"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\bsingle audits?\\b",
+     "\\ballowab\\w*[\\s-]+(costs?|expenses?|charges?)\\b",
+     "\\bexpenses?\\b[^.]{0,20}\\ballowab\\w*"
+    ]
+   ]
+  },
+  "P7": {
+   "requirement": "Handle patient scheduling and insurance verification",
+   "parts": [
+    "Patient scheduling",
+    "Insurance verification"
+   ],
+   "markers": [
+    [
+     "\\bschedul\\w*\\b[^.]{0,25}\\b(patients?|appointments?|visits?)\\b",
+     "\\b(patients?|appointments?|visits?)\\b[^.]{0,15}\\bschedul\\w*"
+    ],
+    [
+     "\\b(verif\\w*|check\\w*)\\b[^.]{0,30}\\b(insurance|eligibility|benefits|coverage)\\b",
+     "\\b(insurance|eligibility|benefits)\\b[^.]{0,20}\\b(verif\\w*|checks?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bbook\\w*\\b[^.]{0,25}\\bappointments?\\b"
+    ],
+    []
+   ]
+  },
+  "P8": {
+   "requirement": "Perform bookkeeping and monthly financial reporting",
+   "parts": [
+    "Bookkeeping",
+    "Monthly financial reporting"
+   ],
+   "markers": [
+    [
+     "\\bbookkeeping\\b",
+     "\\bthe books\\b"
+    ],
+    [
+     "\\bfinancial (reports?|statements?)\\b",
+     "\\b(monthly|month-end) financials\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bpost\\w*\\b[^.]{0,30}\\bledger\\b"
+    ],
+    [
+     "\\b(prepar\\w*|put\\w* together|produc\\w*|build\\w*|built|run\\w*)\\b[^.]{0,30}\\b(P&L|profit and loss|balance sheets?)\\b"
+    ]
+   ]
+  },
+  "P11": {
+   "requirement": "Pipe threading and fitting",
+   "parts": [
+    "Pipe threading",
+    "Pipe fitting"
+   ],
+   "markers": [
+    [
+     "\\bthread\\w*\\b[^.]{0,30}\\b(pipes?|nipples?|black iron|galvanized|conduit|rod)\\b",
+     "\\b(pipes?|nipples?|black iron)\\b[^.]{0,25}\\bthread\\w*",
+     "\\brun\\w* threads\\b",
+     "\\bthreading machine\\b",
+     "\\bthreader\\b"
+    ],
+    [
+     "\\bpipefit\\w*",
+     "\\bfit[- ]?up\\b",
+     "\\bfit(s|ted|ting)?\\b[^.]{0,20}\\b(pipes?|joints?|runs?|lines?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\bmake up (the )?(joints|fittings)\\b"
+    ]
+   ]
+  },
+  "P12": {
+   "requirement": "Pruning and tree felling",
+   "parts": [
+    "Pruning",
+    "tree felling"
+   ],
+   "markers": [
+    [
+     "\\bprun\\w*"
+    ],
+    [
+     "\\b(fell|felled|felling)\\b[^.]{0,25}\\btrees?\\b",
+     "\\btree felling\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(trim\\w*|cut\\w* back)\\b[^.]{0,25}\\b(limbs?|branch\\w*|shrubs?|hedges?)\\b"
+    ],
+    [
+     "\\b(take|took|taking|bring|bringing|brought)\\b[^.]{0,10}\\bdown\\b[^.]{0,20}\\btrees?\\b"
+    ]
+   ]
+  },
+  "P13": {
+   "requirement": "Recruiting and hiring staff",
+   "parts": [
+    "Recruiting staff",
+    "Hiring staff"
+   ],
+   "markers": [
+    [
+     "\\brecruit(s|ed|ing)?\\b[^.]{0,25}\\b(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
+     "\\b(do|does|did|handl\\w*|run\\w*|own\\w*)\\s+(the\\s+|all\\s+the\\s+|our\\s+)?recruiting\\b"
+    ],
+    [
+     "\\b(hire|hires|hired|hiring)\\b\\s+(the\\s+|our\\s+|all\\s+(the\\s+)?|new\\s+|every\\s+)?([\\w-]+\\s+)?(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
+     "\\b(make|makes|made|making)\\b[^.]{0,20}\\b(hiring|final|offer|selection)\\s+decisions?\\b",
+     "\\b(decide|decides|decided|choose|chooses|chose|select|selects|selected|pick|picks|picked)\\s+(who|which\\s+\\w+)\\s+(we\\s+|to\\s+)?(hire|bring on)\\b",
+     "\\bextend\\w*\\s+(the\\s+)?offers?\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(sourc\\w*|screen\\w*)\\b[^.]{0,25}\\b(candidates?|applicants?|resumes?)\\b"
+    ],
+    [
+     "\\b(make|made|making)\\b[^.]{0,20}\\boffer decisions?\\b",
+     "\\bextend\\w* offers?\\b"
+    ]
+   ]
+  },
+  "P14": {
+   "requirement": "Recruiting and onboarding new staff",
+   "parts": [
+    "Recruiting new staff",
+    "onboarding new staff"
+   ],
+   "markers": [
+    [
+     "\\brecruit(s|ed|ing)?\\b[^.]{0,25}\\b(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
+     "\\b(do|does|did|handl\\w*|run\\w*|own\\w*)\\s+(the\\s+|all\\s+the\\s+|our\\s+)?recruiting\\b"
+    ],
+    [
+     "\\bonboard(s|ed|ing)?\\b(?!\\s+(paperwork|forms?|packets?|documents?|files?))[^.]{0,25}\\b(staff|employees?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b",
+     "\\bnew[- ]hire onboarding\\b(?!\\s+(paperwork|forms?|packets?|documents?))"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(sourc\\w*|screen\\w*)\\b[^.]{0,25}\\b(candidates?|applicants?|resumes?)\\b"
+    ],
+    [
+     "\\bnew[- ]hire orientation\\b",
+     "\\b(run\\w*|lead\\w*|led|do|does|did|give\\w*|gave)\\b[^.]{0,15}\\borientation\\b[^.]{0,20}\\b(new\\s+)?(staff|employees?|candidates?|applicants?|new hires?|hires|nurses|drivers|techs|technicians|cashiers|servers|team members|people|workers|associates|caregivers|teachers|crew)\\b"
+    ]
+   ]
+  },
+  "A19": {
+   "requirement": "Conduct inventory cycle counts and reconcile variances",
+   "parts": [
+    "Inventory cycle counts",
+    "Reconciling inventory variances"
+   ],
+   "markers": [
+    [
+     "\\bcycle count\\w*",
+     "\\bcount(s|ed|ing)?\\b[^.]{0,30}\\b(inventory|stock|aisles?|shel(f|ves)|bins?|locations?|SKUs?|on[- ]hand)\\b",
+     "\\b(inventory|stock)\\s+counts?\\b"
+    ],
+    [
+     "\\breconcil\\w*",
+     "\\b(investigat\\w*|resolv\\w*|correct\\w*|research\\w*|adjust\\w*)\\b[^.]{0,25}\\b(variances?|discrepanc\\w*)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\b(numbers|counts?|quantities|totals)\\b[^.]{0,15}\\b(don'?t|do not|doesn'?t|didn'?t)\\s+(match|line up|agree|tie)\\b[^.]{0,80}\\b(fix|fixes|fixed|correct\\w*|adjust\\w*|updat\\w*)\\b[^.]{0,10}\\b(the\\s+)?(record|records|count|counts|system|on[- ]hand)\\b"
+    ]
+   ],
+   "elide": [
+    {
+     "verbs": "count(s|ed|ing)?",
+     "objects": "inventory|stock|aisles?|shel(f|ves)|bins?|locations?|SKUs?|on[- ]hand|stock ?room"
+    },
+    null
+   ]
+  },
+  "A20": {
+   "requirement": "Hands-on brake and suspension repair",
+   "parts": [
+    "Brake repair",
+    "Suspension repair"
+   ],
+   "markers": [
+    [
+     "\\bbrake (jobs?|repairs?|work|service)\\b",
+     "\\b(repair\\w*|replac\\w*|bleed\\w*|machin\\w*|resurfac\\w*|install\\w*|do|does|did)\\b[^.]{0,25}\\bbrakes?\\b"
+    ],
+    [
+     "\\bsuspension\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(replac\\w*|install\\w*|swap\\w*|machin\\w*|resurfac\\w*|change\\w*|do|does|did)\\b[^.]{0,25}\\b(brake )?(pads|rotors|brake calipers|calipers)\\b"
+    ],
+    [
+     "\\b(replac\\w*|repair\\w*|install\\w*|swap\\w*)\\b[^.]{0,30}\\b(struts?|shocks|shock absorbers|control arms?|ball joints?|coil springs?|sway bar links?)\\b"
+    ]
+   ]
+  },
+  "A21": {
+   "requirement": "Install drywall and finish joints",
+   "parts": [
+    "Drywall installation",
+    "Drywall joint finishing"
+   ],
+   "markers": [
+    [
+     "\\b(install\\w*|hang\\w*)\\b[^.]{0,25}\\b(drywall|sheetrock|gypsum board|wallboard)\\b",
+     "\\bdrywall (install\\w*|hanging)\\b"
+    ],
+    [
+     "\\b(finish\\w*|tap\\w*|mud\\w*)\\b[^.]{0,25}\\b(joints?|seams?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\btape and mud\\b"
+    ]
+   ]
+  },
+  "A22": {
+   "requirement": "Manage executive calendars and coordinate travel arrangements",
+   "parts": [
+    "Executive calendar management",
+    "Travel coordination"
+   ],
+   "markers": [
+    [
+     "\\bcalendars?\\b[^.]{0,40}\\b(CEO|executives?|VPs?|vice presidents?|president|founder|directors?|partners?|principals?|leadership)\\b",
+     "\\b(CEO|executives?|VPs?|president|founder|directors?|partners?|principals?|leadership)\\W{0,3}\\w*\\W{0,3}calendars?\\b"
+    ],
+    [
+     "\\b(coordinat\\w*|arrang\\w*|plan\\w*|manag\\w*|handl\\w*)\\b[^.]{0,20}\\btravel\\b",
+     "\\btravel (arrangements?|itinerar\\w*|bookings?|logistics|plans?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\bbook\\w*\\b[^.]{0,40}\\b(flights?|hotels?|trips?)\\b"
+    ]
+   ],
+   "context": [
+    {
+     "needs": "\\bcalendars?\\b",
+     "verbs": "keep\\w*|kept|manag\\w*|run\\w*|handl\\w*|maintain\\w*",
+     "inherit": "CEO|executives?|VPs?|vice presidents?|president|founder|directors?|partners?|principals?|leadership"
+    },
+    null
+   ]
+  },
+  "A23": {
+   "requirement": "Manage social media accounts and create content",
+   "parts": [
+    "Social media account management",
+    "Content creation"
+   ],
+   "markers": [
+    [
+     "\\b(manag\\w*|run\\w*|handl\\w*)\\b[^.]{0,30}\\b(social media|instagram|facebook|tiktok|linkedin|youtube)\\b",
+     "\\b(manag\\w*|run\\w*|handl\\w*)\\b[^.]{0,15}\\baccounts?\\b[^.]{0,40}\\b(posts?|followers|DMs|comments|social)\\b"
+    ],
+    [
+     "\\b(creat\\w*|writ\\w*|wrote|produc\\w*|mak\\w*|shoot|shot|film\\w*|edit\\w*|design\\w*)\\b[^.]{0,20}\\bcontent\\b",
+     "\\b(shoot|shot|film\\w*|edit\\w*|design\\w*)\\b[^.]{0,25}\\b(photos?|videos?|graphics?|reels?)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "A24": {
+   "requirement": "Perform venipuncture and start IV lines",
+   "parts": [
+    "Venipuncture",
+    "Starting IV lines"
+   ],
+   "markers": [
+    [
+     "\\bvenipuncture\\b",
+     "(?<!arterial )\\b(draw\\w*|drew)\\b(?![^.]{0,15}\\barterial)[^.]{0,15}\\bblood\\b",
+     "\\bblood draws?\\b"
+    ],
+    [
+     "\\b(start\\w*|plac\\w*|insert\\w*)\\b[^.]{0,25}\\b(IVs?|IV lines?|intravenous|peripheral (lines?|IVs?))\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "A25": {
+   "requirement": "Schedule service appointments and dispatch technicians",
+   "parts": [
+    "Scheduling service appointments",
+    "Dispatching technicians"
+   ],
+   "markers": [
+    [
+     "\\bschedul\\w*\\b[^.]{0,25}\\b(appointments?|service calls?|visits?|jobs|installs?|customers?)\\b"
+    ],
+    [
+     "\\bdispatch(es|ed|ing)?\\b[^.]{0,25}\\b(techs?|technicians|crews?|installers|service|field)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bbook\\w*\\b[^.]{0,25}\\b(appointments?|service calls?)\\b"
+    ],
+    [
+     "\\b(rout\\w*|assign\\w*)\\b[^.]{0,25}\\b(techs?|technicians)\\b"
+    ]
+   ]
+  },
+  "A26": {
+   "requirement": "Prepare tax returns for individuals and small businesses",
+   "parts": [
+    "Individual tax return preparation",
+    "Small-business tax return preparation"
+   ],
+   "markers": [
+    [
+     "\\bindividual\\b[^.]{0,20}\\b(returns?|tax\\w*|1040s?)\\b",
+     "\\b1040s?\\b"
+    ],
+    [
+     "\\bsmall[- ]business\\b[^.]{0,20}\\b(returns?|tax\\w*)\\b",
+     "\\bbusiness (tax )?returns?\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\b1120-?S\\b",
+     "\\b1065s?\\b",
+     "\\bS[- ]corp\\w*\\b[^.]{0,15}\\breturns?\\b",
+     "\\bpartnership returns?\\b",
+     "\\bSchedule C\\b"
+    ]
+   ]
+  },
+  "A51": {
+   "requirement": "Pour and finish concrete flatwork",
+   "parts": [
+    "Pouring concrete flatwork",
+    "Finishing concrete flatwork"
+   ],
+   "markers": [
+    [
+     "\\b(pour\\w*|plac\\w*|screed\\w*)\\b[^.]{0,40}\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b",
+     "\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b[^.]*\\b(pour\\w*|plac\\w*|screed\\w*)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(finish(es|ed|ing)?|trowel\\w*|float\\w*|edg(e|es|ed|ing))\\b[^.]{0,40}\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b",
+     "\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b[^.]*\\b(finish(es|ed|ing)?|trowel\\w*|float\\w*|edg(e|es|ed|ing))\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(spread\\w*|rak\\w*)\\b[^.]{0,40}\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b",
+     "\\b(concrete|slabs?|flatwork|driveways?|sidewalks?|patios?|floors?|mud)\\b[^.]*\\b(spread\\w*|rak\\w*)\\s+(them|it|each one|each)\\b"
+    ],
+    []
+   ]
+  },
+  "A52": {
+   "requirement": "Verify and approve all invoices before payment",
+   "parts": [
+    "Verifying invoices",
+    "Approving invoices for payment"
+   ],
+   "markers": [
+    [
+     "\\b(verif\\w*|check\\w*|match\\w*|audit\\w*)\\b[^.]{0,40}\\b(invoices?|bills?(?! of lading))\\b",
+     "\\b(invoices?|bills?(?! of lading))\\b[^.]*\\b(verif\\w*|check\\w*|match\\w*|audit\\w*)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(approv\\w*|sign\\w* off( on)?)\\b[^.]{0,40}\\b(invoices?|bills?(?! of lading)|payments?|check runs?)\\b",
+     "\\b(invoices?|bills?(?! of lading)|payments?|check runs?)\\b[^.]*\\b(approv\\w*|sign\\w* off( on)?)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\bsign\\w* off\\b[^.]{0,25}\\b(invoices?|payments?|bills?)\\b"
+    ]
+   ]
+  },
+  "A53": {
+   "requirement": "Build and maintain Excel financial models",
+   "parts": [
+    "Building Excel financial models",
+    "Maintaining Excel financial models"
+   ],
+   "markers": [
+    [
+     "\\b(buil\\w*|creat\\w*|develop\\w*|design\\w*)\\b[^.]{0,45}\\b((excel|financial|forecast\\w*|three-statement|operating|budget|DCF|LBO|valuation|cash flow)[\\w-]*\\s+models?|models?\\s+in\\s+excel)\\b",
+     "\\b((excel|financial|forecast\\w*|three-statement|operating|budget|DCF|LBO|valuation|cash flow)[\\w-]*\\s+models?|models?\\s+in\\s+excel)\\b[^.]*\\b(buil\\w*|creat\\w*|develop\\w*|design\\w*)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(maintain\\w*|updat\\w*|refresh\\w*|roll\\w* forward)\\b[^.]{0,45}\\b((excel|financial|forecast\\w*|three-statement|operating|budget|DCF|LBO|valuation|cash flow)[\\w-]*\\s+models?|models?\\s+in\\s+excel|assumptions)\\b",
+     "\\b((excel|financial|forecast\\w*|three-statement|operating|budget|DCF|LBO|valuation|cash flow)[\\w-]*\\s+models?|models?\\s+in\\s+excel|assumptions)\\b[^.]*\\b(maintain\\w*|updat\\w*|refresh\\w*|roll\\w* forward)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ],
+   "tool": [
+    "\\b(Microsoft\\s+)?Excel\\b|\\.xlsx\\b",
+    "\\b(Microsoft\\s+)?Excel\\b|\\.xlsx\\b"
+   ],
+   "toolctx": {
+    "object": "models?|forecast\\w*|FP&A|financial|three-statement|budget",
+    "rivals": "Google\\s+Sheets|Python|\\bR\\b|LibreOffice|Numbers|Anaplan|Adaptive|Smartsheet"
+   }
+  },
+  "A54": {
+   "requirement": "Configure and maintain AWS cloud infrastructure",
+   "parts": [
+    "Configuring AWS cloud infrastructure",
+    "Maintaining AWS cloud infrastructure"
+   ],
+   "markers": [
+    [
+     "\\b(configur\\w*|provision\\w*|set\\w* up|stood up|stand\\w* up|deploy\\w* (the |our )?infrastructure)\\b[^.]{0,40}\\b(AWS|EC2|VPCs?|RDS|IAM|S3|Lambda|ECS|EKS|CloudFormation|Terraform|infrastructure|instances|cloud)\\b",
+     "\\b(AWS|EC2|VPCs?|RDS|IAM|S3|Lambda|ECS|EKS|CloudFormation|Terraform|infrastructure|instances|cloud)\\b[^.]*\\b(configur\\w*|provision\\w*|set\\w* up|stood up|stand\\w* up|deploy\\w* (the |our )?infrastructure)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(maintain\\w*|patch\\w*|upgrad\\w*)\\b[^.]{0,40}\\b(AWS|EC2|VPCs?|RDS|IAM|S3|Lambda|ECS|EKS|CloudFormation|Terraform|infrastructure|instances|cloud)\\b",
+     "\\b(AWS|EC2|VPCs?|RDS|IAM|S3|Lambda|ECS|EKS|CloudFormation|Terraform|infrastructure|instances|cloud)\\b[^.]*\\b(maintain\\w*|patch\\w*|upgrad\\w*)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "A55": {
+   "requirement": "Design and develop RESTful APIs",
+   "parts": [
+    "Designing RESTful APIs",
+    "Developing RESTful APIs"
+   ],
+   "markers": [
+    [
+     "\\b(design\\w*)\\b[^.]{0,40}\\b(APIs?|endpoints?|routes|handlers|API contracts?)\\b",
+     "\\b(APIs?|endpoints?|routes|handlers|API contracts?)\\b[^.]*\\b(design\\w*)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(develop\\w*|build\\w*|built|implement\\w*|cod(e|es|ed|ing))\\b[^.]{0,40}\\b(APIs?|endpoints?|routes|handlers|API contracts?)\\b",
+     "\\b(APIs?|endpoints?|routes|handlers|API contracts?)\\b[^.]*\\b(develop\\w*|build\\w*|built|implement\\w*|cod(e|es|ed|ing))\\s+(them|it|each one|each)\\b",
+     "\\b(writ(e|es|ing)|wrote)\\b(?!\\s+up)[^.]{0,25}\\b(handlers|endpoints?|routes)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(writ\\w*|defin\\w*)\\b[^.]{0,25}\\b(API contracts?|OpenAPI specs?)\\b"
+    ],
+    [
+     "\\bwrit\\w*\\b[^.]{0,20}\\b(handlers|endpoints)\\b"
+    ]
+   ]
+  },
+  "A56": {
+   "requirement": "Develop and deliver sales presentations to clients",
+   "parts": [
+    "Developing sales presentations for clients",
+    "Delivering sales presentations to clients"
+   ],
+   "markers": [
+    [
+     "\\b(develop\\w*|build\\w*|built|creat\\w*|put\\w* together)\\b[^.]{0,30}\\b(decks?|presentations?|slides?)\\b"
+    ],
+    [
+     "\\b(deliver\\w*|present(s|ed|ing)?|pitch(es|ed|ing)?|giv(e|es|ing)|gave)\\b[^.]{0,40}\\b(decks?|presentations?|slides|pitch(es)?|demos?)\\b",
+     "\\b(decks?|presentations?|slides|pitch(es)?|demos?)\\b[^.]*\\b(deliver\\w*|present(s|ed|ing)?|pitch(es|ed|ing)?|giv(e|es|ing)|gave)\\s+(them|it|each one|each)\\b",
+     "\\bpresent(s|ed|ing)?\\b[^.]{0,10}\\bto (clients?|prospects?|customers?|buyers?|purchasing|the client)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ],
+   "elide": [
+    null,
+    {
+     "verbs": "present(s|ed|ing)?|deliver(s|ed|ing)?|pitch(es|ed|ing)?",
+     "objects": "decks?|presentations?|slides|pitch(es)?|demos?"
+    }
+   ]
+  },
+  "A57": {
+   "requirement": "Install and maintain security camera systems",
+   "parts": [
+    "Installing security camera systems",
+    "Maintaining security camera systems"
+   ],
+   "markers": [
+    [
+     "\\b(install\\w*|mount\\w*|wir(e|es|ed|ing))\\b[^.]{0,40}\\b(cameras?|camera systems?|CCTV|NVRs?|DVRs?|recorders)\\b",
+     "\\b(cameras?|camera systems?|CCTV|NVRs?|DVRs?|recorders)\\b[^.]*\\b(install\\w*|mount\\w*|wir(e|es|ed|ing))\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(maintain\\w*|servic\\w*|repair\\w*|replac\\w*|re-?aim\\w*|troubleshoot\\w*)\\b[^.]{0,40}\\b(cameras?|camera systems?|CCTV|NVRs?|DVRs?|recorders)\\b",
+     "\\b(cameras?|camera systems?|CCTV|NVRs?|DVRs?|recorders)\\b[^.]*\\b(maintain\\w*|servic\\w*|repair\\w*|replac\\w*|re-?aim\\w*|troubleshoot\\w*)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "A58": {
+   "requirement": "Install and repair residential plumbing",
+   "parts": [
+    "Installing residential plumbing",
+    "Repairing residential plumbing"
+   ],
+   "markers": [
+    [
+     "\\b(install\\w*|rough\\w* in|plumb\\w*)\\b[^.]{0,40}\\b(plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?)\\b",
+     "\\b(plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?)\\b[^.]*\\b(install\\w*|rough\\w* in|plumb\\w*)\\s+(them|it|each one|each)\\b",
+     "\\b(plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?)\\s+(install(s|ations?)?)\\b"
+    ],
+    [
+     "\\b(repair\\w*|fix(es|ed|ing)?|unclog\\w*|replac\\w*|snak\\w*)\\b[^.]{0,40}\\b(plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?)\\b",
+     "\\b(plumbing|pipes?|piping|fixtures|water heaters?|toilets?|faucets?|sinks?|supply lines?|drain lines?|drains?|bathrooms?|leaks?|clogs?|disposals?)\\b[^.]*\\b(repair\\w*|fix(es|ed|ing)?|unclog\\w*|replac\\w*|snak\\w*)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  },
+  "A59": {
+   "requirement": "Order and manage pharmacy inventory",
+   "parts": [
+    "Ordering pharmacy inventory",
+    "Managing pharmacy inventory"
+   ],
+   "markers": [
+    [
+     "\\b(order(ed|ing)?|I order|we order|purchas\\w*)\\b[^.]{0,30}\\b(inventory|stock|medications|meds|drugs|wholesaler)\\b",
+     "\\b(inventory|stock|medications|meds|drugs|wholesaler)\\b[^.]*\\b(order(ed|ing)?|I order|we order|purchas\\w*)\\s+(them|it|each one|each)\\b",
+     "\\bplac\\w* (the |our )?([\\w-]+ )?orders?\\b"
+    ],
+    [
+     "\\b(manag\\w*|rotat\\w*|track\\w*)\\b[^.]{0,30}\\b(inventory|stock)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\boverstock returns?\\b",
+     "\\bpull\\w* expired\\b"
+    ]
+   ]
+  },
+  "A60": {
+   "requirement": "Plan and execute paid search campaigns in Google Ads",
+   "parts": [
+    "Planning paid search campaigns in Google Ads",
+    "Executing paid search campaigns in Google Ads"
+   ],
+   "markers": [
+    [
+     "\\b(plan(s|ned|ning)?|strategi\\w*|strategy)\\b[^.]{0,40}\\b(campaigns?|keywords?|Google Ads|ads|ad groups?|search)\\b",
+     "\\b(campaigns?|keywords?|Google Ads|ads|ad groups?|search)\\b[^.]*\\b(plan(s|ned|ning)?|strategi\\w*|strategy)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(execut\\w*|run\\w*|launch\\w*|optimiz\\w*)\\b[^.]{0,30}\\b(campaigns?|ads)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\bkeyword research\\b"
+    ],
+    [
+     "\\badjust\\w* (the )?bids\\b"
+    ]
+   ],
+   "tool": [
+    "\\bGoogle\\s+Ads\\b|\\bAdWords\\b",
+    "\\bGoogle\\s+Ads\\b|\\bAdWords\\b"
+   ],
+   "toolctx": {
+    "object": "campaigns?|ads|account|search|keywords?|bids?",
+    "rivals": "Microsoft\\s+Advertising|Bing\\s+Ads|Meta\\s+Ads|Facebook\\s+Ads|LinkedIn\\s+Ads|TikTok\\s+Ads|Amazon\\s+Ads"
+   }
+  },
+  "A63": {
+   "requirement": "Cut and style hair",
+   "parts": [
+    "Cutting hair",
+    "Styling hair"
+   ],
+   "markers": [
+    [
+     "\\b(cut(s|ting)?|trim(s|med|ming)?|fad(e|es|ing)|shap\\w*)\\b[^.]{0,40}\\b(hair|bangs|beards?|clients?|customers?|layers|bobs?|pixies?|fades|kids|men|women)\\b",
+     "\\b(hair|bangs|beards?|clients?|customers?|layers|bobs?|pixies?|fades|kids|men|women)\\b[^.]*\\b(cut(s|ting)?|trim(s|med|ming)?|fad(e|es|ing)|shap\\w*)\\s+(them|it|each one|each)\\b",
+     "\\bhaircuts?\\b",
+     "\\b(do|does|did|doing)\\s+(the\\s+|all\\s+the\\s+)?(cuts|fades|trims)\\b"
+    ],
+    [
+     "\\bstyl(e|es|ed|ing)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\bblow-?dr\\w*",
+     "\\bblowouts?\\b",
+     "\\bupdos?\\b"
+    ]
+   ]
+  },
+  "A67": {
+   "requirement": "Load and unload freight from trucks",
+   "parts": [
+    "Loading freight onto trucks",
+    "Unloading freight from trucks"
+   ],
+   "markers": [
+    [
+     "\\b(load(ed|ing)?|I load|we load)\\b[^.]{0,40}\\b(trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound)\\b",
+     "\\b(trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound)\\b[^.]*\\b(load(ed|ing)?|I load|we load)\\s+(them|it|each one|each)\\b"
+    ],
+    [
+     "\\b(unload\\w*)\\b[^.]{0,40}\\b(trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound)\\b",
+     "\\b(trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound)\\b[^.]*\\b(unload\\w*)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\b(stag\\w*|stack\\w*)\\b[^.]{0,25}\\bonto (the )?(delivery )?(trucks?|trailers?)\\b"
+    ],
+    [
+     "\\bbreak\\w* down (the )?(inbound )?trailers\\b"
+    ]
+   ],
+   "elide": [
+    {
+     "verbs": "load(ed|ing)?",
+     "objects": "trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound"
+    },
+    {
+     "verbs": "unload(s|ed|ing)?",
+     "objects": "trucks?|trailers?|freight|pallets?|vans?|containers?|deliveries|shipments|outbound|inbound"
+    }
+   ]
+  },
+  "A76": {
+   "requirement": "CNC lathe setup and operation",
+   "parts": [
+    "CNC lathe setup",
+    "CNC lathe operation"
+   ],
+   "markers": [
+    [
+     "\\b(set(ting)? ?up|setups?)\\b[^.]{0,40}\\b(lathes?|CNC|machines?|jobs?|chucks?|jaws|tool(s|ing)?|programs?|parts|production)\\b",
+     "\\b(lathes?|CNC|machines?|jobs?|chucks?|jaws|tool(s|ing)?|programs?|parts|production)\\b[^.]*\\b(set(ting)? ?up|setups?)\\s+(them|it|each one|each)\\b",
+     "\\b(lathe|CNC|machine|job)\\s+set[- ]?ups?\\b"
+    ],
+    [
+     "\\b(operat\\w*|run(s|ning)?|ran)\\b[^.]{0,40}\\b(lathes?|CNC|machines?|jobs?|chucks?|jaws|tool(s|ing)?|programs?|parts|production)\\b",
+     "\\b(lathes?|CNC|machines?|jobs?|chucks?|jaws|tool(s|ing)?|programs?|parts|production)\\b[^.]*\\b(operat\\w*|run(s|ning)?|ran)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [
+     "\\btouch\\w* off\\b",
+     "\\bset\\w* (the )?offsets\\b"
+    ],
+    []
+   ]
+  },
+  "A77": {
+   "requirement": "Accounts receivable aging and collections",
+   "parts": [
+    "Accounts receivable aging analysis",
+    "Accounts receivable collections"
+   ],
+   "markers": [
+    [
+     "\\b(analy[sz]\\w*|flag\\w*|identif\\w*|categoriz\\w*|prioritiz\\w*|sort\\w*|break\\w* down|track\\w*|work\\w* through)\\b[^.]{0,40}\\b(aging|overdue|past[- ]due|outstanding|receivables|balances|buckets|over \\d+ days|payment trends|collection priorities)\\b",
+     "\\b(run|runs|ran|do|does|did|perform\\w*|handl\\w*|prepar\\w*)\\s+(the\\s+)?(AR\\s+|A/R\\s+|accounts receivable\\s+)?aging analysis\\b",
+     "\\bset\\w*\\s+(the\\s+)?collection priorities\\b",
+     "\\bdecid\\w*\\s+which\\s+(accounts|customers|balances)\\s+to\\s+(call|chase|pursue)\\b"
+    ],
+    [
+     "\\b(collect(s|ed|ing)?)\\b[^.]{0,40}\\b(payments?|receivables|past[- ]due|overdue|balances?|accounts|invoices|money|debts?|customers)\\b",
+     "\\b(payments?|receivables|past[- ]due|overdue|balances?|accounts|invoices|money|debts?|customers)\\b[^.]*\\b(collect(s|ed|ing)?)\\s+(them|it|each one|each)\\b",
+     "\\bcollection calls?\\b",
+     "\\bcollections (calls?|work|queue|accounts)\\b",
+     "\\b(handl\\w*|do|does|did|doing|work\\w*|run\\w*)\\s+(the\\s+|all\\s+the\\s+|our\\s+)?collections\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    [
+     "\\b(call\\w*|chas\\w*)\\b[^.]{0,30}\\b(past[- ]due|overdue)\\b",
+     "\\b(call\\w*|contact\\w*|chas\\w*|follow\\w* up with)\\b[^.]{0,25}\\b(customers?|clients?|accounts|debtors)\\b[^.]{0,30}\\b(until they pay|to collect|for payment|about (their |the )?(balances?|payments?|invoices?))\\b"
+    ]
+   ],
+   "bound_antecedent": [
+    null,
+    "overdue|past[- ]due|outstanding|unpaid|delinquent|owed|late"
+   ]
+  },
+  "A93": {
+   "requirement": "Forecasting and budgeting",
+   "parts": [
+    "Forecasting",
+    "Budgeting"
+   ],
+   "markers": [
+    [
+     "\\b(build\\w*|built|prepar\\w*|creat\\w*|develop\\w*|run\\w*|produc\\w*|updat\\w*|do|does|did|handl\\w*|own(s|ed)?|model\\w*|set(s|ting)?|draft\\w*)\\b[^.]{0,40}\\b(forecasts?|forecasting|projections?)\\b",
+     "\\b(forecasts?|forecasting|projections?)\\b[^.]*\\b(build\\w*|built|prepar\\w*|creat\\w*|develop\\w*|run\\w*|produc\\w*|updat\\w*|do|does|did|handl\\w*|own(s|ed)?|model\\w*|set(s|ting)?|draft\\w*)\\s+(them|it|each one|each)\\b",
+     "\\b(I|we)\\s+forecast\\b"
+    ],
+    [
+     "\\b(build\\w*|built|prepar\\w*|creat\\w*|develop\\w*|run\\w*|produc\\w*|updat\\w*|do|does|did|handl\\w*|own(s|ed)?|model\\w*|set(s|ting)?|draft\\w*)\\b[^.]{0,40}\\b(budgets?|budgeting|spending plans?)\\b",
+     "\\b(budgets?|budgeting|spending plans?)\\b[^.]*\\b(build\\w*|built|prepar\\w*|creat\\w*|develop\\w*|run\\w*|produc\\w*|updat\\w*|do|does|did|handl\\w*|own(s|ed)?|model\\w*|set(s|ting)?|draft\\w*)\\s+(them|it|each one|each)\\b"
+    ]
+   ],
+   "equivalents": [
+    [],
+    []
+   ]
+  }
+ }
+}

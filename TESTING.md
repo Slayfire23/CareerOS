@@ -349,3 +349,20 @@ The F1 exception ("the individual 1040s") no longer lets remarks about the candi
 
 Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md §9.
 
+
+## Phase 5.3 Stage D.1, inactive split-recognition module - November 14, 2026 (local commit, not pushed)
+
+`src/lib/ai/rules/split-recognition.ts` (`splits-v1`) is a verbatim port of the owner-reviewed V5 simulation for the 33 approved splits. It uses the approved patterns unchanged (`data/approved_splits.json`) and includes the A77 consumer of `bounded`. Nothing in the app calls it.
+
+**Tests:** 310 in `tests/split-recognition.test.ts`.
+- **Parity:** 284 of 284 rows identical to the frozen simulation (`tests/fixtures/split_recognition/parity.json`).
+- **A77 controls:** 3 positive and 12 negative, including the insurance claims.
+- **Safety:** corrections, supervision and single-part rows never reach Supported; instruction text and non-English text aren't read.
+- **Isolation:** nothing in the app imports the module.
+
+**Results:**
+- **Suites:** 2,920 unit and 183 integration tests pass.
+- **App readings:** unchanged from `8b7a7f7`.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_D1_REPORT.md.

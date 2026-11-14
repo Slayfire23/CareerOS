@@ -285,9 +285,10 @@ describe("V5 failure 3: the person's own act keeps its end condition in a separa
     expect(answerStatements("I file the claims until the adjusters approve them.", "v21").some(s => s.bounded)).toBe(false);
     expect(answerStatements("I call customers about their deliveries.", "v21").some(s => s.bounded)).toBe(false);
   });
-  it("no verdict reads it: only the reader that builds statements names `bounded`", () => {
+  it("no verdict reads it: only the reader that builds statements, and the inactive Stage D.1 recognition module, name `bounded`", () => {
     const users = sourceFiles("src").filter(f => /\.bounded\b|bounded\s*[?:]/.test(readFileSync(f, "utf8")));
-    expect(users.map(f => f.replace(/\\/g, "/"))).toEqual(["src/lib/ai/evidence-boundary.ts"]);
+    // split-recognition.ts is the owner-approved consumer (Stage B report section 7.3); nothing in the app imports it.
+    expect(users.map(f => f.replace(/\\/g, "/")).sort()).toEqual(["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/split-recognition.ts"]);
     expect(v21("Accounts receivable aging and collections", a77)).toBe(v20("Accounts receivable aging and collections", a77));
   });
 });
