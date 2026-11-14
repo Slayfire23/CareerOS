@@ -305,3 +305,17 @@ Report: docs/PHASE5_3_RULES_V20_ADOPTION.md.
 **Stage D dependency (owner-approved):** V5 failure 3 ("…until they pay"). The reader keeps the person's own end condition in a verdict-inert `bounded` field. Recognizing collections from it is future Stage D work; it is unimplemented and unverified.
 
 Report: docs/PHASE5_3_STAGE_B_REPORT.md. Stage G policy proposal: docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md.
+
+## Phase 5.3 Stage C, rules-v21 adoption review - November 13, 2026 (docs only; local commit, not pushed)
+
+**rules-v21 isn't adopted:** `DEFAULT_TEXT_RULES` stays `"v20"`, and no application code changed.
+
+**How adoption was measured:** the minimal patch was placed in scratch copies of the affected modules and aliased into the app's own suites; `src/` was not touched.
+- **Engine:** byte-identical.
+- **Unit:** 2,600 of 2,603 pass (the 3 others assert the default is `"v20"`).
+- **Integration:** 183 of 183.
+- **Follow-up sets:** 0 replies changed. One question is no longer asked (fu-059, justified).
+
+**Result:** 7 of 8 gates pass. **Gate 4 fails:** F1's `META_AS_ADJECTIVE` stops flagging four adversarial remarks about the candidate, though no verdict rose. The recommendation is to defer until a narrow fix (P1).
+
+Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md.

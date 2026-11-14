@@ -38,7 +38,7 @@ There's no tuning against opened sealed cases after evaluation. **Only Stage A i
 |---|---|
 | A | **Done** (a24caa0): `m11_parts` sealed, 312 scenarios, never opened |
 | B | **Done under the owner-approved boundary** (2026-11-13). rules-v21 is opt-in (F1–F9, DD3, F6, the verdict-inert `bounded` field); v20 stays the default; the engine and follow-up behaviour are unchanged. Report: `docs/PHASE5_3_STAGE_B_REPORT.md` |
-| C | Not started; needs explicit owner approval |
+| C | **Adoption review done (2026-11-13), not adopted.** Recommendation: **defer**. Gate 4 fails: F1 stops flagging four adversarial remarks about the candidate. Prerequisite P1 is a narrow reader fix; after it, the minimal adoption patch (simulated end to end) applies. Report: `docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md` |
 | D | Not started. **Carries a Stage B dependency:** V5 failure 3 (A77 collections, "…call those customers until they pay"). The recognition module must match the approved A77 equivalent against `bounded`, never against raw text. For "those/these customers" or "them" it must require a clear antecedent in the person's own words naming overdue, unpaid or outstanding receivables. It must reject ambiguous antecedents, unrelated calls, third-party work and corrected-away claims, and check ownership and correction metadata independently of `bounded`. The A77 overdue-context setting is approved for this equivalent only (Stage B report §7.3) |
 | E–G | Not started |
 
