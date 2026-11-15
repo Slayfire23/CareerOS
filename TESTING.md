@@ -504,3 +504,19 @@ With structured matching on, a choice-only answer is stored as Possible (`candid
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F5_REPORT.md.
+
+## Phase 5.3 Stage F6, Stage F audit and regression - November 15, 2026 (local commit, not pushed)
+
+A read-only audit of F0–F5; no code changed.
+
+**Results:**
+- **Suites:** 3,895 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11; parts validate passes; TypeScript, prisma and build clean.
+- **Engine and follow-up sets:** engine byte-identical to the pre-Stage F baseline (`c4ebce9`); 0 of 340 follow-up rows changed.
+- **Migration rehearsal:** Stage 1 then F1 on a throwaway local database, 11 of 11.
+- **Browser:** the full suite with the flags off gives 29 passed, 1 failed, 6 skipped. The failure is `job-match-assisted`: the local E2E account isn't on the local-AI allowlist, an environment issue. The flag-specific specs were run per state.
+
+**Open:**
+- D1: `recheck()` reads the earlier analysis unmasked with the flag off. A fix is proposed and needs approval.
+- `job-clarification` and `job-review` scoping depends on `.env` only. A test-only fix is proposed.
+
+Report: docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md.
