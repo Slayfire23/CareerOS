@@ -124,6 +124,9 @@ model ClarificationEvent {
   /// The structured choice at the time, for the audit trail. Never the person's words.
   involvement     String?  @db.VarChar(20)
   rulesVersion    String   @db.VarChar(40)
+  /// The split-recognition version (e.g. "splits-v1.1") whose approved parts or reading this event relied on; null when
+  /// none did (every free-text event, and every event before Phase 5.3 Stage F). Format checked by the database.
+  recognitionVersion String? @db.VarChar(20)
   createdAt       DateTime @default(now()) @db.Timestamptz(3)
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -375,6 +378,9 @@ model JobMatchAnalysis {
   provider            String        @db.VarChar(40)
   model               String?       @db.VarChar(100)
   methodVersion       String        @db.VarChar(40)
+  /// The split-recognition version used when a structured answer was applied to this analysis; null when none was
+  /// (every analysis before Phase 5.3 Stage F). Never recalculated. Format checked by the database.
+  recognitionVersion  String?       @db.VarChar(20)
   /// Snapshot of the reviewed requirements that were analysed (the owner's own job data).
   requirements        Json
   findings            Json

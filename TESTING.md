@@ -418,3 +418,19 @@ rules-v22 (`textRules: "v22"`) is rules-v21 plus one rule: "My boss sends me out
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F0_REPORT.md.
+
+## Phase 5.3 Stage F1, recognition-version audit and structured evidence ids - November 14, 2026 (local commit, not pushed)
+
+Migration `20261114010000_structured_matching_audit` (local only) adds a nullable `recognitionVersion` (format `splits-v…`) to `JobMatchAnalysis` and `ClarificationEvent`, and backfills `experience:<id>` on structured role answers. Structured saves now get that id when created. **Matching still ignores structured answers.**
+
+**Tests:**
+- 10 new in `tests/integration/structured-audit.integration.ts`: columns and format checks, audit values, ids, backfill, correction, revocation, deletion, masking, isolation;
+- 6 new in `tests/structured-audit.test.ts`;
+- a 37-check migration and rollback script, run in a rolled-back transaction on the test database.
+
+**Results:**
+- **Isolation:** verdicts and stored results are identical before and after structured saves, corrections and revocations, under every flag state.
+- **Suites:** 3,051 unit and 201 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F1_REPORT.md.

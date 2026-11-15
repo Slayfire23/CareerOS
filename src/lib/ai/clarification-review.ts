@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
@@ -9,7 +10,7 @@ import type { Finding } from "@/lib/ai/match-validation";
 import { answerProblem, entryProblem } from "@/lib/ai/rules/clarifications";
 import { RULES_VERSION } from "@/lib/ai/rules/engine";
 import { buildReviewQueue, type ReviewQuestion } from "@/lib/ai/rules/review-queue";
-import { formContext, parseSubmission, type FieldError, type RawSubmission, type StructuredSubmission } from "@/lib/ai/rules/structured-form";
+import { FORM_RECOGNITION_VERSION, formContext, parseSubmission, type FieldError, type RawSubmission, type StructuredSubmission } from "@/lib/ai/rules/structured-form";
 import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
 import { prisma } from "@/lib/db";
 import type { parseEducation } from "@/lib/education";
@@ -239,6 +240,8 @@ export type StructuredResult = { ok: true } | { ok: false; error: ReviewError; m
 export const PART_QUESTION_DONE = "PART_Q_DONE";
 
 const COUNTING_OUTCOMES = ["ROLE_DETAIL_ADDED", "ENTRY_ADDED", "DENIED"] as const;
+/** Stage F1 audit: an answer with per-part ticks used the approved splits of this recognition version; one without used none. */
+const partsVersion = (v: StructuredSubmission) => (v.parts.length ? FORM_RECOGNITION_VERSION : null);
 
 async function retireStructured(tx: Tx, userId: string, keys: string[]): Promise<string | null> {
   const current = await tx.candidateClarification.findFirst({ where: { userId, questionKey: { in: keys }, status: "ACTIVE", formVersion: 2 }, select: { id: true } });
@@ -267,7 +270,11 @@ async function checkedSubmission(userId: string, requirement: Pick<MatchRequirem
   return { value, consistency };
 }
 
-const structuredRow = (userId: string, savedJobId: string | null, requirementText: string, key: string | null, keys: string[], supersedesId: string | null, v: StructuredSubmission, consistency: string | null) => ({
+// Stage F1: a structured role answer gets the evidence id every free-text answer has (`experience:<its own id>`), set in
+// the same write that creates it, so revoking, correcting or deleting it masks anything that ever cites it. A "haven't
+// done this" answer (DENIED) gets none, like a free-text denial. Matching still ignores formVersion 2 (no verdict changes).
+const structuredRow = (userId: string, savedJobId: string | null, requirementText: string, key: string | null, keys: string[], supersedesId: string | null, v: StructuredSubmission, consistency: string | null, id: string = randomUUID()) => ({
+  id, evidenceId: v.involvement === "NOT_DONE" ? null : `experience:${id}`,
   userId, savedJobId, requirementText: requirementText.slice(0, 500), questionKey: key, coveredKeys: keys, supersedesId, formVersion: 2,
   outcome: v.involvement === "NOT_DONE" ? ("DENIED" as const) : ("ROLE_DETAIL_ADDED" as const),
   experienceId: v.involvement === "NOT_DONE" ? null : v.experienceId,
@@ -275,7 +282,8 @@ const structuredRow = (userId: string, savedJobId: string | null, requirementTex
   involvement: v.involvement, alsoDidSome: v.alsoDidSome, frequency: v.frequency, recency: v.recency, claimedMonths: v.claimedMonths, consistency,
 });
 
-/** A new structured answer to a question this analysis asks. It has no evidence id: nothing can cite it. */
+/** A new structured answer to a question this analysis asks. Its evidence id lets masking and deletion find it; nothing
+ * cites it until Stage F (matching ignores formVersion 2). */
 export async function saveStructuredAnswer(options: Scope & { analysisId: string; questionKey: string; submission: RawSubmission }): Promise<StructuredResult> {
   if (!options.config.structuredForm) return { ok: false, error: "disabled" };
   const now = options.now ?? new Date();
@@ -291,7 +299,7 @@ export async function saveStructuredAnswer(options: Scope & { analysisId: string
     const supersedesId = await retireStructured(tx, question.userId, question.keys);
     const row = await tx.candidateClarification.create({ data: structuredRow(question.userId, question.jobId, question.requirement.text, question.key, question.keys, supersedesId, checked.value, checked.consistency), select: { id: true } });
     if (checked.value.parts.length) await tx.clarificationPart.createMany({ data: checked.value.parts.map(p => ({ userId: question.userId, clarificationId: row.id, partIndex: p.partIndex, partText: p.partText, checked: p.checked })) });
-    await tx.clarificationEvent.create({ data: { userId: question.userId, clarificationId: row.id, savedJobId: question.jobId, action: checked.value.involvement === "NOT_DONE" ? "DENIED" : "CONFIRMED", questionKey: question.key, requirementText: question.requirement.text.slice(0, 500), verdictBefore: question.finding.verdict, involvement: checked.value.involvement, rulesVersion: RULES_VERSION } });
+    await tx.clarificationEvent.create({ data: { userId: question.userId, clarificationId: row.id, savedJobId: question.jobId, action: checked.value.involvement === "NOT_DONE" ? "DENIED" : "CONFIRMED", questionKey: question.key, requirementText: question.requirement.text.slice(0, 500), verdictBefore: question.finding.verdict, involvement: checked.value.involvement, rulesVersion: RULES_VERSION, recognitionVersion: partsVersion(checked.value) } });
     return row;
   }).catch(() => null);
   if (saved === "rate_limited" || saved === "already_answered") return { ok: false, error: saved };
@@ -320,8 +328,8 @@ export async function correctStructuredAnswer(options: Scope & { clarificationId
     await tx.candidateClarification.update({ where: { id: old.id }, data: { status: "SUPERSEDED" } });
     const row = await tx.candidateClarification.create({ data: structuredRow(old.userId, old.savedJobId, old.requirementText, old.questionKey, old.coveredKeys, old.id, checked.value, checked.consistency), select: { id: true } });
     if (checked.value.parts.length) await tx.clarificationPart.createMany({ data: checked.value.parts.map(p => ({ userId: old.userId, clarificationId: row.id, partIndex: p.partIndex, partText: p.partText, checked: p.checked })) });
-    await tx.clarificationEvent.create({ data: { userId: old.userId, clarificationId: row.id, savedJobId: old.savedJobId, action: "CORRECTED", questionKey: old.questionKey, requirementText: old.requirementText, involvement: checked.value.involvement, rulesVersion: RULES_VERSION } });
-    if (part) await tx.clarificationEvent.create({ data: { userId: old.userId, clarificationId: row.id, savedJobId: old.savedJobId, action: PART_QUESTION_DONE, questionKey: old.questionKey, requirementText: part.partText, rulesVersion: RULES_VERSION } });
+    await tx.clarificationEvent.create({ data: { userId: old.userId, clarificationId: row.id, savedJobId: old.savedJobId, action: "CORRECTED", questionKey: old.questionKey, requirementText: old.requirementText, involvement: checked.value.involvement, rulesVersion: RULES_VERSION, recognitionVersion: partsVersion(checked.value) } });
+    if (part) await tx.clarificationEvent.create({ data: { userId: old.userId, clarificationId: row.id, savedJobId: old.savedJobId, action: PART_QUESTION_DONE, questionKey: old.questionKey, requirementText: part.partText, rulesVersion: RULES_VERSION, recognitionVersion: FORM_RECOGNITION_VERSION } });
     return row;
   }).catch(() => null);
   if (saved === "rate_limited") return { ok: false, error: "rate_limited" };
@@ -343,6 +351,6 @@ export async function answerPartQuestion(options: Scope & { clarificationId: str
     };
     return correctStructuredAnswer({ ...options, submission, partQuestion: options.partIndex });
   }
-  await prisma.clarificationEvent.create({ data: { userId: old.userId, clarificationId: old.id, savedJobId: old.savedJobId, action: PART_QUESTION_DONE, questionKey: old.questionKey, requirementText: part.partText, rulesVersion: RULES_VERSION } });
+  await prisma.clarificationEvent.create({ data: { userId: old.userId, clarificationId: old.id, savedJobId: old.savedJobId, action: PART_QUESTION_DONE, questionKey: old.questionKey, requirementText: part.partText, rulesVersion: RULES_VERSION, recognitionVersion: FORM_RECOGNITION_VERSION } });
   return { ok: true };
 }

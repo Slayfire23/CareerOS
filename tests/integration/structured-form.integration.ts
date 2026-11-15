@@ -84,7 +84,8 @@ it("saving structured answers changes no verdict, even a description that would 
   expect(await verdicts(a.user.id, a.job.id)).toEqual(before);
 
   const rows = await prisma.candidateClarification.findMany({ where: { userId: a.user.id }, include: { parts: { orderBy: { partIndex: "asc" } } }, orderBy: { createdAt: "asc" } });
-  expect(rows.map(r => [r.formVersion, r.involvement, r.outcome, r.evidenceId])).toEqual([[2, "PERFORMED", "ROLE_DETAIL_ADDED", null], [2, "NOT_DONE", "DENIED", null]]);
+  // Stage F1: a structured role answer has its own evidence id (for masking and deletion); a "haven't done this" has none.
+  expect(rows.map(r => [r.formVersion, r.involvement, r.outcome, r.evidenceId])).toEqual([[2, "PERFORMED", "ROLE_DETAIL_ADDED", `experience:${rows[0].id}`], [2, "NOT_DONE", "DENIED", null]]);
   expect(rows[0].parts.map(p => [p.partIndex, p.partText, p.checked])).toEqual([[0, "Installing residential plumbing", true], [1, "Repairing residential plumbing", true]]);
   expect(rows[0].consistency).toBe("consistent");
   // Events record the choice, never the person's words.

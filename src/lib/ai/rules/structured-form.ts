@@ -4,7 +4,11 @@ import { approvedSplitFor, type LinkedSplit } from "@/lib/ai/rules/approved-spli
 import { requirementAsks, type Involvement, type WorkFrequency, type WorkRecency } from "@/lib/ai/rules/structured-answer";
 import { CHOICES, FREQUENCIES, LEAD_CHOICES, RECENCIES, fieldsFromSpec, type Fields, type FormSpec } from "@/lib/ai/rules/structured-form-spec";
 import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
-import { recognizeParts } from "@/lib/ai/rules/split-recognition";
+import { RECOGNITION_VERSION, recognizeParts } from "@/lib/ai/rules/split-recognition";
+
+/** Stage F1 audit: the split-recognition version whose approved parts (E1) and part reading (`targetedQuestions`) this
+ * form uses. Recorded on the events those parts or part questions produced; never read by matching. */
+export const FORM_RECOGNITION_VERSION: string = RECOGNITION_VERSION;
 
 // Phase 5.3 Stage E: the structured "your part" questionnaire (Stage 4A design with D1–D3 and O1; DD2 for approved
 // splits; owner decisions E1–E4). Pure: what the form shows, what a submission may contain, and which neutral follow-up
