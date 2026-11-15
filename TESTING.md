@@ -385,3 +385,23 @@ Report: docs/PHASE5_3_STAGE_D1_REPORT.md.
 
 Report: docs/PHASE5_3_STAGE_D2_REPORT.md.
 
+## Phase 5.3 Stage E, structured "your part" questionnaire - November 14, 2026 (local commit, not pushed)
+
+The form sits behind `STRUCTURED_OWNERSHIP_FORM_ENABLED` (off by default; needs `CLARIFICATION_REVIEW_ENABLED`; refused on Vercel).
+- **Fields:** the ownership choice (8 options), how often, most recently, role, an optional description, and unticked per-part checkboxes for an approved split.
+- **Linking (E1):** exact requirement wording only.
+- **Follow-ups:** neutral questions, each asked once.
+- **Storage:** answers are saved as formVersion 2; **matching ignores them until Stage F**.
+
+**Tests:**
+- 24 new in `tests/structured-form.test.ts`, plus a new guard that the rule table is called nowhere;
+- 8 new in `tests/integration/structured-form.integration.ts`;
+- the browser spec `e2e/job-structured-form.spec.ts` (local; run against a server with both flags and `E2E_STRUCTURED_FORM=true`).
+
+**Results:**
+- **Verdicts:** identical before and after saving structured answers. No counting answer is replaced. Nothing reaches Supported on its own.
+- **Suites:** 2,978 unit and 191 integration tests pass. The browser spec passes. With flags off, the related browser specs pass.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_E_REPORT.md.
+

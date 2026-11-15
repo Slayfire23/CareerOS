@@ -1,7 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
-import { confirmWithDetail, confirmWithEntry, correctAnswer, deleteAnswerPermanently, denyQuestion, revokeAnswer, skipQuestion, type ReviewResult } from "@/lib/ai/clarification-review";
+import { answerPartQuestion, confirmWithDetail, confirmWithEntry, correctAnswer, correctStructuredAnswer, deleteAnswerPermanently, denyQuestion, revokeAnswer, saveStructuredAnswer, skipQuestion, type ReviewResult, type StructuredResult } from "@/lib/ai/clarification-review";
+import type { RawSubmission } from "@/lib/ai/rules/structured-form";
 import { readAiConfig } from "@/lib/ai/config";
 import { parseEducation } from "@/lib/education";
 import { createClient } from "@/lib/supabase/server";
@@ -99,4 +100,62 @@ export async function reviewDelete(_previous: ReviewState, form: FormData): Prom
   if (!(await deleteAnswerPermanently({ supabaseAuthId: user.id, clarificationId, config: readAiConfig() }))) return { error: ERRORS.not_found };
   revalidatePath("/dashboard", "layout");
   return { message: "Permanently deleted." };
+}
+
+// ---- Phase 5.3 Stage E: structured "your part" answers (behind STRUCTURED_OWNERSHIP_FORM_ENABLED). ----
+export type StructuredState = { error?: string; message?: string; fieldErrors?: Partial<Record<string, string>> };
+const STRUCTURED_SAVED = "Saved. This kind of answer doesn't change the match yet. You can change, revoke, or delete it below.";
+const STRUCTURED_ERRORS: Record<string, string> = {
+  ...ERRORS,
+  disabled: "This isn't available.",
+  already_answered: "You've already answered this. Edit, revoke, or delete that answer below.",
+};
+
+function submissionOf(form: FormData): RawSubmission {
+  const text = (key: string) => { const v = one(form, key); return v === null ? null : v; };
+  return {
+    involvement: text("involvement"), alsoDidSome: text("alsoDidSome"), frequency: text("frequency"), recency: text("recency"),
+    claimedMonths: text("claimedMonths"), experienceId: text("experienceId"), detail: text("detail"),
+    parts: form.getAll("part").filter((v): v is string => typeof v === "string"),
+  };
+}
+function structuredReply(result: StructuredResult, saved: string): StructuredState {
+  if (!result.ok) {
+    const fieldErrors = Object.fromEntries((result.errors ?? []).map(e => [e.field, e.message]));
+    return { error: result.message ?? (result.errors?.length ? "Check the highlighted answers and try again." : STRUCTURED_ERRORS[result.error]), fieldErrors };
+  }
+  revalidatePath("/dashboard", "layout");
+  return { message: saved };
+}
+
+export async function reviewSaveStructured(_previous: StructuredState, form: FormData): Promise<StructuredState> {
+  const user = await signedInUser();
+  if (!user) return { error: EXPIRED };
+  const analysisId = one(form, "analysisId");
+  const questionKey = one(form, "questionKey");
+  if (!analysisId || !questionKey) return { error: ERRORS.not_found };
+  const submission = submissionOf(form);
+  const saved = submission.detail && answerLanguage(submission.detail) !== "en" ? `${STRUCTURED_SAVED} ${LANGUAGE_NOTE}` : STRUCTURED_SAVED;
+  return structuredReply(await saveStructuredAnswer({ supabaseAuthId: user.id, analysisId, questionKey, submission, config: readAiConfig() }), saved);
+}
+
+export async function reviewCorrectStructured(_previous: StructuredState, form: FormData): Promise<StructuredState> {
+  const user = await signedInUser();
+  if (!user) return { error: EXPIRED };
+  const clarificationId = one(form, "clarificationId");
+  if (!clarificationId) return { error: ERRORS.not_found };
+  const partQuestion = one(form, "partQuestion");
+  const result = await correctStructuredAnswer({ supabaseAuthId: user.id, clarificationId, submission: submissionOf(form), partQuestion: partQuestion && /^\d$/.test(partQuestion) ? Number(partQuestion) : null, config: readAiConfig() });
+  return structuredReply(result, "Changed. This kind of answer doesn't change the match yet.");
+}
+
+export async function reviewPartQuestion(_previous: StructuredState, form: FormData): Promise<StructuredState> {
+  const user = await signedInUser();
+  if (!user) return { error: EXPIRED };
+  const clarificationId = one(form, "clarificationId");
+  const partIndex = one(form, "partIndex");
+  const response = one(form, "response");
+  if (!clarificationId || !partIndex || !/^\d$/.test(partIndex) || (response !== "no" && response !== "leave")) return { error: ERRORS.invalid };
+  const result = await answerPartQuestion({ supabaseAuthId: user.id, clarificationId, partIndex: Number(partIndex), response, config: readAiConfig() });
+  return structuredReply(result, response === "no" ? "Updated: that part is no longer ticked." : "Okay, we'll leave it as it is.");
 }

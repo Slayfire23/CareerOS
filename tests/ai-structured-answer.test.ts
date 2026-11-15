@@ -310,8 +310,17 @@ describe("Stage 2 is isolated from matching and the review workflow", () => {
     return out;
   };
   it("no application code uses the rule table, the splitter, recency detection or the compound keys", () => {
-    const users = walk("src").filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && /structured-answer|proposeCompoundSplit|explicitRecency|compoundQuestionKey|partQuestionKey/.test(readFileSync(f, "utf8")));
-    // structured-consistency.ts (Stage 3) uses the rule table's types; it is itself unused by the app (tests/ai-rules-v20.test.ts).
-    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts"].includes(f))).toEqual([]);
+    const users = walk("src").filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && /rules\/structured-answer"|proposeCompoundSplit|explicitRecency|compoundQuestionKey|partQuestionKey/.test(readFileSync(f, "utf8")));
+    // structured-consistency.ts (Stage 3) uses the rule table's types; it is itself unused by matching (tests/ai-rules-v20.test.ts).
+    // Stage E (the structured form, behind its flag): the form model reads `requirementAsks` to know which fields to show;
+    // the others use the rule table's types only. None of them gives a verdict.
+    const stageE = ["src/lib/ai/rules/structured-form.ts", "src/lib/ai/rules/structured-form-spec.ts", "src/lib/ai/analysis.ts", "src/components/structured-answer-form.tsx"];
+    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts", ...stageE].includes(f))).toEqual([]);
+    for (const f of ["src/lib/ai/rules/structured-form-spec.ts", "src/lib/ai/analysis.ts", "src/components/structured-answer-form.tsx"]) {
+      expect(readFileSync(f, "utf8"), f).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);
+    }
+  });
+  it("the rule table gives no verdict anywhere in the app yet: nothing calls readStructuredAnswer (Stage F wires it)", () => {
+    expect(walk("src").filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && /readStructuredAnswer\s*\(/.test(readFileSync(f, "utf8")))).toEqual([]);
   });
 });

@@ -4,6 +4,8 @@ import { useActionState, useId, useState } from "react";
 import { reviewConfirmDetail, reviewConfirmEntry, reviewCorrect, reviewDelete, reviewDeny, reviewRevoke, reviewSkip, type ReviewState } from "@/app/jobs/review-actions";
 import { DETAIL_MAX } from "@/lib/ai/rules/clarification-limits";
 import type { ReviewQuestion } from "@/lib/ai/rules/review-queue";
+import type { FormSpec } from "@/lib/ai/rules/structured-form-spec";
+import { StructuredAnswerForm } from "@/components/structured-answer-form";
 import { SECTIONS } from "@/lib/sections";
 
 const NOTE = "Saved to your profile as self-reported, in your own words, and used for other jobs too. CareerOS doesn't independently check it, so only add what's accurate. You can edit, revoke, or delete it at any time.";
@@ -67,7 +69,16 @@ function EntryForm({ analysisId, questionKey, credential }: { analysisId: string
   </form>;
 }
 
-function QuestionCard({ analysisId, question, roles, position }: { analysisId: string; question: ReviewQuestion; roles: { id: string; label: string }[]; position: number }) {
+/** Stage E: the structured form for a question, when its flag is on. A question covering several requirements is asked
+ * as one, without parts (they belong to one approved wording). */
+function specFor(question: ReviewQuestion, forms: Record<string, FormSpec> | null | undefined): FormSpec | null {
+  if (!forms || question.kind !== "work_detail") return null;
+  const spec = forms[question.keys[0]] ?? forms[question.key];
+  if (!spec) return null;
+  return question.keys.length > 1 ? { ...spec, parts: null } : spec;
+}
+
+function QuestionCard({ analysisId, question, roles, position, structured }: { analysisId: string; question: ReviewQuestion; roles: { id: string; label: string }[]; position: number; structured: FormSpec | null }) {
   const [open, setOpen] = useState(false);
   const [denied, deny, denying] = useActionState(reviewDeny, {} as ReviewState);
   const [skipped, skip, skipping] = useActionState(reviewSkip, {} as ReviewState);
@@ -93,14 +104,16 @@ function QuestionCard({ analysisId, question, roles, position }: { analysisId: s
     <Status state={denied} />
     <Status state={skipped} />
     {open && (question.kind === "work_detail"
-      ? <WorkForm analysisId={analysisId} questionKey={question.key} roles={roles} />
+      ? structured
+        ? <StructuredAnswerForm mode="new" analysisId={analysisId} questionKey={question.key} spec={structured} roles={roles} requirementText={question.question} />
+        : <WorkForm analysisId={analysisId} questionKey={question.key} roles={roles} />
       : <EntryForm analysisId={analysisId} questionKey={question.key} credential={question.kind === "credential"} />)}
   </li>;
 }
 
-export function ReviewQuestions({ analysisId, questions, roles }: { analysisId: string; questions: ReviewQuestion[]; roles: { id: string; label: string }[] }) {
+export function ReviewQuestions({ analysisId, questions, roles, structuredForms }: { analysisId: string; questions: ReviewQuestion[]; roles: { id: string; label: string }[]; structuredForms?: Record<string, FormSpec> | null }) {
   return <ol className="space-y-3">
-    {questions.map((q, i) => <QuestionCard key={q.key} analysisId={analysisId} question={q} roles={roles} position={i + 1} />)}
+    {questions.map((q, i) => <QuestionCard key={q.key} analysisId={analysisId} question={q} roles={roles} position={i + 1} structured={specFor(q, structuredForms)} />)}
   </ol>;
 }
 

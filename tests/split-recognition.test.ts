@@ -130,9 +130,10 @@ describe("the module is inactive", () => {
     }
     return out;
   };
-  it("nothing in the app imports it or its data", () => {
+  it("matching never reaches it: only the Stage E form uses it, for the approved part wording and to choose a plain question", () => {
     const users = walk("src").filter(f => f !== "src/lib/ai/rules/split-recognition.ts" && /split-recognition|approved_splits/.test(readFileSync(f, "utf8")));
-    expect(users).toEqual([]);
+    expect(users.sort()).toEqual(["src/lib/ai/rules/approved-split-link.ts", "src/lib/ai/rules/structured-form.ts"]);
+    for (const f of ["src/lib/ai/analysis.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/engine.ts", "src/lib/ai/rules/follow-up-reply.ts"]) expect(readFileSync(f, "utf8"), f).not.toMatch(/recognizeParts|split-recognition/);
   });
 });
 

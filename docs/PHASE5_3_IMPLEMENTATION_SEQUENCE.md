@@ -40,7 +40,8 @@ There's no tuning against opened sealed cases after evaluation. **Only Stage A i
 | B | **Done under the owner-approved boundary** (2026-11-13). rules-v21 is opt-in (F1–F9, DD3, F6, the verdict-inert `bounded` field); v20 stays the default; the engine and follow-up behaviour are unchanged. Report: `docs/PHASE5_3_STAGE_B_REPORT.md` |
 | C | **Done: rules-v21 adopted as the local matching default on 2026-11-14, with D2** (the save-time check follows it). Owner approval 2026-11-13. P1 fixed the gate-4 failure first. The engine output is identical apart from the version label; follow-up behaviour matches the simulated adoption. Report: `docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md` §9 |
 | D | **D.1 and D.2 done (2026-11-14): the inactive split-recognition module, `splits-v1.1`.** It covers the 33 approved splits verbatim, includes the A77 consumer of `bounded`, and (D.2) never counts delegated work ("have my clerk call…", "send plumbers out to…") as the person's own. `transferred` is informational. Parity 284 of 284; not wired. Reports: `docs/PHASE5_3_STAGE_D1_REPORT.md`, `docs/PHASE5_3_STAGE_D2_REPORT.md` |
-| E–G | Not started |
+| E | **Done (2026-11-14), local and flag-off:** the structured "your part" questionnaire (`STRUCTURED_OWNERSHIP_FORM_ENABLED`, which needs the review flag and is refused on Vercel). Splits are linked by exact wording (E1); a counting answer is never replaced (E2); recognition is never shown (E3); the wording is plain (E4). Structured answers are saved as formVersion 2 and **change no verdict** until Stage F. Report: `docs/PHASE5_3_STAGE_E_REPORT.md` |
+| F–G | Not started. Stage F prerequisites: Stage E report §4 |
 
 **V5 status:** 46 of 47 expectations are satisfied in the scratch simulation, with the Stage D consumer modeled. The remaining failure is the preserved historical failure-4 expectation (separate owner decision). The end-to-end recognition path doesn't exist yet and is unverified.
 

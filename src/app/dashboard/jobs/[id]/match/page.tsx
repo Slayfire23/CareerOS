@@ -14,6 +14,8 @@ import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
 import { ClarificationPanel, EditAnswerForm, TakeBackForm } from "@/components/job-clarification";
 import { FollowUps } from "@/components/job-follow-up";
 import { AnswerControls, ReviewQuestions } from "@/components/job-review-panel";
+import { StructuredAnswerBlock } from "@/components/structured-answer-form";
+import { CHOICES } from "@/lib/ai/rules/structured-form-spec";
 import { clarificationFor } from "@/lib/ai/rules/clarifications";
 import terminology from "@/lib/ai/rules/data/terminology.json";
 import type { EvidenceOrigin } from "@/lib/ai/evidence";
@@ -156,7 +158,7 @@ function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnT
         {review.changes.map((c, i) => <li key={`${c.requirementText}-${i}`}>{c.requirementText}: {VERDICT_STYLE[c.before as Verdict]?.label ?? c.before} → {VERDICT_STYLE[c.after as Verdict]?.label ?? c.after}</li>)}
       </ul>
     </div>}
-    <ReviewQuestions analysisId={analysisId} questions={queue.questions} roles={data.roles} />
+    <ReviewQuestions analysisId={analysisId} questions={queue.questions} roles={data.roles} structuredForms={review.structuredForms} />
     {(review.followUps.length > 0 || review.followUpUnavailable) && <FollowUps followUps={review.followUps} unavailable={review.followUpUnavailable} />}
     {queue.notShown > 0 && <p className="text-sm text-muted">{queue.notShown} more not shown, to keep this short. They appear as you answer these.</p>}
     {review.answers.length > 0 && <div className="space-y-2">
@@ -164,9 +166,14 @@ function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnT
       <ul className="divide-y text-sm">
         {review.answers.map(a => <li key={a.id} className="space-y-1 py-2">
           <p className="text-xs font-medium text-muted">{dateTime.format(a.createdAt)} · {a.requirementText}{a.status === "REVOKED" ? " · Revoked, no longer counts" : ""}</p>
-          <p className="break-words">{a.outcome === "DENIED" ? "You said you don't have this." : a.detail ?? a.qualification}{a.roleTitle && <span className="text-muted"> ({a.roleTitle})</span>}</p>
+          {a.structured
+            ? <StructuredAnswerBlock clarificationId={a.id} requirementText={a.requirementText} spec={a.structured.spec} roles={data.roles} editable={a.structured.editable} questions={a.structured.questions}
+              choiceLabel={`${a.structured.alsoDidSome === true ? "I did some of it myself (and led or arranged it)" : CHOICES.find(c => c.value === a.structured!.involvement)?.label ?? ""}${a.detail ? `: ${a.detail}` : ""}${a.roleTitle ? ` (${a.roleTitle})` : ""}`}
+              partsLabel={a.structured.parts.length ? `Parts you did yourself: ${a.structured.parts.filter(p => p.checked).map(p => p.partText).join(", ") || "none ticked"}` : null}
+              initial={{ involvement: a.structured.involvement, alsoDidSome: a.structured.alsoDidSome, frequency: a.structured.frequency, recency: a.structured.recency, claimedMonths: a.structured.claimedMonths, experienceId: a.structured.experienceId, detail: a.detail, checkedParts: a.structured.parts.filter(p => p.checked).map(p => p.partIndex) }} />
+            : <p className="break-words">{a.outcome === "DENIED" ? "You said you don't have this." : a.detail ?? a.qualification}{a.roleTitle && <span className="text-muted"> ({a.roleTitle})</span>}</p>}
           {a.detail && a.status === "ACTIVE" && answerLanguage(a.detail) !== "en" && <p className="text-xs text-muted">{LANGUAGE_NOTE}</p>}
-          <AnswerControls clarificationId={a.id} detail={a.outcome === "ROLE_DETAIL_ADDED" ? a.detail : null} label={`answer about ${a.requirementText}`} status={a.status} />
+          <AnswerControls clarificationId={a.id} detail={a.outcome === "ROLE_DETAIL_ADDED" && !a.structured ? a.detail : null} label={`answer about ${a.requirementText}`} status={a.status} />
         </li>)}
       </ul>
     </div>}

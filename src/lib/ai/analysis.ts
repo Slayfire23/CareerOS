@@ -27,6 +27,8 @@ import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { applyFollowUps, followUpKind, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
 import { buildReviewQueue, questionKey, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
+import { formContext, formSpec, targetedQuestions, type FormSpec, type TargetedQuestion } from "@/lib/ai/rules/structured-form";
+import type { Involvement } from "@/lib/ai/rules/structured-answer";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
 // Server-side analysis workflow. Every function takes the verified Supabase user id and scopes
@@ -615,8 +617,13 @@ export type LocalAiStatus = { available: boolean; model: string | null };
 
 export type ClarificationAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
 
-export type ReviewAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; status: string; createdAt: Date; roleTitle: string | null; qualification: string | null };
-export type ReviewPageData = { queue: ReviewQueue; answers: ReviewAnswer[]; changes: { requirementText: string; before: string; after: string; at: Date }[]; followUps: { id: string; status: string; question: string; requirementText: string; detail: string | null; note: string | null }[]; followUpUnavailable: boolean };
+export type ReviewAnswer = { id: string; requirementText: string; detail: string | null; outcome: string; status: string; createdAt: Date; roleTitle: string | null; qualification: string | null; structured?: StructuredAnswerView | null };
+/** Phase 5.3 Stage E: a structured answer as the page shows it. Never what the reader found: only the person's own
+ * choices, and the plain questions to ask (E3). */
+export type StructuredAnswerView = { involvement: Involvement; alsoDidSome: boolean | null; frequency: string | null; recency: string | null; claimedMonths: number | null; experienceId: string | null; parts: { partIndex: number; partText: string; checked: boolean }[]; questions: TargetedQuestion[]; spec: FormSpec; editable: boolean };
+export type ReviewPageData = { queue: ReviewQueue; answers: ReviewAnswer[]; changes: { requirementText: string; before: string; after: string; at: Date }[]; followUps: { id: string; status: string; question: string; requirementText: string; detail: string | null; note: string | null }[]; followUpUnavailable: boolean;
+  /** Phase 5.3 Stage E: the structured form, per question key, when its flag is on. */
+  structuredForms: Record<string, FormSpec> | null };
 
 /** Masks results resting on an answer that no longer counts, so a revocation takes effect everywhere at once,
  * even for a job not yet run again. */
@@ -630,6 +637,20 @@ function maskRevoked(view: AnalysisView, revokedEvidence: ReadonlySet<string>, a
   const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
   for (const f of findings) verdictCounts[f.verdict]++;
   return { ...view, findings, verdictCounts };
+}
+
+/** Stage E: the page's view of one structured answer: the person's own choices, and the plain questions still to ask. */
+function structuredView(r: { status: string; requirementText: string; detail: string | null; questionKey: string | null; coveredKeys: string[]; involvement: Involvement | null; alsoDidSome: boolean | null; frequency: string | null; recency: string | null; claimedMonths: number | null; experienceId: string | null; parts: { partIndex: number; partText: string; checked: boolean }[] }, structuredOn: boolean, done: ReadonlyMap<string, ReadonlySet<string>>): StructuredAnswerView | null {
+  if (!r.involvement) return null;
+  const context = formContext({ text: r.requirementText, category: "Skills" }, r.coveredKeys.length > 1);
+  const doneParts = done.get(r.questionKey ?? "") ?? new Set<string>();
+  const doneIndexes = new Set(r.parts.filter(p => doneParts.has(p.partText)).map(p => p.partIndex));
+  const live = structuredOn && r.status === "ACTIVE";
+  return {
+    involvement: r.involvement, alsoDidSome: r.alsoDidSome, frequency: r.frequency, recency: r.recency, claimedMonths: r.claimedMonths, experienceId: r.experienceId, parts: r.parts,
+    questions: live ? targetedQuestions({ involvement: r.involvement, detail: r.detail, parts: r.parts }, context, doneIndexes) : [],
+    spec: formSpec(context), editable: live,
+  };
 }
 
 export async function getAnalysisPageData(supabaseAuthId: string, jobId: string, config: AiConfig, now = new Date()) {
@@ -706,13 +727,18 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 200,
-      select: { id: true, requirementText: true, detail: true, outcome: true, status: true, createdAt: true, questionKey: true, coveredKeys: true, evidenceId: true, savedJobId: true, experience: { select: { jobTitle: true } }, education: { select: { qualification: true } } },
+      select: { id: true, requirementText: true, detail: true, outcome: true, status: true, createdAt: true, questionKey: true, coveredKeys: true, evidenceId: true, savedJobId: true, experience: { select: { jobTitle: true } }, education: { select: { qualification: true } },
+        formVersion: true, involvement: true, alsoDidSome: true, frequency: true, recency: true, claimedMonths: true, experienceId: true, parts: { orderBy: { partIndex: "asc" }, select: { partIndex: true, partText: true, checked: true } } },
     });
+    // Stage E: a structured answer (formVersion 2) counts for nothing until Stage F. It never stands in for a denial, and
+    // with its form off it doesn't keep the ordinary question from being asked.
+    const structuredOn = config.enabled && config.structuredForm === true;
+    const counts = (r: (typeof rows)[number]) => r.formVersion === 1 || structuredOn;
     const keysOf = (r: (typeof rows)[number]) => [r.questionKey!, ...r.coveredKeys];
-    const answered = new Set(rows.filter(r => r.status === "ACTIVE" && r.questionKey && r.outcome !== "SKIPPED" && r.outcome !== "DECLINED").flatMap(keysOf));
+    const answered = new Set(rows.filter(r => r.status === "ACTIVE" && r.questionKey && r.outcome !== "SKIPPED" && r.outcome !== "DECLINED" && counts(r)).flatMap(keysOf));
     const skipped = new Set(rows.filter(r => r.outcome === "SKIPPED" && r.savedJobId === job.id && r.questionKey).flatMap(keysOf));
     const revokedEvidence = new Set([...rows.filter(r => r.status !== "ACTIVE" && r.evidenceId).map(r => r.evidenceId!), ...lapsedReplies]);
-    const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey).flatMap(keysOf));
+    const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey && r.formVersion === 1).flatMap(keysOf));
     if (view) shown = maskRevoked(view, revokedEvidence, activeDenials);
     const events = await prisma.clarificationEvent.findMany({
       // An answer that's been deleted leaves the audit row, and nothing on this page.
@@ -721,9 +747,13 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
       take: 5,
       select: { requirementText: true, verdictBefore: true, verdictAfter: true, createdAt: true },
     });
+    // Part questions already dealt with, per question key: the approved part wording, never the person's words.
+    const doneEvents = structuredOn ? await prisma.clarificationEvent.findMany({ where: { userId: user.id, action: "PART_Q_DONE" }, select: { questionKey: true, requirementText: true } }) : [];
+    const partQuestionsDone = new Map<string, Set<string>>();
+    for (const e of doneEvents) if (e.questionKey && e.requirementText) partQuestionsDone.set(e.questionKey, (partQuestionsDone.get(e.questionKey) ?? new Set()).add(e.requirementText));
     review = {
       queue: shown ? buildReviewQueue(shown.requirements, shown.findings, answered, skipped) : { questions: [], notShown: 0, settled: 0, total: 0, suppressedByEarlierAnswers: 0 },
-      answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null })),
+      answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null , structured: r.formVersion === 2 ? structuredView(r, structuredOn, partQuestionsDone) : null })),
       changes: events.map(e => ({ requirementText: e.requirementText ?? "", before: e.verdictBefore!, after: e.verdictAfter!, at: e.createdAt })),
       followUps: followUpOn ? followUpRows.filter(f => f.savedJobId === job.id).map(f => {
         const quoted = f.clarification.detail?.slice(f.quoteStart, f.quoteEnd) ?? "";
@@ -733,6 +763,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
         return { id: f.id, status: f.status, requirementText: f.requirementText, detail: f.detail, question: followUpQuestion(quoted, f.requirementText, followUpKind(asked, answer, quoted)), note: reading ? REPLY_NOTES[reading.reason] : null };
       }) : [],
       followUpUnavailable: followUpOn && (await prisma.clarificationEvent.count({ where: { userId: user.id, savedJobId: job.id, action: "FU_UNAVAILABLE" } })) > 0,
+      structuredForms: structuredOn && shown ? Object.fromEntries(shown.requirements.map(r => [keyForRequirement(r), formSpec(formContext(r))])) : null,
     };
   }
 

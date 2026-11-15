@@ -52,8 +52,11 @@ export type AiConfig =
       interpretationShadow?: { url: string; model: string } | null;
       /** The follow-up workflow, for local testing. null unless turned on, with the review, on this machine. */
       followUp?: { url: string; model: string } | null;
+      /** Phase 5.3 Stage E: the structured "your part" form, for local testing. Off unless turned on, with the review,
+       * and never on Vercel. Its answers are saved but change no verdict until Stage F. */
+      structuredForm?: boolean;
     }
-  | { enabled: false; reason: string; reviewEnabled?: false };
+  | { enabled: false; reason: string; reviewEnabled?: false; structuredForm?: false };
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
@@ -123,6 +126,9 @@ function readService(env: Record<string, string | undefined>): { url: string; se
   return { url: url.origin + url.pathname.replace(/\/$/, ""), secret };
 }
 
+/** The structured form lives in the review panel, so it needs the review on too; never on Vercel. */
+const readStructuredForm = (env: Record<string, string | undefined>) => env.STRUCTURED_OWNERSHIP_FORM_ENABLED?.trim() === "true" && env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true" && !env.VERCEL;
+
 /** Follow-ups use the review's controls, so they need it on too. */
 const readFollowUp = (env: Record<string, string | undefined>) => (env.FOLLOW_UP_WORKFLOW_ENABLED?.trim() === "true" && env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true" ? localModel(env) : null);
 const readInterpretationShadow = (env: Record<string, string | undefined>) => (env.INTERPRETATION_SHADOW_ENABLED?.trim() === "true" ? localModel(env) : null);
@@ -154,6 +160,7 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
       reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
       interpretationShadow: readInterpretationShadow(env),
       followUp: readFollowUp(env),
+      structuredForm: readStructuredForm(env),
     };
   }
   const { cloud, reason } = readCloud(env);
@@ -170,5 +177,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     reviewEnabled: env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true",
     interpretationShadow: readInterpretationShadow(env),
     followUp: readFollowUp(env),
+    structuredForm: readStructuredForm(env),
   };
 }

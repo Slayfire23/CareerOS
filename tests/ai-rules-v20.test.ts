@@ -168,9 +168,12 @@ describe("rules-v21 is the matching default (adopted 2026-11-13); v20 and v19 st
   it("no application code picks a reader version (all of it takes the one default) or uses the consistency module", () => {
     // The reader library may accept an opt-in (rules-v21 adds the reply reader, Stage B); application code never passes one.
     // split-recognition.ts (Stage D.1) is an inactive library module like structured-consistency.ts; nothing in the app calls it.
-    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/rules/split-recognition.ts"];
+    // Stage E: the structured form's save path stores the consistency state for the audit trail, and its form model uses it
+    // to pick a plain question. Neither is on the matching path (analysis.ts never calls assessConsistency).
+    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/rules/split-recognition.ts", "src/lib/ai/clarification-review.ts", "src/lib/ai/rules/structured-form.ts"];
     const users = walk("src").filter(f => !allowed.includes(f) && /textRules|"v20"|structured-consistency|assessConsistency/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
+    expect(readFileSync("src/lib/ai/analysis.ts", "utf8")).not.toMatch(/assessConsistency|structured-consistency/);
   });
   it("rules-v21 is the default: only the reader library and the save-time check (D2) name it; nothing in the app picks a version", () => {
     const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts", "src/lib/ai/rules/clarifications.ts", "src/lib/ai/rules/split-recognition.ts"];
