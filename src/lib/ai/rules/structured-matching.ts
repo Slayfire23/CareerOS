@@ -245,11 +245,14 @@ export function matchStructuredAnswer(input: StructuredMatchInput): StructuredMa
 
   const answerId = `experience:${a.id}`;
   const choice = { evidenceId: `choice:${a.id}`, quote: null };
-  // The person's own words for a citation: the requirement reading's quote, or (an approved split, until F-4b) the
-  // description's first own statement. Only a consistent explanation is quoted as the person's work.
+  // The person's own words for a citation, only where they relate to what's asked (Stage F4: never cite unrelated words as
+  // support, the consistency gap in another form). A whole requirement: the requirement reading's own quote. An approved
+  // split, until F-4b: the description's first own statement, and only when recognition shows a ticked part in the
+  // person's own words. Only a consistent explanation is quoted. Anything else is the choice itself (candidate_choice).
   const ownQuote = (): string | null => {
     if (!description || consistency.state !== "consistent") return null;
     if (requirementQuote) return requirementQuote;
+    if (!split?.parts.some(p => p.checked && p.shown)) return null;
     const first = answerStatements(description, readerVersion).find(s => s.subject === "self");
     return verbatim(description, first?.text);
   };

@@ -20,8 +20,10 @@ describe("the recognition-version audit", () => {
   });
   it("only the structured save path writes it; analyses don't (no structured answer is applied before Stage F)", () => {
     // The F2 module names the field in its pure input type only (no database access; tests/structured-matching.test.ts).
-    const writers = source.filter(f => f !== "src/lib/ai/rules/structured-matching.ts" && /recognitionVersion\s*:/.test(readFileSync(f, "utf8")));
-    expect(writers).toEqual(["src/lib/ai/clarification-review.ts"]);
+    // The F4 composition module returns it as a value; only analysis.ts stores it.
+    const writers = source.filter(f => !["src/lib/ai/rules/structured-matching.ts", "src/lib/ai/rules/structured-apply.ts"].includes(f) && /recognitionVersion\s*:/.test(readFileSync(f, "utf8")));
+    // Stage F4: an analysis records it when a structured answer was read with recognition.
+    expect(writers.sort()).toEqual(["src/lib/ai/analysis.ts", "src/lib/ai/clarification-review.ts"]);
   });
   it("the migration is additive: two nullable columns, two format checks, and an idempotent backfill", () => {
     const statements = MIGRATION.split("\n").filter(l => /^\s*(?:ALTER|UPDATE|CREATE|DROP|DELETE|INSERT|TRUNCATE)\b/i.test(l)).map(l => l.trim());
@@ -37,19 +39,19 @@ describe("the recognition-version audit", () => {
 });
 
 describe("Stage E isolation still holds in F1", () => {
-  it("matching still reads free-text answers only, and nothing in the app calls the rule table", () => {
+  it("free-text matching still reads formVersion 1 only; the rule table is reached only through the F2 module, and that only through the F4 composition", () => {
     expect(readFileSync("src/lib/ai/analysis.ts", "utf8")).toMatch(/where: \{ userId, status: "ACTIVE", formVersion: 1,/);
     // Stage F2: only the unconnected structured-matching module calls it, and nothing imports that module.
     const pure = "src/lib/ai/rules/structured-matching.ts";
     for (const f of source.filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && f !== pure)) expect(readFileSync(f, "utf8"), f).not.toMatch(/readStructuredAnswer\s*\(/);
-    for (const f of source.filter(f => f !== pure)) expect(readFileSync(f, "utf8"), f).not.toMatch(/structured-matching/);
+    for (const f of source.filter(f => f !== pure && f !== "src/lib/ai/rules/structured-apply.ts")) expect(readFileSync(f, "utf8"), f).not.toMatch(/structured-matching/);
   });
   it("rules-v21 and splits-v1.1 stay the versions in use", () => {
     expect(DEFAULT_TEXT_RULES).toBe("v21");
     expect(RULES_VERSION).toBe("rules-v21");
     expect(RECOGNITION_VERSION).toBe("splits-v1.1");
   });
-  it("no new feature flag", () => {
-    for (const f of source) expect(readFileSync(f, "utf8"), f).not.toContain("STRUCTURED_MATCHING_ENABLED");
+  it("Stage F4's flag is read in one place only", () => {
+    expect(source.filter(f => /env\.STRUCTURED_MATCHING_ENABLED/.test(readFileSync(f, "utf8")))).toEqual(["src/lib/ai/config.ts"]);
   });
 });

@@ -258,7 +258,7 @@ const TITLE_CONTRADICTED = "Your job title suggested this, but your answer says 
 /** Phase 5.3: a confirmed answer that gives the asked work to someone else takes away credit that rested only on a job title,
  * to Not enough information, never lower. Supervising alone doesn't: the person may do the work too. What the rules said
  * before is kept beside it, and the citation is the answer's own words. A later reply can still show the person did it. */
-function titleContradicted(request: MatchRequest, requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding, options: ReadOptions): RawFinding | null {
+export function titleContradicted(request: MatchRequest, requirement: MatchRequirement, answer: Extract<LinkedAnswer, { action: "confirm" }>, f: RawFinding, options: ReadOptions): RawFinding | null {
   if ((f.verdict !== "supported" && f.verdict !== "possible") || !restsOnTitle(request, f) || answerLanguage(answer.detail) !== "en") return null;
   const text = qualificationText(requirement.text);
   const wanted = specificTerms(text);

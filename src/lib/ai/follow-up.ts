@@ -1,5 +1,5 @@
 import "server-only";
-import { WINDOW_MS } from "@/lib/ai/analysis";
+import { WINDOW_MS, currentFindings } from "@/lib/ai/analysis";
 import { purgeFollowUpReply } from "@/lib/ai/answer-deletion";
 import type { AiConfig } from "@/lib/ai/config";
 import type { MatchRequirement, Verdict } from "@/lib/ai/evidence";
@@ -37,7 +37,8 @@ export async function proposeFollowUp(options: { config: AiConfig; userId: strin
 
   const job = await prisma.jobMatchAnalysis.findFirst({ where: { userId: options.userId, savedJobId: options.jobId }, orderBy: { createdAt: "desc" }, select: { requirements: true, findings: true } });
   const requirement = (job?.requirements as MatchRequirement[] | undefined)?.find(r => r.text.includes(options.requirementText));
-  const finding = (job?.findings as Finding[] | undefined)?.find(f => f.requirementIndex === requirement?.index);
+  // Stage F4 (F-9): with structured matching off, a stored result resting on a structured answer doesn't count.
+  const finding = job ? (await currentFindings(options.userId, job.requirements as MatchRequirement[], job.findings as Finding[], options.config)).find(f => f.requirementIndex === requirement?.index) : undefined;
   if (!requirement || !finding) return "none";
   const rulesOnly: Verdict = finding.verdict;
   if (rulesOnly !== "insufficient_information") return "none"; // The rules read it already.

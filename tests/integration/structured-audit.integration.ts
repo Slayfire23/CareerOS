@@ -26,6 +26,9 @@ import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
 let identities: string[] = [];
 let verifiedDatabase = false;
 const on = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true", STRUCTURED_OWNERSHIP_FORM_ENABLED: "true" });
+// Stage F4 (F-9): a stored citation of a structured answer counts only with structured matching on; off, it is masked
+// even while the answer is active. So the positive controls below use `matching`.
+const matching = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true", STRUCTURED_OWNERSHIP_FORM_ENABLED: "true", STRUCTURED_MATCHING_ENABLED: "true" });
 const reviewOnly = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true" });
 const plain = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200" });
 const PLUMBING = "Install and repair residential plumbing"; // an approved split (A58): the form asks it part by part
@@ -158,18 +161,19 @@ it("masking: a stored citation of a structured answer is masked once it's correc
   const first = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
   await citeInLatest(a, first.evidenceId!);
   // While the answer is active, nothing is masked (control).
-  expect(await shownFirst(a)).toMatchObject({ verdict: "possible", citations: [{ evidenceId: first.evidenceId }] });
+  expect(await shownFirst(a, matching)).toMatchObject({ verdict: "possible", citations: [{ evidenceId: first.evidenceId }] });
+  for (const config of [on, reviewOnly, plain]) expect(await shownFirst(a, config), "flag off (F-9)").toMatchObject({ verdict: "insufficient_information", citations: [] });
 
   // Corrected: the earlier version no longer counts, so a citation of it is stale and masked.
   expect(await correctStructuredAnswer({ supabaseAuthId: a.id, clarificationId: first.id, config: on, submission: performed(a, { parts: ["1"] }) })).toEqual({ ok: true });
-  for (const config of [on, reviewOnly, plain]) expect(await shownFirst(a, config), "after correction").toMatchObject({ verdict: "insufficient_information", citations: [] });
+  for (const config of [matching, on, reviewOnly, plain]) expect(await shownFirst(a, config), "after correction").toMatchObject({ verdict: "insufficient_information", citations: [] });
 
   // Revoked: the same.
   const second = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
   await citeInLatest(a, second.evidenceId!);
-  expect(await shownFirst(a)).toMatchObject({ verdict: "possible" });
+  expect(await shownFirst(a, matching)).toMatchObject({ verdict: "possible" });
   expect(await revokeAnswer({ supabaseAuthId: a.id, clarificationId: second.id, config: on })).toMatchObject({ ok: true });
-  for (const config of [on, reviewOnly, plain]) expect(await shownFirst(a, config), "after revocation").toMatchObject({ verdict: "insufficient_information", citations: [] });
+  for (const config of [matching, on, reviewOnly, plain]) expect(await shownFirst(a, config), "after revocation").toMatchObject({ verdict: "insufficient_information", citations: [] });
 });
 
 it("permanent deletion removes the answer, every earlier version, and every stored citation of them", async () => {

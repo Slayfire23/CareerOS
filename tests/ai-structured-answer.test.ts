@@ -320,8 +320,11 @@ describe("Stage 2 is isolated from matching and the review workflow", () => {
     // Stage F3: the choice evidence names the choice types only.
     const stageF3 = ["src/lib/ai/choice-evidence.ts"];
     expect(readFileSync(stageF3[0], "utf8")).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);
-    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts", ...stageE, ...stageF2, ...stageF3].includes(f))).toEqual([]);
-    expect(walk("src").filter(f => !stageF2.includes(f) && /rules\/structured-matching"/.test(readFileSync(f, "utf8")))).toEqual([]);
+    // Stage F4: the composition module names the choice type only; its verdicts come through the F2 module.
+    const stageF4 = ["src/lib/ai/rules/structured-apply.ts"];
+    expect(readFileSync(stageF4[0], "utf8")).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);
+    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts", ...stageE, ...stageF2, ...stageF3, ...stageF4].includes(f))).toEqual([]);
+    expect(walk("src").filter(f => !stageF2.includes(f) && /rules\/structured-matching"/.test(readFileSync(f, "utf8")))).toEqual(["src/lib/ai/rules/structured-apply.ts"]);
     for (const f of ["src/lib/ai/rules/structured-form-spec.ts", "src/lib/ai/analysis.ts", "src/components/structured-answer-form.tsx"]) {
       expect(readFileSync(f, "utf8"), f).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);
     }
@@ -329,6 +332,6 @@ describe("Stage 2 is isolated from matching and the review workflow", () => {
   it("the rule table gives no verdict anywhere in the app yet: only the unconnected F2 module calls readStructuredAnswer (F4 wires it)", () => {
     const callers = walk("src").filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && /readStructuredAnswer\s*\(/.test(readFileSync(f, "utf8")));
     expect(callers).toEqual(["src/lib/ai/rules/structured-matching.ts"]);
-    expect(walk("src").filter(f => f !== callers[0] && /structured-matching/.test(readFileSync(f, "utf8")))).toEqual([]);
+    expect(walk("src").filter(f => f !== callers[0] && /structured-matching/.test(readFileSync(f, "utf8")))).toEqual(["src/lib/ai/rules/structured-apply.ts"]);
   });
 });

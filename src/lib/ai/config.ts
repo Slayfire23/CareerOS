@@ -55,8 +55,11 @@ export type AiConfig =
       /** Phase 5.3 Stage E: the structured "your part" form, for local testing. Off unless turned on, with the review,
        * and never on Vercel. Its answers are saved but change no verdict until Stage F. */
       structuredForm?: boolean;
+      /** Phase 5.3 Stage F4: structured answers count toward matching, through the approved rule table. Off unless turned
+       * on with the structured form (and so the review), never on Vercel. Choice-only results are never stored (F4). */
+      structuredMatching?: boolean;
     }
-  | { enabled: false; reason: string; reviewEnabled?: false; structuredForm?: false };
+  | { enabled: false; reason: string; reviewEnabled?: false; structuredForm?: false; structuredMatching?: false };
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
@@ -129,6 +132,9 @@ function readService(env: Record<string, string | undefined>): { url: string; se
 /** The structured form lives in the review panel, so it needs the review on too; never on Vercel. */
 const readStructuredForm = (env: Record<string, string | undefined>) => env.STRUCTURED_OWNERSHIP_FORM_ENABLED?.trim() === "true" && env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true" && !env.VERCEL;
 
+/** Stage F4: needs the structured form, which needs the review; never on Vercel. The reader stays the default one. */
+const readStructuredMatching = (env: Record<string, string | undefined>) => env.STRUCTURED_MATCHING_ENABLED?.trim() === "true" && readStructuredForm(env);
+
 /** Follow-ups use the review's controls, so they need it on too. */
 const readFollowUp = (env: Record<string, string | undefined>) => (env.FOLLOW_UP_WORKFLOW_ENABLED?.trim() === "true" && env.CLARIFICATION_REVIEW_ENABLED?.trim() === "true" ? localModel(env) : null);
 const readInterpretationShadow = (env: Record<string, string | undefined>) => (env.INTERPRETATION_SHADOW_ENABLED?.trim() === "true" ? localModel(env) : null);
@@ -161,6 +167,7 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
       interpretationShadow: readInterpretationShadow(env),
       followUp: readFollowUp(env),
       structuredForm: readStructuredForm(env),
+      structuredMatching: readStructuredMatching(env),
     };
   }
   const { cloud, reason } = readCloud(env);
@@ -178,5 +185,6 @@ export function readAiConfig(env: Record<string, string | undefined> = process.e
     interpretationShadow: readInterpretationShadow(env),
     followUp: readFollowUp(env),
     structuredForm: readStructuredForm(env),
+    structuredMatching: readStructuredMatching(env),
   };
 }

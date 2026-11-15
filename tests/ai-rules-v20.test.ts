@@ -170,7 +170,9 @@ describe("rules-v21 is the matching default (adopted 2026-11-13); v20 and v19 st
     // split-recognition.ts (Stage D.1) is an inactive library module like structured-consistency.ts; nothing in the app calls it.
     // Stage E: the structured form's save path stores the consistency state for the audit trail, and its form model uses it
     // to pick a plain question. Neither is on the matching path (analysis.ts never calls assessConsistency).
-    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/rules/split-recognition.ts", "src/lib/ai/clarification-review.ts", "src/lib/ai/rules/structured-form.ts"];
+    const allowed = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/rules/split-recognition.ts", "src/lib/ai/clarification-review.ts", "src/lib/ai/rules/structured-form.ts", "src/lib/ai/rules/structured-apply.ts"];
+    // Stage F4: the composition module reads structured answers with the default reader (no version is picked) and the
+    // consistency module, behind STRUCTURED_MATCHING_ENABLED; analysis.ts still never calls assessConsistency itself.
     const users = walk("src").filter(f => !allowed.includes(f) && /textRules|"v20"|structured-consistency|assessConsistency/.test(readFileSync(f, "utf8")));
     expect(users).toEqual([]);
     expect(readFileSync("src/lib/ai/analysis.ts", "utf8")).not.toMatch(/assessConsistency|structured-consistency/);

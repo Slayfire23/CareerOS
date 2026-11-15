@@ -1,6 +1,6 @@
 import "server-only";
 import type { AiConfig } from "@/lib/ai/config";
-import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
+import { WINDOW_MS, currentFindings, runJobAnalysis } from "@/lib/ai/analysis";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
 import { shadowInterpret } from "@/lib/ai/interpretation-shadow";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
@@ -25,7 +25,8 @@ export type ClarificationResult =
 type Asked = { userId: string; jobId: string; question: Clarification; finding: Finding };
 
 /** The question must be one the person's own latest analysis actually asks. */
-async function askedQuestion(supabaseAuthId: string, analysisId: string, requirementIndex: number): Promise<Asked | ClarificationError> {
+/** `config`: the flags in force (absent: structured matching counts as off, the safe reading). */
+async function askedQuestion(supabaseAuthId: string, analysisId: string, requirementIndex: number, config?: AiConfig): Promise<Asked | ClarificationError> {
   if (!UUID.test(analysisId) || !Number.isSafeInteger(requirementIndex) || requirementIndex < 0) return "not_found";
   const analysis = await prisma.jobMatchAnalysis.findFirst({
     where: { id: analysisId, user: { supabaseAuthId } },
@@ -33,7 +34,8 @@ async function askedQuestion(supabaseAuthId: string, analysisId: string, require
   });
   if (!analysis) return "not_found";
   const requirement = (analysis.requirements as MatchRequirement[]).find(r => r.index === requirementIndex);
-  const finding = (analysis.findings as Finding[]).find(f => f.requirementIndex === requirementIndex);
+  // Stage F4 (F-9): with structured matching off, a stored result resting on a structured answer doesn't count.
+  const finding = (await currentFindings(analysis.userId, analysis.requirements as MatchRequirement[], analysis.findings as Finding[], config)).find(f => f.requirementIndex === requirementIndex);
   const question = requirement && finding ? clarificationFor(requirement, finding) : null;
   if (!question || !finding) return "not_askable";
   return { userId: analysis.userId, jobId: analysis.savedJobId, question, finding };
@@ -66,7 +68,7 @@ async function reevaluate(supabaseAuthId: string, asked: Asked, config: AiConfig
 /** A specific description of work in one of the person's roles, kept apart from what they wrote there. */
 export async function addRoleDetail(options: { supabaseAuthId: string; analysisId: string; requirementIndex: number; experienceId: string; detail: string; config: AiConfig; now?: Date }): Promise<ClarificationResult> {
   const now = options.now ?? new Date();
-  const asked = await askedQuestion(options.supabaseAuthId, options.analysisId, options.requirementIndex);
+  const asked = await askedQuestion(options.supabaseAuthId, options.analysisId, options.requirementIndex, options.config);
   if (typeof asked === "string") return { ok: false, error: asked };
   if (asked.question.kind !== "work_detail") return { ok: false, error: "not_askable" };
   const problem = answerProblem(options.detail, asked.question.requirementText);
@@ -88,7 +90,7 @@ export async function addRoleDetail(options: { supabaseAuthId: string; analysisI
 /** A credential or qualification the person typed, saved as an ordinary education entry that points here. */
 export async function addEducationEntry(options: { supabaseAuthId: string; analysisId: string; requirementIndex: number; entry: ReturnType<typeof parseEducation>; config: AiConfig; now?: Date }): Promise<ClarificationResult> {
   const now = options.now ?? new Date();
-  const asked = await askedQuestion(options.supabaseAuthId, options.analysisId, options.requirementIndex);
+  const asked = await askedQuestion(options.supabaseAuthId, options.analysisId, options.requirementIndex, options.config);
   if (typeof asked === "string") return { ok: false, error: asked };
   if (asked.question.kind !== "credential" && asked.question.kind !== "education") return { ok: false, error: "not_askable" };
   const problem = entryProblem(options.entry.qualification, currentMonth(now), options.entry.endMonth);

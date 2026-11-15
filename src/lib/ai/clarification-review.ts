@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { WINDOW_MS, runJobAnalysis } from "@/lib/ai/analysis";
+import { WINDOW_MS, currentFindings, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
@@ -39,7 +39,8 @@ async function asked(options: Scope & { analysisId: string; questionKey: string 
   });
   if (!analysis) return "not_found";
   const requirements = analysis.requirements as MatchRequirement[];
-  const findings = analysis.findings as Finding[];
+  // Stage F4 (F-9): with structured matching off, a stored result resting on a structured answer doesn't count.
+  const findings = await currentFindings(analysis.userId, requirements, analysis.findings as Finding[], options.config);
   // The question must be one this analysis really asks, read with nothing suppressed.
   const question = buildReviewQueue(requirements, findings, new Set(), new Set(), Number.MAX_SAFE_INTEGER).questions.find(q => q.keys.includes(options.questionKey));
   if (!question) return "not_askable";

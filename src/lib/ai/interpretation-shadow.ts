@@ -1,4 +1,5 @@
 import "server-only";
+import { currentFindings } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import type { MatchRequirement, Verdict } from "@/lib/ai/evidence";
 import { callLocalModel, decideInterpretation, INTERPRET_VERSION, type InterpretOutcome } from "@/lib/ai/interpretation";
@@ -19,7 +20,8 @@ let waiting = 0;
 async function interpret(options: ShadowOptions, shadow: { url: string; model: string }) {
   const job = options.jobId ? await prisma.jobMatchAnalysis.findFirst({ where: { userId: options.userId, savedJobId: options.jobId }, orderBy: { createdAt: "desc" }, select: { requirements: true, findings: true } }) : null;
   const requirement = (job?.requirements as MatchRequirement[] | undefined)?.find(r => r.text.includes(options.requirementText)) ?? { index: 0, text: options.requirementText, category: "Skills" as const, priority: "Required" as const };
-  const finding = (job?.findings as Finding[] | undefined)?.find(f => f.requirementIndex === requirement.index);
+  // Stage F4 (F-9): with structured matching off, a stored result resting on a structured answer doesn't count.
+  const finding = job ? (await currentFindings(options.userId, job.requirements as MatchRequirement[], job.findings as Finding[], options.config)).find(f => f.requirementIndex === requirement.index) : undefined;
   const rulesOnly: Verdict = finding?.rulesOnlyVerdict ?? finding?.verdict ?? "insufficient_information";
   const call = await callLocalModel(requirement.text, options.answer, { url: shadow.url, model: shadow.model });
   const result = decideInterpretation(requirement, options.answer, rulesOnly, call.raw);

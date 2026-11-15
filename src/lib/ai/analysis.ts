@@ -29,6 +29,7 @@ import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { applyFollowUps, followUpKind, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
 import { buildReviewQueue, questionKey, keyForRequirement, type ReviewQueue } from "@/lib/ai/rules/review-queue";
 import { formContext, formSpec, targetedQuestions, type FormSpec, type TargetedQuestion } from "@/lib/ai/rules/structured-form";
+import { applyStructuredAnswers, maskStructuredFindings, NO_MASK, structuredDenials, structuredFingerprintAnswers, withholdChoiceFindings, type StructuredMask, type StructuredRow } from "@/lib/ai/rules/structured-apply";
 import type { Involvement } from "@/lib/ai/rules/structured-answer";
 import { ASSIST_PROMPT_VERSION, buildSuggestRequest, checkPointers, parseSuggestResponse, sendableRequirements } from "@/lib/ai/rules/suggestions";
 
@@ -97,13 +98,14 @@ async function ownedJob(userId: string, jobId: string) {
   });
 }
 
-/** The owner's confirmed profile entries, in the shape the evidence builder needs. */
-async function ownedEvidenceProfile(userId: string) {
+/** The owner's confirmed profile entries, in the shape the evidence builder needs. A structured answer's description is
+ * evidence only with structured matching on (Stage F4, F-10): off, saving one changes nothing about the analysis. */
+async function ownedEvidenceProfile(userId: string, structured = false) {
   return prisma.careerProfile.findFirst({
     where: { userId },
     select: {
       technicalSkills: { select: { id: true, name: true, proficiency: true }, orderBy: { normalizedName: "asc" } },
-      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true, detail: true }, where: { outcome: "ROLE_DETAIL_ADDED", status: "ACTIVE" }, orderBy: { id: "asc" } } } },
+      professionalExperiences: { select: { id: true, jobTitle: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true, detail: true }, where: { outcome: "ROLE_DETAIL_ADDED", status: "ACTIVE", ...(structured ? {} : { formVersion: 1 }) }, orderBy: { id: "asc" } } } },
       educationEntries: { select: { id: true, qualification: true, fieldOfStudy: true, startMonth: true, endMonth: true, description: true, clarifications: { select: { id: true }, where: { outcome: "ENTRY_ADDED", status: "ACTIVE" } } } },
       projects: { select: { id: true, title: true, description: true, contribution: true, results: true, skills: true } },
     },
@@ -141,6 +143,38 @@ async function activeAnswers(userId: string, reviewEnabled: boolean): Promise<Li
 }
 
 const reviewKeyFor = (r: MatchRequirement) => keyForRequirement(r);
+
+/** Stage F4: active structured answers, and the questions a free-text answer, entry or denial covers (those win). */
+async function structuredInputs(userId: string): Promise<{ rows: StructuredRow[]; freeText: Set<string> }> {
+  const [rows, free] = await Promise.all([
+    prisma.candidateClarification.findMany({
+      where: { userId, status: "ACTIVE", formVersion: 2 },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, status: true, formVersion: true, outcome: true, involvement: true, alsoDidSome: true, frequency: true, recency: true, claimedMonths: true, experienceId: true, detail: true, evidenceId: true, questionKey: true, coveredKeys: true, parts: { orderBy: { partIndex: "asc" }, select: { partIndex: true, partText: true, checked: true } } },
+    }),
+    prisma.candidateClarification.findMany({ where: { userId, status: "ACTIVE", formVersion: 1, outcome: { in: ["ROLE_DETAIL_ADDED", "ENTRY_ADDED", "DENIED"] } }, select: { questionKey: true, coveredKeys: true, requirementText: true } }),
+  ]);
+  return { rows, freeText: new Set(free.flatMap(r => [r.questionKey ?? questionKey(r.requirementText, "work_detail"), ...r.coveredKeys])) };
+}
+
+/** Stage F4 (F-9): while structured matching is off, what stored analyses may no longer show: anything citing a
+ * structured answer (any status), and a denial only a structured "haven't done this" gave. Empty while it's on. */
+export async function structuredMaskFor(userId: string, config: AiConfig | null | undefined): Promise<StructuredMask> {
+  if (config?.enabled && config.structuredMatching) return NO_MASK;
+  const rows = await prisma.candidateClarification.findMany({ where: { userId, formVersion: 2 }, select: { id: true, involvement: true, questionKey: true, coveredKeys: true } });
+  if (!rows.length) return NO_MASK;
+  const freeDenials = await prisma.candidateClarification.findMany({ where: { userId, status: "ACTIVE", formVersion: 1, outcome: "DENIED" }, select: { questionKey: true, coveredKeys: true } });
+  const kept = new Set(freeDenials.flatMap(r => [r.questionKey, ...r.coveredKeys].filter((k): k is string => !!k)));
+  return {
+    evidence: new Set(rows.map(r => `experience:${r.id}`)),
+    denialKeys: new Set(rows.filter(r => r.involvement === "NOT_DONE").flatMap(r => [r.questionKey, ...r.coveredKeys]).filter((k): k is string => !!k && !kept.has(k))),
+  };
+}
+
+/** A stored analysis's findings as they may be used now (F-9), for every reader of stored findings. */
+export async function currentFindings<T extends Finding>(userId: string, requirements: MatchRequirement[], findings: T[], config: AiConfig | null | undefined): Promise<T[]> {
+  return withholdChoiceFindings(maskStructuredFindings(findings, requirements, await structuredMaskFor(userId, config), reviewKeyFor));
+}
 
 /** Personal and company values to remove from free text before it goes to a cloud provider. */
 async function redactionTerms(userId: string, jobCompany: string, contactEmail: string | null): Promise<RedactionTerms> {
@@ -324,19 +358,25 @@ export async function runJobAnalysis(options: {
   const service = config.serviceUrl && config.secret ? { serviceUrl: config.serviceUrl, secret: config.secret } : null;
   if (!usesRules && !service) return { ok: false, error: "service_unavailable" };
 
-  const profile = await ownedEvidenceProfile(user.id);
+  const structuredOn = config.structuredMatching === true;
+  const profile = await ownedEvidenceProfile(user.id, structuredOn);
   if (!profile) return { ok: false, error: "profile_missing" };
 
   let request: MatchRequest;
   let fingerprint: string;
   let reservation = 0;
   let linked: LinkedAnswer[] = [];
+  let structured: { rows: StructuredRow[]; freeText: Set<string> } | null = null;
   try {
     const requirementsList: Requirement[] = validateRequirements(job.requirements);
     const followUps = usesRules ? await activeFollowUps(user.id, config) : { evidence: [], replies: [] };
     const evidence = [...buildEvidence(profile), ...followUps.evidence];
     linked = usesRules ? await activeAnswers(user.id, config.reviewEnabled === true) : [];
-    fingerprint = evidenceFingerprint(evidence, config.reviewEnabled ? linked : []); // always of the unredacted profile
+    // Stage F4: structured answers count only with structured matching on, and only for the rules.
+    structured = structuredOn ? await structuredInputs(user.id) : null;
+    const structuredAnswers = structured ? structuredFingerprintAnswers(structured.rows, structured.freeText) : [];
+    fingerprint = evidenceFingerprint(evidence, config.reviewEnabled ? [...linked, ...structuredAnswers] : []); // always of the unredacted profile
+    if (structured && usesRules) linked = [...linked, ...structuredDenials(structured.rows, structured.freeText)];
     const requirements = buildRequirements(requirementsList);
     request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}), ...(followUps.replies.length ? { follow_up_replies: followUps.replies } : {}) };
     // Answers stay on this server, read by the answer reader only. The service's strict format has no source field.
@@ -370,7 +410,7 @@ export async function runJobAnalysis(options: {
   const run = { id: reserved.runId, userId: user.id, cloud };
 
   if (usesRules) {
-    return analyzeWithRules({ request, provider, model: localModel, run, jobId: job.id, requirementsVersion: job.reviewVersion, fingerprint, service, fetchImpl: options.fetchImpl });
+    return analyzeWithRules({ request, provider, model: localModel, run, jobId: job.id, requirementsVersion: job.reviewVersion, fingerprint, service, fetchImpl: options.fetchImpl, structured });
   }
 
   let validated;
@@ -448,15 +488,26 @@ async function analyzeWithRules(options: {
   fingerprint: string;
   service: { serviceUrl: string; secret: string } | null;
   fetchImpl?: typeof fetch;
+  /** Stage F4: present only with structured matching on. */
+  structured?: { rows: StructuredRow[]; freeText: Set<string> } | null;
 }): Promise<RunResult> {
   const { request, provider, model, run } = options;
   const assisted = provider === "assisted";
   const methodVersion = assisted ? `assisted/${RULES_VERSION}+${model}/${ASSIST_PROMPT_VERSION}` : RULES_VERSION;
   let validated;
+  let recognitionVersion: string | null = null;
   try {
     const answers = request.linked_answers ?? [];
     const replies = request.follow_up_replies ?? [];
-    const body = rulesResponse(request, { provider, model, methodVersion }, answers.length || replies.length ? findings => applyFollowUps(request, applyAnswers(request, findings, answers, reviewKeyFor), replies, reviewKeyFor) : undefined);
+    const structured = options.structured?.rows.length ? options.structured : null;
+    // Free-text answers first (they win), then structured answers (Stage F4), then follow-up replies.
+    const body = rulesResponse(request, { provider, model, methodVersion }, structured
+      ? findings => {
+        const applied = applyStructuredAnswers(request, applyAnswers(request, findings, answers, reviewKeyFor), structured.rows, structured.freeText, reviewKeyFor);
+        recognitionVersion = applied.recognitionVersion;
+        return applyFollowUps(request, applied.findings, replies, reviewKeyFor);
+      }
+      : answers.length || replies.length ? findings => applyFollowUps(request, applyAnswers(request, findings, answers, reviewKeyFor), replies, reviewKeyFor) : undefined);
     // The same independent checks as any other result, on the same format.
     validated = validateMatchResponse(request, JSON.parse(JSON.stringify(body)), { provider, model });
   } catch (error) {
@@ -482,6 +533,8 @@ async function analyzeWithRules(options: {
         verdictCounts: validated.verdictCounts,
         // Stays "unavailable" unless suggestions arrive below, so a crash can't overstate anything.
         aiAssist: assisted ? (sent.length ? "unavailable" : "not_needed") : null,
+        // Stage F1/F4 audit: the recognition version a structured answer was read with; absent otherwise.
+        ...(recognitionVersion ? { recognitionVersion } : {}),
       },
       select: { id: true },
     });
@@ -684,12 +737,27 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
       select: { id: true, status: true, provider: true, model: true, errorCode: true, startedAt: true, analysis: { select: { verdictCounts: true } } },
     }),
     prisma.aiAnalysisRun.count({ where: { userId: user.id, startedAt: { gt: since }, countsTowardLimit: true } }),
-    ownedEvidenceProfile(user.id),
+    ownedEvidenceProfile(user.id, config.enabled && config.structuredMatching === true),
   ]);
+  // Stage F4 (F-9): with structured matching off, stored results resting on a structured answer don't count, here or in
+  // the run history's counts.
+  const structuredMask = await structuredMaskFor(user.id, config);
+  const masking = structuredMask.evidence.size > 0 || structuredMask.denialKeys.size > 0;
+  const usable = (findings: Finding[], requirements: MatchRequirement[]) => withholdChoiceFindings(maskStructuredFindings(findings, requirements, structuredMask, reviewKeyFor));
+  const historyCounts = new Map((await prisma.jobMatchAnalysis.findMany({ where: { runId: { in: history.map(h => h.id) }, userId: user.id }, select: { runId: true, requirements: true, findings: true } })).flatMap(a => {
+    const stored = a.findings as Finding[];
+    const kept = usable(stored, a.requirements as MatchRequirement[]);
+    if (kept.every((f, i) => f === stored[i])) return [];
+    const counts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
+    for (const f of kept) counts[f.verdict]++;
+    return [[a.runId, counts] as const];
+  }));
+  const runs = historyCounts.size ? history.map(h => (h.analysis && historyCounts.has(h.id) ? { ...h, analysis: { ...h.analysis, verdictCounts: historyCounts.get(h.id)! } } : h)) : history;
+  const structuredAnswers = config.enabled && config.structuredMatching && config.reviewEnabled ? await structuredInputs(user.id).then(s => structuredFingerprintAnswers(s.rows, s.freeText)) : [];
 
   let currentFingerprint: string | null = null;
   try {
-    currentFingerprint = profile ? evidenceFingerprint([...buildEvidence(profile), ...(await activeFollowUps(user.id, config)).evidence], config.reviewEnabled ? await activeAnswers(user.id, true) : []) : null;
+    currentFingerprint = profile ? evidenceFingerprint([...buildEvidence(profile), ...(await activeFollowUps(user.id, config)).evidence], config.reviewEnabled ? [...(await activeAnswers(user.id, true)), ...structuredAnswers] : []) : null;
   } catch {
     currentFingerprint = null;
   }
@@ -713,7 +781,22 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     },
   };
 
-  let shown = view;
+  // Stage F4 (F-9): structured results are taken out first, then revoked answers, as before.
+  const current: AnalysisView | null = view && masking ? (() => {
+    const findings = maskStructuredFindings(view.findings, view.requirements, structuredMask, reviewKeyFor);
+    const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
+    for (const f of findings) verdictCounts[f.verdict]++;
+    return { ...view, findings, verdictCounts };
+  })() : view;
+  let shown = current;
+  /** Stage F4 citation safety, applied last so a lapsed answer still reads as revoked. */
+  const withheld = (v: AnalysisView): AnalysisView => {
+    const findings = withholdChoiceFindings(v.findings);
+    if (findings === v.findings) return v;
+    const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
+    for (const f of findings) verdictCounts[f.verdict]++;
+    return { ...v, findings, verdictCounts };
+  };
   let review: ReviewPageData | null = null;
   // A reply counts only while it's active, and only with the workflow on.
   const followUpRows = await prisma.clarificationFollowUp.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" }, select: { id: true, status: true, savedJobId: true, requirementText: true, detail: true, quoteStart: true, quoteEnd: true, clarification: { select: { detail: true, status: true } } } });
@@ -722,7 +805,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
   if (!config.reviewEnabled && view) {
     // Whatever was revoked while the review was on stays out of what's shown, with it off too.
     const lapsed = await prisma.candidateClarification.findMany({ where: { userId: user.id, status: { not: "ACTIVE" }, evidenceId: { not: null } }, select: { evidenceId: true } });
-    shown = maskRevoked(view, new Set([...lapsed.map(r => r.evidenceId!), ...lapsedReplies]), new Set());
+    shown = withheld(maskRevoked(current!, new Set([...lapsed.map(r => r.evidenceId!), ...lapsedReplies]), new Set()));
   }
   if (config.reviewEnabled) {
     const rows = await prisma.candidateClarification.findMany({
@@ -740,8 +823,9 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     const answered = new Set(rows.filter(r => r.status === "ACTIVE" && r.questionKey && r.outcome !== "SKIPPED" && r.outcome !== "DECLINED" && counts(r)).flatMap(keysOf));
     const skipped = new Set(rows.filter(r => r.outcome === "SKIPPED" && r.savedJobId === job.id && r.questionKey).flatMap(keysOf));
     const revokedEvidence = new Set([...rows.filter(r => r.status !== "ACTIVE" && r.evidenceId).map(r => r.evidenceId!), ...lapsedReplies]);
-    const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey && r.formVersion === 1).flatMap(keysOf));
-    if (view) shown = maskRevoked(view, revokedEvidence, activeDenials);
+    // Stage F4: a structured "haven't done this" is a denial only with structured matching on (§6.3).
+    const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey && (r.formVersion === 1 || config.structuredMatching === true)).flatMap(keysOf));
+    if (current) shown = withheld(maskRevoked(current, revokedEvidence, activeDenials));
     const events = await prisma.clarificationEvent.findMany({
       // An answer that's been deleted leaves the audit row, and nothing on this page.
       where: { userId: user.id, savedJobId: job.id, verdictBefore: { not: null }, verdictAfter: { not: null }, clarificationId: { in: rows.map(r => r.id) } },
@@ -783,7 +867,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     readiness: jobReadiness(job),
     latest: shown,
     review,
-    history,
+    history: runs,
     remainingToday: config.enabled ? Math.max(0, config.dailyLimit - countedToday) : 0,
     dailyLimit: config.enabled ? config.dailyLimit : 0,
     configured: config.enabled,

@@ -469,3 +469,22 @@ A structured choice can be cited by its own `choice:<answer id>` item, kept apar
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F3_REPORT.md.
+
+## Phase 5.3 Stage F4, structured matching behind STRUCTURED_MATCHING_ENABLED - November 14, 2026 (local commit, not pushed)
+
+`STRUCTURED_MATCHING_ENABLED` is off by default. It needs the structured form and the review, and is never on Vercel. With it on, active structured answers go through the approved rule table after free-text answers (which win), and only `candidate_answer` results are stored: choice-only results are withheld until F5. With it off:
+- stored structured results are masked everywhere: the page, counts, run history, review queue and other readers;
+- structured answers don't affect freshness.
+
+A local launch entry, `careeros-matching-3100`, starts a production build with all three flags.
+
+**Tests:**
+- 159 new in `tests/structured-apply.test.ts` (all 33 splits through the validator);
+- 16 new in `tests/integration/structured-matching.integration.ts` (every flag state, rollback against stored findings, freshness, lifecycle). Mutation checks confirm the rollback and freshness tests.
+
+**Results:**
+- **Suites:** 3,891 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** production-build specs pass with the flags off, form only, and all three flags.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F4_REPORT.md.

@@ -130,9 +130,11 @@ describe("the module is inactive", () => {
     }
     return out;
   };
-  it("matching never reaches it: only the Stage E form uses it, for the approved part wording and to choose a plain question", () => {
+  it("matching reaches it only through the Stage F4 composition module (behind STRUCTURED_MATCHING_ENABLED); otherwise only the Stage E form uses it", () => {
     const users = walk("src").filter(f => f !== "src/lib/ai/rules/split-recognition.ts" && /split-recognition|approved_splits/.test(readFileSync(f, "utf8")));
-    expect(users.sort()).toEqual(["src/lib/ai/rules/approved-split-link.ts", "src/lib/ai/rules/structured-form.ts"]);
+    expect(users.sort()).toEqual(["src/lib/ai/rules/approved-split-link.ts", "src/lib/ai/rules/structured-apply.ts", "src/lib/ai/rules/structured-form.ts"]);
+    // analysis.ts reaches the composition module only with the flag on (tests/integration/structured-matching.integration.ts).
+    expect(walk("src").filter(f => f !== "src/lib/ai/rules/structured-apply.ts" && /rules\/structured-apply"/.test(readFileSync(f, "utf8")))).toEqual(["src/lib/ai/analysis.ts"]);
     for (const f of ["src/lib/ai/analysis.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/engine.ts", "src/lib/ai/rules/follow-up-reply.ts"]) expect(readFileSync(f, "utf8"), f).not.toMatch(/recognizeParts|split-recognition/);
   });
 });

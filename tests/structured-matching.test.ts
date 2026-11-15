@@ -441,8 +441,8 @@ describe("pure and deterministic", () => {
 describe("not connected (F2): it cannot influence matching", () => {
   const walk = (dir: string): string[] => readdirSync(dir).flatMap(f => (statSync(`${dir}/${f}`).isDirectory() ? (f === "generated" ? [] : walk(`${dir}/${f}`)) : [`${dir}/${f}`]));
   const MODULE = "src/lib/ai/rules/structured-matching.ts";
-  it("nothing in the app imports it", () => {
-    expect(walk("src").filter(f => f !== MODULE && /structured-matching/.test(readFileSync(f, "utf8")))).toEqual([]);
+  it("only the F4 composition module imports it", () => {
+    expect(walk("src").filter(f => f !== MODULE && /structured-matching/.test(readFileSync(f, "utf8")))).toEqual(["src/lib/ai/rules/structured-apply.ts"]);
   });
   it("it has no database, network, flag, environment, clock, randomness or model access", () => {
     const source = readFileSync(MODULE, "utf8");

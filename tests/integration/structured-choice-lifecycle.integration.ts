@@ -27,7 +27,11 @@ let verifiedDatabase = false;
 const on = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true", STRUCTURED_OWNERSHIP_FORM_ENABLED: "true" });
 const reviewOnly = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true" });
 const plain = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200" });
-const CONFIGS = [on, reviewOnly, plain];
+// Stage F4 (F-9): a stored citation of a structured answer counts only with structured matching on; off, it is masked
+// even while the answer is active. So the positive controls below use `matching`.
+const matching = readAiConfig({ AI_ANALYSIS_DAILY_LIMIT: "200", CLARIFICATION_REVIEW_ENABLED: "true", STRUCTURED_OWNERSHIP_FORM_ENABLED: "true", STRUCTURED_MATCHING_ENABLED: "true" });
+const OFF = [on, reviewOnly, plain];
+const CONFIGS = [matching, ...OFF];
 const PLUMBING = "Install and repair residential plumbing";
 const EXCEL = "Microsoft Excel";
 
@@ -61,6 +65,10 @@ async function storeChoiceFinding(a: Account, answerId: string, index = 0) {
 }
 const shown = async (a: Account, config: ReturnType<typeof readAiConfig>, index = 0) => (await getAnalysisPageData(a.id, a.job.id, config))!.latest!.findings.find(f => f.requirementIndex === index)!;
 const MASKED = { verdict: "insufficient_information", citations: [] };
+// Stage F4 citation safety: a finding resting on a choice is never shown until the page can show one (F5). It is withheld
+// after revocation masking, so an active answer's choice reads "isn't shown yet" and a lapsed one still reads "revoked".
+const WITHHELD = { verdict: "insufficient_information", citations: [], explanation: expect.stringMatching(/isn't shown yet/) };
+const LAPSED = { verdict: "insufficient_information", citations: [], explanation: expect.stringMatching(/revoked/) };
 
 beforeAll(() => {
   expect(process.env.DATABASE_URL).toBe(TEST_DATABASE_URL);
@@ -82,7 +90,9 @@ it("created: a choice citation of an active answer stands, with every flag state
   expect(choice.id).toBe(`choice:${row.id}`);
   // F1's evidence id is kept; the choice id is the same answer's, never a new record.
   expect(row.evidenceId).toBe(`experience:${row.id}`);
-  for (const config of CONFIGS) expect(await shown(a, config)).toMatchObject({ verdict: "possible", basis: "candidate_choice", citations: [{ evidenceId: choice.id, quote: choice.statement }] });
+  expect(choice).toMatchObject({ id: `choice:${row.id}`, statement: expect.stringContaining("Choice: I did this work myself") });
+  expect(await shown(a, matching)).toMatchObject(WITHHELD);
+  for (const config of OFF) expect(await shown(a, config), "flag off (F-9)").toMatchObject(MASKED);
 });
 
 it("corrected or replaced: the earlier answer's choice citation stops counting at once", async () => {
@@ -90,22 +100,24 @@ it("corrected or replaced: the earlier answer's choice citation stops counting a
   await saveStructuredAnswer({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key(PLUMBING), config: on, submission: performed(a, ["0"]) });
   const first = await active(a);
   await storeChoiceFinding(a, first.id);
-  expect(await shown(a, on)).toMatchObject({ verdict: "possible", basis: "candidate_choice" }); // control
+  expect(await shown(a, matching)).toMatchObject(WITHHELD); // control: active, so withheld, not revoked
   expect(await correctStructuredAnswer({ supabaseAuthId: a.id, clarificationId: first.id, config: on, submission: performed(a, ["1"]) })).toEqual({ ok: true });
   await storeChoiceFinding(a, first.id); // a stale citation of the corrected version
-  for (const config of CONFIGS) expect(await shown(a, config), "corrected").toMatchObject(MASKED);
+  expect(await shown(a, matching), "corrected").toMatchObject(LAPSED);
+  for (const config of OFF) expect(await shown(a, config), "corrected").toMatchObject(MASKED);
 
   // Replaced by a new structured answer (the earlier one is superseded).
   const second = await active(a);
   await storeChoiceFinding(a, second.id);
-  expect(await shown(a, on)).toMatchObject({ verdict: "possible" }); // control
+  expect(await shown(a, matching)).toMatchObject(WITHHELD); // control
   expect(await saveStructuredAnswer({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key(PLUMBING), config: on, submission: { involvement: "ASSISTED", alsoDidSome: "no", experienceId: a.role.id } })).toEqual({ ok: true });
   await storeChoiceFinding(a, second.id);
-  for (const config of CONFIGS) expect(await shown(a, config), "replaced").toMatchObject(MASKED);
+  expect(await shown(a, matching), "replaced").toMatchObject(LAPSED);
+  for (const config of OFF) expect(await shown(a, config), "replaced").toMatchObject(MASKED);
   // The current answer's own choice still counts.
   const third = await active(a);
   await storeChoiceFinding(a, third.id);
-  expect(await shown(a, on)).toMatchObject({ verdict: "possible", citations: [{ evidenceId: `choice:${third.id}` }] });
+  expect(await shown(a, matching)).toMatchObject(WITHHELD);
 });
 
 it("revoked: masked with every flag state", async () => {
@@ -113,10 +125,11 @@ it("revoked: masked with every flag state", async () => {
   await saveStructuredAnswer({ supabaseAuthId: a.id, analysisId: a.analysisId, questionKey: key(PLUMBING), config: on, submission: performed(a, ["0", "1"]) });
   const row = await active(a);
   await storeChoiceFinding(a, row.id);
-  for (const config of CONFIGS) expect(await shown(a, config), "control").toMatchObject({ verdict: "possible", basis: "candidate_choice" });
+  expect(await shown(a, matching), "control").toMatchObject(WITHHELD);
   expect(await revokeAnswer({ supabaseAuthId: a.id, clarificationId: row.id, config: on })).toMatchObject({ ok: true });
   await storeChoiceFinding(a, row.id);
-  for (const config of CONFIGS) expect(await shown(a, config), "revoked").toMatchObject(MASKED);
+  expect(await shown(a, matching), "revoked").toMatchObject(LAPSED);
+  for (const config of OFF) expect(await shown(a, config), "revoked").toMatchObject(MASKED);
 });
 
 it("permanently deleted: every stored choice citation of every version is scrubbed; nothing orphaned", async () => {
@@ -157,8 +170,8 @@ it("one answer's lapse never masks another answer's choice, or the rules' own ev
   await storeChoiceFinding(a, rows[0].id, 0);
   await storeChoiceFinding(a, rows[1].id, 1);
   for (const config of CONFIGS) {
-    expect(await shown(a, config, 0)).toMatchObject(MASKED);
-    expect(await shown(a, config, 1)).toMatchObject({ verdict: "possible", citations: [{ evidenceId: `choice:${rows[1].id}` }] });
+    expect(await shown(a, config, 0)).toMatchObject(config === matching ? LAPSED : MASKED);
+    expect(await shown(a, config, 1)).toMatchObject(config === matching ? WITHHELD : MASKED);
   }
 });
 
