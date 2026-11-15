@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import type { ChoiceEvidence } from "@/lib/ai/choice-evidence";
 import type { Requirement } from "@/lib/job-requirements";
 
 // Builds the request sent to the AI service from the owner's own, user-confirmed data.
@@ -30,6 +31,9 @@ export type MatchRequest = {
   linked_answers?: LinkedAnswerRecord[];
   /** Follow-up workflow only: active replies, for the rules on this server. */
   follow_up_replies?: { questionKey: string; evidenceId: string; quoted: string; detail: string }[];
+  /** Stage F3 (F-4): structured choices a `candidate_choice` result may cite. Rules only, never in `evidence`: no engine
+   * rule and no AI provider reads them. Nothing sets it before Stage F4. */
+  structured_choices?: ChoiceEvidence[];
   request_id: string;
   provider: AnalysisProvider;
   /** Cloud providers only: the token bounds Next.js reserved budget for. */
@@ -157,9 +161,10 @@ export function citableTexts(item: Evidence): string[] {
   return fields.filter((f): f is string => !!f);
 }
 
-/** Where cited evidence came from. There's no "verified": CareerOS has no independent check of anything. */
-export type EvidenceOrigin = "profile" | "candidate_answer";
-export function citationOrigin(item: Evidence, quote: string): EvidenceOrigin {
+/** Where cited evidence came from. There's no "verified": CareerOS has no independent check of anything.
+ * "candidate_choice" (Stage F3): a structured choice the person selected, never their own words. */
+export type EvidenceOrigin = "profile" | "candidate_answer" | "candidate_choice";
+export function citationOrigin(item: Evidence, quote: string): Exclude<EvidenceOrigin, "candidate_choice"> {
   if (item.kind === "skill" || item.kind === "project" || item.source !== "clarification") return "profile";
   // An answer's entry repeats its role's title, which came from the profile.
   return item.kind === "experience" && quote === item.job_title ? "profile" : "candidate_answer";

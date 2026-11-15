@@ -12,6 +12,7 @@ import {
   type MatchRequest,
   type Verdict,
 } from "@/lib/ai/evidence";
+import { choiceEvidenceIsIntact, isChoiceEvidenceId, type ChoiceEvidence } from "@/lib/ai/choice-evidence";
 import { parseProviderRequestId, parseUsage } from "@/lib/ai/client-parsing";
 import { LOCAL_PROVIDERS } from "@/lib/ai/config";
 import { PROFICIENCY_RANK, hasQualificationWords, namesEmployment, relation, requiredSkillLevel, technologyTerms } from "@/lib/ai/skill-relations";
@@ -32,8 +33,9 @@ export type FindingMethod = "rules" | "local_ai";
 export type AiStatus = "accepted" | "not_eligible" | "contains_instructions" | "not_needed" | "no_match" | "rejected" | "unavailable";
 export const AI_STATUSES: AiStatus[] = ["accepted", "not_eligible", "contains_instructions", "not_needed", "no_match", "rejected", "unavailable"];
 /** Which deterministic rule decided a finding (shown as where the result came from). */
-export type RuleBasis = "candidate_follow_up" | "candidate_answer" | "candidate_denied" | "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
-export const RULE_BASES: RuleBasis[] = ["candidate_follow_up", "candidate_answer", "candidate_denied", "stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
+/** `candidate_choice` (Stage F3, F-4): a structured choice the person selected, cited by its `choice:` item. Possible at most. */
+export type RuleBasis = "candidate_choice" | "candidate_follow_up" | "candidate_answer" | "candidate_denied" | "stated_absent" | "listed_skill" | "alternate_name" | "related_technology" | "described_in_work" | "project" | "employment_dates" | "role_description" | "education" | "no_evidence" | "needs_confirmation";
+export const RULE_BASES: RuleBasis[] = ["candidate_choice", "candidate_follow_up", "candidate_answer", "candidate_denied", "stated_absent", "listed_skill", "alternate_name", "related_technology", "described_in_work", "project", "employment_dates", "role_description", "education", "no_evidence", "needs_confirmation"];
 export type SuggestionKind = "alternate_name" | "related_technology" | "relevant_evidence" | "profile_gap";
 /** An AI suggestion. Stored and shown apart from findings; it never changes a verdict. */
 export type Suggestion = { requirementIndex: number; kind: SuggestionKind; text: string; citation: Citation | null; term: string | null; knownToRules: boolean };
@@ -223,6 +225,14 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
 
   const requirements = new Map(request.requirements.map(r => [r.index, r]));
   const evidence = new Map<string, Evidence>(request.evidence.map(e => [e.id, e]));
+  // Stage F3: structured choices, kept apart from evidence. Each must be exactly what CareerOS builds for its answer.
+  const choices = new Map<string, ChoiceEvidence>();
+  for (const c of request.structured_choices ?? []) {
+    if (!choiceEvidenceIsIntact(c) || choices.has(c.id) || evidence.has(c.id)) reject("invalid structured choice");
+    choices.set(c.id, c);
+  }
+  /** The kind of whatever a citation points at: an evidence kind, or "choice". */
+  const kindOf = (id: string) => evidence.get(id)?.kind ?? (choices.has(id) ? "choice" : undefined);
   const allowedYears = new Set<number>([
     Number(formatYears(employmentMonths(request.evidence, request.as_of_month))),
     ...request.evidence
@@ -249,6 +259,13 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     const citations = (f.citations as unknown[]).map((c): Citation => {
       if (!isObject(c)) reject("citation is not an object");
       const cite = c as Record<string, unknown>;
+      // A structured choice: only its own fixed wording can be quoted, never anything presented as the person's words.
+      if (typeof cite.evidence_id === "string" && isChoiceEvidenceId(cite.evidence_id)) {
+        const choice = choices.get(cite.evidence_id) ?? reject("citation refers to evidence that was not sent");
+        const quote = str(cite.quote, 300, "quote");
+        if (quote !== choice.statement) reject("a choice citation must quote the choice as CareerOS words it");
+        return { evidenceId: choice.id, quote };
+      }
       const item = evidence.get(cite.evidence_id as string);
       if (!item) reject("citation refers to evidence that was not sent");
       const quote = str(cite.quote, 300, "quote");
@@ -279,8 +296,17 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
     if (!usesRules && verdict === "supported" && !citations.some(c => sharesTerm(requirement.text, c.quote))) {
       reject("supported claim cites evidence unrelated to the requirement");
     }
+    // Stage F3: a structured choice is a claim. Only a `candidate_choice` result from the rules may cite it, only its own
+    // choice and nothing else, and only for Possible: a choice never shows Supported, and never stands for a gap or more.
+    const citesChoice = citations.some(c => choices.has(c.evidenceId));
+    if (citesChoice && f.basis !== "candidate_choice") reject("a structured choice cited outside a choice result");
+    if (f.basis === "candidate_choice") {
+      if (verdict !== "possible") reject("a structured choice can show Possible at most");
+      if (citations.length !== 1 || !citesChoice) reject("a choice result must cite its choice, and only that");
+      if (method === "local_ai") reject("a choice result must come from the rules");
+    }
     if (isEmployment(requirement)) {
-      const kinds = citations.map(c => evidence.get(c.evidenceId)!.kind);
+      const kinds = citations.map(c => kindOf(c.evidenceId)!);
       if (verdict === "supported" && !kinds.includes("experience")) reject("project or non-employment evidence used as employment");
       if (kinds.includes("project") && !caveats.includes(PROJECT_NOT_EMPLOYMENT)) reject("project cited without the employment caveat");
     }
@@ -306,7 +332,7 @@ export function validateMatchResponse(request: MatchRequest, raw: unknown, expec
       const known = requirementYears.has(years) || [...allowedYears].some(a => Math.abs(a - years) < 0.05);
       if (!known) reject("unverified duration in explanation");
     }
-    const evidenceSources = denied ? (["candidate_answer"] as EvidenceOrigin[]) : [...new Set(citations.map(c => citationOrigin(evidence.get(c.evidenceId)!, c.quote)))];
+    const evidenceSources = denied ? (["candidate_answer"] as EvidenceOrigin[]) : [...new Set(citations.map((c): EvidenceOrigin => (choices.has(c.evidenceId) ? "candidate_choice" : citationOrigin(evidence.get(c.evidenceId)!, c.quote))))];
     const rulesOnlyVerdict = VERDICTS.includes(f.rules_only_verdict as Verdict) ? (f.rules_only_verdict as Verdict) : undefined;
     return { requirementIndex: index as number, verdict, explanation, citations, caveats, ...(method && { method }), ...(aiStatus && { aiStatus }), ...(review && { review }), ...(basis && { basis }), evidenceSources, ...(rulesOnlyVerdict && { rulesOnlyVerdict }) };
   });

@@ -317,7 +317,10 @@ describe("Stage 2 is isolated from matching and the review workflow", () => {
     const stageE = ["src/lib/ai/rules/structured-form.ts", "src/lib/ai/rules/structured-form-spec.ts", "src/lib/ai/analysis.ts", "src/components/structured-answer-form.tsx"];
     // Stage F2: the pure structured-matching module reads answers through the rule table. Nothing in the app imports it.
     const stageF2 = ["src/lib/ai/rules/structured-matching.ts"];
-    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts", ...stageE, ...stageF2].includes(f))).toEqual([]);
+    // Stage F3: the choice evidence names the choice types only.
+    const stageF3 = ["src/lib/ai/choice-evidence.ts"];
+    expect(readFileSync(stageF3[0], "utf8")).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);
+    expect(users.filter(f => !["src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/review-queue.ts", "src/lib/ai/rules/structured-consistency.ts", ...stageE, ...stageF2, ...stageF3].includes(f))).toEqual([]);
     expect(walk("src").filter(f => !stageF2.includes(f) && /rules\/structured-matching"/.test(readFileSync(f, "utf8")))).toEqual([]);
     for (const f of ["src/lib/ai/rules/structured-form-spec.ts", "src/lib/ai/analysis.ts", "src/components/structured-answer-form.tsx"]) {
       expect(readFileSync(f, "utf8"), f).toMatch(/import type \{[^}]*\} from "@\/lib\/ai\/rules\/structured-answer"/);

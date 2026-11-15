@@ -1,3 +1,4 @@
+import { citesLapsedAnswer } from "@/lib/ai/choice-evidence";
 import { evidenceForAi } from "@/lib/ai/evidence-boundary";
 import "server-only";
 import { randomUUID } from "node:crypto";
@@ -631,7 +632,8 @@ function maskRevoked(view: AnalysisView, revokedEvidence: ReadonlySet<string>, a
   const findings = view.findings.map(f => {
     const requirement = view.requirements.find(r => r.index === f.requirementIndex);
     const lapsedDenial = f.basis === "candidate_denied" && requirement && !activeDenials.has(reviewKeyFor(requirement));
-    if (!lapsedDenial && !f.citations.some(c => revokedEvidence.has(c.evidenceId))) return f;
+    // A choice citation (`choice:<id>`, Stage F3) lapses with its answer, like the answer's own `experience:<id>`.
+    if (!lapsedDenial && !f.citations.some(c => citesLapsedAnswer(c.evidenceId, revokedEvidence))) return f;
     return { ...f, verdict: "insufficient_information" as Verdict, explanation: "This relied on an answer you revoked. Run the analysis again.", citations: [], caveats: [], evidenceSources: [] };
   });
   const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };

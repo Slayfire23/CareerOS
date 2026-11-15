@@ -1,4 +1,5 @@
 import "server-only";
+import { answerCitationIds } from "@/lib/ai/choice-evidence";
 import type { Verdict } from "@/lib/ai/evidence";
 import type { Finding, Suggestion } from "@/lib/ai/match-validation";
 import { RULES_VERSION } from "@/lib/ai/rules/engine";
@@ -13,7 +14,8 @@ type Row = { id: string; evidenceId: string | null; educationId: string | null; 
 
 /** Findings and suggestions citing these answers, in every stored analysis, by id or by their words. */
 async function scrubAnalyses(tx: Tx, userId: string, rows: Row[]) {
-  const evidenceIds = new Set(rows.flatMap(c => [c.evidenceId, `experience:${c.id}`, c.educationId ? `education:${c.educationId}` : null]).filter((v): v is string => !!v));
+  // `answerCitationIds`: the answer's own `experience:<id>` and, since Stage F3, its structured choice `choice:<id>`.
+  const evidenceIds = new Set(rows.flatMap(c => [c.evidenceId, ...answerCitationIds(c.id), c.educationId ? `education:${c.educationId}` : null]).filter((v): v is string => !!v));
   const texts = rows.map(c => c.detail).filter((v): v is string => !!v);
   const fromAnswer = (citation: { evidenceId: string; quote: string }) => evidenceIds.has(citation.evidenceId) || texts.some(t => t.includes(citation.quote) && citation.quote.length > 20);
   const analyses = await tx.jobMatchAnalysis.findMany({ where: { userId }, select: { id: true, findings: true, aiSuggestions: true } });

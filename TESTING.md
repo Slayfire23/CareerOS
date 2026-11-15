@@ -454,3 +454,18 @@ Two isolation guards allow the new module, and only it, to call `readStructuredA
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F2_REPORT.md.
+
+## Phase 5.3 Stage F3, candidate_choice citations - November 14, 2026 (local commit, not pushed)
+
+A structured choice can be cited by its own `choice:<answer id>` item, kept apart from evidence. The citation quotes only CareerOS's fixed wording, which says the answer is self-reported and not independently verified. The validator allows it only as `candidate_choice`, and only for Possible, never beside other evidence and never from a language model. Masking and deletion cover `choice:` ids. Nothing in the app produces one yet. The match page gained one owner-approved label line.
+
+**Tests:**
+- 31 new in `tests/choice-evidence.test.ts`;
+- 6 new in `tests/integration/structured-choice-lifecycle.integration.ts` (create, correct, replace, revoke, delete, isolation; every flag state). Mutation checks confirm the masking and deletion lines.
+
+**Results:**
+- **Suites:** 3,732 unit and 207 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** the match, clarification and dark-mode specs pass on a flags-off production build.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F3_REPORT.md.

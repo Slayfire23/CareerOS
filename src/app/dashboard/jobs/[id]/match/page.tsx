@@ -79,6 +79,7 @@ const ORIGIN_NOTE = (sources: EvidenceOrigin[] | undefined) =>
     : "From your profile. Self-reported: CareerOS hasn't independently verified it.";
 /** Where each result came from. All of these are deterministic rules, never AI. */
 const RULE_SOURCE: Record<RuleBasis, string> = {
+  candidate_choice: "Applicant's structured answer. Self-reported: CareerOS hasn't independently verified it",
   candidate_follow_up: "Rules engine: reading your reply to a follow-up question. A local model suggested asking, and nothing else",
   candidate_answer: "Rules engine: reading your answer to a question",
   candidate_denied: "Rules engine: your answer says you don't have this",
