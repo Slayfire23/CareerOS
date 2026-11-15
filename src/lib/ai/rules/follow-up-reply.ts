@@ -1,7 +1,7 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import { handsPartToSomeoneElse, isPersonClause, splitBySubject } from "@/lib/ai/clauses";
 import type { MatchRequest, MatchRequirement } from "@/lib/ai/evidence";
-import { answerStatements, DEFAULT_TEXT_RULES, involvement, othersParts, othersText, verbAndObject, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES, directedAtPerson, involvement, isV21Family, othersParts, othersText, verbAndObject, type Statement, type TextRules } from "@/lib/ai/evidence-boundary";
 import type { RuleBasis } from "@/lib/ai/match-validation";
 import { asksForTime, needsCredentialEntry, ownedFor, ownedForV21, readAnswer, specificTerms } from "@/lib/ai/rules/answer-review";
 import { answerProblem } from "@/lib/ai/rules/clarifications";
@@ -68,7 +68,7 @@ export function followUpNeed(requirement: MatchRequirement, answer: string, opti
   const shared = statements.find(s => s.subject === "team" && s.act !== "says_little" && touches(wanted, s.readable));
   if (shared) return { kind: "who", ...span(shared) };
   const own = statements.find(s => s.subject === "self" && s.act !== "says_little" && !s.exposureOnly);
-  if (own && touches(wanted, othersText(answer))) return { kind: "who", ...span(own) };
+  if (own && touches(wanted, options.textRules === "v22" ? othersParts(answer, false, true, false, true).join(" ") : othersText(answer))) return { kind: "who", ...span(own) };
   return null;
 }
 
@@ -84,11 +84,11 @@ const SAYS_WHAT_CHANGED = /\b(?:since|until|used\s+to|these\s+days|nowadays|now\
 const VAGUE_VERBS = new Set("be is are was were have has had do get go make take keep use help work".split(" "));
 /** What the answer itself says the person doesn't do, someone else does, or takes back: each part's main verb and the
  * object of it. Only a person's or a firm's part counts, not a thing's ("our old encoder kept suggesting wrong codes"). */
-function disputed(answer: string, v21 = false): { verbs: Set<string>; objects: Set<string> } {
+function disputed(answer: string, v21 = false, v22 = false): { verbs: Set<string>; objects: Set<string> } {
   const negatives = (answer.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []).filter(s => /(?:^|[^\p{L}'’])i(?:['’]\p{L}+)?\s/iu.test(s) && ownNegative(s));
   // Only the denied part of a denial: "not all of them… and I only measure the residential" rules out nothing the person kept.
   const split = (p: string) => p.split(/,\s*|\s+and\s+|\s+but\s+|\s+[–—-]\s+/i).filter(x => x.trim());
-  const pieces = [...othersParts(answer, true, false, v21).flatMap(split), ...negatives.flatMap(split).filter(x => /\b(?:no|not|never|none)\b|n['’]t\b/i.test(x))];
+  const pieces = [...othersParts(answer, true, false, v21, v22).flatMap(split), ...negatives.flatMap(split).filter(x => /\b(?:no|not|never|none)\b|n['’]t\b/i.test(x))];
   const parts = pieces.map(p => verbAndObject(p) ?? verbAndObject(`They ${p.trim()}`)).filter((p): p is { verb: string; object: string } => !!p);
   return { verbs: new Set(parts.map(p => p.verb).filter(v => v && !VAGUE_VERBS.has(v))), objects: new Set(parts.map(p => stemOf(p.object)).filter(Boolean)) };
 }
@@ -99,7 +99,8 @@ function disputed(answer: string, v21 = false): { verbs: Set<string>; objects: S
 /** `options.textRules` picks the text rules; without it the reply is read with the matching default (rules-v21). */
 export function readFollowUpReply(requirement: MatchRequirement, quoted: string, reply: string, answer: string = quoted, options: { textRules?: TextRules } = {}): ReplyReading {
   const rules = options.textRules ?? DEFAULT_TEXT_RULES;
-  const v21 = rules === "v21";
+  const v21 = isV21Family(rules);
+  const v22 = rules === "v22";
   const owned = v21 ? ownedForV21 : ownedFor;
   const unresolved = (reason: ReplyReason): ReplyReading => ({ outcome: "unresolved", reason, quote: null, provenance: "self_reported" });
   const text = qualificationText(requirement.text).trim();
@@ -125,16 +126,16 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   // Watching, wherever it sits: "I work in a cardiology office and I've watched our sonographer do hundreds of echoes".
   const watched = answerSentences.some(s => /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+|\s+have|\s+had)?\s+(?:\p{L}+\s+){0,2}?(?:watched|observed|shadowed|sat\s+in|seen)\b/iu.test(s));
   const notOwnPart = watched || answerSentences.some(s => /(?:^|[^\p{L}'’])i(?:['’]\p{L}+)?\s/iu.test(s) && (involvement(s) !== "performed" && !owned(text, { ownership: involvement(s), text: s } as Statement)) || (ownNegative(s) && touches(wanted, s)));
-  const strict = followUpKind(requirement, answer, quoted, options) !== "relation" || answerStatements(answer, rules).some(s => !owned(text, s)) || othersParts(answer, true, true, v21).some(p => touches(wanted, p)) || notOwnPart;
+  const strict = followUpKind(requirement, answer, quoted, options) !== "relation" || answerStatements(answer, rules).some(s => !owned(text, s)) || othersParts(answer, true, true, v21, v22).some(p => touches(wanted, p)) || notOwnPart;
   // Someone else doing the asked work, in the reply itself: "Their tech does all the treatments and baiting." When the
   // answer already showed others or a lead role, any part handed to someone else does: "he did the ratings, I took the photos".
-  const theirs = sentences.flatMap(s => splitBySubject(s).filter(c => c.subject === "other" && isPersonClause(c.text)).map(c => c.text));
+  const theirs = sentences.flatMap(s => splitBySubject(s).filter(c => c.subject === "other" && isPersonClause(c.text) && !(v22 && directedAtPerson(c.text))).map(c => c.text));
   // Someone else finishing the person's work, after it: "I wrote up the rule requests, he applied them". Someone giving
   // the person something first isn't: "My manager sends the photo and I build it".
   const finishedByOthers = sentences.some(s => {
     const parts = splitBySubject(s);
     // "…, he applied them" points back at the person's work; "…, and he sat down" doesn't.
-    return parts.some((c, i) => c.subject === "other" && isPersonClause(c.text) && parts.slice(0, i).some(p => p.subject === "self") && (/\b(?:them|it|those|that|the\s+rest)\b/i.test(c.text) || touches(wanted, c.text)));
+    return parts.some((c, i) => c.subject === "other" && isPersonClause(c.text) && !(v22 && directedAtPerson(c.text)) && parts.slice(0, i).some(p => p.subject === "self") && (/\b(?:them|it|those|that|the\s+rest)\b/i.test(c.text) || touches(wanted, c.text)));
   });
   if (theirs.some(c => touches(wanted, c)) || finishedByOthers || (strict && sentences.some(handsPartToSomeoneElse))) return unresolved("undercuts_itself");
   const own = statements.filter(s => s.subject === "self" && s.act === "concrete" && !s.exposureOnly && s.ownership === "performed");
@@ -145,7 +146,7 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   // itself, in its words. Posting the notices, or salting the steps beside the plow contract, isn't snow removal.
   // About the asked work: in its words, or the same action or object the answer gave to others or said the person doesn't
   // do ("I don't pick much myself", then "until last year I picked full-time").
-  const ruledOut = disputed(answer, v21);
+  const ruledOut = disputed(answer, v21, v22);
   const claims = own.map(s => verbAndObject(s.text)).filter((p): p is { verb: string; object: string } => !!p);
   const sameWork = claims.some(c => ruledOut.verbs.has(c.verb)) || own.some(s => words(s.readable).some(w => w.length > 3 && ruledOut.objects.has(stemOf(w))));
   // rules-v21: the part the answer itself kept as the person's own after narrowing ("…, I only fix flats") is about the asked
@@ -154,7 +155,7 @@ export function readFollowUpReply(requirement: MatchRequirement, quoted: string,
   const sameKeptPart = own.some(s => words(s.readable).some(w => w.length > 3 && kept.has(stemOf(w))));
   // When the only thing that made this strict is the answer's own correction taking a claim back (not someone else doing
   // the work, not a lead or helping part), a reply about the part the person kept is held to the ordinary standard.
-  const strictWithoutCorrection = followUpKind(requirement, answer, quoted, options) !== "relation" || answerStatements(answer, rules).some(s => !owned(text, s)) || othersParts(answer, true, false, v21).some(p => touches(wanted, p)) || notOwnPart;
+  const strictWithoutCorrection = followUpKind(requirement, answer, quoted, options) !== "relation" || answerStatements(answer, rules).some(s => !owned(text, s)) || othersParts(answer, true, false, v21, v22).some(p => touches(wanted, p)) || notOwnPart;
   const keptStrict = strict && !(v21 && sameKeptPart && !strictWithoutCorrection);
   if (keptStrict && !own.some(s => touches(wanted, s.readable)) && !sameWork) return unresolved("no_own_work");
   if (sameWork && !SAYS_WHAT_CHANGED.test(value)) return unresolved("contradicts_answer");

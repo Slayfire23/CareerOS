@@ -405,3 +405,16 @@ The form sits behind `STRUCTURED_OWNERSHIP_FORM_ENABLED` (off by default; needs 
 
 Report: docs/PHASE5_3_STAGE_E_REPORT.md.
 
+## Phase 5.3 Stage F0, rules-v22 "directed at the person" (opt-in) - November 14, 2026 (local commit, not pushed)
+
+rules-v22 (`textRules: "v22"`) is rules-v21 plus one rule: "My boss sends me out to install water heaters" and "My supervisor has me fix leaks" are read as the person's own act. tell, ask, let and make are excluded, as are negated, modal, intended or conditional directing verbs, "to" + a place or thing, and "me and others". **rules-v21 stays the default**; `RULES_VERSION` and the recognition version are unchanged.
+
+**Tests:** 67 new in `tests/ai-rules-v22.test.ts` (opt-in guard, the v21 baseline, 8 dispatched-work probes, 17 negatives, first-person equivalence, verbatim quotes, follow-up replies).
+
+**Results:**
+- **Probes:** P1–P8 read exactly as the person's own words; all 17 negatives read as v21.
+- **v21 vs v22:** 0 changes on 1,266 opened answers, 392 probes, 226 design rows, 320 replies and the 284 parity rows (readings and recognition). The detector fires on none of the 1,976 opened texts.
+- **Suites:** 3,045 unit and 191 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F0_REPORT.md.

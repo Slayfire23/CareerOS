@@ -1,5 +1,5 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
-import { answerStatements, DEFAULT_TEXT_RULES, othersParts, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES, isV21Family, othersParts, type TextRules } from "@/lib/ai/evidence-boundary";
 import approved from "@/lib/ai/rules/data/approved_splits.json";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
 
@@ -142,7 +142,7 @@ function attributeV4(text: string, split: ApprovedSplit, rules: TextRules) {
   const words = (i: number) => [...split.markers[i], ...split.equivalents[i]];
   const shown = split.parts.map((_, i) => clauses.some(c => shows(words(i), c)));
   // Other people's work only: the person's own retracted claim ("I do X. Well, …") is not someone else doing it.
-  const others = othersParts(text, true, false, rules === "v21").join(" ");
+  const others = othersParts(text, true, false, isV21Family(rules), rules === "v22").join(" ");
   let transferred = false;
   const partTransferred = split.parts.map(() => false);
   split.parts.forEach((_, i) => {
@@ -212,11 +212,11 @@ function attributeV5(text: string, split: ApprovedSplit, rules: TextRules) {
   // act's end condition ("call … customers … until they pay") may match `bounded`, never `text`. A demonstrative or
   // pronoun object needs the person's own earlier words to name the antecedent (`bound_antecedent`), with no other group
   // it could also mean. Ownership and corrections are checked on the statements themselves; others' work cancels.
-  if (rules === "v21") split.bound_antecedent?.forEach((terms, i) => {
+  if (isV21Family(rules)) split.bound_antecedent?.forEach((terms, i) => {
     if (!terms || shown[i]) return;
     const anteRx = new RegExp(String.raw`\b(?:${terms})\b`, "iu");
     const own = ownStatements(text, rules);
-    const othersSaid = othersParts(text, true, false, true).join(" ");
+    const othersSaid = othersParts(text, true, false, true, rules === "v22").join(" ");
     const only = text.match(ONLY);
     own.forEach((st, k) => {
       if (shown[i] || !st.bounded) return;

@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
 import type { MatchRequirement } from "@/lib/ai/evidence";
-import { answerStatements, DEFAULT_TEXT_RULES, othersText, statesIntent, type Ownership, type TextRules } from "@/lib/ai/evidence-boundary";
+import { answerStatements, DEFAULT_TEXT_RULES, isV21Family, othersParts, othersText, statesIntent, type Ownership, type TextRules } from "@/lib/ai/evidence-boundary";
 import { deniesRequirement, othersDoWholeRequirement, ownDirectAct, readAnswer } from "@/lib/ai/rules/answer-review";
 import type { Consistency, Involvement } from "@/lib/ai/rules/structured-answer";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
@@ -32,7 +32,7 @@ export type ConsistencyResult = {
 
 /** The person's part as the explanation shows it, or null when it shows none. */
 function partShownByText(text: string, rules: TextRules, requirementText: string): { involvement: Involvement | null; why: string } {
-  const v21 = rules === "v21";
+  const v21 = isV21Family(rules);
   const statements = answerStatements(text, rules).map(s => (v21 && s.ownership === "oversaw" && ownDirectAct(requirementText, s.text) ? { ...s, ownership: "performed" as const } : s));
   // rules-v21 (F4): a narrowed statement ("…, I only draft the reports") is the person's own work, limited in scope: doing
   // it, never exposure. The scope limit stays with the reading (it can't show the whole requirement).
@@ -42,13 +42,13 @@ function partShownByText(text: string, rules: TextRules, requirementText: string
   if (first) return { involvement: first.brief || (first.exposureOnly && !first.narrowed) ? "OBSERVED_TRAINED" : FROM_OWNERSHIP[first.ownership], why: "own statement" };
   // No statement of the person's own: learning or intending to, or someone else did it.
   if (statesIntent(text)) return { involvement: "OBSERVED_TRAINED", why: "learning or intending" };
-  if (othersText(text).trim()) return { involvement: null, why: "someone else did it" };
+  if ((rules === "v22" ? othersParts(text, false, true, false, true).join(" ") : othersText(text)).trim()) return { involvement: null, why: "someone else did it" };
   return { involvement: null, why: "no own statement" };
 }
 
 export function assessConsistency(input: { requirement: Pick<MatchRequirement, "text" | "category">; involvement: Involvement; explanation: string | null; textRules?: TextRules }): ConsistencyResult {
   const rules: TextRules = input.textRules ?? DEFAULT_TEXT_RULES;
-  const v21 = rules === "v21";
+  const v21 = isV21Family(rules);
   const text = input.explanation?.trim() ?? "";
   if (!text) return { consistency: { state: "no_text" }, textInvolvement: null, refused: false, reason: "no_text" };
   if (answerLanguage(text) !== "en") return { consistency: { state: "text_unread" }, textInvolvement: null, refused: false, reason: "not_english" };
@@ -61,7 +61,7 @@ export function assessConsistency(input: { requirement: Pick<MatchRequirement, "
   // F6: the explanation gives this activity to someone else, or the person's own words deny doing it, and it shows none of
   // the person's own work on it: contradicted, no checkbox credit (D1).
   if (v21 && choiceDoes && readAnswer(requirement, text, { textRules: rules }).verdict === "insufficient_information") {
-    if (othersDoWholeRequirement(requirement.text, text)) return { consistency: { state: "text_mismatch", textSuggests: null, contradictedBy: "other_person" }, textInvolvement: null, refused: false, reason: "someone_else_did_it" };
+    if (othersDoWholeRequirement(requirement.text, text, rules === "v22")) return { consistency: { state: "text_mismatch", textSuggests: null, contradictedBy: "other_person" }, textInvolvement: null, refused: false, reason: "someone_else_did_it" };
     if (deniesRequirement(requirement.text, text)) return { consistency: { state: "text_mismatch", textSuggests: null, contradictedBy: "own_denial" }, textInvolvement: null, refused: false, reason: "denies_doing_it" };
   }
 

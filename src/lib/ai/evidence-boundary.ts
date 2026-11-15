@@ -94,12 +94,14 @@ export function retractions(detail: string, v21 = false): [number, number][] {
 }
 /** What an answer says someone else did, or takes back: other people's clauses and retracted claims, one part each. Never
  * the person's own work, and only ever used to hold credit back. `peopleOnly` leaves out a thing's part. */
-export function othersParts(detail: string, peopleOnly = false, withRetractions = true, v21 = false): string[] {
+/** `v22` (rules-v22, F0, opt-in): a clause that sends or puts the person to do something ("My boss sends me out to install
+ * …") is the person's own work, so it is never someone else's here. */
+export function othersParts(detail: string, peopleOnly = false, withRetractions = true, v21 = false, v22 = false): string[] {
   const parts: string[] = withRetractions ? retractions(detail, v21).map(([s, e]) => detail.slice(s, e)) : [];
   for (const sentence of detail.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? []) {
-    for (const clause of splitBySubject(sentence)) if (clause.subject === "other" && (!peopleOnly || isPersonClause(clause.text))) parts.push(clause.text);
+    for (const clause of splitBySubject(sentence)) if (clause.subject === "other" && (!peopleOnly || isPersonClause(clause.text)) && !(v22 && directedAtPerson(clause.text))) parts.push(clause.text);
     // A whole sentence about someone else, with no "I" or "we" in it. One where the person speaks gives only the other clause.
-    if (!/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(sentence) && (opensOnNamedOther(sentence.trim(), true) || someoneElsesWork(sentence.trim(), sentence.trim()))) parts.push(sentence);
+    if (!/(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu.test(sentence) && (opensOnNamedOther(sentence.trim(), true) || someoneElsesWork(sentence.trim(), sentence.trim())) && !(v22 && splitBySubject(sentence).some(c => directedAtPerson(c.text)))) parts.push(sentence);
   }
   return parts;
 }
@@ -148,8 +150,31 @@ export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "ob
 /** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; it was the matching default
  * from 2026-11-11. "v21" (Phase 5.3 Stage B, R3 F1–F9, DD3 and P1) includes every v20 rule; the owner adopted it as the
  * matching default on 2026-11-13 (Stage C). "v20" and "v19" stay selectable so evaluations and tests can compare. */
-export type TextRules = "v19" | "v20" | "v21";
+export type TextRules = "v19" | "v20" | "v21" | "v22";
 export const DEFAULT_TEXT_RULES: TextRules = "v21";
+/** rules-v22 (Phase 5.3 Stage F0, OPT-IN): rules-v21 plus one rule, "directed at the person". Every v21 rule applies to v22. */
+export const isV21Family = (rules: TextRules | undefined) => rules === "v21" || rules === "v22";
+
+// rules-v22 (F0): "My boss sends me out to install water heaters", "My supervisor has me fix leaks". The grammatical subject
+// is someone else, but the act after "to" (or after "has me") is the person's own. Deliberately narrow: only send, dispatch,
+// assign, schedule and put (+ me + to + an act), and have/had + me + an act. Never tell, ask, let or make (in opened data
+// those are templates, injections, refusals and requests), never a negation, modal, intention or condition on the
+// directing verb, never "me and others", and never "to" + a place, event or thing ("to a class", "sends me what…").
+const DIRECTING_PREFIX = String.raw`^\W*([^,;:]{1,60}?)\s+(?:usually\s+|often\s+|always\s+|also\s+|then\s+|normally\s+|sometimes\s+|mostly\s+)?`;
+const DIRECTED_TO = new RegExp(String.raw`${DIRECTING_PREFIX}(?:sends?|sent|dispatch(?:es|ed)?|assigns?|assigned|schedules?|scheduled|puts?)\s+me\s+(?:out\s+)?to\s+(?!(?:a|an|the|my|our|their|his|her|its|this|that|these|those|each|every|all|some|any|work|class|classes|training|school|course|courses|meeting|meetings|seminar|seminars|conference|conferences|site|sites|job|jobs|office|shop|store|branch)\b)(\p{L}[^,;:]*)$`, "iu");
+const HAS_ME = new RegExp(String.raw`${DIRECTING_PREFIX}(?:has|had|have)\s+me\s+(?!(?:a|an|the|to|in|on|at|for|with|as|over|down|up|out|off|by|been|be|covered|beat|here|there|now)\b)(\p{L}[^,;:]*)$`, "iu");
+const NOT_DIRECTED = /\b(?:never|not|no|nobody|n['’]t|won['’]t|would|could|should|might|may|will|wants?\s+to|wanted\s+to|going\s+to|plans?\s+to|planning\s+to|hopes?\s+to|if|unless|when|whenever|once|i|we|me)\b|n['’]t\b/iu;
+/** The act the person was sent or put to do, verbatim, and where it starts in the clause; null for anything else. */
+export function directedAtPerson(clause: string): { act: string; index: number } | null {
+  for (const pattern of [DIRECTED_TO, HAS_ME]) {
+    const m = pattern.exec(clause);
+    if (!m) continue;
+    if (NOT_DIRECTED.test(m[1])) return null;
+    const act = m[2].replace(/\s+$/, "");
+    return act ? { act, index: clause.length - m[2].length } : null;
+  }
+  return null;
+}
 
 // rules-v20, by sentence structure (no lists of ambiguous words):
 // Teaching or training others to do it: "I teach new hires how to operate a forklift". Not the person's own execution.
@@ -420,7 +445,8 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
 /** Sentences of an answer that are plainly this person's own statement of having done something. Nothing
  * comes back unless the whole answer is plainly English: other answers stay unresolved. */
 export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT_RULES): Statement[] {
-  const v21 = rules === "v21";
+  const v22 = rules === "v22";
+  const v21 = rules === "v21" || v22;
   const v20 = rules === "v20" || v21;
   const readableOf = (text: string) => (v21 ? withoutOthersWorkV21(ownClauses(text, true)) : v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
   const boundsOf = (text: string): { bounded?: string } => {
@@ -478,6 +504,23 @@ export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT
     });
   };
   for (const match of detail.matchAll(/(?:[^.!?;\n]|\.(?=\d))+/g)) for (const clause of clausesOf(match[0])) {
+    // rules-v22 (F0): "My boss sends me out to install …": the act after "to" is the person's own, read as "I <act>" by every
+    // rule below (negation, intention, helping, watching, overseeing, others' work). The quote is the answer's own words.
+    const directed = v22 ? directedAtPerson(clause.text) : null;
+    if (directed) {
+      const whole = clause.text.trim();
+      const act = directed.act;
+      const start = match.index + clause.start + directed.index;
+      const end = start + act.length;
+      const asOwn = `I ${act}`;
+      if (barred.some(([s, e]) => s < end && start < e)) continue;
+      if (ownNegative(asOwn) || HYPOTHETICAL.test(ownClauses(asOwn).replace(WHAT_I_CAN, " ")) || NOT_DOING.test(asOwn) || notAStatement(asOwn) || keywordDump(act) || labelledList(act) || INTENT.test(ownClauses(asOwn))) continue;
+      if (someoneElsesWork(asOwn, asOwn)) continue;
+      const firstClause = asOwn.split(/,\s*(?:and|then|but)\s+/i)[0];
+      const narrowed = narrowedIn(whole);
+      out.push({ text: act, start, ...readAct(asOwn), exposureOnly: brief || EXPOSURE.test(whole) || LIMITED.test(whole) || personal(whole) || narrowed, brief, readable: readableOf(asOwn), ...boundsOf(asOwn), ownership: ownershipOf(firstClause), ...(paperworkForOthers(firstClause) ? { paperwork: true } : {}), ...(narrowed ? { narrowed: true } : {}) });
+      continue;
+    }
     if (clause.subject === "other") continue;
     const whole = clause.text.trim();
     const wholeStart = match.index + clause.start + clause.text.indexOf(whole);
