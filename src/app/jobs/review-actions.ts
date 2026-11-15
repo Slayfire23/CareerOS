@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
 import { answerPartQuestion, confirmWithDetail, confirmWithEntry, correctAnswer, correctStructuredAnswer, deleteAnswerPermanently, denyQuestion, revokeAnswer, saveStructuredAnswer, skipQuestion, type ReviewResult, type StructuredResult } from "@/lib/ai/clarification-review";
 import type { RawSubmission } from "@/lib/ai/rules/structured-form";
+import { matchEffect } from "@/lib/ai/rules/structured-form-spec";
 import { readAiConfig } from "@/lib/ai/config";
 import { parseEducation } from "@/lib/education";
 import { createClient } from "@/lib/supabase/server";
@@ -104,7 +105,8 @@ export async function reviewDelete(_previous: ReviewState, form: FormData): Prom
 
 // ---- Phase 5.3 Stage E: structured "your part" answers (behind STRUCTURED_OWNERSHIP_FORM_ENABLED). ----
 export type StructuredState = { error?: string; message?: string; fieldErrors?: Partial<Record<string, string>> };
-const STRUCTURED_SAVED = "Saved. This kind of answer doesn't change the match yet. You can change, revoke, or delete it below.";
+/** Stage F5: what saving does to the match, in plain words, depending on whether structured answers count right now. */
+const STRUCTURED_SAVED = (counts: boolean) => `Saved. ${matchEffect(counts)} You can change, revoke, or delete it below.`;
 const STRUCTURED_ERRORS: Record<string, string> = {
   ...ERRORS,
   disabled: "This isn't available.",
@@ -135,8 +137,10 @@ export async function reviewSaveStructured(_previous: StructuredState, form: For
   const questionKey = one(form, "questionKey");
   if (!analysisId || !questionKey) return { error: ERRORS.not_found };
   const submission = submissionOf(form);
-  const saved = submission.detail && answerLanguage(submission.detail) !== "en" ? `${STRUCTURED_SAVED} ${LANGUAGE_NOTE}` : STRUCTURED_SAVED;
-  return structuredReply(await saveStructuredAnswer({ supabaseAuthId: user.id, analysisId, questionKey, submission, config: readAiConfig() }), saved);
+  const config = readAiConfig();
+  const counts = config.enabled && config.structuredMatching === true;
+  const saved = submission.detail && answerLanguage(submission.detail) !== "en" ? `${STRUCTURED_SAVED(counts)} ${LANGUAGE_NOTE}` : STRUCTURED_SAVED(counts);
+  return structuredReply(await saveStructuredAnswer({ supabaseAuthId: user.id, analysisId, questionKey, submission, config }), saved);
 }
 
 export async function reviewCorrectStructured(_previous: StructuredState, form: FormData): Promise<StructuredState> {
@@ -145,8 +149,9 @@ export async function reviewCorrectStructured(_previous: StructuredState, form: 
   const clarificationId = one(form, "clarificationId");
   if (!clarificationId) return { error: ERRORS.not_found };
   const partQuestion = one(form, "partQuestion");
-  const result = await correctStructuredAnswer({ supabaseAuthId: user.id, clarificationId, submission: submissionOf(form), partQuestion: partQuestion && /^\d$/.test(partQuestion) ? Number(partQuestion) : null, config: readAiConfig() });
-  return structuredReply(result, "Changed. This kind of answer doesn't change the match yet.");
+  const config = readAiConfig();
+  const result = await correctStructuredAnswer({ supabaseAuthId: user.id, clarificationId, submission: submissionOf(form), partQuestion: partQuestion && /^\d$/.test(partQuestion) ? Number(partQuestion) : null, config });
+  return structuredReply(result, `Changed. ${matchEffect(config.enabled && config.structuredMatching === true)}`);
 }
 
 export async function reviewPartQuestion(_previous: StructuredState, form: FormData): Promise<StructuredState> {

@@ -488,3 +488,19 @@ A local launch entry, `careeros-matching-3100`, starts a production build with a
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F4_REPORT.md.
+
+## Phase 5.3 Stage F5, the match page for structured findings - November 14, 2026 (local commit, not pushed)
+
+With structured matching on, a choice-only answer is stored as Possible (`candidate_choice`). The page shows it as "Your choice" with CareerOS's fixed wording, which is self-reported and not independently verified, never as the person's words or profile. Stored choice findings show only when they cite the current wording of an active answer; anything else is withheld. Unknown citation sources render safely. The saved-answer wording depends on the flag.
+
+**Tests:**
+- unit: `tests/structured-apply.test.ts` (choice persistence, validity, wording) and the updated `tests/choice-evidence.test.ts`;
+- integration: the F3 lifecycle and F4 matching tests updated to F5;
+- browser: `e2e/job-structured-matching.spec.ts`, run against `careeros-matching-3100` with `E2E_STRUCTURED_MATCHING=true`.
+
+**Results:**
+- **Suites:** 3,895 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** specs pass with the flags off, form only, and all flags. `job-clarification` fails whenever the review is on (pre-existing).
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F5_REPORT.md.

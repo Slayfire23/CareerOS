@@ -4,14 +4,14 @@ import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { reviewCorrectStructured, reviewPartQuestion, reviewSaveStructured, type StructuredState } from "@/app/jobs/review-actions";
 import { DETAIL_MAX } from "@/lib/ai/rules/clarification-limits";
 import type { Involvement } from "@/lib/ai/rules/structured-answer";
-import { CHOICES, DETAIL_HINT, FREQUENCIES, RECENCIES, SUPERVISING_NOTE, fieldsFromSpec, type FormSpec } from "@/lib/ai/rules/structured-form-spec";
+import { CHOICES, DETAIL_HINT, FREQUENCIES, RECENCIES, SUPERVISING_NOTE, fieldsFromSpec, matchEffect, type FormSpec } from "@/lib/ai/rules/structured-form-spec";
 import { SECTIONS } from "@/lib/sections";
 
 // Phase 5.3 Stage E: the structured "your part" form (flag STRUCTURED_OWNERSHIP_FORM_ENABLED, local only). Native
 // controls in fieldsets with legends, labels on every control, errors listed at the top (focused) and next to each field,
 // one column on small screens, and nothing preselected. It never shows what the reader found (owner decision E3).
 
-const NOTE = "Saved to your profile as self-reported. CareerOS doesn't independently check it, so only add what's accurate. This kind of answer doesn't change the match yet.";
+const NOTE = (counts: boolean | undefined) => `Saved to your profile as self-reported. CareerOS doesn't independently check it, so only add what's accurate. ${matchEffect(counts)}`;
 const option = "flex min-h-11 items-center gap-3 rounded-md px-2 text-sm";
 
 export type StructuredInitial = { involvement: Involvement; alsoDidSome: boolean | null; frequency: string | null; recency: string | null; claimedMonths: number | null; experienceId: string | null; detail: string | null; checkedParts: number[] };
@@ -120,7 +120,7 @@ export function StructuredAnswerForm(props: Props) {
       <p id={`${id}-detail-hint`} className="hint">{DETAIL_HINT}</p>
     </div>}
 
-    <p className="hint">{NOTE}</p>
+    <p className="hint">{NOTE(props.spec.countsTowardMatch)}</p>
     <button type="submit" className="btn btn-primary btn-sm min-h-11 w-full sm:w-auto" disabled={pending || choice === null}>{pending ? "Saving…" : props.mode === "new" ? "Save my answer" : "Save changes"}</button>
     {state.message && <p role="status">{state.message}</p>}
   </form>;
@@ -136,7 +136,7 @@ export function StructuredAnswerBlock({ clarificationId, requirementText, spec, 
   const [answered, answer, answering] = useActionState(reviewPartQuestion, {} as StructuredState);
   return <div className="space-y-2">
     <p>{choiceLabel}{partsLabel && <span className="text-muted"> · {partsLabel}</span>}</p>
-    <p className="text-xs text-muted">This kind of answer doesn&apos;t change the match yet.</p>
+    <p className="text-xs text-muted">{matchEffect(spec.countsTowardMatch)}</p>
     {editable && questions.length > 0 && <ul aria-label={`Questions about your answer on ${requirementText}`} className="space-y-2">
       {questions.map((q, i) => <li key={i} className="space-y-2 rounded-md border p-2 text-sm">
         <p>{q.text}</p>

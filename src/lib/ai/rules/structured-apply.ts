@@ -1,6 +1,6 @@
 import { answerLanguage } from "@/lib/ai/answer-language";
-import { citesLapsedAnswer, isChoiceEvidenceId } from "@/lib/ai/choice-evidence";
-import { monthIndex, roleMonths, type ExperienceEvidence, type MatchRequest, type MatchRequirement } from "@/lib/ai/evidence";
+import { buildChoiceEvidence, choiceCitation, citesLapsedAnswer, isChoiceEvidenceId } from "@/lib/ai/choice-evidence";
+import { monthIndex, roleMonths, type ExperienceEvidence, type MatchRequest, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import { DEFAULT_TEXT_RULES } from "@/lib/ai/evidence-boundary";
 import type { Finding, RuleBasis } from "@/lib/ai/match-validation";
 import { approvedSplitFor } from "@/lib/ai/rules/approved-split-link";
@@ -20,8 +20,9 @@ import { matchStructuredAnswer, type PartReadings, type StructuredAnswerRecord, 
 //   - "Haven't done this" is today's denial: it goes in as an ordinary deny record (`structuredDenials`).
 //   - F-5: the Stage 1c title-only rule applies to a structured description exactly as to free text (`titleContradicted`).
 //     It is the one way an answer can lower anything, and only a verdict that rests on a job title alone.
-//   - Choice-only results (`candidate_choice`) are NOT stored in F4: the match page can't show a `choice:` citation yet
-//     (F3 report §6). Such a finding is left as the rules gave it, and counted in `withheld`.
+//   - Choice-only results (`candidate_choice`, Stage F5): Possible at most, citing the answer's `choice:` item with
+//     CareerOS's fixed wording, which the request carries in `structured_choices` (rules only; never sent to an AI
+//     provider). Without a valid choice item, the finding is left as the rules gave it (counted in `withheld`).
 //   - Splits: exact wording only (E1); lead choices on a split stay Not enough information; whole transfer contradicts
 //     the tick; quotes use the approved fallback (F-4b not done; splits-v1.1 unchanged). All of it inside F2's module.
 
@@ -30,7 +31,11 @@ const EXPLAIN = {
   possible: "Your structured answer describes related work, or part of what this asks for.",
 };
 const MASKED = "This relied on a structured answer, which isn't used for matching right now. Run the analysis again.";
-const WITHHELD = "This result rests on a structured choice alone, which isn't shown yet. Run the analysis again.";
+const WITHHELD = "This relied on a choice in a structured answer that has since changed. Run the analysis again.";
+const CHOICE_EXPLAIN = {
+  possible: "From your structured answer's choice. A choice on its own counts as Possible at most; what you describe doing yourself can show more.",
+  time: "Your structured answer says you have this much time, but your listed roles cover less. If earlier roles are missing, add them in Experience so the dates can show it.",
+};
 
 /** A structured answer row as loaded for matching (an active formVersion 2 answer, with its parts). */
 export type StructuredRow = StructuredAnswerRecord;
@@ -114,7 +119,16 @@ export function applyStructuredAnswers(request: MatchRequest, findings: RawFindi
     }
     results.push({ requirementIndex: f.requirement_index, match, titleLowered: false });
     if (!match.changed || !match.citation) return f;
-    if (match.basis === "candidate_choice") { withheld++; return f; }
+    if (match.basis === "candidate_choice") {
+      // Stage F5: a choice-only Possible, citing the choice item the request carries (the validator checks it).
+      const choice = buildChoiceEvidence(row);
+      if (!choice || match.verdict !== "possible" || !request.structured_choices?.some(c => c.id === choice.id)) { withheld++; return f; }
+      return {
+        ...f, verdict: "possible" as Verdict, basis: "candidate_choice" as RuleBasis, citations: [choiceCitation(choice)],
+        explanation: f.verdict === "gap" ? CHOICE_EXPLAIN.time : CHOICE_EXPLAIN.possible,
+        caveats: (match.reading?.caveats ?? []).slice(0, 5), rules_only_verdict: f.rules_only_verdict ?? f.verdict,
+      };
+    }
     if (match.basis !== "candidate_answer" || !match.citation.quote || (match.verdict !== "supported" && match.verdict !== "possible")) return f;
     return {
       ...f,
@@ -144,9 +158,13 @@ export function maskStructuredFindings<T extends Pick<Finding, "requirementIndex
   });
 }
 
-/** Stage F4 citation safety: a finding resting on a structured choice (`choice:<id>`) is never shown or counted until the
- * match page can show one (F5). F4 never stores one; this covers any stored by other means, whatever the flags. */
-export function withholdChoiceFindings<T extends Pick<Finding, "verdict" | "explanation" | "citations" | "caveats" | "evidenceSources">>(findings: T[]): T[] {
-  if (!findings.some(f => f.citations.some(c => isChoiceEvidenceId(c.evidenceId)))) return findings;
-  return findings.map(f => (f.citations.some(c => isChoiceEvidenceId(c.evidenceId)) ? { ...f, verdict: "insufficient_information", explanation: WITHHELD, citations: [], caveats: [], evidenceSources: [] } : f));
+/** Citation safety (Stages F4–F5): a stored finding citing a structured choice (`choice:<id>`) is shown and counted only
+ * when it is exactly what a choice result may be: Possible, basis `candidate_choice`, one citation, and that citation is
+ * the CURRENT wording of an ACTIVE structured answer (`valid`, id → wording; empty with structured matching off).
+ * Anything else (revoked, superseded, deleted, edited, malformed, or Supported) is withheld, never shown. */
+export function withholdChoiceFindings<T extends Pick<Finding, "verdict" | "explanation" | "citations" | "caveats" | "evidenceSources" | "basis">>(findings: T[], valid: ReadonlyMap<string, string> = new Map()): T[] {
+  const citesChoice = (f: T) => f.citations.some(c => isChoiceEvidenceId(c.evidenceId));
+  const sound = (f: T) => f.verdict === "possible" && f.basis === "candidate_choice" && f.citations.length === 1 && valid.get(f.citations[0].evidenceId) === f.citations[0].quote;
+  if (!findings.some(f => citesChoice(f) && !sound(f))) return findings;
+  return findings.map(f => (citesChoice(f) && !sound(f) ? { ...f, verdict: "insufficient_information", explanation: WITHHELD, citations: [], caveats: [], evidenceSources: [] } : f));
 }

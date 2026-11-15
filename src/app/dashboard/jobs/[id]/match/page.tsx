@@ -74,7 +74,9 @@ const FINDING_SOURCE: Record<AiStatus, string> = {
   unavailable: "Rules engine (local AI was unavailable)",
 };
 const ORIGIN_NOTE = (sources: EvidenceOrigin[] | undefined) =>
-  sources?.includes("candidate_answer")
+  sources?.includes("candidate_choice")
+    ? "From a choice you made in a structured answer, not from your own description. Self-reported: CareerOS hasn't independently verified it."
+    : sources?.includes("candidate_answer")
     ? `From ${sources.includes("profile") ? "your profile and " : ""}an answer you gave. Self-reported: CareerOS hasn't independently verified it.`
     : "From your profile. Self-reported: CareerOS hasn't independently verified it.";
 /** Where each result came from. All of these are deterministic rules, never AI. */
@@ -209,9 +211,15 @@ function Findings({ analysis, jobId, roles, declined, review }: { analysis: Anal
           <p className="text-xs font-medium text-muted">Evidence. {ORIGIN_NOTE(finding.evidenceSources)}</p>
           <ul className="space-y-1.5">
             {finding.citations.map(citation => {
-              const source = EVIDENCE_SOURCE[citation.evidenceId.split(":")[0] as EvidenceKind];
+              const prefix = citation.evidenceId.split(":")[0];
+              // A structured choice: CareerOS's fixed wording of what was chosen, never shown as the person's own words.
+              if (prefix === "choice") return <li key={`${citation.evidenceId}-${citation.quote}`} className="flex flex-wrap items-baseline gap-2 text-sm">
+                <span className="text-xs font-medium text-muted">Your choice</span>
+                <span className="break-words border-l-2 border-accent/50 pl-2 text-muted">{citation.quote}</span>
+              </li>;
+              const source = Object.hasOwn(EVIDENCE_SOURCE, prefix) ? EVIDENCE_SOURCE[prefix as EvidenceKind] : null;
               return <li key={`${citation.evidenceId}-${citation.quote}`} className="flex flex-wrap items-baseline gap-2 text-sm">
-                <Link href={source.href} className="text-xs font-medium text-accent-text hover:underline">{source.label}</Link>
+                {source ? <Link href={source.href} className="text-xs font-medium text-accent-text hover:underline">{source.label}</Link> : <span className="text-xs font-medium text-muted">Evidence</span>}
                 <q className="break-words border-l-2 border-accent/50 pl-2 italic text-muted">{citation.quote}</q>
               </li>;
             })}

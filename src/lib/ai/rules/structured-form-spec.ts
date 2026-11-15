@@ -35,7 +35,14 @@ const DOING: readonly Involvement[] = ["PERFORMED", "PART"];
 
 /** For one requirement: its approved parts (null: asked as one requirement), the lead choices that ask "Did you also
  * do any of it yourself?", and whether "About how long in total?" is asked. */
-export type FormSpec = { parts: readonly string[] | null; leadAsksAlso: Involvement[]; months: boolean };
+/** `countsTowardMatch` (Stage F5): structured answers count toward the match right now (the page says so in plain words). */
+export type FormSpec = { parts: readonly string[] | null; leadAsksAlso: Involvement[]; months: boolean; countsTowardMatch?: boolean };
+/** What a structured answer does to the match, in plain words: nothing yet, or (Stage F5) possibly something after a re-run. */
+export const MATCH_EFFECT = {
+  off: "This kind of answer doesn't change the match yet.",
+  on: "It can count toward the match when you run the analysis again, depending on what you describe.",
+} as const;
+export const matchEffect = (counts: boolean | undefined) => (counts ? MATCH_EFFECT.on : MATCH_EFFECT.off);
 export type Fields = { alsoDidSome: boolean; frequency: boolean; recency: boolean; role: boolean; months: boolean; parts: boolean; detail: boolean };
 
 /** Which fields appear for a choice (progressive disclosure). `alsoDidSome` is the answer so far. */

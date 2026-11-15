@@ -191,17 +191,21 @@ describe("F2 → F3: what the pure module produces validates exactly as intended
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-describe("still disconnected; the one UI line", () => {
+describe("connected in F5: only the rules pipeline builds choices; the page shows them safely", () => {
   const walk = (dir: string): string[] => readdirSync(dir).flatMap(f => (statSync(`${dir}/${f}`).isDirectory() ? (f === "generated" ? [] : walk(`${dir}/${f}`)) : [`${dir}/${f}`]));
-  it("nothing in the app builds choice evidence or sets structured_choices", () => {
-    const users = walk("src").filter(f => /buildChoiceEvidence\s*\(|choiceCitation\s*\(|structured_choices\s*:/.test(readFileSync(f, "utf8")));
-    expect(users).toEqual(["src/lib/ai/choice-evidence.ts"]);
-    // The request type declares the field (optional); no code fills it.
-    expect(walk("src").filter(f => /structured_choices/.test(readFileSync(f, "utf8"))).sort()).toEqual(["src/lib/ai/evidence.ts", "src/lib/ai/match-validation.ts"]);
+  it("only the analysis pipeline and the F4/F5 composition build choices; only the rules request carries them", () => {
+    const users = walk("src").filter(f => /buildChoiceEvidence\b|choiceCitation\s*\(|structured_choices\s*:/.test(readFileSync(f, "utf8"))).sort();
+    expect(users).toEqual(["src/lib/ai/analysis.ts", "src/lib/ai/choice-evidence.ts", "src/lib/ai/rules/structured-apply.ts"]);
+    expect(walk("src").filter(f => /structured_choices/.test(readFileSync(f, "utf8"))).sort()).toEqual(["src/lib/ai/analysis.ts", "src/lib/ai/evidence.ts", "src/lib/ai/match-validation.ts", "src/lib/ai/rules/structured-apply.ts"]);
+    // Only for the rules: built when `usesRules`, and the AI request strips everything but evidence it may see.
+    expect(readFileSync("src/lib/ai/analysis.ts", "utf8")).toMatch(/const choices = structured && usesRules \?/);
   });
-  it("the match page gained only the label for the new basis, neutral and unverified", () => {
+  it("the match page labels a choice as the person's choice, never their profile or their words, and never crashes on an unknown source", () => {
     const page = readFileSync("src/app/dashboard/jobs/[id]/match/page.tsx", "utf8");
     expect(page).toContain('candidate_choice: "Applicant\'s structured answer. Self-reported: CareerOS hasn\'t independently verified it",');
-    expect(page).not.toMatch(/choice-evidence|structured_choices|"choice"/);
+    expect(page).toContain('if (prefix === "choice")');
+    expect(page).toContain("From a choice you made in a structured answer, not from your own description.");
+    expect(page).toMatch(/Object\.hasOwn\(EVIDENCE_SOURCE, prefix\)/);
+    expect(page).not.toMatch(/choice-evidence|structured_choices/);
   });
 });

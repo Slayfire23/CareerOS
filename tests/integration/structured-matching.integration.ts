@@ -109,19 +109,32 @@ describe("flag on: structured answers count, through the rule table and the vali
     await rerun(a, matching);
     expect((await stored(a)).findings[0]).toMatchObject({ verdict: "possible", basis: "candidate_answer" });
   });
-  it("a choice alone (no description): nothing stored, nothing citing a choice", async () => {
+  it("a choice alone (no description): Possible, citing the choice in CareerOS's wording; masked with the flag off (F5)", async () => {
     const a = await account([SALESFORCE]);
     await save(a, SALESFORCE, { involvement: "PERFORMED", frequency: "MOST_DAYS", recency: "CURRENT", experienceId: a.role.id });
     await rerun(a, matching);
+    const row = await prisma.candidateClarification.findFirstOrThrow({ where: { userId: a.user.id, status: "ACTIVE" } });
     const s = await stored(a);
-    expect(s.findings[0]).toMatchObject({ verdict: "insufficient_information", basis: "no_evidence" });
-    expect(JSON.stringify(s.findings)).not.toContain("choice:");
+    expect(s.findings[0]).toMatchObject({ verdict: "possible", basis: "candidate_choice", evidenceSources: ["candidate_choice"], citations: [{ evidenceId: `choice:${row.id}`, quote: expect.stringMatching(/^Structured answer, self-reported: CareerOS hasn't independently verified it\. Choice: I did this work myself/) }] });
+    expect(s.verdictCounts).toMatchObject({ possible: 1 });
+    const on = await page(a, matching);
+    expect(on.latest!.findings[0]).toMatchObject({ verdict: "possible", basis: "candidate_choice" });
+    expect(on.latest!.verdictCounts).toMatchObject({ possible: 1 });
+    for (const config of OFF) {
+      const off = await page(a, config);
+      expect(off.latest!.findings[0]).toMatchObject(MASKED);
+      expect(off.latest!.verdictCounts).toMatchObject({ possible: 0, insufficient_information: 1 });
+      expect(off.history[0].analysis!.verdictCounts).toMatchObject({ possible: 0, insufficient_information: 1 });
+    }
   });
-  it("an irrelevant description never gives Supported or cites unrelated words", async () => {
+  it("an irrelevant description never gives Supported, and its words are never cited (only the choice is)", async () => {
     const a = await account([PLUMBING]);
     await save(a, PLUMBING, performed(a, { detail: "I pick up parts for the plumbers who install water heaters.", parts: ["0", "1"] }));
     await rerun(a, matching);
-    expect((await stored(a)).findings[0]).toMatchObject({ verdict: "insufficient_information", citations: [] });
+    const f = (await stored(a)).findings[0];
+    expect(f.verdict).not.toBe("supported");
+    expect(f.citations.every(c => c.evidenceId.startsWith("choice:"))).toBe(true);
+    expect(JSON.stringify(f)).not.toContain("pick up parts");
   });
   it("a lead choice on a split, and a grouped question, stay Not enough information", async () => {
     const a = await account([PLUMBING]);

@@ -11,6 +11,9 @@ test("structured form: accessible controls, validation, saving changes no verdic
   test.setTimeout(240000);
   const env = parse(readFileSync(".env"));
   test.skip(process.env.E2E_STRUCTURED_FORM !== "true" && env.STRUCTURED_OWNERSHIP_FORM_ENABLED !== "true", "The structured form is off (the default).");
+  // Stage F5: this spec checks the form with structured matching off ("doesn't change the match yet"); with it on, see
+  // e2e/job-structured-matching.spec.ts.
+  test.skip(process.env.E2E_STRUCTURED_MATCHING === "true", "Structured matching is on: covered by job-structured-matching.spec.ts.");
   const accounts = parse(readFileSync(".env.playwright.local"));
   const tag = randomUUID().slice(0, 8);
   const company = `Structured test ${tag}`;

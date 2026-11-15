@@ -1,4 +1,4 @@
-import { citesLapsedAnswer } from "@/lib/ai/choice-evidence";
+import { buildChoiceEvidence, citesLapsedAnswer, type ChoiceEvidence } from "@/lib/ai/choice-evidence";
 import { evidenceForAi } from "@/lib/ai/evidence-boundary";
 import "server-only";
 import { randomUUID } from "node:crypto";
@@ -171,9 +171,17 @@ export async function structuredMaskFor(userId: string, config: AiConfig | null 
   };
 }
 
-/** A stored analysis's findings as they may be used now (F-9), for every reader of stored findings. */
+/** Stage F5: the choices a stored `candidate_choice` result may cite now: each ACTIVE structured answer's choice item, by
+ * id, with its current wording. Empty with structured matching off. */
+export async function validChoicesFor(userId: string, config: AiConfig | null | undefined): Promise<Map<string, string>> {
+  if (!config?.enabled || !config.structuredMatching) return new Map();
+  const rows = await prisma.candidateClarification.findMany({ where: { userId, status: "ACTIVE", formVersion: 2 }, select: { id: true, involvement: true, frequency: true, recency: true } });
+  return new Map(rows.map(buildChoiceEvidence).filter((c): c is ChoiceEvidence => !!c).map(c => [c.id, c.statement]));
+}
+
+/** A stored analysis's findings as they may be used now (F-9, citation safety), for every reader of stored findings. */
 export async function currentFindings<T extends Finding>(userId: string, requirements: MatchRequirement[], findings: T[], config: AiConfig | null | undefined): Promise<T[]> {
-  return withholdChoiceFindings(maskStructuredFindings(findings, requirements, await structuredMaskFor(userId, config), reviewKeyFor));
+  return withholdChoiceFindings(maskStructuredFindings(findings, requirements, await structuredMaskFor(userId, config), reviewKeyFor), await validChoicesFor(userId, config));
 }
 
 /** Personal and company values to remove from free text before it goes to a cloud provider. */
@@ -377,8 +385,11 @@ export async function runJobAnalysis(options: {
     const structuredAnswers = structured ? structuredFingerprintAnswers(structured.rows, structured.freeText) : [];
     fingerprint = evidenceFingerprint(evidence, config.reviewEnabled ? [...linked, ...structuredAnswers] : []); // always of the unredacted profile
     if (structured && usesRules) linked = [...linked, ...structuredDenials(structured.rows, structured.freeText)];
+    // Stage F5: each structured answer's choice item, for a `candidate_choice` result. Rules only: never in `evidence`,
+    // and never on a request to an AI provider.
+    const choices = structured && usesRules ? structured.rows.map(buildChoiceEvidence).filter((c): c is ChoiceEvidence => !!c) : [];
     const requirements = buildRequirements(requirementsList);
-    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}), ...(followUps.replies.length ? { follow_up_replies: followUps.replies } : {}) };
+    request = { request_id: randomUUID(), provider, as_of_month: currentMonth(now), requirements, evidence, ...(linked.length ? { linked_answers: linked } : {}), ...(followUps.replies.length ? { follow_up_replies: followUps.replies } : {}), ...(choices.length ? { structured_choices: choices } : {}) };
     // Answers stay on this server, read by the answer reader only. The service's strict format has no source field.
     if (!usesRules) request.evidence = evidenceForAi(evidence);
     if (cloud) {
@@ -695,7 +706,7 @@ function maskRevoked(view: AnalysisView, revokedEvidence: ReadonlySet<string>, a
 }
 
 /** Stage E: the page's view of one structured answer: the person's own choices, and the plain questions still to ask. */
-function structuredView(r: { status: string; requirementText: string; detail: string | null; questionKey: string | null; coveredKeys: string[]; involvement: Involvement | null; alsoDidSome: boolean | null; frequency: string | null; recency: string | null; claimedMonths: number | null; experienceId: string | null; parts: { partIndex: number; partText: string; checked: boolean }[] }, structuredOn: boolean, done: ReadonlyMap<string, ReadonlySet<string>>): StructuredAnswerView | null {
+function structuredView(r: { status: string; requirementText: string; detail: string | null; questionKey: string | null; coveredKeys: string[]; involvement: Involvement | null; alsoDidSome: boolean | null; frequency: string | null; recency: string | null; claimedMonths: number | null; experienceId: string | null; parts: { partIndex: number; partText: string; checked: boolean }[] }, structuredOn: boolean, done: ReadonlyMap<string, ReadonlySet<string>>, matching = false): StructuredAnswerView | null {
   if (!r.involvement) return null;
   const context = formContext({ text: r.requirementText, category: "Skills" }, r.coveredKeys.length > 1);
   const doneParts = done.get(r.questionKey ?? "") ?? new Set<string>();
@@ -704,7 +715,7 @@ function structuredView(r: { status: string; requirementText: string; detail: st
   return {
     involvement: r.involvement, alsoDidSome: r.alsoDidSome, frequency: r.frequency, recency: r.recency, claimedMonths: r.claimedMonths, experienceId: r.experienceId, parts: r.parts,
     questions: live ? targetedQuestions({ involvement: r.involvement, detail: r.detail, parts: r.parts }, context, doneIndexes) : [],
-    spec: formSpec(context), editable: live,
+    spec: { ...formSpec(context), countsTowardMatch: matching }, editable: live,
   };
 }
 
@@ -743,7 +754,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
   // the run history's counts.
   const structuredMask = await structuredMaskFor(user.id, config);
   const masking = structuredMask.evidence.size > 0 || structuredMask.denialKeys.size > 0;
-  const usable = (findings: Finding[], requirements: MatchRequirement[]) => withholdChoiceFindings(maskStructuredFindings(findings, requirements, structuredMask, reviewKeyFor));
+  const validChoices = await validChoicesFor(user.id, config);
+  const usable = (findings: Finding[], requirements: MatchRequirement[]) => withholdChoiceFindings(maskStructuredFindings(findings, requirements, structuredMask, reviewKeyFor), validChoices);
   const historyCounts = new Map((await prisma.jobMatchAnalysis.findMany({ where: { runId: { in: history.map(h => h.id) }, userId: user.id }, select: { runId: true, requirements: true, findings: true } })).flatMap(a => {
     const stored = a.findings as Finding[];
     const kept = usable(stored, a.requirements as MatchRequirement[]);
@@ -791,7 +803,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
   let shown = current;
   /** Stage F4 citation safety, applied last so a lapsed answer still reads as revoked. */
   const withheld = (v: AnalysisView): AnalysisView => {
-    const findings = withholdChoiceFindings(v.findings);
+    const findings = withholdChoiceFindings(v.findings, validChoices);
     if (findings === v.findings) return v;
     const verdictCounts = { supported: 0, possible: 0, gap: 0, insufficient_information: 0 };
     for (const f of findings) verdictCounts[f.verdict]++;
@@ -839,7 +851,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     for (const e of doneEvents) if (e.questionKey && e.requirementText) partQuestionsDone.set(e.questionKey, (partQuestionsDone.get(e.questionKey) ?? new Set()).add(e.requirementText));
     review = {
       queue: shown ? buildReviewQueue(shown.requirements, shown.findings, answered, skipped) : { questions: [], notShown: 0, settled: 0, total: 0, suppressedByEarlierAnswers: 0 },
-      answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null , structured: r.formVersion === 2 ? structuredView(r, structuredOn, partQuestionsDone) : null })),
+      answers: rows.filter(r => r.outcome === "ROLE_DETAIL_ADDED" || r.outcome === "ENTRY_ADDED" || r.outcome === "DENIED").filter(r => r.status !== "SUPERSEDED").map(r => ({ id: r.id, requirementText: r.requirementText, detail: r.detail, outcome: r.outcome, status: r.status, createdAt: r.createdAt, roleTitle: r.experience?.jobTitle ?? null, qualification: r.education?.qualification ?? null , structured: r.formVersion === 2 ? structuredView(r, structuredOn, partQuestionsDone, config.structuredMatching === true) : null })),
       changes: events.map(e => ({ requirementText: e.requirementText ?? "", before: e.verdictBefore!, after: e.verdictAfter!, at: e.createdAt })),
       followUps: followUpOn ? followUpRows.filter(f => f.savedJobId === job.id).map(f => {
         const quoted = f.clarification.detail?.slice(f.quoteStart, f.quoteEnd) ?? "";
@@ -849,7 +861,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
         return { id: f.id, status: f.status, requirementText: f.requirementText, detail: f.detail, question: followUpQuestion(quoted, f.requirementText, followUpKind(asked, answer, quoted)), note: reading ? REPLY_NOTES[reading.reason] : null };
       }) : [],
       followUpUnavailable: followUpOn && (await prisma.clarificationEvent.count({ where: { userId: user.id, savedJobId: job.id, action: "FU_UNAVAILABLE" } })) > 0,
-      structuredForms: structuredOn && shown ? Object.fromEntries(shown.requirements.map(r => [keyForRequirement(r), formSpec(formContext(r))])) : null,
+      structuredForms: structuredOn && shown ? Object.fromEntries(shown.requirements.map(r => [keyForRequirement(r), { ...formSpec(formContext(r)), countsTowardMatch: config.structuredMatching === true }])) : null,
     };
   }
 

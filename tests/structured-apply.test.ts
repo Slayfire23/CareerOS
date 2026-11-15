@@ -8,6 +8,7 @@ import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { RULES_VERSION, rulesResponse, type RawFinding } from "@/lib/ai/rules/engine";
 import { keyForRequirement } from "@/lib/ai/rules/review-queue";
 import { APPROVED_SPLITS, RECOGNITION_VERSION } from "@/lib/ai/rules/split-recognition";
+import { buildChoiceEvidence, choiceCitation, type ChoiceEvidence } from "@/lib/ai/choice-evidence";
 import { applyStructuredAnswers, maskStructuredFindings, NO_MASK, structuredDenials, structuredFingerprintAnswers, withholdChoiceFindings, type StructuredRow } from "@/lib/ai/rules/structured-apply";
 
 // Phase 5.3 Stage F4: structured answers composed into the rules' findings (behind STRUCTURED_MATCHING_ENABLED), through
@@ -28,7 +29,9 @@ const ticked = (cid: string, which: (i: number) => boolean = () => true) => APPR
 function run(requirements: MatchRequirement[], rows: StructuredRow[], options: { evidence?: Evidence[]; answers?: LinkedAnswer[]; freeText?: Set<string>; base?: (f: RawFinding[]) => RawFinding[] } = {}) {
   const evidence = [role, ...rows.filter(r => r.detail).map(r => answerItem(r.detail!, r.id)), ...(options.evidence ?? [])];
   const answers = [...(options.answers ?? []), ...structuredDenials(rows, options.freeText ?? new Set())];
-  const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e04", provider: "rules", as_of_month: "2026-11", requirements, evidence, ...(answers.length ? { linked_answers: answers } : {}) };
+  // As analysis.ts builds it (Stage F5): each structured answer's choice item, for the rules only.
+  const choices = rows.map(buildChoiceEvidence).filter((c): c is ChoiceEvidence => !!c);
+  const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e04", provider: "rules", as_of_month: "2026-11", requirements, evidence, ...(answers.length ? { linked_answers: answers } : {}), ...(choices.length ? { structured_choices: choices } : {}) };
   let applied: ReturnType<typeof applyStructuredAnswers> | null = null;
   const body = rulesResponse(request, { provider: "rules", model: null, methodVersion: RULES_VERSION }, f => {
     applied = applyStructuredAnswers(request, applyAnswers(request, (options.base ?? (x => x))(f), answers, keyForRequirement), rows.filter(r => r.involvement !== "NOT_DONE"), options.freeText ?? new Set(), keyForRequirement);
@@ -67,23 +70,42 @@ describe("whole requirements", () => {
     expect(findings[0]).toMatchObject({ verdict: "supported", basis: "candidate_answer", rulesOnlyVerdict: "insufficient_information", evidenceSources: ["candidate_answer"], citations: [{ evidenceId: `experience:${ANSWER}` }] });
     expect(words).toContain(findings[0].citations[0].quote);
   });
-  it("a choice alone: nothing stored (choice findings are withheld in F4)", () => {
+  it("a choice alone: Possible, citing the choice in CareerOS's wording (candidate_choice), and valid (F5)", () => {
     const { findings, applied } = run([hvac], [row(hvac)]);
-    expect(findings[0]).toMatchObject({ verdict: "insufficient_information", basis: "no_evidence" });
-    expect(applied.withheld).toBe(1);
-    expect(JSON.stringify(findings)).not.toContain("choice:");
+    const choice = buildChoiceEvidence(row(hvac))!;
+    expect(findings[0]).toMatchObject({ verdict: "possible", basis: "candidate_choice", evidenceSources: ["candidate_choice"], rulesOnlyVerdict: "insufficient_information", citations: [{ evidenceId: choice.id, quote: choice.statement }] });
+    expect(findings[0].explanation).toMatch(/A choice on its own counts as Possible at most/);
+    expect(applied.withheld).toBe(0);
   });
-  it("an irrelevant description (the consistency gap) never gives Supported", () => {
-    const { findings } = run([hvac], [row(hvac, { detail: "I pick up parts for the HVAC techs." })]);
+  it("a choice is never Supported, whatever the choice", () => {
+    for (const [involvement, frequency, recency] of [["PERFORMED", "MOST_DAYS", "CURRENT"], ["PART", "WEEKLY", "CURRENT"], ["TAUGHT", null, null], ["ASSISTED", null, null]] as const) {
+      const f = run([hvac], [row(hvac, { involvement, frequency, recency, alsoDidSome: ["TAUGHT", "ASSISTED"].includes(involvement) ? false : null })]).findings[0];
+      expect(f.verdict, involvement).not.toBe("supported");
+    }
+  });
+  it("without the choice item on the request (an AI request, or none built), nothing is stored", () => {
+    const request: MatchRequest = { request_id: "6f1c1f43-8f5c-4a59-9f43-6b1d2b0b7e06", provider: "rules", as_of_month: "2026-11", requirements: [hvac], evidence: [role] };
+    const applied = applyStructuredAnswers(request, [{ requirement_index: 0, verdict: "insufficient_information", explanation: "x", citations: [], caveats: [], basis: "no_evidence" }], [row(hvac)], new Set(), keyForRequirement);
+    expect(applied.findings[0].verdict).toBe("insufficient_information");
+    expect(applied.withheld).toBe(1);
+  });
+  it("other work (the consistency gap) never gives Supported; words are quoted only where the free-text reader would quote them", () => {
+    const text = "I pick up parts for the HVAC techs.";
+    const { findings } = run([hvac], [row(hvac, { detail: text })]);
     expect(findings[0].verdict).not.toBe("supported");
+    // The same words as a free-text answer: the reader calls them related work (Possible), quoting the same words.
+    const free = run([hvac], [], { evidence: [answerItem(text)], answers: [{ action: "confirm", questionKey: keyForRequirement(hvac), evidenceId: `experience:${ANSWER}`, detail: text }] }).findings[0];
+    expect(findings[0].verdict).toBe(free.verdict);
+    expect(findings[0].citations.map(c => c.quote)).toEqual(free.citations.map(c => c.quote));
   });
   it("a description of related or partial work: Possible, citing the words", () => {
     const { findings } = run([hvac], [row(hvac, { involvement: "PART", detail: words })]);
     expect(findings[0]).toMatchObject({ verdict: "possible", basis: "candidate_answer" });
   });
-  it("a contradicting description gives nothing", () => {
+  it("a description giving the work to others: never Supported, and its words never cited as support", () => {
     const { findings } = run([hvac], [row(hvac, { detail: "Our HVAC techs do all the repairs; I schedule their calls." })]);
-    expect(findings[0].verdict).toBe("insufficient_information");
+    expect(findings[0].verdict).not.toBe("supported");
+    expect(JSON.stringify(findings[0].citations)).not.toContain("schedule their calls");
   });
   it("a rules Supported is never lowered, by any choice", () => {
     const excel = req("Microsoft Excel");
@@ -204,11 +226,45 @@ describe("freshness, masking and withholding", () => {
     expect(out[0]).toMatchObject({ citations: [], explanation: expect.stringMatching(/structured answer/) });
     expect(maskStructuredFindings(findings, reqs, NO_MASK, keyForRequirement)).toBe(findings);
   });
-  it("a finding resting on a structured choice is always withheld; nothing else is touched", () => {
-    const findings = [f(0, "candidate_choice", `choice:${ANSWER}`), f(2, "listed_skill", "skill:x")];
-    const out = withholdChoiceFindings(findings);
-    expect(out[0]).toMatchObject({ verdict: "insufficient_information", citations: [], explanation: expect.stringMatching(/isn't shown yet/) });
-    expect(out[1]).toBe(findings[1]);
-    expect(withholdChoiceFindings([findings[1]])).toEqual([findings[1]]);
+  it("a stored choice finding is shown only if it is a Possible citing the current wording of an active answer", () => {
+    const choice = buildChoiceEvidence({ id: ANSWER, involvement: "PERFORMED", frequency: "WEEKLY", recency: "CURRENT" })!;
+    const valid = new Map([[choice.id, choice.statement]]);
+    const good: Finding = { requirementIndex: 0, verdict: "possible", explanation: "x", citations: [{ evidenceId: choice.id, quote: choice.statement }], caveats: [], basis: "candidate_choice", evidenceSources: ["candidate_choice"] };
+    const other = f(2, "listed_skill", "skill:x");
+    expect(withholdChoiceFindings([good, other], valid)).toEqual([good, other]);
+    const bad: [string, Finding][] = [
+      ["flag off (no valid choices)", good],
+      ["Supported", { ...good, verdict: "supported" }],
+      ["another basis", { ...good, basis: "candidate_answer" }],
+      ["edited wording", { ...good, citations: [{ evidenceId: choice.id, quote: `${choice.statement} Verified.` }] }],
+      ["an answer that no longer counts", { ...good, citations: [{ evidenceId: `choice:00000000-0000-4000-8000-0000000000ff`, quote: choice.statement }] }],
+      ["beside other evidence", { ...good, citations: [...good.citations, { evidenceId: "skill:x", quote: "q" }] }],
+      ["malformed id", { ...good, citations: [{ evidenceId: "choice:", quote: choice.statement }] }],
+    ];
+    for (const [why, finding] of bad) {
+      const out = withholdChoiceFindings([finding, other], why.startsWith("flag off") ? new Map() : valid);
+      expect(out[0], why).toMatchObject({ verdict: "insufficient_information", citations: [], explanation: expect.stringMatching(/has since changed/) });
+      expect(out[1], why).toBe(other);
+    }
+    expect(choiceCitation(choice)).toEqual({ evidence_id: choice.id, quote: choice.statement });
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+describe("F5: applicant-facing wording", () => {
+  it("off: the Stage E wording, unchanged; on: may count after a re-run, never a promise; no technical terms", async () => {
+    const { MATCH_EFFECT, matchEffect } = await import("@/lib/ai/rules/structured-form-spec");
+    expect(matchEffect(false)).toBe("This kind of answer doesn't change the match yet.");
+    expect(matchEffect(undefined)).toBe(MATCH_EFFECT.off);
+    expect(matchEffect(true)).toBe("It can count toward the match when you run the analysis again, depending on what you describe.");
+    for (const text of Object.values(MATCH_EFFECT)) {
+      expect(text).not.toMatch(/\bwill\b|guarantee|improve|raise|formVersion|rule table|flag|structured matching|verified/i);
+    }
+  });
+  it("choice results explain themselves without durations (the validator rejects unverified durations)", async () => {
+    const source = readFileSync("src/lib/ai/rules/structured-apply.ts", "utf8");
+    const block = source.slice(source.indexOf("const CHOICE_EXPLAIN"), source.indexOf("};", source.indexOf("const CHOICE_EXPLAIN")));
+    expect(block).not.toMatch(/\d/);
+    expect(block).toMatch(/Possible at most/);
   });
 });
