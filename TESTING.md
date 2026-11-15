@@ -434,3 +434,23 @@ Migration `20261114010000_structured_matching_audit` (local only) adds a nullabl
 - **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
 
 Report: docs/PHASE5_3_STAGE_F1_REPORT.md.
+
+## Phase 5.3 Stage F2, the pure structured-matching module - November 14, 2026 (local commit, not pushed)
+
+`src/lib/ai/rules/structured-matching.ts` (`matchStructuredAnswer`) applies one structured answer to one requirement's rules finding, through the approved rule table. It is pure, with explicitly versioned readings, and **nothing in the app imports it**.
+
+**Tests:** 650 new in `tests/structured-matching.test.ts`:
+- the 284 parity rows, read through the module;
+- 62,150 exhaustive decision-table combinations;
+- all 33 splits, 9 cases each;
+- the F0 consistency gap;
+- claimed months, malformed input, versions, purity and isolation.
+
+Two isolation guards allow the new module, and only it, to call `readStructuredAnswer`; both also check that nothing imports it.
+
+**Results:**
+- **Parity:** 284 of 284 match the owner-reviewed simulation through the module.
+- **Suites:** 3,701 unit and 201 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F2_REPORT.md.
