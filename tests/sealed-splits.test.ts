@@ -71,9 +71,15 @@ describe("sealed splits are read only by their evaluation runners", () => {
     for (const gate of ['process.env.STRUCTURED_UNSEAL === "1"', "STRUCTURED_FREEZE_COMMIT", "git status --porcelain", "integrity().ok"]) expect(runner).toContain(gate);
   });
 
-  it("the compound-split runner refuses to unseal without an explicit, frozen, clean run, and has no scoring before Stage G", () => {
+  it("the compound-split runner refuses to unseal without an explicit, frozen, clean, approved run", () => {
     const runner = readFileSync("tests/eval/parts.eval.ts", "utf8");
-    for (const gate of ['process.env.PARTS_UNSEAL === "1"', "PARTS_FREEZE_COMMIT", "git status --porcelain", "integrity().ok", "Refusing: Stage G scoring"]) expect(runner).toContain(gate);
+    for (const gate of ['process.env.PARTS_UNSEAL === "1"', "PARTS_FREEZE_COMMIT", "git status --porcelain", "integrity().ok", "unsealRefusal(", "APPROVAL_FILE"]) expect(runner).toContain(gate);
+    // The gates (tests/eval/parts-score.ts) refuse before any sealed file is parsed, and Stage G scoring needs the owner's
+    // recorded approval. That record does not exist before the owner approves.
+    const gates = readFileSync("tests/eval/parts-score.ts", "utf8");
+    for (const gate of ["Refusing: PARTS_UNSEAL=1 is required.", "Refusing: the working tree must be clean", "Refusing: code changed since the freeze commit.", "Refusing: Stage G scoring needs the owner's recorded approval"]) expect(gates).toContain(gate);
+    expect(existsSync("docs/PHASE5_3_STAGE_G_APPROVAL.json")).toBe(false);
+    expect(runner.indexOf("if (refusal) throw")).toBeLessThan(runner.indexOf('load<{ as_of_month'));
   });
 });
 

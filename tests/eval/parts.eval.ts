@@ -1,16 +1,20 @@
-import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
-import { expect, it } from "vitest";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
+
+import { APPROVAL_FILE, integrityOf, lfSha256, score, unsealRefusal, type R4Label, type R4Scenario } from "./parts-score";
 
 // The compound-split evaluation, R4 (docs/PHASE5_3_R4_EVAL_PROTOCOL.md). The ONLY code allowed to read
 // tests/fixtures/m11_parts (enforced by tests/sealed-splits.test.ts).
 //
 //   validate (default): integrity, schema, coverage and label completeness. Writes COUNTS ONLY, never text or labels.
 //     PARTS_REPORT=out.json npx vitest run --config vitest.eval.config.mts parts
-//   unseal: Stage G only. Refuses unless PARTS_UNSEAL=1, PARTS_FREEZE_COMMIT is HEAD, and the working tree is clean.
-//   Its scoring is defined at Stage G, with the acceptance criteria approved by the owner then; until that approval it
-//   refuses after the gates.
+//   unseal: Stage G only, once. Refuses (tests/eval/parts-score.ts `unsealRefusal`) unless PARTS_UNSEAL=1, the working
+//   tree is clean, nothing but the approval record changed since PARTS_FREEZE_COMMIT, the sealed files match
+//   MANIFEST.json, and the owner's approval record names that freeze commit and the frozen policy's hash. Then it scores
+//   per docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md and writes a counts-only report to PARTS_REPORT.
 
 const DIR = "tests/fixtures/m11_parts";
 const FILES = ["scenarios.json", "for_labeling.json", "labels.json"] as const;
@@ -86,15 +90,13 @@ type Label = {
   named_tool_met: boolean | null; unsure: boolean; rationale: string;
 };
 
-// LF-normalized, as in MANIFEST.json and the guard, so Windows and Linux checkouts agree.
-const sha256 = (buf: Buffer | string) => createHash("sha256").update(buf.toString().replace(/\r\n/g, "\n")).digest("hex");
 const load = <T>(f: string): T => JSON.parse(readFileSync(`${DIR}/${f}`, "utf8")) as T;
 
+// LF-normalized, as in MANIFEST.json and the guard, so Windows and Linux checkouts agree (tests/eval/parts-score.ts).
 function integrity() {
   const manifest = load<{ files: Record<string, string>; combined: string; count: number }>("MANIFEST.json");
-  const actual = Object.fromEntries(FILES.map(f => [f, sha256(readFileSync(`${DIR}/${f}`))]));
-  const combined = sha256(FILES.map(f => `${f}:${actual[f]}`).join("\n"));
-  return { manifest, actual, combined, ok: FILES.every(f => manifest.files[f] === actual[f]) && manifest.combined === combined };
+  const contents = Object.fromEntries(FILES.map(f => [f, readFileSync(`${DIR}/${f}`, "utf8")]));
+  return { manifest, ...integrityOf(contents, manifest, FILES) };
 }
 
 export function problemsIn(scenarios: Scenario[], labels: Label[]): string[] {
@@ -195,10 +197,17 @@ it.skipIf(process.env.PARTS_UNSEAL === "1")("compound-split evaluation: validate
   expect(thinSplits).toEqual([]);
 });
 
-it.runIf(process.env.PARTS_UNSEAL === "1")("compound-split evaluation: Stage G (refuses until approved)", () => {
-  const head = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
-  if (!process.env.PARTS_FREEZE_COMMIT || head !== process.env.PARTS_FREEZE_COMMIT) throw new Error("Refusing: PARTS_FREEZE_COMMIT must equal HEAD (the frozen code).");
-  if (execSync("git status --porcelain", { encoding: "utf8" }).trim()) throw new Error("Refusing: the working tree must be clean at the freeze.");
-  if (!integrity().ok) throw new Error("Refusing: the sealed files don't match MANIFEST.json.");
-  throw new Error("Refusing: Stage G scoring and its acceptance criteria are defined and approved at Stage G, not before.");
+it.runIf(process.env.PARTS_UNSEAL === "1")("compound-split evaluation: Stage G (one pass, only with the owner's recorded approval)", () => {
+  // Every gate is checked before anything sealed is parsed: only hashes are read until the gates pass.
+  const freeze = process.env.PARTS_FREEZE_COMMIT;
+  const dirty = execSync("git status --porcelain", { encoding: "utf8" }).trim() !== "";
+  const changed = freeze && /^[0-9a-f]{40}$/.test(freeze) ? execSync(`git diff --name-only ${freeze} HEAD`, { encoding: "utf8" }).split("\n").map(x => x.trim()).filter(Boolean) : [];
+  const approval = existsSync(APPROVAL_FILE) ? (JSON.parse(readFileSync(APPROVAL_FILE, "utf8")) as { freezeCommit: string; policySha256: string }) : null;
+  const policySha256 = lfSha256(readFileSync("docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md", "utf8"));
+  const refusal = unsealRefusal({ unsealFlag: process.env.PARTS_UNSEAL === "1", freezeCommit: freeze, dirty, changedSinceFreeze: changed, integrityOk: integrity().ok, policySha256, approval });
+  if (refusal) throw new Error(refusal);
+  if (!process.env.PARTS_REPORT) throw new Error("Refusing: PARTS_REPORT must name where the counts-only report goes.");
+  const file = load<{ as_of_month: string; scenarios: R4Scenario[] }>("scenarios.json");
+  const report = score(file.scenarios, load<{ labels: R4Label[] }>("labels.json").labels, file.as_of_month);
+  writeFileSync(process.env.PARTS_REPORT, JSON.stringify({ freezeCommit: freeze, policySha256, manifest: integrity().combined, ...report }, null, 1));
 });

@@ -1,10 +1,10 @@
 # Phase 5.3 Stage G: evaluation-quality policy for the sealed R4 split
 
-November 16, 2026. **v3: owner-approved in principle (2026-11-16), with G4 = 90% and G6 = 0 unjustified losses. Stage G is NOT authorized to run.** Constraints:
+November 16, 2026. **v4: approved by the owner (G1–G11 confirmed 2026-11-16, with the refinements below). Stage G execution and unsealing are NOT authorized.** The scorer that implements this policy is `tests/eval/parts-score.ts`, tested on synthetic data only (`tests/parts-score.test.ts`). Constraints:
 - no label is changed;
 - the sealed splits (`tests/fixtures/m11_parts`, `m11_structured`, `m11_followup4`) are not opened, inspected or scored;
 - this document uses only the protocol (`docs/PHASE5_3_R4_EVAL_PROTOCOL.md`: the schema §3, the labeling rules §6, the counts §10);
-- it replaces v2 (2026-11-15) and the 2026-11-13 draft.
+- it replaces v3, v2 and the 2026-11-13 draft.
 
 Every rule here is fixed **before** anyone sees a score. Decisions still open before unsealing are listed in §9.
 
@@ -12,7 +12,7 @@ Every rule here is fixed **before** anyone sees a score. Decisions still open be
 
 - **rules-v21 only** (the default reader), recognition `splits-v1.1`, structured matching `structured-matching-v1`, and the Stage F pipeline as committed. **rules-v22 is excluded.** Evaluating it later needs its own approval and, under protocol §1.6, a new independent split.
 - **Candidate (v21):** the Stage F structured path for each scenario, through the same code as the app: `applyStructuredAnswers` → `matchStructuredAnswer` → the rule table → the validator, with `STRUCTURED_MATCHING_ENABLED` on **in the harness only**. The full input mapping is in §8.2.
-- **Baseline (v20, frozen):** what CareerOS gave the same person before structured matching existed. The scenario's explanation is read as a free-text answer with rules-v20 (`textRules: "v20"`, still selectable), and the structured choice is ignored. NOT_DONE is a free-text denial (see G9).
+- **Baseline (v20, frozen; G9):** the scenario's explanation read as a free-text answer with rules-v20 (`textRules: "v20"`, still selectable), with **no structured-choice credit**, and the same requirement and role context as the candidate. The choice is ignored entirely: NOT_DONE gives no denial in the baseline either, so the baseline never borrows from the structured answer. No baseline change after unsealing.
 - **Verdict mapping:** app `insufficient_information` = label `not_enough`; app `gap` = label `not_supported`. Order: not_supported < not_enough < possible < supported.
 
 ## 2. Known label facts (counts only, from protocol §10)
@@ -55,6 +55,22 @@ Each check is a fixed predicate over stored label and scenario fields plus the c
 | SC6 | **Partial split credited as whole** | `split_id ≠ null` **and** the candidate is `supported` **and** some part is unticked, **or** has `label.parts[i].shown_by_own_text = false`, **or** has `label.parts[i].done ≠ "yes"` | id, per-part flags |
 | SC7 | **D3 breach (non-English)** | `language ≠ "en"` **and** (the candidate is `supported`, **or** cites the explanation as the person's words, **or** its consistency state ≠ `text_unread`, **or** it counts any split part as `shown`) | id, language, which condition |
 
+**Every check can be implemented from stored fields (verified against the protocol's schema, §3).**
+
+| Check | Stored fields it uses | Candidate output it uses | Needs new semantic judgment? |
+|---|---|---|---|
+| SC1 | `label.verdict`, `label.after_reply_verdict` | verdict | No |
+| SC2 | `answer.explanation`, `language` | verdict, basis, cited quote (checked as a verbatim substring) | No |
+| SC3 | `label.parts[i].contradicted`, `answer.parts[i].checked`, `label.contradiction`, `label.verdict` | per-part `shown`, verdict | No |
+| SC4 | `label.injection` | verdict | No |
+| SC5 | `label.personally_did` | verdict | No |
+| SC6 | `split_id`, `answer.parts[i].checked`, `label.parts[i].done`, `label.parts[i].shown_by_own_text` | verdict | No |
+| SC7 | `language` | verdict, citation, consistency state, per-part `shown` | No |
+
+Where a check depends on meaning ("someone else did it", "this part was shown in the person's own words"), it uses the field the labeler recorded under the frozen protocol (§6), never a new reading. **No check is weakened or omitted.** SC2 confirms only that a Supported rests on the person's own English words, verbatim. Whether those words show the work is SC1's job (against the label).
+
+**Reply scenarios (G8):** the checks run at both stages. Stage F reads follow-up replies for free-text answers only, so the candidate's post-reply verdict is its pre-reply verdict. SC1 and SC3(b) compare with `after_reply_verdict` at the post stage. The other checks don't depend on the label's verdict, so they're identical at both stages.
+
 **A non-English explanation is not itself a violation.** Only unsupported semantic credit, or another breach of D3, is.
 
 **A single violation fails Stage G.** A fix needs a new independent split (protocol §1.6), with no tuning against opened cases.
@@ -83,11 +99,11 @@ Each check is a fixed predicate over stored label and scenario fields plus the c
 
 | # | Item | Gate |
 |---|---|---|
-| A5 | The 20 unsplit controls: candidate equals the rules-only result (structured parts never apply) | Yes |
+| A5 | The 20 unsplit controls never take split recognition: no split link, no per-part reading. A structured answer still applies to them as a whole requirement | Yes |
 | A6 | With the flag off, engine basis and follow-up sets unchanged (as in Stage F) | Yes |
 | R1 | Per class: counts, the 4 × 4 confusion table, and the direction of every difference (candidate above or below the label) | Reported |
 | R2 | For D and U: how often the candidate agrees with the label, and how often with the writer's intent | Reported |
-| R3 | Scenarios with a reply (12): `after_reply_verdict` against the candidate | Reported only (G8) |
+| R3 | Scenarios with a reply (12): `after_reply_verdict` against the candidate. Post-reply behaviour never substitutes for pre-reply recognition | Reported only (G8) |
 
 **Disagreements are reported without touching labels.**
 - No label, scenario or manifest is ever changed. `MANIFEST.json` (combined `32e3cf2e…c93c`) is verified before and after scoring, and must be unchanged.
@@ -112,7 +128,8 @@ Each check is a fixed predicate over stored label and scenario fields plus the c
 | Field | Mapping |
 |---|---|
 | Requirement | The scenario's `requirement.text` and category |
-| Role | `role.title`; months = `role.months` at `as_of_month` 2026-11; months since it ended per G10 |
+| Role | `role.title`, `role.description`; dates per G10 from `role.months`, `answer.recency` and the frozen reference month `as_of_month` (2026-11, stored in the split) |
+| Choice | As the form stores it: "led it, and also did some" becomes PART with `alsoDidSome`; a denial keeps no words; part ticks are stored only for "did it myself" / "did some of it". Each such mapping is counted per scenario (`limited.byMapping`) |
 | Answer | An ACTIVE formVersion 2 record from `answer`, with `evidenceId` `experience:<id>`. Parts in the approved order with their ticks; controls have none |
 | Evidence | The role, plus the explanation as the answer's entry. No other profile evidence, so rules findings start from the role alone |
 | Readings | Default reader; recognition `splits-v1.1`; choice items on the rules request only |
@@ -124,18 +141,31 @@ Each check is a fixed predicate over stored label and scenario fields plus the c
 3. **No optimization against sealed results.**
 4. The sealed guard and the parts validator run before unsealing, and must pass.
 
+## 8A. Recency and dates (G10 as approved, with methodology)
+
+- **No exact employment dates exist in the schema** (`role.months` and a recency bucket only), so none are invented as facts. Where the evaluator needs dates (the role's span), it uses the frozen reference month (`as_of_month`) and this one documented conversion:
+  - **CURRENT or no recency:** the role is current.
+  - **Otherwise:** the role ends at the most recent month the bucket allows (WITHIN_YEAR: 1 month before; ONE_TO_THREE_YEARS: 12; OVER_THREE_YEARS: 36).
+  - **The start** is that end minus `role.months` + 1.
+- **Every role date is marked synthetic** (`limited.syntheticRoleDates`).
+- **Consequences, tested on synthetic boundaries:**
+  - the conversion never creates a role-date conflict the scenario didn't state (every bucket × months 1–120);
+  - older experience isn't penalized when the requirement doesn't ask for recency;
+  - an ambiguous recent-experience boundary never gives Supported.
+- **Limited metric:** the rule table's role-date conflict check can't be exercised, because the schema has no end dates; this is reported, not invented. The number of requirements that ask for recency is reported too (`limited.recencyRequirements`). The protocol's 33 splits and 10 controls don't.
+
 ## 9. Decisions
 
 | # | Decision | Status |
 |---|---|---|
 | G1 | Classes C / D / U, assigned before predictions | **Approved** |
-| G2 | The objective safety checks SC1–SC7 across all 312, bar 0; S overlaps the classes | **Approved in principle**: please confirm the exact predicates in §4 |
+| G2 | The objective safety checks SC1–SC7 across all 312, bar 0; S overlaps the classes. A failure needs an objective violation; an Unsure label or disagreement alone never makes one | **Approved**. All seven verified as implementable from stored fields (§4) |
 | G3 | Clear cases alone decide G4 and the ordinary thresholds; D and U reported | **Approved** |
 | G4 | Recognition ≥ 90% (§5) | **Approved** |
 | G5 | Optional second blind label, never replacing the original | Approved as optional |
 | G6 | 0 unjustified losses relative to the frozen v20 baseline; every loss reported (§6) | **Approved** |
 | G7 | rules-v21 only | **Approved** |
-| G8 | Replies (12 scenarios): score the pre-reply verdict; report `after_reply_verdict` separately, not gating. Stage F reads follow-up replies for free-text answers only | **Proposed** |
-| G9 | The v20 baseline is the explanation read as a free-text answer with rules-v20, ignoring the choice; NOT_DONE as a free-text denial | **Proposed** |
-| G10 | Role end date: scenarios carry months, not end dates. Months since it ended = none for CURRENT (or no recency); otherwise the lower bound of the stated recency (WITHIN_YEAR 1, ONE_TO_THREE_YEARS 12, OVER_THREE_YEARS 36). That way the harness never creates a role-date conflict the scenario didn't state | **Proposed** |
-| G11 | The G6 gate applies to classes C and D; U losses are reported individually | **Proposed** |
+| G8 | Replies (12): the pre-reply verdict is primary; post-reply reported separately and never substituted; safety checks at both stages | **Approved** |
+| G9 | The v20 baseline: the explanation as free text under rules-v20, no structured-choice credit (NOT_DONE included), the same requirement and role context, no post-hoc changes | **Approved** |
+| G10 | A frozen reference month and the documented conversion (§8A); no invented exact dates; conservative recency; synthetic dates recorded; limited metrics flagged | **Approved with modification** (as §8A) |
+| G11 | The G6 gate applies to C and D. Every U loss is counted and reported, never discarded, and never fails G6 by itself. Safety checks apply in every class. Justification is the frozen rule (§6), with no reading of sealed text after scoring | **Approved with modification** |
