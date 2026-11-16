@@ -1,0 +1,4868 @@
+{
+ "freezeCommit": "4a4ce2a64516d4b8e388afd96f2ec56fffd428ee",
+ "policySha256": "71e2e8c353408482bd5132274e643bb5218feb2683a3a2bfdf6bda5af9d1d324",
+ "manifest": "32e3cf2ed03042d78719c65d132cbfb9e6f278c1e7f0abe2a5a9bdec42b0c93c",
+ "scorer": "r4-scorer-v1",
+ "asOf": "2026-11",
+ "scenarios": 312,
+ "classes": {
+  "clear": 112,
+  "disagreement": 145,
+  "unsure": 55
+ },
+ "confusion": {
+  "clear": {
+   "supported": {
+    "supported": 27,
+    "possible": 44,
+    "not_enough": 9,
+    "not_supported": 0
+   },
+   "possible": {
+    "supported": 2,
+    "possible": 15,
+    "not_enough": 8,
+    "not_supported": 0
+   },
+   "not_enough": {
+    "supported": 0,
+    "possible": 4,
+    "not_enough": 1,
+    "not_supported": 0
+   },
+   "not_supported": {
+    "supported": 0,
+    "possible": 0,
+    "not_enough": 0,
+    "not_supported": 2
+   }
+  },
+  "disagreement": {
+   "supported": {
+    "supported": 0,
+    "possible": 1,
+    "not_enough": 0,
+    "not_supported": 0
+   },
+   "possible": {
+    "supported": 6,
+    "possible": 57,
+    "not_enough": 13,
+    "not_supported": 0
+   },
+   "not_enough": {
+    "supported": 6,
+    "possible": 35,
+    "not_enough": 27,
+    "not_supported": 0
+   },
+   "not_supported": {
+    "supported": 0,
+    "possible": 0,
+    "not_enough": 0,
+    "not_supported": 0
+   }
+  },
+  "unsure": {
+   "supported": {
+    "supported": 6,
+    "possible": 5,
+    "not_enough": 0,
+    "not_supported": 0
+   },
+   "possible": {
+    "supported": 4,
+    "possible": 19,
+    "not_enough": 6,
+    "not_supported": 0
+   },
+   "not_enough": {
+    "supported": 0,
+    "possible": 9,
+    "not_enough": 3,
+    "not_supported": 0
+   },
+   "not_supported": {
+    "supported": 0,
+    "possible": 0,
+    "not_enough": 0,
+    "not_supported": 3
+   }
+  }
+ },
+ "g4": {
+  "pool": 105,
+  "recognized": 88,
+  "rate": 0.8380952380952381,
+  "threshold": 0.9,
+  "pass": false,
+  "exactSupported": {
+   "labeled": 80,
+   "agreed": 27
+  }
+ },
+ "g6": {
+  "losses": [
+   {
+    "id": "mp-007",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": false,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-009",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": false,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-025",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": false,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-060",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": false,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-070",
+    "class": "unsure",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-074",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "limited_frequency"
+    ]
+   },
+   {
+    "id": "mp-082",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "limited_frequency"
+    ]
+   },
+   {
+    "id": "mp-094",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "part_only",
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-108",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "part_only",
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-119",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "part_only",
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-120",
+    "class": "disagreement",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "part_only",
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-126",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "supervised_not_performed",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-130",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "supervised_not_performed",
+     "text_mismatch",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-133",
+    "class": "clear",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "not_enough",
+    "justified": false,
+    "limits": []
+   },
+   {
+    "id": "mp-137",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "supervised_not_performed",
+     "text_mismatch",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-140",
+    "class": "unsure",
+    "label": "not_enough",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "taught_not_performed",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-149",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "supported",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "arranged_not_performed",
+     "text_mismatch",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-167",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "limited_frequency"
+    ]
+   },
+   {
+    "id": "mp-175",
+    "class": "clear",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-176",
+    "class": "clear",
+    "label": "possible",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": false,
+    "limits": [
+     "no_specific_text",
+     "text_mismatch"
+    ]
+   },
+   {
+    "id": "mp-181",
+    "class": "clear",
+    "label": "possible",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": false,
+    "limits": [
+     "no_specific_text",
+     "text_mismatch"
+    ]
+   },
+   {
+    "id": "mp-189",
+    "class": "unsure",
+    "label": "not_supported",
+    "baseline": "possible",
+    "candidate": "not_supported",
+    "justified": true,
+    "limits": []
+   },
+   {
+    "id": "mp-195",
+    "class": "clear",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": true,
+    "limits": [
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-199",
+    "class": "unsure",
+    "label": "not_supported",
+    "baseline": "possible",
+    "candidate": "not_supported",
+    "justified": true,
+    "limits": []
+   },
+   {
+    "id": "mp-201",
+    "class": "unsure",
+    "label": "possible",
+    "baseline": "supported",
+    "candidate": "not_enough",
+    "justified": false,
+    "limits": [
+     "assisted_not_performed",
+     "text_mismatch",
+     "no_compound_part"
+    ]
+   },
+   {
+    "id": "mp-206",
+    "class": "unsure",
+    "label": "not_supported",
+    "baseline": "supported",
+    "candidate": "not_supported",
+    "justified": true,
+    "limits": []
+   },
+   {
+    "id": "mp-230",
+    "class": "clear",
+    "label": "not_enough",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "part_only",
+     "text_mismatch",
+     "missing_compound_parts"
+    ]
+   },
+   {
+    "id": "mp-240",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "supported",
+    "candidate": "possible",
+    "justified": false,
+    "limits": [
+     "no_specific_text"
+    ]
+   },
+   {
+    "id": "mp-297",
+    "class": "clear",
+    "label": "supported",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": false,
+    "limits": [
+     "no_specific_text",
+     "text_mismatch"
+    ]
+   },
+   {
+    "id": "mp-308",
+    "class": "disagreement",
+    "label": "not_enough",
+    "baseline": "possible",
+    "candidate": "not_enough",
+    "justified": true,
+    "limits": [
+     "arranged_not_performed",
+     "text_mismatch"
+    ]
+   }
+  ],
+  "unjustifiedGated": 9,
+  "unjustifiedUnsure": 1,
+  "pass": false
+ },
+ "safety": {
+  "violations": [
+   {
+    "id": "mp-021",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-021",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-076",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-076",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-085",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-085",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-134",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-137",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-137",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-141",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-143",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-143",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-149",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-150",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-153",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-153",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-157",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-157",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-158",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-158",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-158",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-159",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-159",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-160",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-160",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-160",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-160",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-161",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-161",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-162",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-162",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-162",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-162",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-163",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-163",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-164",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-164",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-164",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-164",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-165",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-165",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-166",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-166",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-166",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-167",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-167",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-168",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-168",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-168",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-168",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-169",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-170",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-170",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-170",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-170",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-171",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-171",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-171",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-171",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-172",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-172",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-172",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-179",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-179",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-180",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-180",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-182",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-182",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-183",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-183",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-186",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-186",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-187",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-187",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-188",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-188",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-193",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-193",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-196",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-196",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-197",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-197",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-198",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-198",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-200",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-200",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-204",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-204",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-205",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-205",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-209",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-215",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-218",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-218",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-228",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-228",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-233",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-233",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-246",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-247",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-253",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-253",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-256",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-257",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-258",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-259",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-260",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-260",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-262",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC1"
+   },
+   {
+    "id": "mp-262",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC6"
+   },
+   {
+    "id": "mp-264",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-264",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-283",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-284",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-285",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-286",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-287",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-288",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-289",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-290",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-291",
+    "class": "clear",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-296",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-298",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-300",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-306",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC4"
+   },
+   {
+    "id": "mp-306",
+    "class": "disagreement",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-310",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-310",
+    "class": "unsure",
+    "stage": "pre",
+    "check": "SC5"
+   },
+   {
+    "id": "mp-310",
+    "class": "unsure",
+    "stage": "post",
+    "check": "SC3"
+   },
+   {
+    "id": "mp-310",
+    "class": "unsure",
+    "stage": "post",
+    "check": "SC5"
+   }
+  ],
+  "pass": false
+ },
+ "a5": {
+  "controls": 20,
+  "splitFree": true,
+  "pass": true
+ },
+ "replies": {
+  "count": 12,
+  "rows": [
+   {
+    "id": "mp-055",
+    "class": "clear",
+    "preLabel": "supported",
+    "postLabel": "supported",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-078",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-109",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "not_enough"
+   },
+   {
+    "id": "mp-124",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "not_enough"
+   },
+   {
+    "id": "mp-133",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "not_enough"
+   },
+   {
+    "id": "mp-173",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-210",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-216",
+    "class": "unsure",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-255",
+    "class": "clear",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-258",
+    "class": "disagreement",
+    "preLabel": "not_enough",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-304",
+    "class": "disagreement",
+    "preLabel": "possible",
+    "postLabel": "possible",
+    "candidate": "possible"
+   },
+   {
+    "id": "mp-310",
+    "class": "unsure",
+    "preLabel": "not_enough",
+    "postLabel": "not_enough",
+    "candidate": "possible"
+   }
+  ],
+  "candidatePostEqualsPre": true
+ },
+ "validatorRejected": [],
+ "perScenario": [
+  {
+   "id": "mp-001",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-002",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-003",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-004",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-005",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-006",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-007",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-008",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-009",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-010",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-011",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-012",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-013",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-014",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-015",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-016",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-017",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-018",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-019",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-020",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-021",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-022",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-023",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-024",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-025",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-026",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-027",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-028",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-029",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-030",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-031",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-032",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-033",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-034",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-035",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-036",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-037",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-038",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-039",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-040",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-041",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-042",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-043",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-044",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-045",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-046",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-047",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-048",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-049",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-050",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-051",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-052",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-053",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-054",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-055",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-056",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-057",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-058",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-059",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-060",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-061",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-062",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-063",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-064",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-065",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-066",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-067",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-068",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-069",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-070",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-071",
+   "class": "disagreement",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-072",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-073",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-074",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-075",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-076",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-077",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-078",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-079",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-080",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-081",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-082",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-083",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-084",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-085",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-086",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-087",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-088",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-089",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-090",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-091",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-092",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-093",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-094",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-095",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-096",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-097",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-098",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-099",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-100",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-101",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-102",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-103",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-104",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-105",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-106",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-107",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-108",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-109",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-110",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-111",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-112",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-113",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-114",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-115",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-116",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-117",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-118",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-119",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-120",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-121",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-122",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-123",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-124",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-125",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-126",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-127",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-128",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-129",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-130",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-131",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-132",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-133",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-134",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-135",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-136",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-137",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-138",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-139",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-140",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-141",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-142",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-143",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-144",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-145",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-146",
+   "class": "clear",
+   "label": "not_supported",
+   "candidate": "not_supported",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_denied",
+   "ignored": null,
+   "mapping": [
+    "denial_text_dropped",
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-147",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-148",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-149",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-150",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-151",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-152",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-153",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-154",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-155",
+   "class": "clear",
+   "label": "not_supported",
+   "candidate": "not_supported",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_denied",
+   "ignored": null,
+   "mapping": [
+    "denial_text_dropped",
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-156",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-157",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-158",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-159",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-160",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-161",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-162",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-163",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-164",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-165",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-166",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-167",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-168",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-169",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-170",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-171",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-172",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-173",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-174",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-175",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-176",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-177",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-178",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-179",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-180",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-181",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-182",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-183",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-184",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-185",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-186",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-187",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-188",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-189",
+   "class": "unsure",
+   "label": "not_supported",
+   "candidate": "not_supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_denied",
+   "ignored": null,
+   "mapping": [
+    "denial_text_dropped",
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-190",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-191",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-192",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-193",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-194",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-195",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-196",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-197",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-198",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-199",
+   "class": "unsure",
+   "label": "not_supported",
+   "candidate": "not_supported",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "candidate_denied",
+   "ignored": null,
+   "mapping": [
+    "denial_text_dropped",
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-200",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-201",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": [
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-202",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-203",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-204",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-205",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-206",
+   "class": "unsure",
+   "label": "not_supported",
+   "candidate": "not_supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_denied",
+   "ignored": null,
+   "mapping": [
+    "denial_text_dropped",
+    "parts_not_stored_for_choice"
+   ]
+  },
+  {
+   "id": "mp-207",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-208",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-209",
+   "class": "clear",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-210",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-211",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-212",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-213",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-214",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-215",
+   "class": "clear",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-216",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-217",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-218",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-219",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-220",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-221",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-222",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-223",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-224",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-225",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-226",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-227",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-228",
+   "class": "clear",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-229",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-230",
+   "class": "clear",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-231",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-232",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-233",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-234",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-235",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-236",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-237",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-238",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-239",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-240",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-241",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-242",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": "invalid_answer",
+   "mapping": [
+    "lead_also_as_part"
+   ]
+  },
+  {
+   "id": "mp-243",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-244",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "possible",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-245",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-246",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-247",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-248",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-249",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-250",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-251",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-252",
+   "class": "unsure",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-253",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-254",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-255",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-256",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-257",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-258",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-259",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-260",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-261",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-262",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-263",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-264",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-265",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-266",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-267",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-268",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-269",
+   "class": "unsure",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-270",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-271",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-272",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-273",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-274",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-275",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-276",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-277",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-278",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-279",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-280",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-281",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-282",
+   "class": "clear",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-283",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-284",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-285",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-286",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "described_in_work",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-287",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-288",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-289",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-290",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-291",
+   "class": "clear",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "possible",
+   "basis": "role_description",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-292",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-293",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-294",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-295",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-296",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-297",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-298",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-299",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-300",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-301",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-302",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-303",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-304",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-305",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-306",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-307",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "supported",
+   "baseline": "supported",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_answer",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-308",
+   "class": "disagreement",
+   "label": "not_enough",
+   "candidate": "not_enough",
+   "baseline": "possible",
+   "rulesOnly": "not_enough",
+   "basis": "no_evidence",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-309",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-310",
+   "class": "unsure",
+   "label": "not_enough",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-311",
+   "class": "clear",
+   "label": "supported",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  },
+  {
+   "id": "mp-312",
+   "class": "disagreement",
+   "label": "possible",
+   "candidate": "possible",
+   "baseline": "not_enough",
+   "rulesOnly": "not_enough",
+   "basis": "candidate_choice",
+   "ignored": null,
+   "mapping": []
+  }
+ ],
+ "limited": {
+  "mappingLimited": 42,
+  "byMapping": {
+   "lead_also_as_part": 11,
+   "parts_not_stored_for_choice": 31,
+   "denial_text_dropped": 5
+  },
+  "recencyRequirements": 0,
+  "syntheticRoleDates": true
+ },
+ "pass": false
+}
