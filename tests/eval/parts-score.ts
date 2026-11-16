@@ -167,7 +167,12 @@ export const G4_THRESHOLD = 0.9;
 
 export type R4Report = ReturnType<typeof score>;
 
-export function score(scenarios: R4Scenario[], labels: R4Label[], asOf: string) {
+/** The systems under evaluation. Tests may substitute synthetic outputs to prove each gate fails; the runner
+ *  (parts.eval.ts) never passes this argument, so the frozen candidate and baseline are always used there. */
+export type Systems = { candidate: (s: R4Scenario, asOf: string) => CandidateOutput; baseline: (s: R4Scenario, asOf: string) => R4Verdict };
+const FROZEN_SYSTEMS: Systems = { candidate: candidateFor, baseline: baselineFor };
+
+export function score(scenarios: R4Scenario[], labels: R4Label[], asOf: string, systems: Systems = FROZEN_SYSTEMS) {
   const byId = new Map(labels.map(l => [l.id, l]));
   const missing = scenarios.filter(s => !byId.has(s.id)).map(s => s.id);
   if (missing.length || labels.length !== scenarios.length) throw new Error(`Refusing: labels don't match scenarios (${missing.length} missing).`);
@@ -176,8 +181,8 @@ export function score(scenarios: R4Scenario[], labels: R4Label[], asOf: string) 
   // 2. Then the systems.
   const rows = scenarios.map(s => {
     const l = byId.get(s.id)!;
-    const candidate = candidateFor(s, asOf);
-    const baseline = baselineFor(s, asOf);
+    const candidate = systems.candidate(s, asOf);
+    const baseline = systems.baseline(s, asOf);
     return { s, l, cls: classes.get(s.id)!, candidate, baseline };
   });
   const confusion: Record<CaseClass, ReturnType<typeof emptyMatrix>> = { clear: emptyMatrix(), disagreement: emptyMatrix(), unsure: emptyMatrix() };
