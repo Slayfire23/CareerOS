@@ -1,0 +1,9 @@
+{
+ "freezeCommit": "4a4ce2a64516d4b8e388afd96f2ec56fffd428ee",
+ "policySha256": "71e2e8c353408482bd5132274e643bb5218feb2683a3a2bfdf6bda5af9d1d324",
+ "manifestCombined": "32e3cf2ed03042d78719c65d132cbfb9e6f278c1e7f0abe2a5a9bdec42b0c93c",
+ "scope": "One-time Stage G sealed R4 evaluation only: frozen rules-v21 candidate and rules-v20 baseline (application code d2fff8c388a7585875f09c121e1de9b736264db2), policy v4, scorer c18d5553b373c9f0d1115474e1ae63a2e29bfa19. No rerun.",
+ "singleUse": true,
+ "approvedBy": "owner",
+ "approvedOn": "2026-11-16"
+}
