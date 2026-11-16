@@ -26,8 +26,8 @@ export type WorkRecency = "CURRENT" | "WITHIN_YEAR" | "ONE_TO_THREE_YEARS" | "OV
 export type Consistency =
   | { state: "consistent"; textShowsWork: boolean }
   /** `contradictedBy` (rules-v21, F6): the explanation says someone else performed the activity, or the person's own words
-   * deny doing it. Only v21 sets it. */
-  | { state: "text_mismatch"; textSuggests: Involvement | null; contradictedBy?: "other_person" | "own_denial" }
+   * deny doing it. Only v21 sets it. "untrusted_text" (consistency version 2, A1): it holds instructions to the evaluator. */
+  | { state: "text_mismatch"; textSuggests: Involvement | null; contradictedBy?: "other_person" | "own_denial" | "untrusted_text" }
   | { state: "text_unread" }
   | { state: "no_text" };
 
@@ -198,7 +198,7 @@ export function readStructuredAnswer(answer: StructuredAnswer): StructuredReadin
     // even Possible.
     if (consistency.contradictedBy) {
       verdict = lower(verdict, "insufficient_information");
-      limits.push(consistency.contradictedBy === "other_person" ? "contradicted_by_other_person" : "contradicted_by_own_denial");
+      limits.push(consistency.contradictedBy === "other_person" ? "contradicted_by_other_person" : consistency.contradictedBy === "untrusted_text" ? "untrusted_text" : "contradicted_by_own_denial");
     }
   }
 

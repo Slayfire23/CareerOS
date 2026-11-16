@@ -10,7 +10,7 @@ import { recognizeParts } from "@/lib/ai/rules/split-recognition";
 import type { Involvement } from "@/lib/ai/rules/structured-answer";
 import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
 import { FORM_RECOGNITION_VERSION } from "@/lib/ai/rules/structured-form";
-import { matchStructuredAnswer, type PartReadings, type StructuredAnswerRecord, type StructuredMatch, type TextReadings } from "@/lib/ai/rules/structured-matching";
+import { matchStructuredAnswer, STRUCTURED_MATCHING_VERSION, type PartReadings, type StructuredAnswerRecord, type StructuredMatch, type TextReadings } from "@/lib/ai/rules/structured-matching";
 
 // Phase 5.3 Stage F4: structured answers (formVersion 2) in matching, behind STRUCTURED_MATCHING_ENABLED. Pure: the caller
 // loads the rows and decides the flag; this composes the F2 module with the rules' findings, after free-text answers.
@@ -55,10 +55,11 @@ export function structuredDenials(rows: StructuredRow[], freeText: FreeTextKeys)
 }
 
 /** What makes the analysis out of date (F-10): each structured answer counts by its own id (every save or correction is a
- * new row), and only while structured matching is on. */
+ * new row), and only while structured matching is on. The structured matching version is part of it (post-Stage G Gate A),
+ * so a stored analysis that read structured answers under an earlier version is out of date: run it again. No migration. */
 export const structuredFingerprintAnswers = (rows: StructuredRow[], freeText: FreeTextKeys) => [
   ...structuredDenials(rows, freeText),
-  ...rows.filter(r => !isDenial(r) && r.status === "ACTIVE" && r.questionKey).map(r => ({ action: `structured:${r.id}`, questionKey: r.questionKey! })),
+  ...rows.filter(r => !isDenial(r) && r.status === "ACTIVE" && r.questionKey).map(r => ({ action: `structured:${STRUCTURED_MATCHING_VERSION}:${r.id}`, questionKey: r.questionKey! })),
 ];
 
 /** The role's months and how long ago it ended, at the analysis month, from the request's own evidence. */

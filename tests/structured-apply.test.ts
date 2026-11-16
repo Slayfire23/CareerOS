@@ -213,7 +213,9 @@ describe("freshness, masking and withholding", () => {
   it("each structured answer counts by its own id (every correction is a new row); denials as deny records", () => {
     const a = row(hvac, { id: "00000000-0000-4000-8000-0000000000b1" });
     const d = row(req("Salesforce", 1), { involvement: "NOT_DONE", outcome: "DENIED", experienceId: null, evidenceId: null, frequency: null, recency: null, id: "00000000-0000-4000-8000-0000000000b2" });
-    expect(structuredFingerprintAnswers([a, d], new Set())).toEqual([{ action: "deny", questionKey: d.questionKey }, { action: `structured:${a.id}`, questionKey: a.questionKey }]);
+    expect(structuredFingerprintAnswers([a, d], new Set())).toEqual([{ action: "deny", questionKey: d.questionKey }, { action: `structured:structured-matching-v2:${a.id}`, questionKey: a.questionKey }]);
+    // Post-Stage G Gate A: the structured matching version is part of it, so an analysis stored under v1 is out of date.
+    expect(structuredFingerprintAnswers([a], new Set())[0].action).not.toBe(`structured:${a.id}`);
     expect(structuredFingerprintAnswers([{ ...a, status: "REVOKED" }], new Set())).toEqual([]);
   });
   const f = (requirementIndex: number, basis: Finding["basis"], evidenceId: string | null): Finding => ({ requirementIndex, verdict: basis === "candidate_denied" ? "gap" : "supported", explanation: "x", citations: evidenceId ? [{ evidenceId, quote: "q" }] : [], caveats: [], basis, evidenceSources: ["candidate_answer"] });

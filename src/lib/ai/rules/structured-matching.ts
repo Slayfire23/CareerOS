@@ -21,7 +21,7 @@ import { qualificationText } from "@/lib/ai/untrusted-text";
 //   4. applies the reading with the same contract as free-text answers: Supported is never lowered, Possible raises only
 //      Not enough information, Not enough information changes nothing, a "haven't done this" acts as a denial.
 
-export const STRUCTURED_MATCHING_VERSION = "structured-matching-v1" as const;
+export const STRUCTURED_MATCHING_VERSION = "structured-matching-v2" as const;
 
 const INVOLVEMENTS: readonly Involvement[] = ["PERFORMED", "PART", "SUPERVISED", "REQUESTED", "ASSISTED", "OBSERVED_TRAINED", "TAUGHT", "NOT_DONE"];
 const FREQUENCIES: readonly WorkFrequency[] = ["MOST_DAYS", "WEEKLY", "MONTHLY", "FEW_TIMES", "ONCE"];

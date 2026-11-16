@@ -8,7 +8,7 @@ import { approvedSplitFor } from "@/lib/ai/rules/approved-split-link";
 import { questionKey } from "@/lib/ai/rules/review-queue";
 import { APPROVED_SPLITS, RECOGNITION_VERSION, recognizeParts } from "@/lib/ai/rules/split-recognition";
 import { readStructuredAnswer, type Consistency, type Involvement, type WorkFrequency, type WorkRecency } from "@/lib/ai/rules/structured-answer";
-import { assessConsistency } from "@/lib/ai/rules/structured-consistency";
+import { assessConsistency, CONSISTENCY_VERSION } from "@/lib/ai/rules/structured-consistency";
 import { matchStructuredAnswer, STRUCTURED_MATCHING_VERSION, type PartReadings, type StructuredAnswerRecord, type StructuredMatch, type StructuredMatchInput, type TextReadings } from "@/lib/ai/rules/structured-matching";
 
 // Phase 5.3 Stage F2: the pure structured-matching module. Not connected to the app (last describe block).
@@ -420,7 +420,10 @@ describe("versions: the default reader unless the caller explicitly asks for ano
     expect(m.versions.reader).toBe("v22");
     expect(m).toMatchObject({ ignored: null, verdict: "supported", basis: "candidate_answer" });
   });
-  it("the module's own version", () => expect(STRUCTURED_MATCHING_VERSION).toBe("structured-matching-v1"));
+  it("the module's own version (post-Stage G Gate A), which reads consistency version 2", () => {
+    expect(STRUCTURED_MATCHING_VERSION).toBe("structured-matching-v2");
+    expect(CONSISTENCY_VERSION).toBe(2);
+  });
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
