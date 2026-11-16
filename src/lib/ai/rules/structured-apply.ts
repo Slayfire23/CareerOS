@@ -28,7 +28,8 @@ import { matchStructuredAnswer, type PartReadings, type StructuredAnswerRecord, 
 
 const EXPLAIN = {
   supported: "Your structured answer describes doing this work yourself.",
-  possible: "Your structured answer describes related work, or part of what this asks for.",
+  // Owner decision (F6): the same meaning as the free-text wording; wording only.
+  possible: "Your structured answer may describe experience with part of this requirement. Please clarify which tasks you personally performed.",
 };
 const MASKED = "This relied on a structured answer, which isn't used for matching right now. Run the analysis again.";
 const WITHHELD = "This relied on a choice in a structured answer that has since changed. Run the analysis again.";

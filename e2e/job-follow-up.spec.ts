@@ -3,12 +3,15 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
-import { confirmAction, openPage } from "./support";
+import { confirmAction, declaredMode, expectReviewMode, openPage } from "./support";
 
 // The follow-up workflow in the browser, with a stand-in for the local model on the address the app uses,
 // so the result doesn't depend on the model's mood. Runs only with the review and the workflow turned on.
 const env = parse(readFileSync(".env"));
-const enabled = env.CLARIFICATION_REVIEW_ENABLED === "true" && env.FOLLOW_UP_WORKFLOW_ENABLED === "true";
+// The review mode is declared as for every review spec (e2e/support.ts); the workflow by E2E_FOLLOW_UP=true|false, else
+// `.env`. Both are checked against the server below, so a wrong declaration fails instead of skipping.
+const followUpDeclared = process.env.E2E_FOLLOW_UP !== undefined ? process.env.E2E_FOLLOW_UP === "true" : env.FOLLOW_UP_WORKFLOW_ENABLED === "true";
+const enabled = declaredMode().review && followUpDeclared;
 let stub: Server | null = null;
 
 test.beforeAll(async () => {
@@ -77,6 +80,7 @@ test("follow-up: a question from an answer, a yes refused, a specific reply at P
     await page.getByRole("button", { name: "Run analysis", exact: true }).click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await openPage(page, matchUrl);
+    await expectReviewMode(page, true);
 
     // An answer in the person's own trade words, which the rules alone can't connect.
     const question = page.getByRole("listitem", { name: /^Question/ }).filter({ hasText: "Soldering copper pipe" });

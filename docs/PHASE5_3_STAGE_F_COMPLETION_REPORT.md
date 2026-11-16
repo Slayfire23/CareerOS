@@ -332,7 +332,7 @@ No application or UI change.
 | Integration | **226 of 226** pass, run on its own (223 + 3 new). A first run in parallel with the evals had 2 failures, 1 file that didn't load and 20 skipped, from timeouts under load; the solo run is the result |
 | Parity / sealed guard / parts validate | 343 of 343 / 11 of 11 / pass |
 | Engine basis (2,121 rows) | **Byte-identical** to F5 and to the pre-Stage F baseline `c4ebce9` |
-| Follow-up sets (340 rows) | All four runs exit 0. **0 of 340 rows differ in any rules or result field** vs F5 and vs `c4ebce9` (`rulesOnly`, `reader`, `answerVerdict`, `asked`, `replyOutcome`, `replyIfAsked`, `final`, and the rest). **28 rows differ only in `decision`**, the local model's raw advisory reading (e.g. `self:done:yes` vs `self:done:partly`), which never sets a verdict. Cause: the Ollama restart (below), not the change. Two runs after the restart, with the same code, are identical; the eval imports neither changed file; and the Ollama binary is unchanged. The new `decision` values are the baseline from now on |
+| Follow-up sets (340 rows) | All four runs exit 0. **0 of 340 rows differ in any rules or result field** vs F5 and vs `c4ebce9` (`rulesOnly`, `reader`, `answerVerdict`, `asked`, `replyOutcome`, `replyIfAsked`, `final`, and the rest). **28 rows differ only in `decision`**, the local model's raw advisory reading (e.g. `self:done:yes` vs `self:done:partly`), which never sets a verdict. Cause: the Ollama restart (below), not the change. Two runs after the restart, with the same code, are identical; the eval imports neither changed file; and the Ollama binary is unchanged. **Correction (§14.5):** a later run matched `c4ebce9` exactly, `decision` included. The trace varies between Ollama process states; it isn't a code effect and doesn't make a new baseline |
 | Schema and migrations | Unchanged |
 
 **An environment incident during this run.** The first follow-up eval timed out (30 minutes) because the local Ollama server stopped answering generation requests (the health check still answered). With your approval I stopped only my own leftover eval processes and restarted the local Ollama app (nothing else), confirmed a generation (9 s), and re-ran the follow-up sets on their own.
@@ -347,3 +347,59 @@ No application or UI change.
   3. A decision on O1, and on whether Stage G covers rules-v21 only or v22 as well.
   4. Sealed splits still unopened until Stage G starts.
 - **Production blockers** (§12): unchanged, except that D1 is resolved.
+
+## 14. Owner decisions of 2026-11-15, and the final verification so far
+
+### 14.1 Partial-experience wording (O1, resolved)
+
+"…or part of what this asks for" is gone. Possible for partial or related work now reads:
+- **free text:** "Your answer may describe experience with part of this requirement. Please clarify which tasks you personally performed.";
+- **structured:** "Your structured answer may describe experience with part of this requirement. Please clarify which tasks you personally performed."
+
+This is wording only. Two constants changed (`answer-review.ts` `EXPLAIN.part_of_what_is_asked`, `structured-apply.ts` `EXPLAIN.possible`), and no verdict logic. Supported still reads "…describes doing this work yourself." New unit tests cover the HVAC example on both paths: Possible, the clarified wording, the person's exact words, and Supported unchanged. Explanations aren't part of the engine or follow-up eval outputs, so those comparisons are unaffected.
+
+### 14.2 Mode verification for every mode-dependent browser spec (test-only)
+
+| Spec | Declared by | Checked against the server |
+|---|---|---|
+| `job-clarification` | `declaredMode()` (§13.2) | Review section absent |
+| `job-review` | `declaredMode()` | Review section present; structured form absent |
+| `job-follow-up` | `declaredMode()` + `E2E_FOLLOW_UP` (else `.env`) | Review section present |
+| `job-structured-form` | `E2E_STRUCTURED_FORM` / `.env` | Structured form present; "doesn't change the match yet" (matching off) |
+| `job-structured-matching` | `E2E_STRUCTURED_MATCHING` | Structured form present; "It can count toward the match…" (matching on) |
+| `job-match-assisted` | `.env` `AI_LOCAL_LLM_ENABLED` | "Rules + AI suggestions" offered to the E2E account |
+| `job-match-cloud` | `.env` `AI_CLOUD_ENABLED` | The cloud option offered to the E2E account |
+| `job-match-offline` | `E2E_AI_SERVICE_OFF` | Already checked that the AI service is down |
+
+A mismatch fails with an instruction. **Executed so far:** the clarification, review and assisted checks. The structured-form, structured-matching, follow-up and cloud checks are type-checked and linted but **not yet executed**: the first two save answers (rate-limited until the window clears), and follow-up and cloud need modes this machine does not run. Shown: the assisted spec against a server without local AI for the account failed in **19 s** with "Local AI isn't offered to the E2E account on this server…", instead of a 4-minute timeout.
+
+### 14.3 The three blocked specs
+
+| Spec | Status | Detail |
+|---|---|---|
+| `job-match-assisted` | **PASS (1 executed, 1 passed)** | Run against the local launch entry `careeros-assisted-3100`. Its server process sets `AI_LOCAL_LLM_ALLOWED_USERS` to **only** the existing local E2E account's CareerOS user id; that's narrower than `.env`, which is unchanged. The entry is in the root `.claude/launch.json`, outside any git repository, so the id is not committed. The AI service and Ollama were running |
+| `job-clarification` | **BLOCKED (waiting)** | The shared E2E account is at its daily answer limit: 30 of 30 in the rolling 24 hours. The window starts clearing at **2026-11-16 01:06 UTC**, and most entries leave around 04:20–04:50 UTC. Not bypassed or reset; not retried repeatedly |
+| `job-structured-matching` | **BLOCKED (waiting)** | Same dependency |
+
+### 14.4 Status
+
+- **Stage F: conditionally complete, NOT fully verified.** Two browser specs wait only on the rolling answer limit.
+- Every other gate passes: §14.5 and the remediation commit.
+- **Next step, once the limit clears:**
+  1. run `job-clarification` against `careeros-prod-3100`;
+  2. run `job-structured-matching` against `careeros-matching-3100` with `E2E_STRUCTURED_FORM=true E2E_STRUCTURED_MATCHING=true`;
+  3. report the executed, passed, failed and skipped counts.
+- **The Stage G evaluation-quality policy** (final proposal) is in `docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md`, for approval. It changes nothing and opens nothing.
+
+### 14.5 Gates for these changes
+
+| Gate | Result |
+|---|---|
+| Unit | **3,897 of 3,897** (2 new wording tests) |
+| Integration (solo) | **226 of 226** |
+| D1 regression test | **3 of 3** |
+| TypeScript, `prisma validate`, production build | Clean |
+| Lint | 0 errors, 1 warning (existing) |
+| Sealed guard / parts validate / parity | 11 of 11 / pass / 343 of 343 |
+| Engine basis, follow-up sets | Engine **byte-identical** to the pre-Stage F baseline `c4ebce9`. Follow-up: **0 of 340 rows differ on any field** vs `c4ebce9`, including the local model's `decision` trace. So there are **no verdict changes at all**: no new false Supported, and no qualified losses, justified or not. All five runs exit 0 |
+

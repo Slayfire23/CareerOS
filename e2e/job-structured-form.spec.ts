@@ -68,6 +68,9 @@ test("structured form: accessible controls, validation, saving changes no verdic
     const card = section.getByRole("listitem", { name: /^Question/ }).filter({ hasText: requirement });
     await card.getByRole("button", { name: "Yes, add details", exact: true }).click();
     const form = card.getByRole("form", { name: "Your part" });
+    // Mode checks: the server has the structured form on, and structured matching off.
+    await expect(form, "The server has the structured form OFF, but this run declared it on (E2E_STRUCTURED_FORM or .env).").toHaveCount(1);
+    await expect(form.getByText(/This kind of answer doesn't change the match yet\./), "The server has structured matching ON: run this spec only against a form-only server, and job-structured-matching.spec.ts with E2E_STRUCTURED_MATCHING=true.").toBeVisible();
 
     // One required choice in a fieldset with a legend; nothing preselected; saving waits for a choice.
     const choice = form.getByRole("group", { name: /What was your part\?/ });

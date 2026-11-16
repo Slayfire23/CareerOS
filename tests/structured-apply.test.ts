@@ -251,6 +251,29 @@ describe("freshness, masking and withholding", () => {
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
+describe("F6: partial experience is worded as partial, never as meeting the requirement", () => {
+  const hvac = req("Personally performing HVAC repairs");
+  const text = "I pick up parts for the HVAC techs.";
+  const WORDING = /^Your (structured )?answer may describe experience with part of this requirement\. Please clarify which tasks you personally performed\.$/;
+  it("free text and structured: Possible (unchanged), with the clarified wording and the person's exact words", () => {
+    const structured = run([hvac], [row(hvac, { detail: text })]).findings[0];
+    const free = run([hvac], [], { evidence: [answerItem(text)], answers: [{ action: "confirm", questionKey: keyForRequirement(hvac), evidenceId: `experience:${ANSWER}`, detail: text }] }).findings[0];
+    for (const f of [structured, free]) {
+      expect(f.verdict).toBe("possible");
+      expect(f.explanation).toMatch(WORDING);
+      expect(f.explanation).not.toMatch(/or part of what this asks for/);
+      expect(f.citations.map(c => c.quote)).toEqual(["I pick up parts for the HVAC techs"]);
+    }
+    expect(structured.explanation.startsWith("Your structured answer")).toBe(true);
+    expect(free.explanation.startsWith("Your answer")).toBe(true);
+  });
+  it("a description that shows the whole requirement still reads as doing the work (Supported is untouched)", () => {
+    const words = "I repair commercial HVAC systems myself every week.";
+    const f = run([req("Repairing commercial HVAC systems")], [row(req("Repairing commercial HVAC systems"), { detail: words })]).findings[0];
+    expect(f).toMatchObject({ verdict: "supported", explanation: "Your structured answer describes doing this work yourself." });
+  });
+});
+
 describe("F5: applicant-facing wording", () => {
   it("off: the Stage E wording, unchanged; on: may count after a re-run, never a promise; no technical terms", async () => {
     const { MATCH_EFFECT, matchEffect } = await import("@/lib/ai/rules/structured-form-spec");

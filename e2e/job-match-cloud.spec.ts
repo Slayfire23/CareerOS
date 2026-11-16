@@ -60,6 +60,8 @@ test("cloud analysis needs consent, runs through the mock provider, and can be w
 
     // The rules engine is the default; the cloud method stays blocked until consent is given.
     await expect(runForm.getByRole("radio", { name: /Rules engine/ })).toBeChecked();
+    // Mode check: the server must offer cloud analysis to this account, or the run fails here.
+    await expect(runForm.getByRole("radio", { name: /Claude Sonnet 5\.5/ }), "Cloud analysis isn't offered to the E2E account on this server: check AI_CLOUD_ENABLED and AI_CLOUD_ALLOWED_USERS.").toHaveCount(1);
     await runForm.getByRole("radio", { name: /Claude Sonnet 5\.5/ }).check();
     await expect(runForm.getByText("Give consent below to use Claude Sonnet 5.5.")).toBeVisible();
     await expect(runForm.getByRole("button", { name: /^Run analysis/ })).toBeDisabled();

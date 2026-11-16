@@ -70,7 +70,9 @@ test("structured matching: a described answer's words, a choice shown as a choic
       await card.getByRole("button", { name: "Yes, add details", exact: true }).click();
       const form = card.getByRole("form", { name: "Your part" });
       // The plain wording says the answer can count after a re-run, never that it will.
-      await expect(form.getByText(/It can count toward the match when you run the analysis again, depending on what you describe\./)).toBeVisible();
+      // Mode check: the server has structured matching on (the form says answers can count).
+      await expect(form, "The server has the structured form OFF, but this run declared structured matching on.").toHaveCount(1);
+      await expect(form.getByText(/It can count toward the match when you run the analysis again, depending on what you describe\./), "The server has structured matching OFF, but this run declared it on (E2E_STRUCTURED_MATCHING).").toBeVisible();
       await expect(form).not.toContainText(/will (improve|raise|change) |guarantee|verified(?! it)/i);
       const choice = form.getByRole("group", { name: /What was your part\?/ });
       await choice.getByRole("radio", { name: "I did this work myself", exact: true }).focus();

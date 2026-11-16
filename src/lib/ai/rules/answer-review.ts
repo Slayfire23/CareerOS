@@ -280,7 +280,9 @@ export function titleContradicted(request: MatchRequest, requirement: MatchRequi
 const EXPLAIN: Record<string, string> = {
   stated_work: "Your answer describes doing this work.",
   limit_on_what_an_answer_shows: "Your answer describes this work, but an answer alone can't show the amount of time or level asked for.",
-  part_of_what_is_asked: "Your answer describes related work, or part of what this asks for.",
+  // Owner decision (F6): partial experience is never presented as meeting the requirement; the person is asked which
+  // tasks they did themselves. Wording only: the verdict (Possible at most) is unchanged.
+  part_of_what_is_asked: "Your answer may describe experience with part of this requirement. Please clarify which tasks you personally performed.",
 };
 
 /** Applies active answers to the rules' findings. Only moves Not enough information or Possible, so the rules'
