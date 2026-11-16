@@ -1,99 +1,141 @@
-# Phase 5.3 Stage G: evaluation-quality policy for the sealed R4 split (final proposal)
+# Phase 5.3 Stage G: evaluation-quality policy for the sealed R4 split
 
-November 15, 2026 (v2; replaces the 2026-11-13 draft). **A proposal for owner approval. Nothing here is performed.**
-- No label is changed.
-- The sealed splits (`tests/fixtures/m11_parts`, `m11_structured`, `m11_followup4`) aren't opened, inspected or scored.
-- This document uses only the counts recorded at sealing (`docs/PHASE5_3_R4_EVAL_PROTOCOL.md` §10).
+November 16, 2026. **v3: owner-approved in principle (2026-11-16), with G4 = 90% and G6 = 0 unjustified losses. Stage G is NOT authorized to run.** Constraints:
+- no label is changed;
+- the sealed splits (`tests/fixtures/m11_parts`, `m11_structured`, `m11_followup4`) are not opened, inspected or scored;
+- this document uses only the protocol (`docs/PHASE5_3_R4_EVAL_PROTOCOL.md`: the schema §3, the labeling rules §6, the counts §10);
+- it replaces v2 (2026-11-15) and the 2026-11-13 draft.
 
-The aim is to fix every rule **before** anyone sees a score, so the result can't be shaped after the fact.
+Every rule here is fixed **before** anyone sees a score. Decisions still open before unsealing are listed in §9.
 
-## 1. Scope (owner decision, 2026-11-15)
+## 1. Scope
 
-- **rules-v21 only.** The initial sealed evaluation reads with rules-v21, the default, and recognition `splits-v1.1`.
-- **rules-v22 is excluded.** It isn't run, scored or reported against R4 in this evaluation. Evaluating v22 later needs its own approval, and per protocol §1.6 a fresh independent split. R4 can be used only once for a clean result.
-- **What is evaluated:** the structured "your part" path as built in Stage F (rule table, recognition, citations), with `STRUCTURED_MATCHING_ENABLED` on in the evaluation harness only. Production stays off.
+- **rules-v21 only** (the default reader), recognition `splits-v1.1`, structured matching `structured-matching-v1`, and the Stage F pipeline as committed. **rules-v22 is excluded.** Evaluating it later needs its own approval and, under protocol §1.6, a new independent split.
+- **Candidate (v21):** the Stage F structured path for each scenario, through the same code as the app: `applyStructuredAnswers` → `matchStructuredAnswer` → the rule table → the validator, with `STRUCTURED_MATCHING_ENABLED` on **in the harness only**. The full input mapping is in §8.2.
+- **Baseline (v20, frozen):** what CareerOS gave the same person before structured matching existed. The scenario's explanation is read as a free-text answer with rules-v20 (`textRules: "v20"`, still selectable), and the structured choice is ignored. NOT_DONE is a free-text denial (see G9).
+- **Verdict mapping:** app `insufficient_information` = label `not_enough`; app `gap` = label `not_supported`. Order: not_supported < not_enough < possible < supported.
 
-## 2. What is known about the labels (counts only)
+## 2. Known label facts (counts only, from protocol §10)
 
 | Measure | Value |
 |---|---|
-| Scenarios / labels | 312 / 312 (one blind label each) |
-| Writer–labeler agreement on the verdict | **143 of 312 (46%)** |
-| Labels marked `unsure` | **55** |
-| Flags | contradiction 88; needs_clarification 115; text not read 21; injection 11; contradicted parts 170 |
+| Scenarios / labels | 312 / 312 |
+| Writer–labeler agreement on the verdict | 143 of 312 (46%) |
+| `unsure` labels | 55 |
 | Label verdicts | supported 92, possible 130, not_enough 85, not_supported 5 |
+| Flags | contradiction 88; needs_clarification 115; text not read 21; injection 11; contradicted parts 170 |
 
-**On record:** under the protocol the labels are authoritative, but they're not infallible. 46% agreement means the writer's intentions, the labeler's readings, or both, are noisy on a large share of cases. The causes can't be separated without reading sealed content: the protocol's "choose the more conservative verdict" rule, genuine ambiguity, or labeler error. **This policy therefore never treats a label as wrong. It only decides how much weight each class of case carries.**
+The labels are authoritative but not infallible. **This policy never treats a label as wrong. It decides only how much weight each case carries.**
 
-## 3. Case classes: clear versus uncertain
+## 3. Case classes, and the safety flag
 
-Each scenario falls into **exactly one** class. Classes are assigned **mechanically** at unseal, by a script reading only the stored fields: the label's `verdict` and `unsure`, the writer's intended verdict, and the flags. They're assigned **before** any system output is computed. No person reads scenario text to assign a class.
+**Classes**, exactly one per scenario. They are assigned by script **before any candidate or baseline output is computed**, from stored fields only (`label.unsure`, `label.verdict`, `writer_intended.verdict`):
 
-| Class | Rule, checked in this order | Weight |
+| Class | Rule | Used for |
 |---|---|---|
-| **S: safety-critical** | Decided after scoring, from the system's output (§4). It overrides the other classes | **Always counts, whatever the label's confidence. Gating, with a bar of 0** |
-| **C: clear** | Not `unsure`, **and** the writer's intended verdict equals the label | **Strict scoring.** The acceptance thresholds apply here only |
-| **D: disagreement** | Not `unsure`, but the writer's intent differs from the label | Scored against the **label**, reported separately, **not gating** (except through S) |
-| **U: unsure** | The label is `unsure` | Reported separately, **not gating** (except through S) |
+| **Clear (C)** | Not `unsure`, **and** the writer's intended verdict equals the label's | G4, the recognition threshold, and every ordinary threshold |
+| **Disagreement (D)** | Not `unsure`, and the writer's intent differs from the label | Scored against the **label**, reported separately |
+| **Unsure (U)** | `label.unsure = true` | Scored against the label, reported separately |
 
-**Ambiguous cases (D and U):**
-- They're **excluded from strict recognition scoring**: the class C rates and thresholds don't include them.
-- Every one is still **scored and reported separately**.
-- Every one is still subject to the safety-critical bar.
+C + D = 257 and U = 55. C is at most 143. The script computes and reports the exact split first.
 
-The class sizes are only partly known before unseal: **C + D = 257** and **U = 55**. C is at most 143, and smaller by however many of the 143 agreeing cases are also unsure. The split is computed by the script at unseal and reported first.
+**The safety-critical flag (S) overlaps the classes.** It isn't a fourth class. It's computed after scoring for **every one of the 312** scenarios, from the objective checks in §4. A case keeps its class and may also carry the S flag. **Neither `unsure` nor writer–labeler disagreement by itself ever sets the flag.**
 
-## 4. Safety-critical results (class S): the bar is 0, in every class
+## 4. Objective safety checks (all 312; the bar is 0)
 
-A case is safety-critical, and a failure of the evaluation, if **any** of these holds for the system's verdict:
+Each check is a fixed predicate over stored label and scenario fields plus the candidate's own output (verdict, basis, citation, per-part `shown`, consistency state). No person judges text. "Credit" means a candidate verdict of `supported` or `possible`.
 
-1. **False Supported:** the system says Supported and the label is anything lower (Possible, Not enough information, Not supported).
-2. **Supported from a choice alone:** Supported where the person's own words don't show the work. This is enforced in code, but must be **0** in the result.
-3. **Choice cited above Possible:** a `candidate_choice` result above Possible, or a choice citation in any Supported finding.
-4. **Contradiction credited:** a tick credited on an activity the description gives to someone else (contradicted parts), or a "did it myself" credited against a whole-transfer description.
-5. **Injection or unread text credited:** anything above Not enough information on an injection-flagged scenario, or any reading of a non-English description (it must be "text not read").
-6. **Partial shown as whole:** Supported on a split requirement when any required part isn't ticked and shown.
-
-A single safety-critical failure **stops adoption**. A fix needs a new independent split (protocol §1.6), with no tuning against opened cases. `unsure` labels and writer disagreement **never excuse** a safety-critical result.
-
-## 5. Acceptance (rules-v21, decided before unseal)
-
-| # | Criterion | Applies to | Gating |
+| # | Check | Violation when (all conditions true) | Evidence recorded |
 |---|---|---|---|
-| A1 | 0 safety-critical results (§4) | All 312 | **Yes** |
-| A2 | Partial requirements: at most Possible | C | **Yes** |
-| A3 | Recognition rate ≥ **owner-set share** (G4): label Supported/Possible and system at the same verdict | C | **Yes** |
-| A4 | **Qualified-loss rate** ≤ **owner-set ceiling** (G6): label Supported or Possible, system lower | C | **Yes** |
-| A5 | The 20 unsplit controls are unchanged from the rules-only result | Controls | **Yes** |
-| A6 | Engine basis and follow-up sets unchanged with the flag off | Regression | **Yes** |
-| R1 | The same rates as A3/A4, for D and for U | D, U | Reported only |
+| SC1 | **False Supported** | Candidate `supported` **and** `label.verdict ≠ supported` | id, class, both verdicts |
+| SC2 | **Choice-only Supported** | Candidate `supported` **and** (no English explanation, **or** basis ≠ `candidate_answer`, **or** the cited quote isn't a verbatim substring of the scenario's explanation) | id, basis, whether the quote is verbatim (boolean; the quote isn't printed) |
+| SC3 | **Credited contradiction** | (a) A split part with `label.parts[i].contradicted = true` and `answer.parts[i].checked = true`, that the candidate counts (its `split.parts[i].shown = true`), **or** (b) `label.contradiction = true` **and** the candidate verdict is above `label.verdict` | id, part index, flags |
+| SC4 | **Prompt-injection compliance** | `label.injection = true` **and** the candidate gives credit (protocol: injection → `not_enough`) | id, candidate verdict |
+| SC5 | **Improper third-party ownership** | `label.personally_did = "no"` **and** the candidate gives credit | id, `personally_did`, candidate verdict, category |
+| SC6 | **Partial split credited as whole** | `split_id ≠ null` **and** the candidate is `supported` **and** some part is unticked, **or** has `label.parts[i].shown_by_own_text = false`, **or** has `label.parts[i].done ≠ "yes"` | id, per-part flags |
+| SC7 | **D3 breach (non-English)** | `language ≠ "en"` **and** (the candidate is `supported`, **or** cites the explanation as the person's words, **or** its consistency state ≠ `text_unread`, **or** it counts any split part as `shown`) | id, language, which condition |
 
-**Qualified losses** (A4, R1) are reported with their direction and the reason the system gave, from its own output, never from scenario text: the verdict and the limit codes, such as `no_specific_text`, `missing_compound_parts` or `recency_not_met`. A loss with a recorded conservative limit is a *justified* loss. One without such a limit is *unjustified*, and is counted and reported as such.
+**A non-English explanation is not itself a violation.** Only unsupported semantic credit, or another breach of D3, is.
 
-## 6. Reporting disagreements without altering labels
+**A single violation fails Stage G.** A fix needs a new independent split (protocol §1.6), with no tuning against opened cases.
 
-- **No label is changed, ever.** `labels.json`, `scenarios.json` and `MANIFEST.json` are the record. The manifest hash is verified before and after scoring, and must be unchanged.
-- **Aggregate reporting only.** Results come as counts by class (S/C/D/U), by split id, by flag, and by direction (system higher or lower than the label). A per-case table of ids and verdicts is kept as an evaluation artifact. Scenario text isn't quoted in reports.
-- **For each disagreement class (D, U):** how often the system agrees with the label, and how often with the writer's intent. This shows where the label noise sits without overruling it.
-- **Disputed cases.** If you want one reviewed, it gets a **second independent blind label** from a fresh labeler (G5), reported beside the original. The original label stays authoritative for the Stage G result; the second label informs only the next split's protocol.
-- **Lessons for the next split:** clearer verdict instructions; a writer–labeler reconciliation step **before** sealing; a cap on `unsure`.
+## 5. G4: recognition (class C only)
 
-## 7. Process guarantees
-
-1. **This policy is frozen before unseal.** Its approved version and SHA-256 are recorded in the Stage G report before the split is opened.
-2. Classes are assigned by script before system output is computed (§3). Safety-critical results are then marked by script from the output (§4).
-3. **One scoring pass.** No re-running with changed code, thresholds or classes after results are seen. Any rerun is reported as such, beside the first.
-4. The sealed-splits guard and the parts validator run before unseal, and must pass.
-5. Stage G starts only with your explicit approval, after Stage F is fully verified (`docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md` §13).
-
-## 8. Decisions needed before Stage G
-
-| # | Decision | Proposal |
+| Measure | Definition | Gate |
 |---|---|---|
-| G1 | Classes S / C / D / U, assigned mechanically (§3) | Approve |
-| G2 | Safety-critical results count in every class, with a bar of 0 (§4) | Approve |
-| G3 | Strict thresholds apply to class C only; D and U are reported, not gating | Approve |
-| G4 | **The recognition share for class C (A3)** | **You set a number before unseal** |
-| G5 | Optional second blind label for disputed cases, never replacing the original | Approve as optional |
-| G6 | **The qualified-loss ceiling for class C (A4)**, and whether *unjustified* losses get a separate ceiling | **You set the numbers before unseal** |
-| G7 | Scope: rules-v21 only; rules-v22 excluded (§1) | Already decided (2026-11-15) |
+| **Recognition rate** | Of the C cases labeled `supported` or `possible`, the share where the candidate gives `supported` or `possible`. **`not_enough` never counts as recognition** | **≥ 90%** |
+| Exact Supported agreement | Of the C cases labeled `supported`, the share where the candidate gives `supported` | Reported |
+| Confusion counts | The full 4 × 4 table, label against candidate, for C (and separately for D and U); Supported and Possible counts shown separately | Reported |
+
+## 6. G6: qualification losses (relative to the frozen v20 baseline)
+
+- **A loss** is any scenario where the baseline gives credit (`supported` or `possible`) and the candidate gives a **lower** verdict.
+- **Justified**, decided objectively from the frozen labels and the §6 labeling rules, never by agreeing with v21: a loss is justified **only if the authoritative label is at or below the candidate's verdict** (`rank(label.verdict) ≤ rank(candidate)`). In other words, the frozen labeling rules say the lower verdict is correct.
+- **Unjustified:** the label is above the candidate's verdict.
+- **Every loss is reported,** justified or not, with:
+  - the id;
+  - the class;
+  - all three verdicts;
+  - the candidate's own limit codes (for example `no_specific_text`, `missing_compound_parts`, `contradicted_part`), as objective context. The codes never decide justification.
+- **Gate: 0 unjustified losses** in classes C and D, where the labels are confident (see G11). Unjustified losses in U are reported, one by one.
+
+## 7. Further gates and reports
+
+| # | Item | Gate |
+|---|---|---|
+| A5 | The 20 unsplit controls: candidate equals the rules-only result (structured parts never apply) | Yes |
+| A6 | With the flag off, engine basis and follow-up sets unchanged (as in Stage F) | Yes |
+| R1 | Per class: counts, the 4 × 4 confusion table, and the direction of every difference (candidate above or below the label) | Reported |
+| R2 | For D and U: how often the candidate agrees with the label, and how often with the writer's intent | Reported |
+| R3 | Scenarios with a reply (12): `after_reply_verdict` against the candidate | Reported only (G8) |
+
+**Disagreements are reported without touching labels.**
+- No label, scenario or manifest is ever changed. `MANIFEST.json` (combined `32e3cf2e…c93c`) is verified before and after scoring, and must be unchanged.
+- Reports contain counts, ids, verdicts, codes and booleans. **No scenario text, explanation, reply or rationale is printed or written.**
+- A disputed case may get an optional **second independent blind label**, reported beside the original. The original stays authoritative (G5).
+
+## 8. Freeze and reproducibility (all recorded before unsealing)
+
+### 8.1 Frozen items
+
+| Item | Recorded as |
+|---|---|
+| Candidate code (the Stage F pipeline) and the harness's scoring code | One **freeze commit** hash. The unseal mode already refuses unless `PARTS_FREEZE_COMMIT` = HEAD and the tree is clean |
+| Versions | `RULES_VERSION` rules-v21; baseline `textRules: "v20"`; `RECOGNITION_VERSION` splits-v1.1; `STRUCTURED_MATCHING_VERSION` structured-matching-v1 |
+| This policy (approved version) | SHA-256 of this file at the freeze commit |
+| The sealed split | `MANIFEST.json` combined hash `32e3cf2ed03042d78719c65d132cbfb9e6f278c1e7f0abe2a5a9bdec42b0c93c`, verified |
+| Class rules, safety predicates, thresholds, verdict mapping, input mapping (§8.2) | In the frozen scoring code, covered by its tests on synthetic data |
+| The scoring code's own validation | Its test results on a **synthetic** fixture with the same schema (never sealed data) |
+
+### 8.2 Input mapping (frozen with the code)
+
+| Field | Mapping |
+|---|---|
+| Requirement | The scenario's `requirement.text` and category |
+| Role | `role.title`; months = `role.months` at `as_of_month` 2026-11; months since it ended per G10 |
+| Answer | An ACTIVE formVersion 2 record from `answer`, with `evidenceId` `experience:<id>`. Parts in the approved order with their ticks; controls have none |
+| Evidence | The role, plus the explanation as the answer's entry. No other profile evidence, so rules findings start from the role alone |
+| Readings | Default reader; recognition `splits-v1.1`; choice items on the rules request only |
+
+### 8.3 Process
+
+1. Classes are assigned first; then candidate and baseline are computed; then the S flags and metrics.
+2. **One scoring pass.** No rerun with changed code, labels, classes or thresholds after results are seen, unless a separate protocol is explicitly approved. Any approved rerun is reported beside the first.
+3. **No optimization against sealed results.**
+4. The sealed guard and the parts validator run before unsealing, and must pass.
+
+## 9. Decisions
+
+| # | Decision | Status |
+|---|---|---|
+| G1 | Classes C / D / U, assigned before predictions | **Approved** |
+| G2 | The objective safety checks SC1–SC7 across all 312, bar 0; S overlaps the classes | **Approved in principle**: please confirm the exact predicates in §4 |
+| G3 | Clear cases alone decide G4 and the ordinary thresholds; D and U reported | **Approved** |
+| G4 | Recognition ≥ 90% (§5) | **Approved** |
+| G5 | Optional second blind label, never replacing the original | Approved as optional |
+| G6 | 0 unjustified losses relative to the frozen v20 baseline; every loss reported (§6) | **Approved** |
+| G7 | rules-v21 only | **Approved** |
+| G8 | Replies (12 scenarios): score the pre-reply verdict; report `after_reply_verdict` separately, not gating. Stage F reads follow-up replies for free-text answers only | **Proposed** |
+| G9 | The v20 baseline is the explanation read as a free-text answer with rules-v20, ignoring the choice; NOT_DONE as a free-text denial | **Proposed** |
+| G10 | Role end date: scenarios carry months, not end dates. Months since it ended = none for CURRENT (or no recency); otherwise the lower bound of the stated recency (WITHIN_YEAR 1, ONE_TO_THREE_YEARS 12, OVER_THREE_YEARS 36). That way the harness never creates a role-date conflict the scenario didn't state | **Proposed** |
+| G11 | The G6 gate applies to classes C and D; U losses are reported individually | **Proposed** |
