@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { WINDOW_MS, currentFindings, runJobAnalysis } from "@/lib/ai/analysis";
+import { WINDOW_MS, currentFindings, rollbackFindings, runJobAnalysis } from "@/lib/ai/analysis";
 import type { AiConfig } from "@/lib/ai/config";
 import { currentMonth, type MatchRequirement, type Verdict } from "@/lib/ai/evidence";
 import { deleteAnswerChain } from "@/lib/ai/answer-deletion";
@@ -71,8 +71,12 @@ async function recheck(options: Scope, userId: string, jobId: string, clarificat
   if (!run?.ok) return { ok: true, changes: [] };
   const after = await prisma.jobMatchAnalysis.findFirst({ where: { id: run.analysisId, userId }, select: { requirements: true, findings: true } });
   const changes: { text: string; before: Verdict; after: Verdict | null }[] = [];
-  const beforeFindings = (before?.findings ?? []) as Finding[];
   const beforeRequirements = (before?.requirements ?? []) as MatchRequirement[];
+  // F6 remediation (D1): "before" is what the person was shown. With structured matching off, a stored structured result
+  // didn't count (F-9), so it must not appear as a change, here or in the audit event. Revocation and choice validity are
+  // deliberately not re-applied: an answer revoked or corrected in this same action was shown before it, and that change
+  // is genuine. The stored analysis itself is never changed.
+  const beforeFindings = before ? await rollbackFindings(userId, beforeRequirements, before.findings as Finding[], options.config) : [];
   for (const f of (after?.findings ?? []) as Finding[]) {
     const text = ((after?.requirements ?? []) as MatchRequirement[]).find(r => r.index === f.requirementIndex)?.text;
     const was = beforeFindings.find(x => beforeRequirements.find(r => r.index === x.requirementIndex)?.text === text);

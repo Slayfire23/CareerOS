@@ -179,9 +179,15 @@ export async function validChoicesFor(userId: string, config: AiConfig | null | 
   return new Map(rows.map(buildChoiceEvidence).filter((c): c is ChoiceEvidence => !!c).map(c => [c.id, c.statement]));
 }
 
+/** F-9 only: a stored analysis without the structured results that don't count with the current flags (none while
+ * structured matching is on). The one masking step every reader of stored findings shares. */
+export async function rollbackFindings<T extends Finding>(userId: string, requirements: MatchRequirement[], findings: T[], config: AiConfig | null | undefined): Promise<T[]> {
+  return maskStructuredFindings(findings, requirements, await structuredMaskFor(userId, config), reviewKeyFor);
+}
+
 /** A stored analysis's findings as they may be used now (F-9, citation safety), for every reader of stored findings. */
 export async function currentFindings<T extends Finding>(userId: string, requirements: MatchRequirement[], findings: T[], config: AiConfig | null | undefined): Promise<T[]> {
-  return withholdChoiceFindings(maskStructuredFindings(findings, requirements, await structuredMaskFor(userId, config), reviewKeyFor), await validChoicesFor(userId, config));
+  return withholdChoiceFindings(await rollbackFindings(userId, requirements, findings, config), await validChoicesFor(userId, config));
 }
 
 /** Personal and company values to remove from free text before it goes to a cloud provider. */

@@ -2,14 +2,17 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
-import { confirmAction, openPage } from "./support";
+import { confirmAction, declaredMode, expectReviewMode, openPage } from "./support";
 
 // Exception review, behind its disabled-by-default flag. Rules only: no AI service or Ollama needs to run.
 // Local resources, fictional data. Skips unless the running server has the flag on.
 test("review: questions, a specific answer, the verdict and its source, then revoke and delete", async ({ page }) => {
   test.setTimeout(180000);
-  const env = parse(readFileSync(".env"));
-  test.skip(env.CLARIFICATION_REVIEW_ENABLED !== "true", "Exception review is off (the default).");
+  // Review on, structured form off: this spec answers in free text; with the form on, the structured specs cover the
+  // review. The mode is checked against the page below.
+  const mode = declaredMode();
+  test.skip(!mode.review, "Exception review is off (the default).");
+  test.skip(mode.structuredForm, "The structured form replaces free-text answers; see job-structured-form.spec.ts and job-structured-matching.spec.ts.");
   const accounts = parse(readFileSync(".env.playwright.local"));
   const tag = randomUUID().slice(0, 8);
   const company = `Review test ${tag}`;
@@ -57,6 +60,7 @@ test("review: questions, a specific answer, the verdict and its source, then rev
     await page.getByRole("button", { name: "Run analysis", exact: true }).click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await openPage(page, matchUrl);
+    await expectReviewMode(page, true);
 
     const section = page.getByRole("region", { name: "What CareerOS couldn't establish" });
     await expect(section.getByText("2 questions for the rest.", { exact: false })).toBeVisible();
@@ -65,6 +69,7 @@ test("review: questions, a specific answer, the verdict and its source, then rev
 
     // Yes opens an empty form. A vague answer is turned away, and what was typed stays.
     await salesforce.getByRole("button", { name: "Yes, add details", exact: true }).click();
+    await expect(salesforce.getByRole("form", { name: "Your part" }), "The server has the structured form ON: declare E2E_STRUCTURED_FORM=true.").toHaveCount(0);
     const form = salesforce.getByRole("form", { name: "Your answer" });
     await expect(form.getByLabel("What did you do?", { exact: true })).toHaveValue("");
     await form.getByLabel("Which role?", { exact: true }).selectOption({ label: `Clinic Assistant, ${company}` });

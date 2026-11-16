@@ -6,7 +6,16 @@ November 15, 2026. **Scope:** F6 only. This is a read-only audit and regression 
 - no change to rules-v21, rules-v22, `splits-v1.1` or the recognition default;
 - no sealed split was opened.
 
-**Overall status: Stage F is functionally complete, with ONE confirmed defect (D1, low severity, needs approval to fix) and test-harness gaps (T1–T3).** Stage G can begin once D1 is fixed or explicitly accepted. Production remains blocked (§12).
+**Overall status (after the F6 remediation, §13):**
+- **D1 is fixed.** Its regression test fails without the fix and passes with it.
+- **The browser-spec scoping (T1–T3) is corrected.** A wrong declaration now fails loudly.
+- **Stage F is NOT fully verified.** Three browser specs are BLOCKED by local test-environment limits, not code:
+  - `job-match-assisted`: the local AI allowlist;
+  - `job-clarification` and `job-structured-matching`: the shared test account's daily answer limit.
+
+  They need re-running before Stage F can be called fully verified (§13.4).
+
+Production remains blocked (§12).
 
 | Stage | Commit | Delivered |
 |---|---|---|
@@ -46,7 +55,7 @@ November 15, 2026. **Scope:** F6 only. This is a read-only audit and regression 
 | F-6 | Claimed months raise an `employment_dates` gap to Possible at most | As approved, via `candidate_choice` | PASS |
 | F-7 | Grouped questions with a split fail closed | As approved | PASS |
 | F-8 | Audit migration, evidence-id backfill | As approved. **Refinement:** event versions only where recognition data was used | Reported in F1 |
-| F-9 | Flag off: stored structured findings don't count | All readers except D1 | **FAIL (D1)** |
+| F-9 | Flag off: stored structured findings don't count | All readers; D1 fixed in the remediation (§13.1) | PASS (after remediation) |
 | F-10 | Freshness only with the flag on | As approved. **Refinement:** markers by answer id, not key and choice (catches every correction) | Reported in F4 |
 | F0 | "me and two techs" as a team clause (design suggestion) | Kept the v21 reading (conservative) | Reported in F0 |
 | F2 | Lead choices on splits | Not enough information (no part ticks) | Approved in F4 |
@@ -104,7 +113,7 @@ November 15, 2026. **Scope:** F6 only. This is a read-only audit and regression 
 | Invalid combinations fail closed | PASS | 11 config cases: matching needs the form and the review; exact `"true"`; refused on Vercel |
 | Off by default | PASS | Config tests; `.env` unchanged |
 | No influence with the flag off | PASS | Four flag-off states: verdicts and stored results identical (F4 integration); engine byte-identical |
-| Stored structured findings masked consistently | **FAIL (D1)** | Page, counts, run history, question selection, older flow, follow-ups, shadow: PASS. **"Changed by your answers" and `_RESULT` audit events: FAIL** |
+| Stored structured findings masked consistently | PASS after remediation (was FAIL, D1; §13.1) | Page, counts, run history, question selection, older flow, follow-ups, shadow: PASS. **"Changed by your answers" and `_RESULT` audit events: FAIL** |
 | Free-text matching unchanged | PASS | Engine byte-identical to `c4ebce9` (pre-Stage F); 0 of 340 follow-up rows |
 | Freshness (F-10) | PASS | Mutation-checked (F4) |
 
@@ -138,7 +147,7 @@ Follow-ups and the shadow reader go through `currentFindings` by construction; n
 | Superseded evidence ids | PASS | F1 integration, F1 migration check |
 | Choice citations | PASS | F3/F5 lifecycle |
 | Description citations | PASS | F1/F4 |
-| Flag on ↔ off | PASS except D1 | F4 rollback test; D1 |
+| Flag on ↔ off | PASS (after remediation) | F4 rollback test; D1 regression test (§13.1) |
 
 ## 7. Database migrations
 
@@ -254,3 +263,87 @@ Use it as `test.skip(reviewOn, …)` in the clarification spec and `test.skip(!r
 4. **Explicit approval to enable** `CLARIFICATION_REVIEW_ENABLED`, `STRUCTURED_OWNERSHIP_FORM_ENABLED` and `STRUCTURED_MATCHING_ENABLED` in production. The latter two are refused on Vercel by design; enabling them where CareerOS is hosted needs a deliberate change to that refusal.
 5. **The open questions O1 and L1** decided, or accepted as limitations.
 6. **Push, merge (PR #4) and deployment**, each with separate approval.
+
+## 13. F6 remediation (approved: D1 and the browser-spec scoping only)
+
+### 13.1 D1: root cause and fix
+
+**Root cause.** After an answer, the review runs the rules again and records what changed: the result's `changes` (shown as "Changed by your answers") and one `*_RESULT` audit event per change. `recheck()` (`src/lib/ai/clarification-review.ts`) compared the fresh analysis with the earlier one read **raw**. With structured matching off, the earlier one could hold a structured result that the page never showed (F-9 masks it), so a false "Supported → Not enough information" was reported and persisted.
+
+**Fix.** `recheck()` now reads the earlier analysis through the shared F-9 step, `rollbackFindings` (`src/lib/ai/analysis.ts`). `currentFindings` is now built on it too, so the codebase still has one masking implementation.
+
+- With structured matching on, the mask is empty: behaviour is unchanged.
+- Revocation masking and choice validity are deliberately **not** re-applied to "before". An answer revoked or corrected in this same action was shown before it, so that change is genuine and is still recorded (tested).
+- Stored analyses are never modified, and nothing is deleted.
+
+**Regression test** (`tests/integration/structured-recheck.integration.ts`, 3 tests):
+
+| Test | What it confirms |
+|---|---|
+| Flag off | A stored structured Supported exists; the page shows it masked; an unrelated answer runs `recheck()`; **no** false plumbing transition, either in `changes` or in the audit events; the genuine Salesforce change (Not enough information → Supported) is reported and recorded; the earlier analyses are byte-identical afterwards |
+| Flag on | The structured result stands, and only the genuine change appears and is recorded |
+| Revocation (flag on) | Revoking the structured answer is still recorded as Supported → Not enough information |
+
+**Before and after:**
+- **Without the fix,** the flag-off test fails: `changes` held two entries, the false `{ "Install and repair residential plumbing", supported → insufficient_information }` plus the genuine Salesforce one. The flag-on test passed.
+- **With the fix,** all 3 pass.
+
+### 13.2 Browser-spec scoping (T1–T3)
+
+**Problem.** Both specs decided the review mode from `.env`, but the local launch entries give the server its flags in its own environment.
+
+**Change (test-only):**
+- `e2e/support.ts` gains `declaredMode()`. A run may declare `E2E_REVIEW=true|false`; the existing `E2E_STRUCTURED_FORM` / `E2E_STRUCTURED_MATCHING` imply the review is on. Contradictory or invalid declarations throw. Without a declaration, `.env` decides, as before.
+- `expectReviewMode()` **checks the declaration against the page itself** as soon as an analysis exists: the review section is present exactly when the server has the review on. A mismatch fails the run with an instruction; it never skips or passes.
+- `job-clarification.spec.ts` runs only in basic mode and verifies it. `job-review.spec.ts` runs only with the review on and the structured form off (T3), and verifies both: it fails if the structured form appears.
+
+No application or UI change.
+
+**Shown loudly:** against the review-only server, *without* a declaration, the clarification spec failed immediately with "The server has the review ON, but this run declared it off: set E2E_REVIEW=true for this server."
+
+**Limitation:** a run that declares nothing against a review-on server still *skips* `job-review` (it can't know before loading a page). The same run *fails* `job-clarification` with the instruction above, so the mismatch can't go unnoticed.
+
+### 13.3 Browser results by state (production build; counted per spec; a skip is not a pass)
+
+| State (launch entry; declaration) | Executed | Passed | Failed | Skipped |
+|---|---|---|---|---|
+| All flags off (`careeros-prod-3100`; none): **full suite** (36 specs) | 30 | 28 | 2: `job-clarification` (**BLOCKED**, daily answer limit, §13.4), `job-match-assisted` (**BLOCKED**, E1) | 6: follow-up, cloud, offline (their own environment gates), review, structured-form, structured-matching (other modes) |
+| Review only (`careeros-review-3100`; `E2E_REVIEW=true`): 6 specs | 3 | 3: **review**, match, dark-mode | 0 | 3: clarification, structured-form, structured-matching (other modes) |
+| Review + form (`careeros-structured-3100`; `E2E_STRUCTURED_FORM=true`): 6 specs | 3 | 3: **structured-form**, match, dark-mode | 0 | 3: clarification, review, structured-matching (other modes) |
+| All three flags (`careeros-matching-3100`; `E2E_STRUCTURED_FORM=true E2E_STRUCTURED_MATCHING=true`): 6 specs | 3 | 2: match, dark-mode | 1: `job-structured-matching` (**BLOCKED**, daily answer limit, §13.4) | 3: clarification, review, structured-form (other modes) |
+
+**Every review-dependent spec now executes in its intended state.** `job-review` executed and passed against a review-on server for the first time in Stage F.
+
+### 13.4 Remaining BLOCKED tests (environment only; none is a code failure)
+
+| Spec | Why | Evidence | To unblock (local only) |
+|---|---|---|---|
+| `job-clarification` (flags off) | The shared local E2E account (`E2E_TEST_EMAIL`) hit the app's **daily answer limit** (30 per rolling 24 hours) from today's repeated browser runs. The page shows "You've added a lot of answers today. Try again tomorrow." | 30 of 30 counted in the window. The spec passed earlier today (F6 run). Its new mode check passes before it reaches the limit | Wait until the window clears (the oldest answer expires 2026-11-16 01:06 UTC; most free up around 04:20–04:50 UTC), then re-run. The limit was **not** bypassed or reset |
+| `job-structured-matching` (all flags) | The same daily limit: the save is refused | Same count. Passed in F5 and in the F6 run | Same |
+| `job-match-assisted` (flags off) | The local E2E account isn't on the local-AI allowlist, so "Rules + AI suggestions" isn't offered | F6 booleans: local AI enabled, model valid, service configured, account not allowed | In the local `.env` only: add the local E2E test account's CareerOS user id to the comma-separated `AI_LOCAL_LLM_ALLOWED_USERS`, start `careeros-ai-service-8010`, re-run. **Not changed by me** |
+
+### 13.5 Regression gates (after the remediation)
+
+| Gate | Result |
+|---|---|
+| TypeScript, `prisma validate`, production build | Clean |
+| Lint | 0 errors, 1 warning (existing) |
+| Unit | **3,895 of 3,895** pass |
+| Integration | **226 of 226** pass, run on its own (223 + 3 new). A first run in parallel with the evals had 2 failures, 1 file that didn't load and 20 skipped, from timeouts under load; the solo run is the result |
+| Parity / sealed guard / parts validate | 343 of 343 / 11 of 11 / pass |
+| Engine basis (2,121 rows) | **Byte-identical** to F5 and to the pre-Stage F baseline `c4ebce9` |
+| Follow-up sets (340 rows) | All four runs exit 0. **0 of 340 rows differ in any rules or result field** vs F5 and vs `c4ebce9` (`rulesOnly`, `reader`, `answerVerdict`, `asked`, `replyOutcome`, `replyIfAsked`, `final`, and the rest). **28 rows differ only in `decision`**, the local model's raw advisory reading (e.g. `self:done:yes` vs `self:done:partly`), which never sets a verdict. Cause: the Ollama restart (below), not the change. Two runs after the restart, with the same code, are identical; the eval imports neither changed file; and the Ollama binary is unchanged. The new `decision` values are the baseline from now on |
+| Schema and migrations | Unchanged |
+
+**An environment incident during this run.** The first follow-up eval timed out (30 minutes) because the local Ollama server stopped answering generation requests (the health check still answered). With your approval I stopped only my own leftover eval processes and restarted the local Ollama app (nothing else), confirmed a generation (9 s), and re-ran the follow-up sets on their own.
+
+### 13.6 Updated readiness
+
+- **Unresolved defects:** none known in Stage F code. O1 (wording) and the limitations L1–L5 stand (§10).
+- **Stage F status:** functionally complete and defect-free as far as tested, but **not fully verified** while the three specs in §13.4 are blocked.
+- **Stage G prerequisites** (replacing §11 items 1–3):
+  1. Re-run the three blocked specs once the environment allows, and record the results.
+  2. A decision on the evaluation-quality policy (R-c).
+  3. A decision on O1, and on whether Stage G covers rules-v21 only or v22 as well.
+  4. Sealed splits still unopened until Stage G starts.
+- **Production blockers** (§12): unchanged, except that D1 is resolved.

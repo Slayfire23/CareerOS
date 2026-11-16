@@ -520,3 +520,22 @@ A read-only audit of F0–F5; no code changed.
 - `job-clarification` and `job-review` scoping depends on `.env` only. A test-only fix is proposed.
 
 Report: docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md.
+
+## Phase 5.3 F6 remediation, D1 and browser-spec scoping - November 15, 2026 (local commit, not pushed)
+
+**D1:** `recheck()` now reads the earlier analysis through the shared F-9 step (`rollbackFindings`). `tests/integration/structured-recheck.integration.ts` (3 tests) fails without the fix and passes with it.
+
+**Browser scoping:** `job-clarification` and `job-review` take the review mode from `E2E_REVIEW`, or from `E2E_STRUCTURED_FORM` / `E2E_STRUCTURED_MATCHING`, falling back to `.env`. They check it against the page; a mismatch fails loudly.
+
+Example: run the review spec against the local `careeros-review-3100` entry:
+
+    E2E_BASE_URL=http://localhost:3100 E2E_REVIEW=true npx playwright test e2e/job-review.spec.ts
+
+**Results:**
+- **Suites:** 3,895 unit and 226 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine:** byte-identical.
+- **Follow-up:** 0 of 340 rows changed in any result field. The local model's advisory `decision` changed on 28 rows after an Ollama restart.
+- **Browser:** the review spec passed against a review-on server.
+- **Blocked:** `job-clarification` and `job-structured-matching` (the test account's daily answer limit), and `job-match-assisted` (the local AI allowlist).
+
+Report: docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md §13.

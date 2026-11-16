@@ -2,12 +2,13 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { parse } from "dotenv";
 import { expect, test } from "@playwright/test";
-import { confirmAction, openPage } from "./support";
+import { confirmAction, declaredMode, expectReviewMode, openPage } from "./support";
 
 // The rules engine only: no AI service or Ollama needs to be running. Local resources, fictional data.
 test("a question about a requirement: yes alone changes nothing, specifics are re-read by the rules, and the source stays visible", async ({ page }) => {
   test.setTimeout(180000);
-  test.skip(parse(readFileSync(".env")).CLARIFICATION_REVIEW_ENABLED === "true", "The exception review replaces these questions; see job-review.spec.ts.");
+  // Basic clarification mode only: the review replaces these questions (job-review.spec.ts). The mode is checked below.
+  test.skip(declaredMode().review, "The exception review replaces these questions; see job-review.spec.ts.");
   const env = parse(readFileSync(".env.playwright.local"));
   if (!env.E2E_TEST_EMAIL || !env.E2E_TEST_PASSWORD) throw new Error("A disposable account is required.");
   const tag = randomUUID().slice(0, 8);
@@ -56,6 +57,7 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+    await expectReviewMode(page, false);
 
     const panel = page.getByRole("region", { name: "Question about requirement 1" });
     await expect(panel.getByText(`Have you done this in a job: “${tool} administration”?`, { exact: false })).toBeVisible();
