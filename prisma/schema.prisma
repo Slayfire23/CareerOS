@@ -26,6 +26,7 @@ model User {
   aiCloudConsentVersion Int?
   aiAnalysisRuns   AiAnalysisRun[]
   jobMatchAnalyses JobMatchAnalysis[]
+  assessmentApprovals AssessmentApproval[]
   clarifications   CandidateClarification[]
   clarificationEvents ClarificationEvent[]
   clarificationFollowUps ClarificationFollowUp[]
@@ -218,6 +219,7 @@ model SavedJob {
  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  aiAnalysisRuns AiAnalysisRun[]
  jobMatchAnalyses JobMatchAnalysis[]
+ assessmentApprovals AssessmentApproval[]
  @@index([userId, createdAt])
  // Lets JobMatchAnalysis reference (job, owner) so the database rejects cross-account links.
  @@unique([id, userId])
@@ -398,8 +400,44 @@ model JobMatchAnalysis {
   savedJob            SavedJob      @relation(fields: [savedJobId, userId], references: [id, userId], onDelete: Cascade)
   /// Composite reference: the run must belong to the same user.
   run                 AiAnalysisRun @relation(fields: [runId, userId], references: [id, userId], onDelete: Cascade)
+  approvals           AssessmentApproval[]
 
   @@index([savedJobId, createdAt])
   @@index([userId, createdAt])
   @@unique([runId, userId])
+  /// Lets an approval reference an analysis of the same job and user (composite foreign key).
+  @@unique([id, savedJobId, userId])
+}
+
+/// V1 (D4): the owner's final approval of one analysis, with a durable snapshot of what was approved. Append-only: a later
+/// approval of the same job is a new row with the next version; earlier rows are never changed. The person's decisions
+/// can only lower what is recorded as claimed; nothing here raises a verdict.
+model AssessmentApproval {
+  id                  String           @id @default(uuid()) @db.Uuid
+  userId              String           @db.Uuid
+  savedJobId          String           @db.Uuid
+  analysisId          String           @db.Uuid
+  /// 1, 2, 3… per job.
+  version             Int
+  approvedAt          DateTime         @default(now()) @db.Timestamptz(3)
+  /// What the approved analysis was computed with, copied so the record stands on its own.
+  methodVersion       String           @db.VarChar(40)
+  requirementsVersion Int
+  profileFingerprint  String           @db.Char(64)
+  /// The analysis' feedback version the person approved (their decisions at that moment).
+  feedbackVersion     Int
+  /// One entry per requirement: text, CareerOS verdict and basis, evidence ids, the person's decision and note, and what
+  /// is recorded as claimed.
+  decisions           Json
+  /// Counts of what is recorded, and of the decisions.
+  summary             Json
+  note                String?          @db.VarChar(1000)
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Composite references: the job and the analysis belong to the same user, and the analysis to that job.
+  savedJob            SavedJob         @relation(fields: [savedJobId, userId], references: [id, userId], onDelete: Cascade)
+  analysis            JobMatchAnalysis @relation(fields: [analysisId, savedJobId, userId], references: [id, savedJobId, userId], onDelete: Cascade)
+
+  @@unique([savedJobId, version])
+  @@index([userId, approvedAt])
+  @@index([analysisId])
 }

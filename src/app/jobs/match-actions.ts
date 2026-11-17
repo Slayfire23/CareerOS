@@ -2,12 +2,13 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { readAiConfig } from "@/lib/ai/config";
-import { NOTE_MAX, runJobAnalysis, saveAnalysisFeedback, setCloudAiConsent, type RunErrorCode } from "@/lib/ai/analysis";
+import { approveAssessment, NOTE_MAX, runJobAnalysis, saveAnalysisFeedback, setCloudAiConsent, type RunErrorCode } from "@/lib/ai/analysis";
 import { savedJobId } from "@/lib/saved-jobs";
 
 export type MatchRunState = { error?: string; message?: string };
 export type FeedbackState = { error?: string; message?: string; version?: number };
 export type ConsentState = { error?: string; message?: string };
+export type ApprovalState = { error?: string; message?: string };
 
 const UNAVAILABLE = "The analysis service is unavailable. The rules engine still works. Your saved requirements are unaffected.";
 const PROVIDER_DOWN = "The AI model is not available right now. The rules engine still works.";
@@ -110,4 +111,30 @@ export async function saveMatchFeedback(_previous: FeedbackState, form: FormData
   }
   revalidatePath("/dashboard", "layout");
   return { message: choice === "clear" ? "Feedback cleared." : "Feedback saved.", version: result.version };
+}
+
+const APPROVAL_ERRORS: Record<string, string> = {
+  not_found: "This analysis is no longer available. Reload and try again.",
+  not_latest: "A newer analysis exists. Review it, then approve that one.",
+  out_of_date: "This analysis is out of date. Run it again, review the result, then approve.",
+  changed: "Your decisions changed in another tab. Reload and review them, then approve.",
+  undecided: "Decide every requirement first: agree, disagree, or answer its question.",
+  empty: "There is nothing to approve yet.",
+  invalid: "Check what you entered and try again. Notes can be up to 1000 characters.",
+  conflict: "Another approval was saved at the same moment. Reload and try again.",
+};
+
+/** V1 (D4): the person's final approval of the reviewed assessment. Approving records it; it never changes a result. */
+export async function approveAssessmentAction(_previous: ApprovalState, form: FormData): Promise<ApprovalState> {
+  const user = await signedInUser();
+  if (!user) return { error: "Your session has expired. Please sign in again." };
+  const jobId = one(form, "jobId");
+  const analysisId = one(form, "analysisId");
+  const feedbackVersion = Number(one(form, "feedbackVersion"));
+  const note = one(form, "note");
+  if (!jobId || !analysisId || !Number.isSafeInteger(feedbackVersion) || feedbackVersion < 0 || note === null) return { error: APPROVAL_ERRORS.invalid };
+  const result = await approveAssessment({ supabaseAuthId: user.id, jobId, analysisId, feedbackVersion, note, config: readAiConfig() });
+  if (!result.ok) return { error: APPROVAL_ERRORS[result.error] };
+  revalidatePath("/dashboard", "layout");
+  return { message: `Assessment approved and saved (version ${result.version}).` };
 }

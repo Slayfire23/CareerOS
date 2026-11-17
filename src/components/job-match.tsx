@@ -1,7 +1,7 @@
 "use client";
 import { useActionState, useId, useState } from "react";
 import {
-  runJobMatch, saveMatchFeedback, setCloudConsent, type ConsentState, type FeedbackState, type MatchRunState,
+  approveAssessmentAction, runJobMatch, saveMatchFeedback, setCloudConsent, type ApprovalState, type ConsentState, type FeedbackState, type MatchRunState,
 } from "@/app/jobs/match-actions";
 import { CLOUD_MODEL_LABEL, CLOUD_NOT_SENT, CLOUD_PROVIDER_NAME, CLOUD_SENT, CLOUD_TEXT_CLEANING, CLOUD_TEXT_LIMITS } from "@/lib/ai/consent";
 
@@ -114,6 +114,28 @@ export function FeedbackForm({ analysisId, version, requirementIndex, current, n
         <p className="hint">Saved with your Agree or Disagree choice. Up to 500 characters.</p>
       </details>
     </fieldset>
+    {state.error && <p role="alert">{state.error}</p>}
+    {state.message && <p role="status">{state.message}</p>}
+  </form>;
+}
+
+/** V1 (D4): approve the reviewed assessment. Only a current analysis with a decision on every requirement can be approved;
+ * the server checks again. Approving records the assessment; it never changes a result. */
+export function ApprovalForm({ jobId, analysisId, feedbackVersion, blocked }: { jobId: string; analysisId: string; feedbackVersion: number; blocked: string | null }) {
+  const id = useId();
+  const [state, action, pending] = useActionState(approveAssessmentAction, {} as ApprovalState);
+  return <form action={action} aria-label="Approve this assessment" className="space-y-3">
+    <input type="hidden" name="jobId" value={jobId} />
+    <input type="hidden" name="analysisId" value={analysisId} />
+    <input type="hidden" name="feedbackVersion" value={feedbackVersion} />
+    <fieldset disabled={pending || !!blocked} className="space-y-3">
+      <div>
+        <label className="label" htmlFor={`${id}-note`}>Note for your records (optional)</label>
+        <textarea id={`${id}-note`} name="note" rows={2} maxLength={1000} className="field" />
+      </div>
+      <button type="submit" className="btn btn-primary">{pending ? "Approving…" : "Approve this assessment"}</button>
+    </fieldset>
+    {blocked && <p className="text-sm text-muted" role="note">{blocked}</p>}
     {state.error && <p role="alert">{state.error}</p>}
     {state.message && <p role="status">{state.message}</p>}
   </form>;

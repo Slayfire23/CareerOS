@@ -24,6 +24,7 @@ import {
 import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
+import { approvalRefusal, assessmentSnapshot, carriedFeedback, type AssessmentSnapshot, type DecisionInputs, type FeedbackEntry as DecisionFeedback } from "@/lib/ai/assessment";
 import { rulesOutOfDate } from "@/lib/ai/method-version";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
@@ -476,6 +477,7 @@ export async function runJobAnalysis(options: {
         requirements: request.requirements,
         findings: validated.findings,
         verdictCounts: validated.verdictCounts,
+        feedback: await carriedDecisions(tx, user.id, job.id, request.requirements, validated.findings),
       },
       select: { id: true },
     });
@@ -549,6 +551,7 @@ async function analyzeWithRules(options: {
         requirements: request.requirements,
         findings: validated.findings,
         verdictCounts: validated.verdictCounts,
+        feedback: await carriedDecisions(tx, run.userId, options.jobId, request.requirements, validated.findings),
         // Stays "unavailable" unless suggestions arrive below, so a crash can't overstate anything.
         aiAssist: assisted ? (sent.length ? "unavailable" : "not_needed") : null,
         // Stage F1/F4 audit: the recognition version a structured answer was read with; absent otherwise.
@@ -617,6 +620,14 @@ export async function reconcileUnresolvedRun(
 
 export type FeedbackChoice = "agree" | "disagree";
 export type FeedbackEntry = { choice: FeedbackChoice; note: string | null; updatedAt: string };
+
+/** V1 (D4): the person's decisions carried to a recalculated analysis, only where the requirement and its result didn't
+ * change (`carriedFeedback`). A changed result needs a new decision. */
+async function carriedDecisions(tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0], userId: string, jobId: string, requirements: MatchRequirement[], findings: Finding[]) {
+  const previous = await tx.jobMatchAnalysis.findFirst({ where: { userId, savedJobId: jobId }, orderBy: { createdAt: "desc" }, select: { requirements: true, findings: true, feedback: true } });
+  if (!previous) return {};
+  return carriedFeedback({ requirements: previous.requirements as MatchRequirement[], findings: previous.findings as Finding[], feedback: previous.feedback as Record<string, unknown> }, { requirements, findings }) as Prisma.InputJsonValue;
+}
 export type FeedbackResult = { ok: true; version: number } | { ok: false; error: "not_found" | "invalid" | "conflict" };
 
 export async function saveAnalysisFeedback(options: {
@@ -819,6 +830,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     return { ...v, findings, verdictCounts };
   };
   let review: ReviewPageData | null = null;
+  const decisionKeys = { answered: new Set<string>(), denied: new Set<string>(), skipped: new Set<string>() };
   // A reply counts only while it's active, and only with the workflow on.
   const followUpRows = await prisma.clarificationFollowUp.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" }, select: { id: true, status: true, savedJobId: true, requirementText: true, detail: true, quoteStart: true, quoteEnd: true, clarification: { select: { detail: true, status: true } } } });
   const followUpOn = config.enabled && !!config.followUp;
@@ -847,6 +859,9 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     // Stage F4: a structured "haven't done this" is a denial only with structured matching on (§6.3).
     const activeDenials = new Set(rows.filter(r => r.status === "ACTIVE" && r.outcome === "DENIED" && r.questionKey && (r.formVersion === 1 || config.structuredMatching === true)).flatMap(keysOf));
     if (current) shown = withheld(maskRevoked(current, revokedEvidence, activeDenials));
+    decisionKeys.answered = answered;
+    decisionKeys.denied = activeDenials;
+    decisionKeys.skipped = skipped;
     const events = await prisma.clarificationEvent.findMany({
       // An answer that's been deleted leaves the audit row, and nothing on this page.
       where: { userId: user.id, savedJobId: job.id, verdictBefore: { not: null }, verdictAfter: { not: null }, clarificationId: { in: rows.map(r => r.id) } },
@@ -878,6 +893,23 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     available: Boolean(config.enabled && config.cloud?.allowedUserIds.has(user.id)),
     consentCurrent: hasCurrentCloudConsent(user),
   };
+  // V1 (D4): every requirement's decision, and the approvals of this job (newest first). Nothing here changes a verdict.
+  const inputs: DecisionInputs = {
+    feedback: (shown?.feedback ?? {}) as Record<string, DecisionFeedback>,
+    answeredKeys: decisionKeys.answered,
+    deniedKeys: decisionKeys.denied,
+    skippedKeys: decisionKeys.skipped,
+    answeredTexts: config.reviewEnabled ? new Set() : new Set(answers.map(a => a.requirementText.trim().toLowerCase())),
+    declinedTexts: config.reviewEnabled ? new Set() : new Set(declined.map(d => d.requirementText.trim().toLowerCase())),
+  };
+  const assessment: AssessmentSnapshot | null = shown ? assessmentSnapshot(shown, inputs, reviewKeyFor) : null;
+  const approvals = await prisma.assessmentApproval.findMany({
+    where: { userId: user.id, savedJobId: job.id },
+    orderBy: { version: "desc" },
+    take: 10,
+    select: { id: true, version: true, approvedAt: true, analysisId: true, methodVersion: true, summary: true, decisions: true, note: true },
+  });
+
   const localAi: LocalAiStatus = {
     available: Boolean(config.enabled && config.localAi?.allowedUserIds.has(user.id)),
     model: config.enabled ? config.localAi?.model ?? null : null,
@@ -888,6 +920,8 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     readiness: jobReadiness(job),
     latest: shown,
     review,
+    assessment,
+    approvals: approvals.map(a => ({ ...a, summary: a.summary as AssessmentSnapshot["summary"], decisions: a.decisions as AssessmentSnapshot["entries"] })),
     history: runs,
     remainingToday: config.enabled ? Math.max(0, config.dailyLimit - countedToday) : 0,
     dailyLimit: config.enabled ? config.dailyLimit : 0,
@@ -898,4 +932,51 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     declined,
     roles: roles.map(r => ({ id: r.id, label: `${r.jobTitle}, ${r.company}` })),
   };
+}
+
+export type ApprovalResult = { ok: true; id: string; version: number } | { ok: false; error: "not_found" | "not_latest" | "out_of_date" | "changed" | "undecided" | "empty" | "invalid" | "conflict" };
+const APPROVAL_NOTE_MAX = 1000;
+
+/** V1 (D4): approves the latest, current, fully decided analysis of one of the person's jobs, storing a durable snapshot.
+ * Append-only: each approval is a new row with the next version. The snapshot records CareerOS's verdicts unchanged and
+ * the person's decisions, which can only lower what is recorded as claimed. */
+export async function approveAssessment(options: { supabaseAuthId: string; jobId: string; analysisId: string; feedbackVersion: number; note: string | null; config: AiConfig; now?: Date }): Promise<ApprovalResult> {
+  if (!/^[0-9a-f-]{36}$/i.test(options.analysisId) || !/^[0-9a-f-]{36}$/i.test(options.jobId) || !Number.isInteger(options.feedbackVersion) || options.feedbackVersion < 0) return { ok: false, error: "invalid" };
+  const note = options.note?.trim() || null;
+  if (note && note.length > APPROVAL_NOTE_MAX) return { ok: false, error: "invalid" };
+  const page = await getAnalysisPageData(options.supabaseAuthId, options.jobId, options.config, options.now);
+  if (!page) return { ok: false, error: "not_found" };
+  const latest = page.latest;
+  const assessment = page.assessment;
+  const refusal = approvalRefusal({
+    latestId: latest?.id ?? null,
+    analysisId: options.analysisId,
+    outOfDate: latest?.outOfDate ?? { requirements: true, profile: true, rules: true },
+    feedbackVersion: latest?.feedbackVersion ?? -1,
+    seenFeedbackVersion: options.feedbackVersion,
+    undecided: assessment?.undecided.length ?? 1,
+    total: assessment?.summary.total ?? 0,
+  });
+  if (refusal) return { ok: false, error: refusal };
+  const user = await ownerOf(options.supabaseAuthId);
+  const stored = await prisma.jobMatchAnalysis.findFirst({ where: { id: options.analysisId, userId: user!.id, savedJobId: page.job.id }, select: { methodVersion: true, requirementsVersion: true, profileFingerprint: true } });
+  if (!user || !stored || !assessment) return { ok: false, error: "not_found" };
+  try {
+    const created = await prisma.$transaction(async tx => {
+      const last = await tx.assessmentApproval.findFirst({ where: { savedJobId: page.job.id, userId: user.id }, orderBy: { version: "desc" }, select: { version: true } });
+      return tx.assessmentApproval.create({
+        data: {
+          userId: user.id, savedJobId: page.job.id, analysisId: options.analysisId, version: (last?.version ?? 0) + 1,
+          methodVersion: stored.methodVersion, requirementsVersion: stored.requirementsVersion, profileFingerprint: stored.profileFingerprint,
+          feedbackVersion: options.feedbackVersion, decisions: assessment.entries as unknown as Prisma.InputJsonValue, summary: assessment.summary as unknown as Prisma.InputJsonValue, note,
+        },
+        select: { id: true, version: true },
+      });
+    });
+    return { ok: true, id: created.id, version: created.version };
+  } catch (error) {
+    // Two approvals at once: the unique (job, version) keeps the history intact; the second one is asked to retry.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return { ok: false, error: "conflict" };
+    throw error;
+  }
 }

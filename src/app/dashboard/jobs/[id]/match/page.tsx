@@ -10,7 +10,8 @@ import { staleReasons } from "@/lib/ai/method-version";
 import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
 import type { AiStatus, RuleBasis, Suggestion, SuggestionKind } from "@/lib/ai/match-validation";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
-import { CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
+import { ApprovalForm, CloudConsentForm, FeedbackForm, RunAnalysisForm } from "@/components/job-match";
+import type { RequirementDecision } from "@/lib/ai/assessment";
 import { answerLanguage, LANGUAGE_NOTE } from "@/lib/ai/answer-language";
 import { ClarificationPanel, EditAnswerForm, TakeBackForm } from "@/components/job-clarification";
 import { FollowUps } from "@/components/job-follow-up";
@@ -24,6 +25,17 @@ import { CLOUD_MODEL_LABEL, CLOUD_PROVIDER_NAME } from "@/lib/ai/consent";
 import { ButtonLink, Card, EmptyState, LoadingBlock, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Requirement analysis" };
+
+/** V1 (D4): the person's decision on a requirement, in plain words. */
+const DECISION_LABEL: Record<RequirementDecision, string> = {
+  confirmed: "Confirmed",
+  not_claimed: "Not claimed: you said this isn't yours",
+  disputed: "Disagreed (the result doesn't change)",
+  answered: "Experience added",
+  denied: "You said you don't have this",
+  skipped: "Skipped",
+};
+const RECORDED_LABEL = (v: Verdict | "not_claimed") => (v === "not_claimed" ? "Not claimed" : VERDICT_STYLE[v].label);
 
 const VERDICT_STYLE: Record<Verdict, { label: string; className: string }> = {
   // Supported stays the verdict; "Self-reported" says where its evidence came from. Everything in a profile
@@ -184,7 +196,7 @@ function ReviewSection({ data, analysisId }: { data: NonNullable<Awaited<ReturnT
   </section>;
 }
 
-function Findings({ analysis, jobId, roles, declined, review }: { analysis: AnalysisView; jobId: string; roles: { id: string; label: string }[]; declined: Set<string>; review: boolean }) {
+function Findings({ analysis, jobId, roles, declined, review, decisions }: { analysis: AnalysisView; jobId: string; roles: { id: string; label: string }[]; declined: Set<string>; review: boolean; decisions: Map<number, RequirementDecision> }) {
   const requirements = new Map(analysis.requirements.map(r => [r.index, r]));
   return <ol className="space-y-3">
     {analysis.findings.map(finding => {
@@ -232,6 +244,7 @@ function Findings({ analysis, jobId, roles, declined, review }: { analysis: Anal
         {!review && <ClarificationPanel analysisId={analysis.id} current={question && !declined.has(question.requirementText) ? question : null} roles={roles} aiNote={aiNote} />}
         {finding.rulesOnlyVerdict && <p className="text-xs text-muted">From the rules alone, before your answer: {VERDICT_STYLE[finding.rulesOnlyVerdict].label}.</p>}
         {!review && question && declined.has(question.requirementText) && <p className="text-xs text-muted">You said you don&apos;t have this, so it won&apos;t be asked again for this job.</p>}
+        <p className="text-sm"><span className="font-medium">Your decision:</span> {decisions.has(finding.requirementIndex) ? DECISION_LABEL[decisions.get(finding.requirementIndex)!] : <span className="text-muted">Not decided yet</span>}</p>
         <FeedbackForm analysisId={analysis.id} version={analysis.feedbackVersion} requirementIndex={finding.requirementIndex}
           current={feedback?.choice ?? null} note={feedback?.note ?? null} />
       </li>;
@@ -311,11 +324,46 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
       <h3 className="text-base font-semibold">Matching results</h3>
       <p className="text-sm text-muted">Decided by CareerOS&apos;s deterministic rules from what you entered in your profile. Nothing here has been independently verified.</p>
       {data.review && <ReviewSection data={data} analysisId={latest.id} />}
-      <Findings analysis={latest} jobId={job.id} roles={data.roles} declined={new Set(data.declined.map(d => d.requirementText))} review={!!data.review} />
+      <p className="text-sm text-muted">For each requirement, Agree confirms the result, and Disagree records that you don&apos;t claim it. Neither changes CareerOS&apos;s result: only what you add, read by the rules after you run the analysis again, can.</p>
+      <Findings analysis={latest} jobId={job.id} roles={data.roles} declined={new Set(data.declined.map(d => d.requirementText))} review={!!data.review}
+        decisions={new Map((data.assessment?.entries ?? []).map(e => [e.index, e.decision]))} />
       {latest.provider === "assisted" && <AiSuggestions analysis={latest} />}
     </section> : <EmptyState title="No analysis yet">
       {ready ? "Run an analysis to compare these requirements with your profile." : "Once the requirements are reviewed, you can run an analysis here."}
     </EmptyState>}
+
+    {latest && data.assessment && (() => {
+      const stale = latest.outOfDate.requirements || latest.outOfDate.profile || latest.outOfDate.rules;
+      const undecided = data.assessment.undecided;
+      const blocked = stale ? "This analysis is out of date. Run it again, review the result, then approve."
+        : undecided.length ? `Decide every requirement first. Still to decide: ${undecided.map(i => `requirement ${i + 1}`).join(", ")}.`
+        : null;
+      return <Card className="space-y-3">
+        <h2 className="text-lg font-semibold">Approve your assessment</h2>
+        <p className="text-sm text-muted">{data.assessment.summary.total - undecided.length} of {data.assessment.summary.total} requirements decided. Approving saves this assessment as you reviewed it: CareerOS&apos;s rules-based results, your decisions and notes, and the evidence each result cites. It doesn&apos;t change any result, and it isn&apos;t a verification.</p>
+        <p className="text-sm text-muted">Added experience? Run the analysis again first, so the rules can read it.</p>
+        <ApprovalForm jobId={job.id} analysisId={latest.id} feedbackVersion={latest.feedbackVersion} blocked={blocked} />
+      </Card>;
+    })()}
+
+    {data.approvals.length > 0 && <Card className="space-y-3">
+      <h2 className="text-lg font-semibold">Approved assessments</h2>
+      <p className="text-sm text-muted">Saved as you approved them. A later approval adds a new version; earlier ones stay as they were.</p>
+      <ul className="divide-y text-sm">
+        {data.approvals.map(a => <li key={a.id} className="space-y-2 py-3">
+          <p><span className="font-medium">Version {a.version}</span> · approved {dateTime.format(a.approvedAt)} · rules engine ({a.methodVersion}){a.analysisId === latest?.id ? " · the latest analysis" : ""}</p>
+          {a.note && <p className="break-words text-muted">Note: {a.note}</p>}
+          <details className="disclosure">
+            <summary>What was approved ({a.summary.total} requirements)</summary>
+            <ul className="mt-2 space-y-1.5">
+              {a.decisions.map(e => <li key={e.index} className="break-words">
+                <span className="font-medium">{e.requirement}</span>: CareerOS {VERDICT_STYLE[e.verdict].label.toLowerCase()}; your decision: {DECISION_LABEL[e.decision].toLowerCase()}; recorded: {RECORDED_LABEL(e.recorded)}.{e.note ? ` Note: ${e.note}` : ""}
+              </li>)}
+            </ul>
+          </details>
+        </li>)}
+      </ul>
+    </Card>}
 
     {!data.review && data.answers.length > 0 && <Card className="space-y-3">
       <h2 className="text-lg font-semibold">Answers you&apos;ve added</h2>
