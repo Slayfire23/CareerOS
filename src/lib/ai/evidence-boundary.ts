@@ -5,6 +5,7 @@ import { answerUntrustedSpans, untrustedEvidenceSpans } from "@/lib/ai/requireme
 import { notAStatement, ownClauses, ownNegative } from "@/lib/ai/rules/profile-fields";
 import { HANDED_OFF, IRREGULAR_PAST, keywordDump, labelledList, opensOnNamedOther, ownSpan, someoneElsesWork, VOCABULARY, WORK_VERB_WORDS } from "@/lib/ai/skill-relations";
 import { hasDirectedText } from "@/lib/ai/untrusted-text";
+import { withdrawnClaims } from "@/lib/ai/withdrawals";
 
 // The one place text is cleared before it can count. Resume and profile text goes through the checks that
 // apply to it; an answer goes through those and more, because it's written in reply to a question and could
@@ -150,10 +151,12 @@ export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "ob
 /** Which text rules read an answer. "v20" (Phase 5.3 Stage 3) adds the clause rules below; it was the matching default
  * from 2026-11-11. "v21" (Phase 5.3 Stage B, R3 F1–F9, DD3 and P1) includes every v20 rule; the owner adopted it as the
  * matching default on 2026-11-13 (Stage C). "v20" and "v19" stay selectable so evaluations and tests can compare. */
-export type TextRules = "v19" | "v20" | "v21" | "v22";
+/** "v21a" (opt-in, post-Stage G Gate A): rules-v21 plus one rule, explicit withdrawals (`@/lib/ai/withdrawals`). Selectable
+ * only; the default stays "v21". */
+export type TextRules = "v19" | "v20" | "v21" | "v21a" | "v22";
 export const DEFAULT_TEXT_RULES: TextRules = "v21";
 /** rules-v22 (Phase 5.3 Stage F0, OPT-IN): rules-v21 plus one rule, "directed at the person". Every v21 rule applies to v22. */
-export const isV21Family = (rules: TextRules | undefined) => rules === "v21" || rules === "v22";
+export const isV21Family = (rules: TextRules | undefined) => rules === "v21" || rules === "v21a" || rules === "v22";
 
 // rules-v22 (F0): "My boss sends me out to install water heaters", "My supervisor has me fix leaks". The grammatical subject
 // is someone else, but the act after "to" (or after "has me") is the person's own. Deliberately narrow: only send, dispatch,
@@ -446,7 +449,7 @@ function readAct(raw: string): { subject: Statement["subject"]; act: Statement["
  * comes back unless the whole answer is plainly English: other answers stay unresolved. */
 export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT_RULES): Statement[] {
   const v22 = rules === "v22";
-  const v21 = rules === "v21" || v22;
+  const v21 = rules === "v21" || rules === "v21a" || v22;
   const v20 = rules === "v20" || v21;
   const readableOf = (text: string) => (v21 ? withoutOthersWorkV21(ownClauses(text, true)) : v20 ? withoutOthersWork(ownClauses(text)) : ownClauses(text));
   const boundsOf = (text: string): { bounded?: string } => {
@@ -476,7 +479,8 @@ export function answerStatements(detail: string, rules: TextRules = DEFAULT_TEXT
   // An answer that takes itself back: "Yes, I weld all the time. Well, I mostly tack things up."
   // What the answer takes back is out; everything else is read. The word before a hand-off verb has to be someone:
   // "...and run them on the analyzer" is still the person.
-  const taken = retractions(detail, v21);
+  // "v21a": an explicit correction the v21 retractions miss ("Actually, that was my partner") withdraws the corrected claim too.
+  const taken = [...retractions(detail, v21), ...(rules === "v21a" ? withdrawnClaims(detail).map(w => w.claim) : [])];
   // F4: after a correction, the person's narrowed claim stays theirs, within its scope (Possible at most).
   const narrowedIn = (whole: string) => v21 && taken.length > 0 && NARROWS.test(whole);
   if (/\bgave\s+up\b|\bquit\s+(?:before|after|halfway|partway)\b|\b(?:not|wasn['’]t|isn['’]t)\s+for\s+me\b|\bstopped\s+(?:there|before|after|at\s+that)\b|\bhired\s+someone\b|\bnever\s+(?:used|touched|opened)\s+it\s+again\b/i.test(detail)) return [];

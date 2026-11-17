@@ -1,7 +1,11 @@
 import { answerStatements, othersParts, type TextRules } from "@/lib/ai/evidence-boundary";
-import { deniesRequirement, specificTerms } from "@/lib/ai/rules/answer-review";
+import { specificTerms } from "@/lib/ai/rules/answer-review";
 import { canonicalTerms } from "@/lib/ai/skill-relations";
 import { qualificationText } from "@/lib/ai/untrusted-text";
+import { withdrawnClaims, type Withdrawal } from "@/lib/ai/withdrawals";
+
+export { withdrawnClaims, withoutWithdrawn, type Withdrawal } from "@/lib/ai/withdrawals";
+export { laterOwnDenial } from "@/lib/ai/rules/answer-review";
 
 // Post-Stage G Gate A (consistency version 2, structured matching v2): ownership guards for a structured answer's explanation. Pure and
 // deterministic. They only ever hold credit back, and only the structured consistency module reads them (under
@@ -20,7 +24,6 @@ import { qualificationText } from "@/lib/ai/untrusted-text";
 
 const stem = (word: string) => word.replace(/(ing|ings|ed|es|s)$/, "").replace(/e$/, "").replace(/(.)\1$/, "$1");
 const SENTENCES = /(?:[^.!?;\n]|\.(?=\d))+/g;
-const FIRST_PERSON = /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu;
 
 /** Stems of the requirement's specific terms: the activity a statement must touch to be about this requirement. */
 function activityStems(requirementText: string): Set<string> {
@@ -75,68 +78,8 @@ export function othersDoActivityOnly(requirementText: string, text: string, rule
 }
 
 // ---- A3 ---------------------------------------------------------------------------------------------------------
-/** A correction opener, after punctuation or a joining "but/and/so". */
-const MARKER = /(?:^|[.!?;,]\s*|\b(?:but|and|so)\s+)(?:actually|in\s+fact|correction|i\s+mean|to\s+be\s+honest|honestly|truthfully|in\s+reality|wait|sorry)\b[,:]?\s*(?:no[,.]?\s+)?([^.!?;\n]*)/giu;
-/** After the marker: the claim goes to someone else. */
-const TO_SOMEONE_ELSE = [
-  /^(?:that|it|this|those)\s+(?:was|is|were|are)\s+(?:actually\s+|really\s+|all\s+)?(?:my|our|the|a|an|his|her|their)\s+[\p{L}-]+/iu,
-  /^(?:that|it|this)\s+(?:was|is)\s+\p{Lu}\p{Ll}+/u,
-  /^(?:my|our|the|his|her|their)\s+[\p{L}-]+(?:\s+[\p{L}-]+)?\s+(?:did|does|do|drove|drives|handled|handles|ran|runs|was\s+the\s+one|is\s+the\s+one|took\s+care|takes\s+care)\b/iu,
-  /^(?:he|she|they|someone\s+else|somebody\s+else)\s+(?:did|does|do|was|is|were|handled|handles|drove|drives|ran|runs)\b/i,
-  /^(?:not\s+me|it\s+wasn['’]t\s+me|that\s+wasn['’]t\s+me)\b/i,
-];
-/** After the marker: the person denies it. Narrowing ("I only", "I just") and additions ("I also") are not denials. */
-const OWN_DENIAL = /^i\s+(?:never|didn['’]t|did\s+not|don['’]t|do\s+not|haven['’]t|have\s+not|wasn['’]t|was\s+not)\b/i;
-/** A change over time is not a withdrawal: "..., but these days my coworker drives it". */
-const OVER_TIME = /^(?:now|nowadays|these\s+days|currently|today|lately|since|recently|later|then|after\s+that)\b/i;
-
-export type Withdrawal = { claim: [number, number]; by: "other_person" | "own_denial" };
-
-/** The own claim just before a position: the rest of its sentence, or the sentence before when the marker opens one. */
-function claimBefore(text: string, at: number): [number, number] | null {
-  const before = text.slice(0, at);
-  const inSentence = before.search(/[^.!?;\n]*$/);
-  if (before.slice(inSentence).replace(/\b(?:but|and|so)\s*$/i, "").trim().length > 0) return [inSentence, at];
-  const prior = before.slice(0, inSentence).replace(/[.!?;\s]+$/, "");
-  if (!prior.trim()) return null;
-  return [prior.search(/[^.!?;\n]*$/), prior.length];
-}
-
-/** A3: the own claims a correction withdraws (to someone else, or denied). Only claims made in the first person count. */
-export function withdrawnClaims(text: string): Withdrawal[] {
-  const out: Withdrawal[] = [];
-  for (const m of text.matchAll(MARKER)) {
-    const rest = m[1].trim();
-    if (!rest || OVER_TIME.test(rest)) continue;
-    const by = TO_SOMEONE_ELSE.some(p => p.test(rest)) ? "other_person" : OWN_DENIAL.test(rest) ? "own_denial" : null;
-    if (!by) continue;
-    const markerAt = m.index + m[0].search(/\p{L}/u);
-    const claim = claimBefore(text, markerAt);
-    if (!claim) continue;
-    if (!FIRST_PERSON.test(text.slice(claim[0], claim[1]))) continue;
-    out.push({ claim, by });
-  }
-  return out;
-}
-
-/** The text with withdrawn claims blanked (positions kept), for re-reading what is left. */
-export function withoutWithdrawn(text: string, withdrawals: Withdrawal[]): string {
-  let out = text;
-  for (const { claim: [s, e] } of withdrawals) out = out.slice(0, s) + " ".repeat(e - s) + out.slice(e);
-  return out;
-}
-
-/** A change over time inside a denial: "I no longer drive it", "I never drove one before this job". Not a contradiction. */
-const DENIAL_OVER_TIME = /\b(?:no\s+longer|any\s*more|before|until|prior\s+to|previously|at\s+first|used\s+to|these\s+days|since|yet)\b/i;
-
-/** A3: a later sentence of the person's own denies the activity an earlier own sentence claimed ("I operate the forklift.
- * I have never operated a forklift myself."). A denial first, or one about a change over time, isn't a contradiction. */
-export function laterOwnDenial(requirementText: string, text: string): boolean {
-  const wanted = activityStems(requirementText);
-  const sentences = text.match(SENTENCES) ?? [];
-  return sentences.some((s, i) => i > 0 && !DENIAL_OVER_TIME.test(s) && deniesRequirement(requirementText, s)
-    && sentences.slice(0, i).some(p => FIRST_PERSON.test(p) && touches(p, wanted) && !deniesRequirement(requirementText, p)));
-}
+// The withdrawal itself is defined once (`@/lib/ai/withdrawals`), shared with the opt-in free-text reader version v21a, and the
+// later own denial lives with the reader library (`laterOwnDenial`), so both answer paths read a correction the same way.
 
 /** A3: corrections the shared reader missed. Where the reader already takes a claim back (its own retractions: "Actually,
  * the shop does the threading, I only fit the pipe"), it also keeps the narrowed claim, so this guard leaves it alone. */

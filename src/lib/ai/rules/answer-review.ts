@@ -10,6 +10,7 @@ import equivalences from "@/lib/ai/rules/data/answer_equivalences.json";
 import type { RawFinding } from "@/lib/ai/rules/engine";
 import { actionMissing, canonicalTerms, containsPhrase, fragmentOfLongerName, GENERIC_TERMS, hasQualificationWords, isKnownTechnology, ordinaryMeaning, otherSense, relation, requiredSkillLevel, withoutPaperworkUses, words } from "@/lib/ai/skill-relations";
 import { qualificationText } from "@/lib/ai/untrusted-text";
+import { withdrawnClaims } from "@/lib/ai/withdrawals";
 
 // Reads a person's answer to a question about one requirement. It only ever adds to what the rules found,
 // and only for an answer that's still active. No model takes part. Everything here is self-reported.
@@ -121,6 +122,22 @@ export function othersDoWholeRequirement(requirementText: string, detail: string
   return whole || handedOff;
 }
 
+/** A change over time inside a denial: "I no longer drive it", "I never drove one before this job". Not a contradiction. */
+const DENIAL_OVER_TIME = /\b(?:no\s+longer|any\s*more|before|until|prior\s+to|previously|at\s+first|used\s+to|these\s+days|since|yet)\b/i;
+const OWN_SENTENCE = /(?:^|[^\p{L}'’])(?:i|we)(?:['’]\p{L}+)?\s/iu;
+const touchesAsked = (text: string, asked: string) => {
+  const wanted = new Set(specificTerms(qualificationText(asked)).flatMap(t => [t, stem(t)]));
+  return wanted.size > 0 && [...canonicalTerms(text)].some(t => wanted.has(t) || wanted.has(stem(t)));
+};
+/** Post-Stage G Gate A (A3): a later own sentence denies the activity an earlier own sentence claimed ("I operate the
+ * forklift. I have never operated a forklift myself."). A denial first, or one about a change over time, isn't a
+ * contradiction. Read by structured matching v2 and by the opt-in reader "v21a"; rules-v21 doesn't use it. */
+export function laterOwnDenial(requirementText: string, text: string): boolean {
+  const sentences = text.match(/(?:[^.!?;\n]|\.(?=\d))+/g) ?? [];
+  return sentences.some((s, i) => i > 0 && !DENIAL_OVER_TIME.test(s) && deniesRequirement(requirementText, s)
+    && sentences.slice(0, i).some(p => OWN_SENTENCE.test(p) && touchesAsked(p, requirementText) && !deniesRequirement(requirementText, p)));
+}
+
 /** rules-v21 (F6, D1): the person's own words deny doing the requirement's work: a sentence of theirs ("I", "we", or
  * opening on the denial: "Never dealt with a union contract") that is negative and names every specific term asked. */
 export function deniesRequirement(requirementText: string, detail: string): boolean {
@@ -210,6 +227,10 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   const othersSaid = isV21Family(options.textRules ?? DEFAULT_TEXT_RULES) ? othersParts(detail, false, true, true, options.textRules === "v22").join(" ") : othersText(detail);
   const others = new Set([...canonicalTerms(othersSaid)].flatMap(t => [t, stem(t)]));
   const shared = specificTerms(text).some(t => others.has(t) || others.has(stem(t)));
+  // "v21a" (opt-in; post-Stage G Gate A): an explicit correction withdraws the corrected activity (the reader leaves it out),
+  // and a later own denial of this activity takes the whole claim back. What's left of the person's own on this activity,
+  // right after a withdrawal of it, is Possible at most: as structured matching v2 reads the same answer.
+  if (options.textRules === "v21a" && laterOwnDenial(requirement.text, detail)) return nothing("withdrawn_by_own_denial");
   const statements = answerStatements(detail, options.textRules).map(s => (shared && s.ownership === "performed" && checksOthersWork(s.text) ? { ...s, ownership: "oversaw" as const } : s));
   if (!statements.length) return nothing("no_own_statement");
   // Limited familiarity can be a lead on a skill or tool, never on experience, proficiency, a level, or time.
@@ -222,7 +243,8 @@ export function readAnswer(requirement: MatchRequirement, detail: string, option
   const all = readings.every(r => r.level === 2) && !shared;
   // An answer can't add time to a job, or show a level the person hasn't rated.
   const capped = asksForTime(text) || requiredSkillLevel(text) !== null || /\bas\s+(?:a|an|the)\b/i.test(text);
-  if (all && !capped) return { verdict: "supported", quote, reason: "stated_work", sourceId: readings[0].sourceId };
+  const afterWithdrawal = options.textRules === "v21a" && withdrawnClaims(detail).some(w => touchesAsked(detail.slice(w.claim[0], w.claim[1]), requirement.text));
+  if (all && !capped && !afterWithdrawal) return { verdict: "supported", quote, reason: "stated_work", sourceId: readings[0].sourceId };
   return { verdict: "possible", quote, reason: all ? "limit_on_what_an_answer_shows" : "part_of_what_is_asked", sourceId: null };
 }
 
