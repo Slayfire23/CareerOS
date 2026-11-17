@@ -15,6 +15,7 @@ import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
 import type { AiConfig } from "@/lib/ai/config";
 import type { MatchRequest } from "@/lib/ai/evidence";
 import { getAnalysisPageData, runJobAnalysis, saveAnalysisFeedback } from "@/lib/ai/analysis";
+import { RULES_VERSION } from "@/lib/ai/rules/engine";
 
 const CONFIG: AiConfig = {
   enabled: true, serviceUrl: "http://127.0.0.1:1", secret: "integration-secret-0123456789abcdefghij", serviceProblem: null, dailyLimit: 20, attemptLimit: 60, cloud: null, cloudReason: "off", localAi: null,
@@ -178,16 +179,53 @@ it("marks the analysis out of date when the reviewed requirements or the profile
   const job = await createReviewedJob(accountA);
   await run(accountA, job.id);
   let page = await getAnalysisPageData(accountA, job.id, CONFIG);
-  expect(page?.latest?.outOfDate).toEqual({ requirements: false, profile: false });
+  expect(page?.latest?.outOfDate).toEqual({ requirements: false, profile: false, rules: false });
   expect(page?.remainingToday).toBe(19);
 
   await addSkill(accountA, "GD&T");
   page = await getAnalysisPageData(accountA, job.id, CONFIG);
-  expect(page?.latest?.outOfDate).toEqual({ requirements: false, profile: true });
+  expect(page?.latest?.outOfDate).toEqual({ requirements: false, profile: true, rules: false });
 
   await prisma.savedJob.update({ where: { id: job.id }, data: { reviewVersion: 2 } });
   page = await getAnalysisPageData(accountA, job.id, CONFIG);
   expect(page?.latest?.outOfDate.requirements).toBe(true);
+});
+
+// Gate A adoption readiness: a result computed under another rules version can't look current (adoption or rollback).
+it("marks the analysis out of date when the rules version changed since it ran, and a new run is current again", async () => {
+  const job = await createReviewedJob(accountA);
+  await run(accountA, job.id);
+  const first = await prisma.jobMatchAnalysis.findFirstOrThrow({ where: { savedJobId: job.id }, orderBy: { createdAt: "desc" } });
+  expect(first.methodVersion).toBe(RULES_VERSION);
+  const rules = async () => (await getAnalysisPageData(accountA, job.id, CONFIG))?.latest?.outOfDate.rules;
+  expect(await rules()).toBe(false);
+  const set = (methodVersion: string) => prisma.jobMatchAnalysis.update({ where: { id: first.id }, data: { methodVersion } });
+
+  // Upgrade: a result stored under the previous rules version.
+  await set("rules-v20");
+  expect(await rules()).toBe(true);
+  await set("assisted/rules-v20+qwen3:8b/assist-v3");
+  expect(await rules()).toBe(true);
+  // Rollback: a result stored under a version adopted later and then rolled back (an opt-in reader made default).
+  await set("rules-v21a");
+  expect(await rules()).toBe(true);
+  // The current rules, plain or assisted: current.
+  await set(`assisted/${RULES_VERSION}+qwen3:8b/assist-v3`);
+  expect(await rules()).toBe(false);
+  // Another method (the AI service's own model or hybrid result) carries no web rules version: not compared.
+  await set("claude-sonnet/prompt-v9");
+  expect(await rules()).toBe(false);
+  await set("hybrid/rules-v5+qwen3:8b/hybrid-v2");
+  expect(await rules()).toBe(false);
+
+  // Nothing is rewritten: the stored stamp stays as it was, and reanalysis writes a new, current row.
+  await set("rules-v20");
+  expect((await prisma.jobMatchAnalysis.findUniqueOrThrow({ where: { id: first.id } })).methodVersion).toBe("rules-v20");
+  await run(accountA, job.id);
+  const page = await getAnalysisPageData(accountA, job.id, CONFIG);
+  expect(page?.latest?.id).not.toBe(first.id);
+  expect(page?.latest?.outOfDate).toEqual({ requirements: false, profile: false, rules: false });
+  expect((await prisma.jobMatchAnalysis.findUniqueOrThrow({ where: { id: first.id } })).methodVersion).toBe("rules-v20");
 });
 
 it("does nothing when the service is not configured", async () => {

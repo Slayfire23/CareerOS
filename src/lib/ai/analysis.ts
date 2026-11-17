@@ -24,6 +24,7 @@ import {
 import { MatchValidationError, validateMatchResponse, type AiAssist, type Finding, type Suggestion } from "@/lib/ai/match-validation";
 import { costMicroUsd, reservationMicroUsd, type TokenUsage } from "@/lib/ai/pricing";
 import { redactForCloud, type RedactionTerms } from "@/lib/ai/redaction";
+import { rulesOutOfDate } from "@/lib/ai/method-version";
 import { RULES_VERSION, rulesResponse } from "@/lib/ai/rules/engine";
 import { applyAnswers, type LinkedAnswer } from "@/lib/ai/rules/answer-review";
 import { applyFollowUps, followUpKind, followUpQuestion, readFollowUpReply, REPLY_NOTES, type LinkedReply } from "@/lib/ai/rules/follow-up-reply";
@@ -680,7 +681,8 @@ export type AnalysisView = {
   aiAssist: AiAssist | null;
   feedback: Record<string, FeedbackEntry>;
   feedbackVersion: number;
-  outOfDate: { requirements: boolean; profile: boolean };
+  /** `rules`: computed with web rules other than the current ones (after an adoption or a rollback). */
+  outOfDate: { requirements: boolean; profile: boolean; rules: boolean };
 };
 
 export type CloudStatus = { available: boolean; consentCurrent: boolean };
@@ -796,6 +798,7 @@ export async function getAnalysisPageData(supabaseAuthId: string, jobId: string,
     outOfDate: {
       requirements: latest.requirementsVersion !== job.reviewVersion || jobReadiness(job) !== "ready",
       profile: currentFingerprint !== latest.profileFingerprint,
+      rules: rulesOutOfDate(latest.methodVersion, RULES_VERSION),
     },
   };
 

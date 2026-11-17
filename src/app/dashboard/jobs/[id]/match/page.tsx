@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { readAiConfig } from "@/lib/ai/config";
 import { getAnalysisPageData, type AnalysisView } from "@/lib/ai/analysis";
+import { staleReasons } from "@/lib/ai/method-version";
 import { VERDICTS, type EvidenceKind, type Verdict } from "@/lib/ai/evidence";
 import type { AiStatus, RuleBasis, Suggestion, SuggestionKind } from "@/lib/ai/match-validation";
 import { requirementsHref, SECTIONS } from "@/lib/sections";
@@ -296,8 +297,8 @@ async function MatchContent({ params }: { params: Promise<{ id: string }> }) {
         <h2 id="latest-heading" className="text-lg font-semibold">Latest analysis</h2>
         <p className="text-sm text-muted">{dateTime.format(latest.createdAt)} · {methodLabel(latest.provider, latest.model)} ({latest.methodVersion})</p>
       </div>
-      {(latest.outOfDate.requirements || latest.outOfDate.profile) && <p role="status" className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface p-3 text-sm">
-        This analysis is out of date: {latest.outOfDate.requirements && latest.outOfDate.profile ? "the requirements and your profile have changed" : latest.outOfDate.requirements ? "the reviewed requirements have changed" : "your profile has changed"} since it ran. Run it again for current results.
+      {(latest.outOfDate.requirements || latest.outOfDate.profile || latest.outOfDate.rules) && <p role="status" className="rounded-lg border border-l-4 border-l-foreground/40 bg-surface p-3 text-sm">
+        This analysis is out of date: {staleReasons(latest.outOfDate)} since it ran. Run it again for current results.
       </p>}
       <ul aria-label="Verdict counts" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {VERDICTS.map(v => <li key={v} className="rounded-xl border bg-surface px-4 py-3">

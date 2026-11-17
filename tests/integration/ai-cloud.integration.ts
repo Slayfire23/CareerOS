@@ -217,7 +217,7 @@ it("sends only redacted, minimized data with a token budget, and confirms the ch
   expect(saved.reservedMicroUsd).toBeGreaterThan(saved.confirmedMicroUsd!);
   expect(saved.analysis).toMatchObject({ provider: "anthropic", model: MODEL, methodVersion: `${MODEL}/prompt-v1` });
   // The stored fingerprint is of the unredacted profile, so the analysis is current.
-  expect((await getAnalysisPageData(accountA, job.id, cloudConfig([await userId(accountA)])))?.latest?.outOfDate).toEqual({ requirements: false, profile: false });
+  expect((await getAnalysisPageData(accountA, job.id, cloudConfig([await userId(accountA)])))?.latest?.outOfDate).toEqual({ requirements: false, profile: false, rules: false });
 });
 
 // --- Billing outcomes ---------------------------------------------------------------------------
