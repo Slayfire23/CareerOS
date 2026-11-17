@@ -60,7 +60,18 @@ Applies only after an **activity withdrawal** (R0 below). Everything else keeps 
 
   An unnamed narrowing ("I mostly tack things up") doesn't establish welding.
 - **Limited equipment activity** (moving, driving or running the named machine) establishes a part of an "operating <equipment>" requirement. It is **never** taken as full operating competence.
-- **Continuation of the withdrawn claim.** A narrower-scope version of the same activity (same verb or object stem: "measure"/"measures"), or the person's stated share inside the correction ("…the mechanics do the work, **I only** fix flats"), still has to satisfy (a). "Fix flats" establishes "repairs" only through an approved repair equivalence.
+- **Continuation of the withdrawn claim.** A narrower-scope version of the same activity (same verb or object stem: "measure"/"measures"), or the person's stated share inside the correction ("…the mechanics do the work, **I only** fix flats"), still has to satisfy (a). "Fix flats" establishes "repairs" only through the post-correction equivalence PE2 below.
+
+**Post-correction equivalences** (owner-approved 2026-11-16). They apply **only inside this rule, after an activity withdrawal**: they are not global matching equivalences, and they don't touch `answer_equivalences.json`, free-text matching or the default reader. Each one establishes **a part** of the asked activity: **Possible with a clarification, never Supported through the equivalence alone**, however often or recently the work is described. Each counts only for a **doing** clause of the person's own (R3); assisting, arranging, documenting, observing, learning and someone else's work never qualify.
+
+| | PE1: data import → partial implementation | PE2: "fix" → "repair" |
+|---|---|---|
+| **When the requirement qualifies** | It concerns implementing a system or software, or migrating data into a system ("implement", "implementation", "rollout", "migrate", "migration" in the requirement) | It asks for repairing equipment, a system or a component ("repair", "repairs", "repairing") |
+| **The person's own clause** | Personally imports, loads or migrates data or records into the system ("I imported the customer records", "I handled the data imports", "I loaded the account data") | Personally fixes the **relevant** thing: the equipment the requirement names; a part of it named in the requirement; the withdrawn claim's own object, by name or pronoun; or a component on an owner-approved component list for that equipment (prospective data, reviewed before any implementation) |
+| **What it establishes** | The implementation (or migration) part: **partial** implementation experience | The repair part, for that equipment |
+| **What it never establishes** | Full system implementation; application architecture or development; deployment ownership; leading the implementation; any other implementation activity the person didn't do | Scheduling or arranging repairs; observing repairs; training or learning about repairs; someone else fixing it; fixing an unrelated item ("the paperwork", "the dock door") |
+| **Verdict** | Possible + "Which parts of the implementation did you do yourself?" | Possible + "Which repairs do you do yourself, and on what?" |
+| **Compound requirement** | Only the implementation part. A lead or configure part the correction withdrew stays missing and is named | Only the repair part. Tune-ups or other parts the correction withdrew stay missing and are named |
 
 **R5 · Verdict after an activity withdrawal.**
 - The checkbox contributes nothing (constraint 6).
@@ -89,16 +100,73 @@ Applies only after an **activity withdrawal** (R0 below). Everything else keeps 
 | fu-038, fu-084, fv-004, fv-043, fv-080, fv-098 | Possible (checkbox) | **Not enough** | not_supported (all 6) | Observing, arranging, assisting, documenting, learning |
 | fu-120 Operating a backhoe | Possible (checkbox) | **Possible + question** (moving the named machine; limited) | not_supported | Decision 2 allows limited equipment activity with a question. **This differs from the label**, which treats operating as digging. Prospective policy; label unchanged |
 | fw-031 Site surveys and measurements | Possible (checkbox) | **Possible** (names "measure") | supported | F4 cap; not a qualification loss |
-| fw-052 Lead software implementations | Possible (checkbox) | **Not enough** unless "data imports" is approved as implementation work, otherwise Possible | possible | Under R4(a) as revised, "data imports" doesn't name the asked activity. **A loss against the label without an approved equivalence.** Owner choice: approve "data migration/imports" as implementation work, or accept |
+| fw-052 Lead software implementations | Possible (checkbox) | **Possible + question** (PE1: implementation part only; the lead part stays withdrawn) | possible | §3.1. Matches the label |
 | fw-068 Facilitate group therapy sessions | Possible (checkbox) | **Possible** (names "group"; facilitating a group session; not therapy) | possible | Needs the object-first clause (R2) |
 | fw-086 Conduct performance reviews | Possible (checkbox) | **Not enough** (documenting) | possible | Decision 3. Documentation is preserved for documentation requirements |
-| fw-103 Bicycle repairs and tune-ups | Possible (checkbox) | **Possible** only if "fix" is an approved repair equivalence, else Not enough | possible | **A loss against the label without the equivalence.** Owner choice |
+| fw-103 Bicycle repairs and tune-ups | Possible (checkbox) | **Possible + question** (PE2: the repairs part; tune-ups missing), provided a flat tire counts as a bicycle component | possible | §3.1. Matches the label |
 | fv-029 Customer de-escalation (reply) | Possible (checkbox) | **Unchanged** (no withdrawal) | supported | Free-text relevance gap → Gate C |
 
+### 3.1 fw-052 and fw-103 under the revised design (opened evidence only; labels unchanged)
+
+**fw-052, "Lead customer-facing software implementations"** (role: Implementation Specialist):
+- **Answer:** "I led the rollout for our three biggest clients last year. To be honest, our senior consultant ran the calls and the plan, I handled the data imports and the training docs."
+- **R0:** an activity withdrawal. "I led the rollout" is the asked activity (leading an implementation), and the correction gives it to a person ("our senior consultant ran the calls and the plan").
+- **R1:** withdrawn: leading (the calls and the plan).
+- **R2/R3:** remaining own clauses:
+  - "I handled the data imports": doing. "Handled" is none of the R3 signals.
+  - "the training docs": documenting. No credit for implementation; kept as documentation work for a documentation requirement.
+- **R4 + PE1:** the requirement concerns implementing software, and the person personally handled the data imports. That establishes the implementation part. The lead part isn't established, because it was withdrawn.
+- **R5:** **Possible + clarification**, never Supported. Leading is named as missing.
+- **Agreement:** the label's `possible` (mixed) and the reply ("she was the lead; I was on the project team") are consistent.
+- **Residual ambiguity:** "handled" could mean coordinating rather than doing. The clarification question exists for that.
+
+**fw-103, "Perform bicycle repairs and tune-ups"** (role: Bike Shop Sales Associate):
+- **Answer:** "I do tune-ups at the shop. Mostly I write them up at the counter and the mechanics in back do the work, I only fix flats."
+- **R0:** an activity withdrawal. Tune-ups go to the mechanics ("the mechanics in back do the work").
+- **R1:** withdrawn: tune-ups.
+- **R2/R3:** remaining own clauses:
+  - "Mostly I write them up at the counter": arranging (writing up orders). No credit.
+  - "I only fix flats": doing.
+- **R4 + PE2:** the requirement asks for bicycle repairs, and "fix" counts as repair. A flat is relevant only as a bicycle component: tire or tube. The requirement doesn't name it, and the withdrawn claim's object is tune-ups. So the case needs the **owner-approved component list** to include flat tires and tubes under bicycle; the reply, "I do the flats and tubes myself, a few a day. Brakes and gears go to the back.", supports that reading. With that entry, the repairs part is established. Tune-ups aren't (withdrawn).
+- **R5:** **Possible + clarification**, never Supported. Tune-ups are named as missing.
+- **Agreement:** the label's `possible` ("flats only") is consistent. Without the component entry, PE2 doesn't apply and the result would be Not enough.
+
+### 3.2 Prospective synthetic examples (written for this design; not used to tune anything)
+
+Each example is a correcting answer, so R0 applies. "Possible" always comes with a clarification and is never Supported.
+
+**PE1: data import → partial implementation**
+
+| # | Requirement | Explanation | Outcome | Why |
+|---|---|---|---|---|
+| 1 | Implement our CRM for new clients | I led the CRM rollout. Actually, our consultant ran the project; I imported the customer records and cleaned up the duplicates myself. | **Possible** | Personally imported data into the system being implemented |
+| 2 | Data migration to Salesforce | I ran the migration. Well, our admin owned the migration plan; I personally mapped and loaded the account data. | **Possible** | Personally migrated data; the plan's ownership isn't claimed |
+| 3 | Implement and configure the payroll system | I set up the payroll system. Actually, IT configured it; I imported the employee records. | **Possible** (the implement part); configure named as missing | Compound: only the implementation part |
+| 4 | Lead software implementations | I led the implementation. To be honest, my manager led it; I imported the client data every week. | **Possible**, never Supported; leading missing | PE1 never establishes leading, and frequency doesn't lift it |
+| 5 | Implement our CRM for new clients | I led the CRM rollout. Actually, the vendor ran it; I scheduled the data import with them. | **Not enough** | Arranging, not importing |
+| 6 | Implement our CRM for new clients | …Actually, the vendor did it; I watched them import the data. | **Not enough** | Observing; someone else imported |
+| 7 | Implement our CRM for new clients | …Actually, our analyst imported the data; I reviewed the reports. | **Not enough** | Someone else's import; reviewing reports is observing |
+| 8 | Software application development | I built the app. Actually, the developers built it; I imported the test data. | **Not enough** | The requirement isn't about implementing or migrating into a system; PE1 never establishes development |
+| 9 | Own production deployments | I owned the deployments. Actually, DevOps owned them; I imported data after each release. | **Not enough** | PE1 never establishes deployment ownership |
+
+**PE2: "fix" → "repair"**
+
+| # | Requirement | Explanation | Outcome | Why |
+|---|---|---|---|---|
+| 10 | Forklift repair | I repair forklifts. Actually, the mechanic does the engines; I fix the hydraulic leaks on the forklifts myself. | **Possible** (engine work named as not done) | Personally fixes the named equipment |
+| 11 | HVAC system repair | I repair the HVAC units. Actually, our contractor handles the compressors; I fix the thermostats and replace the belts myself. | **Possible**, if thermostats and belts are on the approved HVAC component list | A component of the named system |
+| 12 | Bicycle repairs and tune-ups | I do tune-ups. Actually, the mechanics do those; I only fix flat tires. | **Possible** (the repairs part); tune-ups missing | A bicycle component (with the list entry) |
+| 13 | Forklift repair | I repair forklifts. Actually, I schedule the forklift repairs with the vendor. | **Not enough** | Scheduling repairs |
+| 14 | Forklift repair | I repair forklifts. Well, the mechanic fixes them; I watch and hand him tools. | **Not enough** | Someone else fixes; observing and assisting |
+| 15 | Forklift repair | I repair forklifts. Actually, I'm learning how to fix them in a class. | **Not enough** | Learning |
+| 16 | Forklift repair | I repair forklifts. Actually, the mechanic fixes them; I fix the paperwork. | **Not enough** | An unrelated item |
+| 17 | Forklift repair | I repair forklifts. Actually, the mechanic does that; I fix the dock doors. | **Not enough** | An unrelated item (not the forklift or a part of it) |
+| 18 | Bicycle repairs | I fix bikes. Actually, my brother fixes them. | **Not enough** | Fully withdrawn to someone else |
+
 **Remaining open points:**
-1. **fw-052 and fw-103:** decision 1's "names the activity" test needs two approved equivalences ("fix" → repair; data import/migration → implementation work). Without them, both lose Possible against their labels.
-2. **fu-120:** the label differs from decision 2's prospective policy.
-3. **General ASSISTED rule:** the rule table still gives Possible for an "I assisted" *choice* (unrelated to a correction). R3's "assisting gives nothing" applies only after an activity withdrawal. Whether to align the general rule is a separate decision.
+1. **The PE2 component list** (for example, bicycle: flat tire, tube, chain, brake pads; HVAC: thermostat, belt, filter) is prospective data for owner review before implementation. fw-103 depends on it.
+2. **fu-120:** **its existing label (`not_supported`) differs from decision 2's prospective policy** (Possible + question for limited personal operation of the named machine). The label isn't changed. The difference is recorded here and in §3's table.
+3. **The general "I assisted" checkbox question stays separate and unresolved.** The rule table still gives Possible for an "I assisted" *choice* (unrelated to a correction). R3's "assisting gives nothing" applies only after an activity withdrawal.
 
 ## 4. Regression gates
 
@@ -115,5 +183,6 @@ Applies only after an **activity withdrawal** (R0 below). Everything else keeps 
 
 ## 5. Still proposed (not in this change)
 
-- **Adopting `v21a`.** The prerequisites from the decision report are now done: the save-time fix and staleness. A browser spec for a correcting answer is still missing.
+- **Adopting `v21a`.** The prerequisites from the decision report are now done: the save-time fix and staleness. **The correcting-answer browser test is still required before an adoption decision.**
+- **The narrowing-correction rule (R0–R5 with PE1 and PE2) and `v21b`:** design only, not implemented.
 - **Next.js:** a separate patch upgrade to ≥ 16.4.5 for GHSA-mfr8-8qww-v76h (moderate; the affected API isn't used in `src`). No dependency changed here.
