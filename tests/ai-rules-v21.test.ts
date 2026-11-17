@@ -32,8 +32,8 @@ function ticked(requirement: string, explanation: string, rules: TextRules, choi
 }
 
 describe("rules-v21 is the default (adopted 2026-11-13)", () => {
-  it("the default reads exactly as the explicit v21 opt-in, in every reader", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
+  it("the default (v21a since V1, D2) reads these exactly as the explicit v21 opt-in, in every reader: v21a only adds explicit withdrawals", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
     const a = "I maintain and repair camera systems another crew installed.";
     expect(readAnswer(req("Install and maintain security camera systems"), a).verdict).toBe(v21("Install and maintain security camera systems", a));
     expect(readAnswer(req("Install and maintain security camera systems"), a).verdict).not.toBe(v20("Install and maintain security camera systems", a));

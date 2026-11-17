@@ -46,9 +46,9 @@ describe("Stage E isolation still holds in F1", () => {
     for (const f of source.filter(f => f !== "src/lib/ai/rules/structured-answer.ts" && f !== pure)) expect(readFileSync(f, "utf8"), f).not.toMatch(/readStructuredAnswer\s*\(/);
     for (const f of source.filter(f => f !== pure && f !== "src/lib/ai/rules/structured-apply.ts")) expect(readFileSync(f, "utf8"), f).not.toMatch(/structured-matching/);
   });
-  it("rules-v21 and splits-v1.1 stay the versions in use", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
-    expect(RULES_VERSION).toBe("rules-v21");
+  it("the versions in use: the v21a reader (V1, D2) and splits-v1.1", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
+    expect(RULES_VERSION).toBe("rules-v21a");
     expect(RECOGNITION_VERSION).toBe("splits-v1.1");
   });
   it("Stage F4's flag is read in one place only", () => {

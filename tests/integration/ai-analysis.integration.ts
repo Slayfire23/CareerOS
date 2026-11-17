@@ -206,8 +206,10 @@ it("marks the analysis out of date when the rules version changed since it ran, 
   expect(await rules()).toBe(true);
   await set("assisted/rules-v20+qwen3:8b/assist-v3");
   expect(await rules()).toBe(true);
-  // Rollback: a result stored under a version adopted later and then rolled back (an opt-in reader made default).
-  await set("rules-v21a");
+  // Rollback, both ways: the previous default (v21), and a later version than the current one.
+  await set("rules-v21");
+  expect(await rules()).toBe(true);
+  await set("rules-v22");
   expect(await rules()).toBe(true);
   // The current rules, plain or assisted: current.
   await set(`assisted/${RULES_VERSION}+qwen3:8b/assist-v3`);

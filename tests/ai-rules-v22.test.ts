@@ -56,9 +56,9 @@ const SAME: [string, string][] = [
 ];
 
 describe("rules-v22 is opt-in", () => {
-  it("rules-v21 stays the default, and the rules and recognition versions are unchanged", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
-    expect(RULES_VERSION).toBe("rules-v21");
+  it("v22 stays opt-in: the default is v21a since V1 (D2), and the recognition version is unchanged", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
+    expect(RULES_VERSION).toBe("rules-v21a");
     expect(RECOGNITION_VERSION).toBe("splits-v1.1");
     expect(isV21Family("v22")).toBe(true);
     expect(isV21Family("v21")).toBe(true);

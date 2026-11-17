@@ -8,13 +8,13 @@ import { confirmAction, declaredMode, expectReviewMode, openPage } from "./suppo
 
 // Gate A: explicit corrections and retractions in the real workflow. Rules only; local resources; fictional data.
 //
-// Reader mode: the default server reads with rules-v21. A local server can opt into the opt-in reader v21a for a test
-// (launch entry with CAREEROS_TEST_READER=v21a; refused on Vercel and unless the database is local). Declare it with
-// E2E_TEXT_RULES=v21a; the page's method label ("rules-v21a") is checked, so a wrong declaration fails.
-//   Free text (basic clarification mode):     E2E_BASE_URL=… [E2E_TEXT_RULES=v21a] npx playwright test e2e/job-corrections.spec.ts -g "free text"
+// Reader mode: the default server reads with v21a (V1, D2). A local server can select the previous v21 to compare (launch
+// entry with CAREEROS_TEST_READER=v21; refused on Vercel and unless the database is local). Declare it with
+// E2E_TEXT_RULES=v21; the page's method label ("rules-v21") is checked, so a wrong declaration fails.
+//   Free text (basic clarification mode):     E2E_BASE_URL=… [E2E_TEXT_RULES=v21] npx playwright test e2e/job-corrections.spec.ts -g "free text"
 //   Structured (careeros-matching-3100):      E2E_STRUCTURED_FORM=true E2E_STRUCTURED_MATCHING=true … -g "structured"
-//   Staleness, three runs in order:           E2E_STALENESS_PHASE=seed (v21 server), then check (v21a server), then rollback (v21 server)
-const MODE = process.env.E2E_TEXT_RULES ?? "v21";
+//   Staleness, three runs in order:           E2E_STALENESS_PHASE=seed (v21 server), then check (default v21a server), then rollback (v21 server)
+const MODE = process.env.E2E_TEXT_RULES ?? "v21a";
 if (MODE !== "v21" && MODE !== "v21a") throw new Error('E2E_TEXT_RULES must be "v21" or "v21a".');
 const STATE = join(tmpdir(), "careeros-e2e-corrections-staleness.json");
 
@@ -134,7 +134,7 @@ test("free text: corrections withdraw only the corrected activity; history, coll
       await expect(finding(1).getByText(/^Possible/)).toHaveCount(0);
       await expect(finding(1)).not.toContainText(`I operated the ${zorvex} every day`);
     } else {
-      // rules-v21 (the default) still credits this correction from the withdrawn words: the difference v21a closes once adopted.
+      // The previous rules-v21 still credits this correction from the withdrawn words: the difference the v21a default closes.
       await expect(finding(1).getByText("Possible — Self-reported", { exact: true })).toBeVisible();
       await expect(finding(1)).toContainText(`I operated the ${zorvex} every day`);
     }
@@ -214,7 +214,7 @@ test("staleness: a result computed under another rules version is marked out of 
   const notice = page.getByText("This analysis is out of date", { exact: false });
   await signIn(page);
   if (phase === "seed") {
-    expect(MODE, "The seed phase runs on the default (v21) server.").toBe("v21");
+    expect(MODE, "The seed phase runs on a v21 server (CAREEROS_TEST_READER=v21; declare E2E_TEXT_RULES=v21).").toBe("v21");
     const tag = randomUUID().slice(0, 8);
     const company = `Staleness test ${tag}`;
     await addRole(page, company, "Office Assistant");

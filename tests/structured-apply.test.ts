@@ -133,7 +133,7 @@ describe("whole requirements", () => {
     const plumbing = req("Install and repair residential plumbing");
     const text = "My boss sends me out to install water heaters and fix leaks every day.";
     const { findings, applied } = run([plumbing], [row(plumbing, { detail: text, parts: ticked("A58") })]);
-    expect(applied.results[0].match?.versions.reader).toBe("v21");
+    expect(applied.results[0].match?.versions.reader).toBe("v21a"); // the default reader since V1 (D2)
     expect(findings[0].verdict).toBe("insufficient_information");
   });
 });

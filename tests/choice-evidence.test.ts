@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 import { answerCitationIds, buildChoiceEvidence, choiceCitation, choiceEvidenceId, choiceEvidenceIsIntact, choiceStatement, citesLapsedAnswer, type ChoiceEvidence } from "@/lib/ai/choice-evidence";
 import { evidenceFingerprint, quoteIsVerbatim, type Evidence, type MatchRequest, type MatchRequirement } from "@/lib/ai/evidence";
-import { evidenceForAi, evidenceForRules } from "@/lib/ai/evidence-boundary";
+import { DEFAULT_TEXT_RULES, evidenceForAi, evidenceForRules } from "@/lib/ai/evidence-boundary";
 import { RULE_BASES, validateMatchResponse } from "@/lib/ai/match-validation";
 import { RULES_VERSION, rulesResponse, type RawFinding } from "@/lib/ai/rules/engine";
 import { approvedSplitFor } from "@/lib/ai/rules/approved-split-link";
@@ -177,7 +177,7 @@ describe("F2 → F3: what the pure module produces validates exactly as intended
   });
   it("Supported from the person's words: cited as candidate_answer, verbatim, valid", () => {
     const m = matchStructuredAnswer({ requirement, questionKey: questionKey(requirement.text, "work_detail"), finding: { verdict: "insufficient_information", basis: "no_evidence" }, answer: record({ detail: DESCRIPTION }), role: { months: 60, endedMonthsAgo: null }, freeTextCounts: false,
-      text: { readerVersion: "v21", forText: DESCRIPTION, consistency: { state: "consistent", textShowsWork: true }, requirementReading: { verdict: "supported", quote: "I repair rooftop units myself every week" } }, parts: null });
+      text: { readerVersion: DEFAULT_TEXT_RULES, forText: DESCRIPTION, consistency: { state: "consistent", textShowsWork: true }, requirementReading: { verdict: "supported", quote: "I repair rooftop units myself every week" } }, parts: null });
     expect(m).toMatchObject({ verdict: "supported", basis: "candidate_answer" });
     expect(validate(asFinding(m, CHOICE)).findings[0]).toMatchObject({ verdict: "supported", basis: "candidate_answer", evidenceSources: ["candidate_answer"] });
   });

@@ -178,15 +178,15 @@ describe("rules-v21 is the matching default (adopted 2026-11-13); v20 and v19 st
     expect(users).toEqual([]);
     expect(readFileSync("src/lib/ai/analysis.ts", "utf8")).not.toMatch(/assessConsistency|structured-consistency/);
   });
-  it("rules-v21 is the default: only the reader library and the save-time check (D2) name it; nothing in the app picks a version", () => {
-    const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts", "src/lib/ai/rules/clarifications.ts", "src/lib/ai/rules/split-recognition.ts"];
+  it("the v21 family is the default (v21a since V1): only the reader library, the save-time check (D2) and the guarded local test switch name v21; nothing in the app picks a version", () => {
+    const library = ["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/rules/structured-consistency.ts", "src/lib/ai/rules/follow-up-reply.ts", "src/lib/ai/requirement-structure.ts", "src/lib/ai/rules/profile-fields.ts", "src/lib/ai/rules/structured-answer.ts", "src/lib/ai/rules/clarifications.ts", "src/lib/ai/rules/split-recognition.ts", "src/lib/ai/test-reader.ts"]; // test-reader: the guarded local switch that can select the previous "v21"
     // engine.ts names it only in the provenance stamp RULES_VERSION = "rules-v21".
     expect(walk("src").filter(f => !library.includes(f) && /\bv21\b/.test(readFileSync(f, "utf8").replace(/RULES_VERSION = "rules-v21"/, "")))).toEqual([]);
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
+    expect(DEFAULT_TEXT_RULES).toBe("v21a"); // V1 (D2): the v21 family default
   });
-  it("the default reading is v21, and v20 and v19 can still be asked for", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
-    expect(RULES_VERSION).toBe("rules-v21");
+  it("the default reading is v21a since V1 (D2, the v21 family), and v20 and v19 can still be asked for", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
+    expect(RULES_VERSION).toBe("rules-v21a");
     expect(readAnswer(req("Cold calling"), "I hate to make cold calls.").verdict).not.toBe("supported");
     expect(readAnswer(req("Cold calling"), "I hate to make cold calls.", { textRules: "v19" }).verdict).toBe("supported");
     expect(answerStatements("I teach new hires how to operate a forklift.")[0]?.ownership).toBe("taught");

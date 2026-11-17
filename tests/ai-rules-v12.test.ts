@@ -16,7 +16,7 @@ const decide = (text: string, category: MatchRequirement["category"], evidence: 
 };
 
 it("is a new rules version", () => {
-  expect(RULES_VERSION).toBe("rules-v21");
+  expect(RULES_VERSION).toBe("rules-v21a"); // V1 (D2): the provenance stamp follows the default reader
 });
 
 describe("someone else's work", () => {

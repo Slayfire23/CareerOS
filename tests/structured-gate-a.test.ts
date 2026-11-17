@@ -191,9 +191,12 @@ describe("structured and free-text paths", () => {
   it("A1 and A2 texts give no free-text credit either (no bypass by switching)", () => {
     for (const [cat, req, text] of NEGATIVE.filter(([c, r]) => (c === "A1" || c === "A2") && r !== PLUMBING)) expect(free(req, text), `${cat}: ${text}`).toBe("insufficient_information");
   });
-  it("KNOWN GAP (reported, pending a reader-version decision): the shared free-text reader still credits two A3 corrections", () => {
-    expect(free(FORKLIFT, "I operated the forklift every day. Actually, that was my partner; I only did the paperwork.")).toBe("supported");
-    expect(free(FORKLIFT, "I used to operate the forklift, but to be honest it was my brother who drove it.")).toBe("supported");
+  it("the A3 free-text gap is closed by the default v21a reader (V1, D2); the previous v21 still credits both", () => {
+    const corrections = ["I operated the forklift every day. Actually, that was my partner; I only did the paperwork.", "I used to operate the forklift, but to be honest it was my brother who drove it."];
+    for (const text of corrections) {
+      expect(free(FORKLIFT, text)).toBe("insufficient_information");
+      expect(readAnswer({ index: 0, text: FORKLIFT, category: "Skills", priority: "Required" }, text, { textRules: "v21" }).verdict).toBe("supported");
+    }
   });
   it("KNOWN RESIDUAL (reported): the shared reader gives Possible from a word of the requirement's object, so the structured answer keeps it too", () => {
     // "greet patients" shares "patient" with "Patient scheduling"; the scheduling itself is someone else's. The Possible

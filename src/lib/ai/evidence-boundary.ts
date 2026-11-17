@@ -155,9 +155,9 @@ export type Ownership = "performed" | "oversaw" | "requested" | "assisted" | "ob
 /** "v21a" (opt-in, post-Stage G Gate A): rules-v21 plus one rule, explicit withdrawals (`@/lib/ai/withdrawals`). Selectable
  * only; the default stays "v21". */
 export type TextRules = "v19" | "v20" | "v21" | "v21a" | "v22";
-/** The matching default. A local browser-test server may opt into v21a (`localTestReader`: refused on Vercel and unless
- * the database is local); everywhere else it is "v21". */
-export const DEFAULT_TEXT_RULES: TextRules = localTestReader() ?? "v21";
+/** The matching default: "v21a" since V1 (owner decision D2; rules-v21 plus explicit withdrawals). A local browser-test
+ * server may select "v21" to compare (`localTestReader`: refused on Vercel and unless the database is local). */
+export const DEFAULT_TEXT_RULES: TextRules = localTestReader() ?? "v21a";
 /** rules-v22 (Phase 5.3 Stage F0, OPT-IN): rules-v21 plus one rule, "directed at the person". Every v21 rule applies to v22. */
 export const isV21Family = (rules: TextRules | undefined) => rules === "v21" || rules === "v21a" || rules === "v22";
 

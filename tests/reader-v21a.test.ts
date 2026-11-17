@@ -81,20 +81,20 @@ const KEPT: [string, string, string, Level | "*"][] = [
   ["'actually' as emphasis", FORKLIFT, "Actually, I operate the forklift every day on the night shift.", "*"],
 ];
 
-describe("v21a is opt-in: rules-v21 and the production default are unchanged", () => {
-  it("the default stays rules-v21; v21a is one more selectable version in the v21 family", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
-    expect(RULES_VERSION).toBe("rules-v21");
+describe("v21a is the default since V1 (D2); v21 stays selectable", () => {
+  it("v21a is the default since V1 (D2), in the v21 family; v21 stays selectable for comparison", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
+    expect(RULES_VERSION).toBe("rules-v21a");
     expect(isV21Family("v21a")).toBe(true);
   });
-  it("nothing in the application selects v21a: only the reader library and the guarded local test switch name it", () => {
+  it("nothing in the application picks a reader: only the reader library (the default) and the guarded local test switch name v21a", () => {
     const walk = (dir: string): string[] => readdirSync(dir).flatMap(f => (statSync(`${dir}/${f}`).isDirectory() ? walk(`${dir}/${f}`) : [`${dir}/${f}`]));
     const naming = walk("src").filter(f => /\.(?:ts|tsx)$/.test(f) && readFileSync(f, "utf8").includes('"v21a"')).sort();
     // test-reader.ts: the guarded local browser-test switch (refused on Vercel and unless the database is local).
     expect(naming).toEqual(["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/test-reader.ts"]);
     for (const f of walk("src").filter(f => /\.(?:ts|tsx)$/.test(f))) expect(readFileSync(f, "utf8"), f).not.toMatch(/textRules\s*:\s*["']v21a["']|TEXT_RULES\s*=\s*["']v21a["']/);
   });
-  it("under rules-v21 the free-text bypass is still there (unchanged): that's what v21a closes once adopted", () => {
+  it("under the previous rules-v21 (explicit) the free-text bypass is still there: the default v21a closes it", () => {
     expect(freeText(FORKLIFT, WITHDRAWN[0][2], "v21")).toBe("supported");
     expect(freeText(FORKLIFT, WITHDRAWN[1][2], "v21")).toBe("supported");
   });

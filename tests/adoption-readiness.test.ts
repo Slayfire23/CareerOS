@@ -29,9 +29,9 @@ const CORRECTIONS = [
 ] as const;
 
 describe("A: the save-time check follows the v21 family, not the exact name", () => {
-  it("the default is unchanged (rules-v21), and the check passes it through explicitly", () => {
-    expect(DEFAULT_TEXT_RULES).toBe("v21");
-    expect(RULES_VERSION).toBe("rules-v21");
+  it("the default is v21a since V1 (D2), and the check passes the reader through explicitly", () => {
+    expect(DEFAULT_TEXT_RULES).toBe("v21a");
+    expect(RULES_VERSION).toBe("rules-v21a");
     const src = readFileSync("src/lib/ai/rules/clarifications.ts", "utf8");
     expect(src).not.toMatch(/DEFAULT_TEXT_RULES\s*===\s*["']v21["']/);
     expect(src).toContain("answerUntrustedParts(text, isV21Family(reader))");

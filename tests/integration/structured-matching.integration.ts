@@ -14,6 +14,7 @@ import { currentFindings, getAnalysisPageData, runJobAnalysis } from "@/lib/ai/a
 import { confirmWithDetail, correctStructuredAnswer, deleteAnswerPermanently, revokeAnswer, saveStructuredAnswer } from "@/lib/ai/clarification-review";
 import { readAiConfig, type AiConfig } from "@/lib/ai/config";
 import type { Finding } from "@/lib/ai/match-validation";
+import { RULES_VERSION } from "@/lib/ai/rules/engine";
 import { questionKey } from "@/lib/ai/rules/review-queue";
 import { prisma } from "@/lib/db";
 import { ensureCurrentUserProfile } from "@/lib/ensure-profile";
@@ -97,7 +98,7 @@ describe("flag on: structured answers count, through the rule table and the vali
     expect(s.findings[0]).toMatchObject({ verdict: "supported", basis: "candidate_answer", rulesOnlyVerdict: "insufficient_information", evidenceSources: ["candidate_answer"], citations: [{ evidenceId: `experience:${row.id}` }] });
     expect(STRONG).toContain(s.findings[0].citations[0].quote);
     expect(s.recognitionVersion).toBe("splits-v1.1");
-    expect(s.methodVersion).toBe("rules-v21");
+    expect(s.methodVersion).toBe(RULES_VERSION); // rules-v21a since V1 (D2)
     expect(s.verdictCounts).toMatchObject(counted(s.findings));
     const shown = await page(a, matching);
     expect(shown.latest!.outOfDate.profile).toBe(false);
