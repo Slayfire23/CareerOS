@@ -147,7 +147,7 @@ test("free text: corrections withdraw only the corrected activity; history, coll
     // No unrelated qualification lost: the correction on requirement 1 left requirement 2 Supported, after a fresh run too.
     await runAnalysis(page, matchUrl);
     await expect(finding(2).getByText("Supported — Self-reported", { exact: true })).toBeVisible();
-    await expect(page.getByText("This analysis is out of date", { exact: false })).toHaveCount(0);
+    await expect(page.getByRole("status").filter({ hasText: "This analysis is out of date" })).toHaveCount(0);
   } finally {
     await cleanUp(page, company);
   }
@@ -211,7 +211,7 @@ test("staleness: a result computed under another rules version is marked out of 
   test.skip(!phase, "Set E2E_STALENESS_PHASE=seed|check|rollback to run the staleness phases.");
   test.skip(declaredMode().review, "Basic clarification mode only.");
   if (phase !== "seed" && phase !== "check" && phase !== "rollback") throw new Error("E2E_STALENESS_PHASE must be seed, check or rollback.");
-  const notice = page.getByText("This analysis is out of date", { exact: false });
+  const notice = page.getByRole("status").filter({ hasText: "This analysis is out of date" });
   await signIn(page);
   if (phase === "seed") {
     expect(MODE, "The seed phase runs on a v21 server (CAREEROS_TEST_READER=v21; declare E2E_TEXT_RULES=v21).").toBe("v21");

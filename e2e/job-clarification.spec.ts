@@ -76,7 +76,7 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
     await expect(page.getByRole("list").filter({ hasText: "Not enough information" }).first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Answers you've added" })).toHaveCount(0);
-    await expect(page.getByText("This analysis is out of date", { exact: false })).toHaveCount(0);
+    await expect(page.getByRole("status").filter({ hasText: "This analysis is out of date" })).toHaveCount(0);
 
     // A vague answer is turned away.
     await page.getByRole("region", { name: "Question about requirement 1" }).getByRole("button", { name: "Yes, add details", exact: true }).click();
@@ -125,7 +125,7 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
     // Taking the answer back removes the evidence and its stored copies, and the rules no longer support it.
     await page.getByRole("button", { name: new RegExp(`^Delete permanently answer about ${tool}`) }).click();
     await expect(page.getByRole("heading", { name: "Answers you've added" })).toHaveCount(0);
-    await expect(page.getByText("This analysis is out of date", { exact: false })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "This analysis is out of date" })).toBeVisible();
     await page.getByRole("button", { name: "Run analysis again", exact: true }).click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await page.reload();

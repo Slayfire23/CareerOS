@@ -100,7 +100,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
     await expect(jobRow.locator("p").filter({ hasText: "Changed requirement" })).toBeVisible();
     await openPage(page, matchUrl);
     await expect(page.getByText(/The job description changed after your requirement review/)).toBeVisible();
-    await expect(page.getByText(/This analysis is out of date/)).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "This analysis is out of date" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Run analysis again", exact: true })).toBeDisabled();
 
     await pageB.context().clearCookies();
