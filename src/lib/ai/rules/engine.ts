@@ -13,7 +13,7 @@ import {
   type SkillEvidence,
   type Verdict,
 } from "@/lib/ai/evidence";
-import { evidenceForRules } from "@/lib/ai/evidence-boundary";
+import { DEFAULT_TEXT_RULES, evidenceForRules } from "@/lib/ai/evidence-boundary";
 import { requiredMonths, skillLikeExperience, statedYears, unquantifiedTime, type RuleBasis } from "@/lib/ai/match-validation";
 import { listedTerms, parseRequirement, unverifiableField, untrustedEvidenceSpans } from "@/lib/ai/requirement-structure";
 import {
@@ -73,7 +73,8 @@ import { qualificationText, quoteInTrustedText } from "@/lib/ai/untrusted-text";
 //
 // Job and profile text is untrusted: parts directed at an AI or reviewer are removed before matching.
 
-export const RULES_VERSION = "rules-v21";
+/** The rules provenance stamp, from the matching reader version (a local test server that opted into the opt-in reader stamps that). */
+export const RULES_VERSION = `rules-${DEFAULT_TEXT_RULES}`;
 
 export const PROJECT_NOT_EMPLOYMENT = "Projects are not counted as professional employment.";
 const PROJECT_MENTION = "Mentioned in a project, not listed as a skill.";

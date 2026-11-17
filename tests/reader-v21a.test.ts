@@ -87,10 +87,11 @@ describe("v21a is opt-in: rules-v21 and the production default are unchanged", (
     expect(RULES_VERSION).toBe("rules-v21");
     expect(isV21Family("v21a")).toBe(true);
   });
-  it("nothing in the application selects v21a: only the reader library names it", () => {
+  it("nothing in the application selects v21a: only the reader library and the guarded local test switch name it", () => {
     const walk = (dir: string): string[] => readdirSync(dir).flatMap(f => (statSync(`${dir}/${f}`).isDirectory() ? walk(`${dir}/${f}`) : [`${dir}/${f}`]));
     const naming = walk("src").filter(f => /\.(?:ts|tsx)$/.test(f) && readFileSync(f, "utf8").includes('"v21a"')).sort();
-    expect(naming).toEqual(["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts"]);
+    // test-reader.ts: the guarded local browser-test switch (refused on Vercel and unless the database is local).
+    expect(naming).toEqual(["src/lib/ai/evidence-boundary.ts", "src/lib/ai/rules/answer-review.ts", "src/lib/ai/test-reader.ts"]);
     for (const f of walk("src").filter(f => /\.(?:ts|tsx)$/.test(f))) expect(readFileSync(f, "utf8"), f).not.toMatch(/textRules\s*:\s*["']v21a["']|TEXT_RULES\s*=\s*["']v21a["']/);
   });
   it("under rules-v21 the free-text bypass is still there (unchanged): that's what v21a closes once adopted", () => {
