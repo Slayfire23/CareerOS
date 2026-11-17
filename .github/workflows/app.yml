@@ -73,10 +73,11 @@ jobs:
       # Fresh database: proves every migration applies from scratch.
       - name: Apply migrations
         run: npx prisma migrate deploy --config prisma.integration.config.ts
-      - name: Migration replay and drift check (shadow database)
-        run: |
-          PGPASSWORD=local_test_only psql -h 127.0.0.1 -p 5433 -U careeros_test -d careeros_test -c "CREATE DATABASE careeros_shadow"
-          npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code --config prisma.shadow-check.config.ts
+      # Drift check against the database the previous step migrated from scratch. (A shadow-database replay can't be used:
+      # Prisma resets the shadow database, so 20261028010000's original, production-applied statement on
+      # _prisma_migrations has no table there. Its bytes stay exactly as applied; V1 release preparation, D6.)
+      - name: Migration drift check (freshly migrated database)
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code --config prisma.shadow-check.config.ts
       - name: Integration tests
         run: npm run test:integration
 

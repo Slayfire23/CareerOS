@@ -1,6 +1,8 @@
-// Replays every migration into a throwaway shadow database and compares the result with the
-// schema (`npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma
-// --exit-code --config prisma.shadow-check.config.ts`). Local databases only.
+// Drift check: compares a database migrated from scratch with `prisma migrate deploy` (CI's previous step) with the schema
+// (`npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code --config
+// prisma.shadow-check.config.ts`). Local databases only. A shadow-database replay (`--from-migrations`) isn't used: Prisma
+// resets the shadow database, and migration 20261028010000 keeps its original, production-applied statement on
+// _prisma_migrations, which needs that table (V1 release preparation, D6).
 import { defineConfig } from "prisma/config";
 
 const local = "postgresql://careeros_test:local_test_only@127.0.0.1:5433";
