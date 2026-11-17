@@ -53,7 +53,7 @@ test("a question about a requirement: yes alone changes nothing, specifics are r
     await expect(review.getByRole("status")).toContainText("Reviewed requirements saved.");
 
     await openPage(page, requirementsUrl.replace(/\/requirements$/, "/match"));
-    await page.getByRole("button", { name: "Run analysis", exact: true }).click();
+    await page.getByRole("button", { name: /^Run analysis/ }).first().click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);

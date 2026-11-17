@@ -61,7 +61,7 @@ test("rules decide every result, and AI suggestions are kept apart", async ({ pa
     // Mode check: the server must offer AI-assisted analysis to this account, or the run fails here (not after a timeout).
     await expect(runForm.getByRole("radio", { name: /Rules \+ AI suggestions/ }), "Local AI isn't offered to the E2E account on this server: check AI_LOCAL_LLM_ENABLED, AI_LOCAL_LLM_ALLOWED_USERS and the AI service.").toHaveCount(1);
     await runForm.getByRole("radio", { name: /Rules \+ AI suggestions/ }).check();
-    await runForm.getByRole("button", { name: "Run analysis", exact: true }).click();
+    await runForm.getByRole("button", { name: /^Run analysis/ }).first().click();
     await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 150000 });
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);

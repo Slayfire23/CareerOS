@@ -49,7 +49,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
     const matchUrl = requirementsUrl.replace(/\/requirements$/, "/match");
     await openPage(page, matchUrl);
     await expect(page.getByText("Review and save this job's requirements before running an analysis.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Run analysis", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: /^Run analysis/ }).first()).toBeDisabled();
 
     await openPage(page, requirementsUrl);
     const review = page.getByRole("form", { name: "Review job requirements" });
@@ -65,7 +65,7 @@ test("requirement analysis runs on reviewed requirements, cites evidence, record
     await expect(page.getByRole("heading", { level: 1, name: "Requirement analysis" })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Job analysis", exact: true })).toHaveAttribute("aria-current", "page");
 
-    await page.getByRole("button", { name: "Run analysis", exact: true }).click();
+    await page.getByRole("button", { name: /^Run analysis/ }).first().click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);

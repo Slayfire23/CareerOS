@@ -53,7 +53,7 @@ test("analysis works with the AI service and Ollama off", async ({ page }) => {
     const findings = latest.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 3 }) });
 
     // Rules only.
-    await runForm.getByRole("button", { name: "Run analysis", exact: true }).click();
+    await runForm.getByRole("button", { name: /^Run analysis/ }).first().click();
     await expect(runForm.getByRole("status")).toHaveText("Analysis complete.", { timeout: 30000 });
     await page.reload();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);

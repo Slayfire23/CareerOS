@@ -75,7 +75,11 @@ it.each([
   ["matching line endings", CRLF, CRLF],
 ])("saves a review for %s and records the stored text exactly", async (_, stored, submitted) => {
   const job = await createJob(accountA, stored);
-  expect(await saveRequirements({}, reviewForm(job.id, submitted))).toEqual({ message: "Reviewed requirements saved." });
+  // V1: saving the review runs the rules-based analysis automatically (rules provider, no AI service).
+  const AUTO = { message: "Reviewed requirements saved. The rules-based analysis ran: open the analysis to review each result." };
+  expect(await saveRequirements({}, reviewForm(job.id, submitted))).toEqual(AUTO);
+  const analyses = await prisma.jobMatchAnalysis.findMany({ where: { savedJobId: job.id }, select: { provider: true, requirementsVersion: true } });
+  expect(analyses).toEqual([{ provider: "rules", requirementsVersion: 1 }]);
 
   const saved = await load(job.id);
   expect(saved.reviewedDescription).toBe(stored);
@@ -86,7 +90,7 @@ it.each([
   expect(requirementReviewStatus(saved)).toBe("reviewed");
 
   // A second review of the same job works too (the case that previously failed).
-  expect(await saveRequirements({}, reviewForm(job.id, submitted, 1))).toEqual({ message: "Reviewed requirements saved." });
+  expect(await saveRequirements({}, reviewForm(job.id, submitted, 1))).toEqual(AUTO);
   expect((await load(job.id)).reviewVersion).toBe(2);
 });
 

@@ -57,7 +57,7 @@ test("review: questions, a specific answer, the verdict and its source, then rev
 
     const matchUrl = requirementsUrl.replace(/\/requirements$/, "/match");
     await openPage(page, matchUrl);
-    await page.getByRole("button", { name: "Run analysis", exact: true }).click();
+    await page.getByRole("button", { name: /^Run analysis/ }).first().click();
     await expect(page.getByRole("form", { name: "Run requirement analysis" }).getByRole("status")).toHaveText("Analysis complete.");
     await openPage(page, matchUrl);
     await expectReviewMode(page, true);
