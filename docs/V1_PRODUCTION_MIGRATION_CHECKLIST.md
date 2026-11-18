@@ -73,6 +73,20 @@ If either isn't true, stop and tell me.
 
 Both possible starting states were rehearsed (§4): RLS off on the 6 tables, and RLS already on everywhere except `_prisma_migrations`. Enabling RLS on a table that already has it is a no-op.
 
+**Owner's result (Nov 17, read-only):**
+- all 8 existing public tables have RLS on;
+- all 8 are owned by `postgres`;
+- no policies exist.
+
+So the RLS migration changes nothing in production. It only records itself in `_prisma_migrations`.
+
+**Role check, rehearsed locally:**
+1. A plain owner role (no superuser, no `BYPASSRLS`) applied the production history, enabled RLS on all 8 tables, then applied the 10 pending migrations.
+2. Afterwards it owned all 15 tables (none with forced RLS), and could read and update `User` and read the new tables.
+3. A non-owner role with `SELECT` granted saw 0 rows, which is what RLS is meant to do.
+
+**Rule:** new tables belong to the role that runs `migrate deploy`. That role must be the same role the app connects as (`postgres`).
+
 ## 4. Rehearsal from the confirmed production state (done locally)
 
 Tool: `scripts/rehearse-production-migrations.sh`. It uses disposable databases on the local test container, drops them afterwards, and reaches them through `prisma.rehearsal.config.ts`, which only accepts local URLs. It does the following:
