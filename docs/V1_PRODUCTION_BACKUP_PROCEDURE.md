@@ -29,14 +29,7 @@ A disposable database was built in production's state: 10 migrations, RLS on all
 | Comparison | users, jobs, 10 migration rows, RLS on 8 tables, and the migration checksums are identical to the source |
 | Cleanup | both databases dropped |
 
-The PowerShell lines below were also run **verbatim** in Windows PowerShell 5.1 against a local disposable "production" (only the env file differed):
-- load: `loaded`;
-- `pg_dump exit 0`;
-- log: 0 errors, 0 secrets;
-- SHA-256 computed;
-- contents listed;
-- `pg_restore exit 0`;
-- restored counts matched.
+The first version of steps 3 and 5 used inline `sh -c` commands with `--%`. They passed this test, but failed in the owner's window when the escapes were lost in copying. Steps 3 and 5 now call scripts instead, and were re-tested (see the end of step 5).
 
 ## Procedure (Windows PowerShell, from `web/`)
 
@@ -79,54 +72,79 @@ if ($env:PGDUMP_URL) { 'loaded' } else { 'NOT loaded' }
 
 ### 3. Take the dump (read-only for production)
 
+The commands below have **no inner quotes, no escapes and no `--%`**. The dump logic lives in `scripts/backup/*.sh`, which contain no credentials and run inside the container.
+
+**Why:** the first production attempt (Nov 17) used an inline `sh -c "…\"$PGDUMP_URL\"…"` form. When that command was copied, its `\"` escapes were evidently lost. As a result, `pg_dump` received the literal text `$PGDUMP_URL`, and the console printed only `pg_dump`. Nothing was dumped and nothing leaked: the 74-byte log held one error line naming the variable, not its value.
+
+Run from `web/` in the same window as step 2:
+
 ```powershell
-docker run --rm -e PGDUMP_URL -v "${HOME}\careeros-backups:/backup" postgres:17 --% sh -c "pg_dump --dbname=\"$PGDUMP_URL\" --format=custom --schema=public --lock-wait-timeout=30s --verbose --file=/backup/careeros-pre-v1-public.dump 2> /backup/careeros-pre-v1-public.log; echo \"pg_dump exit $?\""
+docker run --rm -e PGDUMP_URL -v "${HOME}\careeros-backups:/backup" -v "${PWD}\scripts\backup:/tools:ro" postgres:17 sh /tools/dump-public.sh
 ```
 
-**Paste this as its own command.** `--%` (PowerShell's stop-parsing token) hands the rest of the line to Docker unchanged. That is what makes Windows PowerShell 5.1 pass the inner quotes correctly, but it also swallows anything after it on the same line. `$PGDUMP_URL` is expanded inside the container, never by PowerShell.
+The script:
+- **Refuses to run** if `PGDUMP_URL` isn't set or isn't a postgres URL, or if a dump or log already exists in the folder (it never overwrites).
+- **Prints only these lines:**
+  - `pg_dump exit <n>`;
+  - the dump size;
+  - the number of error lines in the log;
+  - whether the log is clean of credentials. If the log ever contains the URL or the password, the script deletes it and says so.
 
+**Behaviour:**
 - **Read-only:** `pg_dump` only reads. It takes a consistent snapshot, and its shared locks don't block the app's reads or writes.
-- **If it waits on a lock:** `--lock-wait-timeout` makes it give up after 30 s instead of waiting. Simply re-run it.
-- **Required result:** `pg_dump exit 0`.
+- **Lock waits:** `--lock-wait-timeout=30s` makes it give up instead of waiting forever.
+- **Required result:** `pg_dump exit 0`, `log error lines: 0`, `log credential check: clean`.
 
 ### 4. Clear the connection from this window
 
 ```powershell
 Remove-Item Env:PGDUMP_URL
+if ($env:PGDUMP_URL) { 'STILL SET' } else { 'cleared' }
 ```
 
 ### 5. Verify the backup
 
-1. **Errors and secrets in the log.** Both counts must be 0:
+1. **Contents and fingerprint.** This reads the dump only:
    ```powershell
-   (Select-String -Path "$HOME\careeros-backups\careeros-pre-v1-public.log" -Pattern 'error' -SimpleMatch).Count
-   (Select-String -Path "$HOME\careeros-backups\careeros-pre-v1-public.log" -Pattern 'postgresql://','password=' -SimpleMatch).Count
+   docker run --rm -v "${HOME}\careeros-backups:/backup" -v "${PWD}\scripts\backup:/tools:ro" postgres:17 sh /tools/verify-dump.sh
    ```
-2. **Size and fingerprint.** Write both down:
+   Expected:
+   - `TABLE: 8  TABLE DATA: 8  ROW SECURITY: 8  _prisma_migrations data: 1`;
+   - `contents: PASS`.
+
+   Write down the `SHA-256` it prints. Cross-check it in Windows (the two values must match, ignoring case):
    ```powershell
-   Get-Item "$HOME\careeros-backups\careeros-pre-v1-public.dump" | Select-Object Name, Length, LastWriteTime
-   Get-FileHash -Algorithm SHA256 "$HOME\careeros-backups\careeros-pre-v1-public.dump"
+   (Get-FileHash -Algorithm SHA256 "$HOME\careeros-backups\careeros-pre-v1-public.dump").Hash.ToLower()
    ```
-3. **Contents.** Expected: `TABLE: 8`, `TABLE DATA: 8`, `ROW SECURITY: 8`, `_prisma_migrations data: 1`.
+2. **Restore test into a disposable *local* database, compared with production.** Pass step 0's 8 counts in this order: User, CareerProfile, TechnicalSkill, ProfessionalExperience, Education, ProjectAccomplishment, SavedJob, `_prisma_migrations`. For the Nov 17 baseline:
    ```powershell
-   docker run --rm -v "${HOME}\careeros-backups:/backup" postgres:17 --% sh -c "pg_restore --list /backup/careeros-pre-v1-public.dump > /tmp/toc; echo TABLE: $(grep -c ' TABLE public ' /tmp/toc) TABLE DATA: $(grep -c ' TABLE DATA public ' /tmp/toc) ROW SECURITY: $(grep -c ' ROW SECURITY public ' /tmp/toc) _prisma_migrations data: $(grep -c 'TABLE DATA public _prisma_migrations' /tmp/toc)"
+   docker run --rm -v "${HOME}\careeros-backups:/backup" -v "${PWD}\scripts\backup:/tools:ro" postgres:17 sh /tools/restore-test.sh 3 3 46 4 1 0 0 10
    ```
-4. **Restore test into a disposable *local* database.** This proves the file restores, before you depend on it. It uses the local test container `careeros-test-db` and its local-only credentials, and never touches production.
-   ```powershell
-   docker exec careeros-test-db psql -U careeros_test -d careeros_test -c "DROP DATABASE IF EXISTS v1_backup_check WITH (FORCE)" -c "CREATE DATABASE v1_backup_check"
-   docker exec careeros-test-db psql -U careeros_test -d v1_backup_check -c "DROP SCHEMA public CASCADE"
-   docker run --rm -v "${HOME}\careeros-backups:/backup" postgres:17 --% sh -c "pg_restore --no-owner --no-privileges --exit-on-error --dbname=postgresql://careeros_test:local_test_only@host.docker.internal:5433/v1_backup_check /backup/careeros-pre-v1-public.dump; echo pg_restore exit $?"
-   ```
-   Expected: `pg_restore exit 0`. (`--no-owner --no-privileges` only skip Supabase's roles, which the local container doesn't have. The dump itself keeps them.)
-5. **Compare the restore with production.** Run the same counts, plus the checksum check, against the restored copy:
-   ```powershell
-   docker exec careeros-test-db psql -U careeros_test -d v1_backup_check -c "select 'User' t, count(*) from \""User\"" union all select 'CareerProfile', count(*) from \""CareerProfile\"" union all select 'TechnicalSkill', count(*) from \""TechnicalSkill\"" union all select 'ProfessionalExperience', count(*) from \""ProfessionalExperience\"" union all select 'Education', count(*) from \""Education\"" union all select 'ProjectAccomplishment', count(*) from \""ProjectAccomplishment\"" union all select 'SavedJob', count(*) from \""SavedJob\"" union all select '_prisma_migrations', count(*) from \""_prisma_migrations\"""
-   ```
-   Every count must equal step 0's production result. (Rows written to production between steps 0 and 3 can make the live counts slightly higher. Re-run step 0's query if a count differs, and check it isn't lower.)
-6. **Delete the local restore.** It holds real user data:
-   ```powershell
-   docker exec careeros-test-db psql -U careeros_test -d careeros_test -c "DROP DATABASE IF EXISTS v1_backup_check WITH (FORCE)"
-   ```
+   What the script does:
+   - restores into `v1_backup_check` on the local test container (`careeros-test-db`, local-only credentials), never production;
+   - compares every count;
+   - checks RLS on 8 of 8 tables, and that the migration history matches the repository;
+   - **always deletes the restored copy**, even on failure, because it holds real user data.
+
+   Expected:
+   - `pg_restore exit 0`;
+   - every row `ok`;
+   - `RLS: 8 of 8 tables`;
+   - `migration history matches the repository: yes`;
+   - `restore test: PASS`;
+   - `restored copy deleted: yes`.
+
+   (`--no-owner --no-privileges` only skip Supabase's roles, which the local container doesn't have; the dump itself keeps them.) If a count is higher in the restore than in step 0, production gained rows in between: re-run step 0's query and use the new counts. A lower count is a failure.
+
+**Tested (Nov 17, locally):** these exact lines were run in Windows PowerShell 5.1, typed in as an interactive session.
+- **Target:** a local production-state copy (10 migrations, RLS on 8 of 8). It was owned by a role whose password was ``Tr!ck$y;&*`"pw%|<>(x)``.
+- **Results:**
+  - `pg_dump exit 0`, log clean;
+  - the overwrite guard refused a second run;
+  - `contents: PASS`, and the SHA-256 matched `Get-FileHash`;
+  - `restore test: PASS`, and the restored copy was deleted;
+  - a wrong count gave `restore test: FAIL`.
+- **Copy damage:** the same lines with **every double quote removed** gave the same results.
 
 ### 6. Optional: a full Supabase project dump as well
 
