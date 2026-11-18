@@ -136,6 +136,30 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 4. Store one encrypted copy off-machine, and record the hash and counts here.
 5. Keep it until V1 has run cleanly for at least a week.
 
+### Backup record (Nov 17, 2026, taken and verified by the owner)
+
+| Item | Value |
+|---|---|
+| Scope | `public` schema only (all 8 CareerOS tables, data, RLS settings, grants, `_prisma_migrations`). **Not** a full Supabase project backup: `auth`, `storage` and other Supabase schemas aren't included |
+| Server | PostgreSQL 17.11; dumped with `pg_dump` 17.11 (`postgres:17` image) over the session pooler (5432), role `postgres` |
+| File | `$HOME\careeros-backups\careeros-pre-v1-public.dump` (on the owner's PC), **35,978 bytes** |
+| SHA-256 | `299bed70540ec99615399d18a23d0917bf71b8aed369c0ef50006f98b55d4d82` (identical in `sha256sum` and `Get-FileHash`) |
+| Production row counts at backup | User 3, CareerProfile 3, TechnicalSkill 46, ProfessionalExperience 4, Education 1, ProjectAccomplishment 0, SavedJob 0, `_prisma_migrations` 10 |
+| Dump | `pg_dump exit 0`; log: 0 error lines, no credentials |
+| Contents | 8 tables, 8 table data entries, 8 RLS entries, `_prisma_migrations` data: PASS |
+| Restore test | Into a disposable local database: `pg_restore exit 0`; all 8 counts equal production; RLS 8 of 8; migration history matches the repository: PASS. The restored copy was deleted (independently confirmed: 0 databases) |
+| Cleanup | No leftover containers or disposable databases; a `CHECKPOINT` was run on the test container; the connection variable was cleared; the log holds no credentials |
+| Folder access | Inheritance disabled on the backup folder, and a third-party app's local group removed (the original ACL was saved as `careeros-backups-acl-before.txt`). Only `SYSTEM`, `Administrators` and the owner have access |
+| **Off-machine encrypted copy** | **Intentionally skipped by the owner (Nov 17).** The backup exists **only on the owner's PC**, unencrypted, in a folder restricted to the owner's account |
+| First attempt | Failed safely: the copied inline command lost its quote escapes, so `pg_dump` received the variable's name instead of its value. No dump was made, and no credential was exposed. The procedure now uses `scripts/backup/*.sh` |
+
+**What the skipped copy means:**
+- The backup is lost if the PC's disk fails, the PC is lost, or the file is deleted.
+- **Migration failure needs no restore.** Each Prisma migration rolls back on its own, and the database is remote, so a failed migration doesn't depend on this file.
+- **What does depend on it:** a full restore, which is only needed if the database is left inconsistent. That's the case where the single copy matters.
+- **Recommendation:** migrate soon after this backup. Before migrating, re-run step 0's count query: if production gained rows since the backup, take a fresh dump. Keep the file until V1 has run cleanly for a week.
+- **Step 7 can be done any time later.** The procedure's GnuPG (AES-256) method is free, already installed with Git for Windows, and was tested locally.
+
 **Recovery:**
 - **A single migration fails.** Prisma runs each migration in its own transaction, so the failed one rolls back cleanly and the ones before it stay applied.
   1. Look in `_prisma_migrations` for the row with `finished_at` null.
@@ -145,12 +169,12 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 
   No restore is needed. Never edit an applied migration file.
 - **Code problem after the merge.** Use Vercel's instant rollback to the previous deployment. The migrations are additive, so the old code ignores the new tables and columns. Don't drop anything in a hurry. Data written by V1 stays in place, invisible to the old code.
-- **Full restore** (only if the database is left inconsistent): during a maintenance window, `pg_restore --clean --if-exists` from `careeros-pre-v1.dump`. This discards everything written since the dump.
+- **Full restore** (only if the database is left inconsistent): during a maintenance window, restore `careeros-pre-v1-public.dump`. This discards everything written since the dump. **Not rehearsed yet.** A plain `pg_restore --clean --if-exists` is probably not enough once the V1 migrations have run: the new tables have foreign keys to `User` and `SavedJob`, so dropping those tables would fail until the new tables are dropped first. A tested rollback script should exist **before** migrating.
 
 ## 6. Production order (owner, after approval)
 
-1. **Read-only checks:** the §1 checksums and the §3 RLS queries. Stop on any surprise.
-2. **Back up** (§5), and verify the dump.
+1. **Read-only checks:** the §1 checksums and the §3 RLS queries. Stop on any surprise. **Done Nov 17: all passed.**
+2. **Back up** (§5), and verify the dump. **Done Nov 17: verified and restore-tested; local copy only (off-machine copy skipped).**
 3. **Apply migrations** from your machine, using the repository's production config. Its connection was checked locally on Nov 17 (no credentials shown): role `postgres`, the Supavisor **session** pooler on port 5432. Session mode supports migrations; the transaction pooler (6543) must not be used.
    ```bash
    npx prisma migrate deploy --config prisma.production.config.ts
@@ -161,7 +185,10 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
    - no table lacks RLS: `select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where nspname='public' and relkind='r' and not relrowsecurity;` returns no rows;
    - the live (still `main`) site works: sign in, open the profile and saved jobs.
 5. **Set the Vercel production environment variables** (§7).
-6. **Merge PR #4.** Vercel deploys `main`. The code expects the migrations to be applied already.
+6. **Push the branch, then merge PR #4.**
+   - The 64 local commits (D2–D6, V1, the migration and backup work) aren't on GitHub yet, so PR #4 doesn't contain them until the branch is pushed.
+   - After pushing, CI must pass on the PR before merging. CI includes the drift check on a freshly migrated database.
+   - Merging makes Vercel deploy `main`. The code expects the migrations to be applied already.
 7. **Smoke test** with a disposable account: add a posting → review requirements (the analysis runs) → review page → answer, deny, skip, Agree, Disagree → approve → reload. Then confirm another account sees nothing.
 8. **Watch** Vercel function errors for an hour.
 
