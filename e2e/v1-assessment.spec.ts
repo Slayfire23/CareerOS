@@ -23,6 +23,7 @@ test("V1: posting → automatic rules analysis → review, correct, reject, deny
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard\/?$/);
 
+  let matchUrl: string | null = null;
   try {
     await openPage(page, "/dashboard/experience");
     await page.locator("summary", { hasText: "Add experience" }).click();
@@ -53,7 +54,7 @@ test("V1: posting → automatic rules analysis → review, correct, reject, deny
     await expect(review.getByRole("status")).toContainText("Reviewed requirements saved. The rules-based analysis ran");
 
     // 4. One review page: every requirement, its rules-based verdict and status, without clicking Run.
-    const matchUrl = requirementsUrl.replace(/\/requirements$/, "/match");
+    matchUrl = requirementsUrl.replace(/\/requirements$/, "/match");
     await openPage(page, matchUrl);
     await expectReviewMode(page, true);
     const latest = page.getByRole("region", { name: "Latest analysis" });
@@ -155,6 +156,20 @@ test("V1: posting → automatic rules analysis → review, correct, reject, deny
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
     await page.setViewportSize({ width: 1280, height: 800 });
   } finally {
+    // Answers belong to the profile, not the job: a denial ("I don't have this") outlives the job, so delete this run's
+    // answers first, through the app (the deletion is recorded and counts like any other).
+    if (matchUrl) {
+      for (const r of [quux, zorvex, kestrel, plinth]) {
+        // A fresh page each time, so only this answer's confirmation is on it.
+        await openPage(page, matchUrl);
+        const remove = page.getByRole("button", { name: new RegExp(`^Delete permanently answer about ${r}`) });
+        if (await remove.count()) {
+          await remove.first().click();
+          await page.getByRole("button", { name: "Yes, delete permanently", exact: true }).first().click();
+          await expect(remove).toHaveCount(0);
+        }
+      }
+    }
     await openPage(page, "/dashboard/jobs");
     const jobRow = page.getByRole("listitem").filter({ hasText: company });
     if (await jobRow.count()) await confirmAction(jobRow.getByRole("button", { name: /^Remove / }));
