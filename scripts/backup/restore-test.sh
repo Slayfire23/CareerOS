@@ -5,7 +5,9 @@
 #   docker run --rm -v <backup folder>:/backup -v <this folder>:/tools:ro postgres:17 sh /tools/restore-test.sh <8 counts>
 # Counts, in order: User CareerProfile TechnicalSkill ProfessionalExperience Education ProjectAccomplishment SavedJob _prisma_migrations
 set -u
-L=postgresql://careeros_test:local_test_only@host.docker.internal:5433
+# Local test container only (its password is the documented local-only one); passed via PGPASSWORD, not in the URL.
+export PGPASSWORD=local_test_only
+L=postgresql://careeros_test@host.docker.internal:5433
 DB=v1_backup_check
 F=/backup/careeros-pre-v1-public.dump
 # md5 of the 10 applied migrations' names and checksums as they are in the repository (production matched all 10).
