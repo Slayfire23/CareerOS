@@ -90,8 +90,8 @@ The restored `20261028010000` is byte-identical to `main`.
 
 ## 5. Production migration risks (see `V1_PRODUCTION_MIGRATION_CHECKLIST.md`)
 
-1. Production's migration state is unknown (no access by design). Verify `_prisma_migrations` first.
-2. The RLS migration's recorded checksum must match the restored original.
+1. **Baseline confirmed by the owner (read-only, Nov 17):** production has 10 migrations, through `20261026010000_job_requirements`. **10 are pending**, starting with `20261028010000_enable_row_level_security`. They were rehearsed locally from that state: no drift, and compatible with the deployed code.
+2. The RLS migration enables RLS with no policies on 6 more tables. That's safe only if the app's role owns the tables; `SavedJob` already shows this in production. The owner confirms it read-only first.
 3. **Migrate before merging:** Vercel deploys `main` and doesn't run migrations.
 4. No point-in-time recovery on the free tier, so take a manual dump first.
 5. A Vercel rollback doesn't reverse migrations. They're additive, so the old code tolerates them.
@@ -99,8 +99,8 @@ The restored `20261028010000` is byte-identical to `main`.
 ## 6. Actions that need the owner's approval before deployment
 
 1. Wait for the answer limit to free, then let me re-run the pending browser specs.
-2. Give me a **schema-only** production dump (plus `_prisma_migrations`) for a local rehearsal, or run it yourself.
-3. Take a full production backup (`pg_dump`).
+2. Run the read-only checksum and RLS checks (checklist §1 and §3). Optionally, give me a **schema-only** dump for a rehearsal against the real schema.
+3. Take a full production backup (`pg_dump`) and verify it (checklist §5).
 4. Run `prisma migrate deploy` against production (`prisma.production.config.ts`; you hold `.env.hosted-production`).
 5. Set the Vercel production environment: `CLARIFICATION_REVIEW_ENABLED=true`; AI variables unset; `CAREEROS_TEST_READER` never set.
 6. Merge PR #4, which deploys.
