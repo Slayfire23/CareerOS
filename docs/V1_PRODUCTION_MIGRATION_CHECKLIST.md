@@ -175,6 +175,7 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 
 1. **Read-only checks:** the §1 checksums and the §3 RLS queries. Stop on any surprise. **Done Nov 17: all passed.**
 2. **Back up** (§5), and verify the dump. **Done Nov 17: verified and restore-tested; local copy only (off-machine copy skipped).**
+3. **Right before migrating: compare production with the backup.** Run `scripts/backup/compare-with-backup.sql` in the Supabase SQL editor. It is read-only; its first line only pins the session output format. It checks every table's count **and** a content fingerprint (md5 of all rows), so it catches edits that keep the count the same, and it checks that no V1 table exists yet. It must end with `OVERALL | MATCH`. On any `STOP`, take a new verified backup first. Tested locally: unchanged → MATCH; one edited row → CHANGED; a new user or a V1 table → STOP; the result is the same under different session time zones and date styles.
 3. **Apply migrations** from your machine, using the repository's production config. Its connection was checked locally on Nov 17 (no credentials shown): role `postgres`, the Supavisor **session** pooler on port 5432. Session mode supports migrations; the transaction pooler (6543) must not be used.
    ```bash
    npx prisma migrate deploy --config prisma.production.config.ts
