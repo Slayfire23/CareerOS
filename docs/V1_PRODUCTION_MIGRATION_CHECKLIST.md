@@ -32,7 +32,7 @@ Prisma 7's `migrate deploy` doesn't refuse to run when a recorded checksum diffe
 
 | # | Migration | What it does to the database |
 |---|---|---|
-| 1 | `20261028010000_enable_row_level_security` | Enables RLS on `User`, `CareerProfile`, `TechnicalSkill`, `ProfessionalExperience`, `Education`, `ProjectAccomplishment`, `SavedJob` and `_prisma_migrations`. No policies. Bytes identical to `main` (checksum `4b45d5c9bc41f96e42d31839d6c9c5f3eafd54836a6012937d7984cc44cf45db`) |
+| 1 | `20261028010000_enable_row_level_security` | Enables RLS on `User`, `CareerProfile`, `TechnicalSkill`, `ProfessionalExperience`, `Education`, `ProjectAccomplishment`, `SavedJob` and `_prisma_migrations`. No policies. Bytes identical to `main` (checksum `41455d3cac6d20ab5886c441252ca83f7c1c48deef7bb0642a1d0baa1544e7de`; an earlier version of this checklist gave a wrong value) |
 | 2 | `20261030010000_ai_analysis` | New `AiAnalysisRun` and `JobMatchAnalysis`. Adds two **nullable** columns to `User` (`aiCloudConsentAt`, `aiCloudConsentVersion`) with a check that allows null. Adds a unique index `SavedJob(id, userId)` |
 | 3 | `20261031010000_ai_cost_ledger` | Billing columns on runs |
 | 4 | `20261102010000_ai_suggestions` | `aiSuggestions` and `aiAssist` on analyses |
@@ -155,19 +155,20 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 
 **What the skipped copy means:**
 - The backup is lost if the PC's disk fails, the PC is lost, or the file is deleted.
-- **Migration failure needs no restore.** Each Prisma migration rolls back on its own, and the database is remote, so a failed migration doesn't depend on this file.
+- **A failed migration may need this file.** Prisma 7 does **not** run a migration in a transaction (tested on Nov 17): a migration that fails partway leaves its earlier statements applied. The full rollback (rehearsed from exactly that state) needs this backup.
 - **What does depend on it:** a full restore, which is only needed if the database is left inconsistent. That's the case where the single copy matters.
 - **Recommendation:** migrate soon after this backup. Before migrating, re-run step 0's count query: if production gained rows since the backup, take a fresh dump. Keep the file until V1 has run cleanly for a week.
 - **Step 7 can be done any time later.** The procedure's GnuPG (AES-256) method is free, already installed with Git for Windows, and was tested locally.
 
 **Recovery:**
-- **A single migration fails.** Prisma runs each migration in its own transaction, so the failed one rolls back cleanly and the ones before it stay applied.
-  1. Look in `_prisma_migrations` for the row with `finished_at` null.
-  2. Fix the cause.
-  3. Run `prisma migrate resolve --rolled-back <name>`.
-  4. Re-run `migrate deploy`.
-
-  No restore is needed. Never edit an applied migration file.
+- **A migration fails.** Prisma 7 does **not** wrap a migration in a transaction.
+  - **What a local test showed (Nov 17):** a migration that fails partway leaves its earlier statements applied. Prisma records it as failed (`finished_at` null) and refuses further deploys (P3009) until the failure is resolved. The migrations before it stay applied.
+  - **What to do:**
+    1. Stop. Don't re-run `deploy`, and don't run `migrate resolve`.
+    2. Send me the error (P3018 with its Postgres message).
+    3. Choose between a manual repair (revert the failed migration's partial changes, then `prisma migrate resolve --rolled-back <name>`, then deploy again) and the **full rollback** below.
+  - **Rehearsed with the real backup:** the full rollback works from a half-applied state. Migrations 1–5 were applied and migration 6 failed midway; the rollback returned data and schema identical to the pre-V1 state, and the real migrations then applied cleanly with no drift.
+  - Never edit an applied migration file.
 - **Code problem after the merge.** Use Vercel's instant rollback to the previous deployment. The migrations are additive, so the old code ignores the new tables and columns. Don't drop anything in a hurry. Data written by V1 stays in place, invisible to the old code.
 - **Full rollback** (last resort, only if the database is left inconsistent): follow **`V1_PRODUCTION_ROLLBACK_PROCEDURE.md`** (`scripts/backup/rollback-v1.sh`). It drops the 7 V1 tables and 8 V1 types, recreates the 8 original tables from the backup, and verifies everything, in **one transaction**. It has a `check` mode that changes nothing. **Rehearsed locally on Nov 17 with the real backup:** data and schema identical to the pre-V1 state, V1 objects 0, atomic on failure, and re-migratable afterwards. It discards everything written after the backup.
 
@@ -176,7 +177,7 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 1. **Read-only checks:** the §1 checksums and the §3 RLS queries. Stop on any surprise. **Done Nov 17: all passed.**
 2. **Back up** (§5), and verify the dump. **Done Nov 17: verified and restore-tested; local copy only (off-machine copy skipped).**
 3. **Right before migrating: compare production with the backup.** Run `scripts/backup/compare-with-backup.sql` in the Supabase SQL editor. It is read-only; its first line only pins the session output format. It checks every table's count **and** a content fingerprint (md5 of all rows), so it catches edits that keep the count the same, and it checks that no V1 table exists yet. It must end with `OVERALL | MATCH`. On any `STOP`, take a new verified backup first. Tested locally: unchanged → MATCH; one edited row → CHANGED; a new user or a V1 table → STOP; the result is the same under different session time zones and date styles.
-3. **Apply migrations** from your machine, using the repository's production config. Its connection was checked locally on Nov 17 (no credentials shown): role `postgres`, the Supavisor **session** pooler on port 5432. Session mode supports migrations; the transaction pooler (6543) must not be used.
+3. **Apply migrations** following the run sheet in §9: pre-flight, read-only `migrate status` preview, the comparison, `migrate deploy`, then verify. It uses the repository's production config. Its connection was checked locally on Nov 17 (no credentials shown): role `postgres`, the Supavisor **session** pooler on port 5432. Session mode supports migrations; the transaction pooler (6543) must not be used.
    ```bash
    npx prisma migrate deploy --config prisma.production.config.ts
    ```
@@ -214,3 +215,85 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 3. **Order:** migrate first, then merge.
 4. **Free tier:** no point-in-time recovery, so the manual dump in §5 is required. Paused projects and size limits also apply.
 5. **One-way data:** once users create V1 data, a full restore to the pre-V1 dump loses it. Prefer a code rollback, since the migrations are additive.
+
+## 9. Migration run sheet (owner; run only after explicit approval)
+
+Windows PowerShell 5.1, from the repository's `web` folder, one command per paste. The connection string stays in `.env.hosted-production`: `prisma.production.config.ts` reads it there, it is never printed, and it never goes on the command line. Prisma prints the host and database name, but not the password.
+
+**A. Local pre-flight (no database access).** Every check must pass:
+```powershell
+git rev-parse --short HEAD
+```
+```powershell
+git status --porcelain
+```
+```powershell
+npx --no-install prisma --version
+```
+- HEAD is the reviewed commit, `git status` prints nothing, and Prisma is `7.10.1`.
+- `--no-install` guarantees that the project's own Prisma runs and nothing is downloaded.
+
+**B. Read-only preview against production.** `migrate status` only reads `_prisma_migrations`:
+```powershell
+npx --no-install prisma migrate status --config prisma.production.config.ts
+```
+Expected output:
+- `Datasource "db": PostgreSQL database "postgres", schema "public" at "<pooler host>:5432"`. Port 5432 (session mode), never 6543;
+- `20 migrations found in prisma/migrations`;
+- `Following migrations have not yet been applied:` followed by **exactly** these 10, in this order: `20261028010000_enable_row_level_security`, `20261030010000_ai_analysis`, `20261031010000_ai_cost_ledger`, `20261102010000_ai_suggestions`, `20261103010000_candidate_clarifications`, `20261104010000_clarification_review`, `20261105010000_clarification_follow_up`, `20261110010000_structured_ownership`, `20261114010000_structured_matching_audit`, `20261117010000_assessment_approval`.
+
+Stop if:
+- the host or port is unexpected;
+- the list differs in any way;
+- it reports a failed migration, or a migration that's missing from the local folder.
+
+**C. Same session, right before D:** re-run `scripts/backup/compare-with-backup.sql` in the Supabase SQL editor. It must end with `OVERALL | MATCH`.
+
+**D. The migration (only after explicit approval):**
+```powershell
+npx --no-install prisma migrate deploy --config prisma.production.config.ts
+```
+Expected:
+- 10 lines `Applying migration ...`, in the order of B;
+- `All migrations have been successfully applied.`
+
+**Safety properties:**
+- **Only migrations missing from production's `_prisma_migrations` are applied.** The first 10 are recorded there, with checksums that match, so only these 10 are pending. B shows the list before anything runs.
+- **No concurrent runs:** Prisma takes an advisory lock.
+- **No reset, no shadow database:** `migrate deploy` never drops or resets anything, and doesn't need a shadow database.
+- **Brief locks:** the migrations take short table locks. At today's size they take seconds.
+
+**If it fails (P3018):**
+- **Prisma 7 doesn't roll the failed migration back:** its statements before the error stay applied, and later deploys are refused (P3009).
+- **Stop.** Don't re-run anything, and don't run `migrate resolve`. Send me the output.
+- **Recovery:** a manual repair, or the full rollback in `V1_PRODUCTION_ROLLBACK_PROCEDURE.md`, which was rehearsed from exactly this state.
+- **Keep V1 code off:** the live site still runs pre-V1 code, so don't merge.
+
+**E. Verify (read-only, Supabase SQL editor):**
+```sql
+select migration_name, checksum, finished_at is not null as finished, rolled_back_at is null as not_rolled_back
+from "_prisma_migrations" where migration_name > '20261026010000_job_requirements' order by migration_name;
+```
+Expected: 10 rows, all `finished` and `not_rolled_back`, with these checksums (the bytes that were rehearsed):
+
+| Migration | Expected checksum |
+|---|---|
+| `20261028010000_enable_row_level_security` | `41455d3cac6d20ab5886c441252ca83f7c1c48deef7bb0642a1d0baa1544e7de` |
+| `20261030010000_ai_analysis` | `3f59ef5a7a54672b72c56e2e7db732ef0ebd9b51f27dda098325e8ad9e7bb639` |
+| `20261031010000_ai_cost_ledger` | `cb64f9fcb7c1db651ca47e4a0beb4a87d7ede9e7e5b89a7ae63362f301612c45` |
+| `20261102010000_ai_suggestions` | `67650f04820d45ad4b9ed4873c0b804fb04a6826754509d85ff5953e5fd38d35` |
+| `20261103010000_candidate_clarifications` | `c962b000f0d336443a9c38e0bc37a3d4ac4ff7127eb2c3dd1fe4e5917fd903f6` |
+| `20261104010000_clarification_review` | `257d43e4f6e0da138c451f7eb0ef5dfefaaf113dabc23afb094cd4646b2d0700` |
+| `20261105010000_clarification_follow_up` | `fe04080570e1dc6f508993596ce01538cce393b8ab84dc4a79cad720860a6242` |
+| `20261110010000_structured_ownership` | `706723d3447bd1b6cab7d381be4b0901d6423866bba3baaf1ae89c12f60f0b58` |
+| `20261114010000_structured_matching_audit` | `3052000b57bc837bd6e42a1f3771cfcf8fa8df1d296948568cd68e3e344a16b4` |
+| `20261117010000_assessment_approval` | `2a65db85e549452a273d7b1cbac874e6aa4310f364352988e45952b3368d9b9e` |
+
+(`ai_suggestions` and `clarification_follow_up` have Windows line endings in this working tree, and the checksums above are of those exact bytes. `job_requirements`, already applied, matched production the same way.)
+
+Then:
+```sql
+select count(*) as tables, count(*) filter (where c.relrowsecurity) as rls_on, count(*) filter (where c.relforcerowsecurity) as forced
+from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r';
+```
+Expected: `tables 15, rls_on 15, forced 0`. Finally, check that the live site still works (it's still on `main`): sign in, then open the profile and saved jobs.

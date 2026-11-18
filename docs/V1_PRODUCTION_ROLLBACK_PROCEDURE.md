@@ -8,7 +8,7 @@ A full rollback returns the database's `public` schema to the verified pre-V1 ba
 
 | Situation | What to do instead |
 |---|---|
-| A migration fails during `migrate deploy` | Prisma rolls that migration back on its own. Fix the cause, run `prisma migrate resolve --rolled-back <name>`, and re-run `migrate deploy`. No restore is needed |
+| A migration fails during `migrate deploy` | Prisma 7 does **not** roll a failed migration back: its statements before the error stay applied, and later deploys are refused (P3009). Stop and send me the error, then decide between a manual repair (revert the partial changes, `migrate resolve --rolled-back <name>`, deploy again) and this full rollback. This procedure was rehearsed from exactly that state (see below) |
 | V1 code misbehaves after the merge | Use Vercel's **instant rollback** to the previous deployment. The migrations are additive, so the pre-V1 code ignores the new tables and columns. Keep the database as it is |
 | Anything you're unsure about | Stop and ask. A full rollback discards data |
 
@@ -61,6 +61,7 @@ Script: `scripts/backup/rollback-v1.sh`, with `v1-drop.sql` and `rollback-verify
 | **Schema**: tables, types, constraints, indexes, RLS, owners, grants, function, default privileges (schema-only dump diff) | **Identical** |
 | V1 tables / V1 types / V1 history rows | 0 / 0 / 0 |
 | Re-apply the 10 V1 migrations after the rollback | 10 applied; **no drift** against `schema.prisma` (the database can be migrated again) |
+| **Second rehearsal: a half-applied V1 deploy** (an injected failure in migration 6; migrations 1–5 applied, migration 6 failed after creating `ClarificationEvent`; 15 finished rows + 1 failed) | The guard accepted the state (6 of 10 V1 rows); check PASS; apply PASS; data and schema **identical** to pre-V1; failed row gone; the real migrations then applied cleanly with no drift |
 | Cleanup | disposable database dropped; temporary roles `postgres` and `supabase_admin` dropped (`anon`, `authenticated`, `service_role` already existed and were kept); `CHECKPOINT`; scratch removed. The restore SQL only ever existed inside the throwaway container |
 
 ## Limitations (not covered by the rehearsal)
