@@ -169,7 +169,7 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 
   No restore is needed. Never edit an applied migration file.
 - **Code problem after the merge.** Use Vercel's instant rollback to the previous deployment. The migrations are additive, so the old code ignores the new tables and columns. Don't drop anything in a hurry. Data written by V1 stays in place, invisible to the old code.
-- **Full restore** (only if the database is left inconsistent): during a maintenance window, restore `careeros-pre-v1-public.dump`. This discards everything written since the dump. **Not rehearsed yet.** A plain `pg_restore --clean --if-exists` is probably not enough once the V1 migrations have run: the new tables have foreign keys to `User` and `SavedJob`, so dropping those tables would fail until the new tables are dropped first. A tested rollback script should exist **before** migrating.
+- **Full rollback** (last resort, only if the database is left inconsistent): follow **`V1_PRODUCTION_ROLLBACK_PROCEDURE.md`** (`scripts/backup/rollback-v1.sh`). It drops the 7 V1 tables and 8 V1 types, recreates the 8 original tables from the backup, and verifies everything, in **one transaction**. It has a `check` mode that changes nothing. **Rehearsed locally on Nov 17 with the real backup:** data and schema identical to the pre-V1 state, V1 objects 0, atomic on failure, and re-migratable afterwards. It discards everything written after the backup.
 
 ## 6. Production order (owner, after approval)
 
