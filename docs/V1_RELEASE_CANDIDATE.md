@@ -68,7 +68,7 @@ The restored `20261028010000` is byte-identical to `main`.
 | `job-requirements`, `account-isolation` | review mode, then flags off | passed, passed |
 | `saved-jobs` | review mode | passed |
 | Staleness after a reader change (`job-corrections`: seed v21 → check v21a → rollback v21) | v21 / default / v21 | **3 of 3 passed** |
-| `job-review`, `job-clarification`, `job-corrections` (free text and structured), `job-structured-matching` | — | **Not re-run: the daily answer limit is full** (30 of 30; the entries free naturally, mostly from about 01:50 to 03:00 UTC on Nov 18). No bypass or reset. Their selector-only changes are lint-checked. The same flows passed before this stage, and nothing in their paths changed except the default reader (follow-up parity: 0 changes) and the stale-notice selector |
+| `job-review`, `job-clarification`, `job-corrections` (free text and structured), `job-structured-matching` | review / structured modes | **passed** (re-run on Nov 18 after the daily answer limit freed naturally; no bypass or reset). `f26d675` fixed the V1 spec cleanup, whose leftover denials had broken `job-review` |
 
 **Failures during development, all fixed:**
 - the local development database lacked the new migration: a server error on the review page, fixed by applying the migration locally;
@@ -77,7 +77,7 @@ The restored `20261028010000` is byte-identical to `main`.
 
 ## 4. Remaining bugs and limitations
 
-- **Pending browser re-runs:** `job-review`, `job-clarification`, `job-corrections` (free text and structured), and `job-structured-matching`. They're blocked by the answer limit until it frees naturally.
+- **Browser re-runs:** none pending. All four answer-based specs passed on Nov 18.
 - **Known matching limitations (documented):**
   - a correction in the same sentence as another activity loses that activity;
   - relevance over-credit ("greet patients");
