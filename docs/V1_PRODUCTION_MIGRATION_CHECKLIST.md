@@ -24,6 +24,8 @@ Those 10 names match this repository's first 10 migrations, in the same order. N
 | 9 | `20261021010000_saved_jobs` | `a833c7940f6e1986f0ff563c18b301832a9cabbf3969ebd98fe585b5d976829b` |
 | 10 | `20261026010000_job_requirements` | `1eb5c9a2d6791dac092d4c40b828cb53db27622b472266e884e2fa0c5cb920d4` |
 
+**Owner's result (Nov 17, read-only):** `matching = 10`, `mismatched = NULL`. Production was built from exactly these files.
+
 Prisma 7's `migrate deploy` doesn't refuse to run when a recorded checksum differs. A mismatch therefore wouldn't block the deploy, but it would mean production was built from different SQL than the repository holds. If any checksum differs, stop and tell me which one.
 
 ## 2. Pending migrations: 10, applied in this order
@@ -123,16 +125,16 @@ The dump holds schema only, no user data.
 
 The free tier has no point-in-time recovery, and a Vercel rollback restores code only. A manual backup is therefore **required**.
 
-1. **Right before migrating**, take a full dump using the *direct* (non-pooled) connection string:
-   ```bash
-   pg_dump --format=custom --no-owner "$PRODUCTION_DIRECT_URL" > careeros-pre-v1.dump
-   ```
-2. **Verify it:**
-   - `pg_restore --list careeros-pre-v1.dump` lists the 10 tables, including `_prisma_migrations`;
-   - the file isn't empty.
-3. **Store it off-machine** (it holds user data: keep it private, and never commit it).
-4. **Optional restore test:** restore it into a disposable *local* database and count rows. This proves the backup works before you depend on it.
-5. **Keep it** until V1 has run cleanly for at least a week.
+Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim, in Windows PowerShell 5.1. Its steps:
+1. Read-only pre-checks: the server version, and the row counts of the 8 tables.
+2. Dump the `public` schema with `pg_dump` from the `postgres:17` image. The connection string is passed by variable name, so it is never printed or stored.
+3. Verify:
+   - the exit code and the log;
+   - the SHA-256;
+   - the contents (8 tables, 8 table data entries, 8 RLS entries, `_prisma_migrations`);
+   - a restore test into a disposable *local* database, with its counts compared to production's.
+4. Store one encrypted copy off-machine, and record the hash and counts here.
+5. Keep it until V1 has run cleanly for at least a week.
 
 **Recovery:**
 - **A single migration fails.** Prisma runs each migration in its own transaction, so the failed one rolls back cleanly and the ones before it stay applied.
@@ -149,7 +151,7 @@ The free tier has no point-in-time recovery, and a Vercel rollback restores code
 
 1. **Read-only checks:** the §1 checksums and the §3 RLS queries. Stop on any surprise.
 2. **Back up** (§5), and verify the dump.
-3. **Apply migrations** from your machine, with the production *direct* (non-pooled) connection string, using the repository's production config:
+3. **Apply migrations** from your machine, using the repository's production config. Its connection was checked locally on Nov 17 (no credentials shown): role `postgres`, the Supavisor **session** pooler on port 5432. Session mode supports migrations; the transaction pooler (6543) must not be used.
    ```bash
    npx prisma migrate deploy --config prisma.production.config.ts
    ```
