@@ -186,7 +186,7 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
    - the live (still `main`) site works: sign in, open the profile and saved jobs.
 5. **Set the Vercel production environment variables** (§7).
 6. **Push the branch, then merge PR #4.**
-   - The 64 local commits (D2–D6, V1, the migration and backup work) aren't on GitHub yet, so PR #4 doesn't contain them until the branch is pushed.
+   - The local commits (67 on Nov 17: D2–D6, V1, the migration and backup work) aren't on GitHub yet, so PR #4 doesn't contain them until the branch is pushed.
    - After pushing, CI must pass on the PR before merging. CI includes the drift check on a freshly migrated database.
    - Merging makes Vercel deploy `main`. The code expects the migrations to be applied already.
 7. **Smoke test** with a disposable account: add a posting → review requirements (the analysis runs) → review page → answer, deny, skip, Agree, Disagree → approve → reload. Then confirm another account sees nothing.
