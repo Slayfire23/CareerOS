@@ -198,15 +198,43 @@ Follow **`V1_PRODUCTION_BACKUP_PROCEDURE.md`**. It was dry-run locally, verbatim
 
 ## 7. Production environment for V1 (owner)
 
-| Variable | V1 value | Note |
+Derived from the code on Nov 18: every variable the app reads (`src/`, `next.config.ts`), compared with what `main` reads today. Vercel applies variable changes only to **new** deployments, so changing them doesn't affect the running site until the merge deploys V1.
+
+**Already required, and already set (the live site works): keep them unchanged.**
+
+| Variable | Scope | Note |
 |---|---|---|
-| `CLARIFICATION_REVIEW_ENABLED` | `true` | D3: the V1 review workflow |
-| `AI_CLOUD_ENABLED` | unset | D1: no paid AI. Cloud stays off |
-| `AI_LOCAL_LLM_ENABLED`, `FOLLOW_UP_WORKFLOW_ENABLED`, `INTERPRETATION_SHADOW_ENABLED` | unset | Local-only features (refused on Vercel anyway) |
-| `STRUCTURED_OWNERSHIP_FORM_ENABLED`, `STRUCTURED_MATCHING_ENABLED` | unset | Not part of V1 (refused on Vercel anyway) |
-| `AI_SERVICE_URL`, `AI_SERVICE_SECRET` | unset | The rules analysis runs in-process without them |
-| `AI_ANALYSIS_DAILY_LIMIT` | `20` (default) or your choice | Per user per day |
-| `CAREEROS_TEST_READER` | **never set** | Local test switch; refused on Vercel |
+| `DATABASE_URL` | Production | Must connect as `postgres` (verified Nov 17). V1 adds no new database variable |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Production | Unchanged |
+| `APP_URL` | Production | Must be the site's HTTPS origin. The app refuses to start in production without it |
+
+**Add one:**
+
+| Variable | Value | Scope | Why |
+|---|---|---|---|
+| `CLARIFICATION_REVIEW_ENABLED` | `true` | **Production only** | D3: the V1 review workflow (questions, answers, decisions, approval). Without it, V1 runs without the review panel |
+
+**Optional:**
+
+| Variable | Value | Note |
+|---|---|---|
+| `AI_ANALYSIS_DAILY_LIMIT` | unset (= 20 per user per day), or a whole number from 1 to 1000 | **Any other value (`0`, `20.5`, `abc`, empty-with-spaces) turns all analysis off** (`not_configured`). Prefer leaving it unset |
+
+**Must stay unset (absent) in Production:**
+
+| Variable(s) | Why |
+|---|---|
+| `AI_CLOUD_ENABLED`, `AI_COST_USER_DAILY_USD`, `AI_COST_GLOBAL_DAILY_USD`, `AI_COST_GLOBAL_MONTHLY_USD`, `AI_CLOUD_ALLOWED_USERS` | D1: no paid AI. Cloud also needs the AI service, so it stays off regardless |
+| `AI_SERVICE_URL`, `AI_SERVICE_SECRET` | The rules analysis runs in-process. Setting these would make the app try to reach a service that doesn't exist |
+| `AI_LOCAL_LLM_ENABLED`, `AI_LOCAL_LLM_MODEL`, `AI_LOCAL_LLM_ALLOWED_USERS` | Local AI is development-only |
+| `FOLLOW_UP_WORKFLOW_ENABLED`, `INTERPRETATION_SHADOW_ENABLED`, `INTERPRETATION_SHADOW_URL` | Local-only. Refused on Vercel anyway |
+| `STRUCTURED_OWNERSHIP_FORM_ENABLED`, `STRUCTURED_MATCHING_ENABLED` | Not part of V1 (Stage G FAIL). Refused on Vercel anyway |
+| `CAREEROS_TEST_READER` | **Never set.** Local test switch, refused on Vercel |
+| `M11_SIMILARITY_THRESHOLD` | Research code only. The default applies |
+
+**Set by Vercel, never by hand:** `VERCEL`, `VERCEL_ENV` and `NODE_ENV`. The app relies on `VERCEL` to refuse the local-only features.
+
+**Preview deployments (check before any push):** pushing the branch makes Vercel build a **Preview** with the **Preview**-scoped variables. Confirm that no Preview variable points at the production database or Supabase project (`DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_*`). Otherwise a Preview of unreleased code would read and write production data.
 
 ## 8. Risks
 
