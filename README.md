@@ -127,7 +127,7 @@ Latest results (October 29, 2026): 229 unit, 25 integration, and 27 Chromium tes
 
 - Vercel deploys `main` to production. The build command is `npx prisma generate --config prisma7.config.ts && npm run build`.
 - **Production variables:** `DATABASE_URL` (transaction pooler, port 6543), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `APP_URL`.
-- **Preview deployments** are build checks only. Leave the database and Supabase variables unset for Preview, and never copy production values there.
+- **Preview deployments** are build checks only. Leave the database and Supabase variables unset for Preview, and never copy production values there. A working Preview needs its own isolated Supabase project: see docs/MILESTONE_8_REPORT.md section 6.
 - **Migrations are never applied by the build.** Review them and apply them separately, with approval:
 
   ```powershell

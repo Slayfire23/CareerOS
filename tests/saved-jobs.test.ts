@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { parseSavedJob, savedJobId } from "@/lib/saved-jobs";
+import { parseSavedJob, sameDescription, savedJobId } from "@/lib/saved-jobs";
 function form() {
  const f = new FormData();
  for (const [key, value] of Object.entries({jobId:"", title:" Engineer ", company:"Example", postingUrl:"", description:"Build useful things."})) f.set(key,value);
@@ -23,4 +23,11 @@ it("rejects duplicate fields, oversized descriptions and malformed IDs",()=>{
  const g=form();g.set("description","x".repeat(30001));expect(()=>parseSavedJob(g)).toThrow();
  g.set("jobId","foreign");expect(()=>savedJobId(g)).toThrow();
  g.set("jobId","");g.append("jobId","");expect(()=>savedJobId(g)).toThrow();
+});
+it("compares descriptions with CRLF, CR, and LF line endings treated alike, and nothing else", () => {
+ expect(sameDescription("a\nb\nc", "a\r\nb\rc")).toBe(true);
+ expect(sameDescription("a\r\nb", "a\r\nb")).toBe(true);
+ expect(sameDescription("a\nb", "a\n\nb")).toBe(false);
+ expect(sameDescription("a\nb", "a b")).toBe(false);
+ expect(sameDescription("a\nb ", "a\r\nb")).toBe(false);
 });

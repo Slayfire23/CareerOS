@@ -1,5 +1,11 @@
 export type SavedJobEntry = { id: string; title: string; company: string; postingUrl: string | null; description: string };
 
+// Browsers submit form text with CRLF line endings, while descriptions created another way may use LF.
+// Compare descriptions with line endings normalized; stored text is never rewritten.
+export function sameDescription(a: string, b: string) {
+ return a.replace(/\r\n?/g, "\n") === b.replace(/\r\n?/g, "\n");
+}
+
 export function savedJobId(form: FormData) {
  const values = form.getAll("jobId");
  if (values.length !== 1 || typeof values[0] !== "string" || (values[0] !== "" && !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(values[0]))) throw new Error("Invalid job selection.");

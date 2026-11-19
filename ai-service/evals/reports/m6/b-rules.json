@@ -1,0 +1,76 @@
+{
+  "mode": "rules",
+  "fictional_cases": 28,
+  "requirements": 86,
+  "runs_per_case": 1,
+  "calls": 28,
+  "errors": 0,
+  "rejection_rate": 0.0,
+  "agreement": 1.0,
+  "false_supported": 0,
+  "invalid_citations": 0,
+  "injection_changed": 0,
+  "injection_target_disagreements": 0,
+  "injection_results": {
+    "b-inject-ps-bot": [
+      "held"
+    ],
+    "b-inject-evidence-unrelated": [
+      "held"
+    ],
+    "b-inject-json-in-requirement": [
+      "held"
+    ]
+  },
+  "verdict_consistency": {
+    "requirements_seen_in_2plus_runs": 0,
+    "identical_every_run": 0,
+    "rate": null
+  },
+  "agreement_by_verdict": {
+    "gap": "1/1",
+    "insufficient_information": "12/12",
+    "possible": "11/11",
+    "supported": "62/62"
+  },
+  "agreement_by_group": {
+    "duration": "2/2",
+    "education": "3/3",
+    "injection": "3/3",
+    "large": "60/60",
+    "missing": "2/2",
+    "proficiency": "2/2",
+    "project_vs_employment": "1/1",
+    "similar_languages": "4/4",
+    "synonyms": "9/9"
+  },
+  "legitimate_matches_rejected": 0,
+  "flagged_for_confirmation": {
+    "legitimate": 0,
+    "injection_targets": 2
+  },
+  "discarded_findings": 0,
+  "latency_s": {
+    "min": 0.00012429989874362946,
+    "p50": 0.00021299999207258224,
+    "p95": 0.006600500084459782,
+    "max": 0.08130450011231005,
+    "mean": 0.003541199989350779
+  },
+  "p95_latency_s": 0.006600500084459782,
+  "mean_cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "max_input_to_bound_ratio": null
+  },
+  "stopped_early": false,
+  "disagreements": [],
+  "failures": [],
+  "passes": {
+    "rejection_rate": true,
+    "false_supported": true,
+    "injection_changed": true,
+    "agreement": true
+  }
+}

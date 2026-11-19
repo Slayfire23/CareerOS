@@ -1,0 +1,75 @@
+{
+  "mode": "rules",
+  "fictional_cases": 16,
+  "runs_per_case": 1,
+  "calls": 16,
+  "errors": 0,
+  "rejection_rate": 0.0,
+  "agreement": 0.9710144927536232,
+  "false_supported": 0,
+  "injection_changed": 0,
+  "injection_target_disagreements": 0,
+  "injection_results": {
+    "injection-in-requirement": [
+      "held"
+    ],
+    "injection-in-evidence": [
+      "held"
+    ]
+  },
+  "verdict_consistency": {
+    "requirements_seen_in_2plus_runs": 0,
+    "identical_every_run": 0,
+    "rate": null
+  },
+  "agreement_by_verdict": {
+    "gap": "1/1",
+    "insufficient_information": "6/8",
+    "possible": "5/5",
+    "supported": "55/55"
+  },
+  "latency_s": {
+    "min": 6.360001862049103e-05,
+    "p50": 9.959982708096504e-05,
+    "p95": 0.0003474999684840441,
+    "max": 0.00805990002118051,
+    "mean": 0.0006268750003073364
+  },
+  "p95_latency_s": 0.0003474999684840441,
+  "mean_cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "max_input_to_bound_ratio": null
+  },
+  "stopped_early": false,
+  "disagreements": [
+    {
+      "case": "synonym-rules-misses",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "duration-bait",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    }
+  ],
+  "failures": [],
+  "passes": {
+    "rejection_rate": true,
+    "false_supported": true,
+    "injection_changed": true,
+    "agreement": true
+  }
+}

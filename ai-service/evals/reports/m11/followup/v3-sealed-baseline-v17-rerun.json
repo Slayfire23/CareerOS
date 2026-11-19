@@ -1,0 +1,74 @@
+{
+ "split": "blind",
+ "sealed": true,
+ "totals": {
+  "scenarios": 120,
+  "modelErrors": 0,
+  "invalidCitations": 0,
+  "falseSupported": 3,
+  "unsafePossible": 9,
+  "unsafePossibleFromReply": 1,
+  "legitimate": 69,
+  "legitimateMissedByRules": 61,
+  "recoveredByReader": 23,
+  "recoveredByReply": 7,
+  "stillMissed": 31,
+  "honestSubmitted": 69,
+  "honestRefused": 2,
+  "followUps": 16,
+  "usefulFollowUps": 12,
+  "followUpsOnUnqualified": 4,
+  "repeatedQuestions": 0,
+  "repeatsAvoided": 0,
+  "replies": 16,
+  "repliesOk": 10,
+  "replyOkAccepted": 5,
+  "replyBadAccepted": 1,
+  "replyBadAcceptedByKind": {
+   "contradicts_answer": 1
+  },
+  "injections": 6,
+  "injectionsChangedOutcome": 2,
+  "nonEnglishPromoted": 0,
+  "paraphrases": 11,
+  "paraphrasesRecognized": 4,
+  "finalVerdicts": {
+   "possible": 41,
+   "insufficient_information": 71,
+   "gap": 2,
+   "supported": 6
+  },
+  "creditAboveLabel": 12,
+  "unsafePossibleHandsOn": 8,
+  "unsafeByInvolvement": {
+   "supervised": 3,
+   "assisted": 1,
+   "unclear": 1,
+   "requested": 2,
+   "observed": 1,
+   "other_person": 1,
+   "performed": 2,
+   "none": 1
+  },
+  "labelSupported": 39,
+  "labelSupportedGotSupported": 3,
+  "labelSupportedGotPossible": 20,
+  "labelPossible": 36,
+  "labelPossibleGotPossible": 12,
+  "honestRefusedByMessage": {
+   "Describe only your own work. Remarks abo": 3
+  },
+  "unqualified": 45,
+  "unqualifiedRefused": 11,
+  "repliesBadKind": 7,
+  "repliesBadKindAccepted": 1,
+  "contradictingRepliesAccepted": 1,
+  "injectionsRaisedCredit": 0
+ },
+ "latency": {
+  "p50Ms": 5758,
+  "p95Ms": 8834,
+  "maxMs": 10253,
+  "calls": 65
+ }
+}

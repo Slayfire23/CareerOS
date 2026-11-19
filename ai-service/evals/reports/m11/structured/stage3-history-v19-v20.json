@@ -1,0 +1,28 @@
+{
+ "note": "Phase 5.3 Stage 3: the 1,266 opened answers (never a sealed split) read with rules-v19 (matching) and rules-v20 (opt-in). Labels from each set's own fields.",
+ "answers": 1266,
+ "changed": [
+  {
+   "v19": "possible",
+   "v20": "insufficient_information",
+   "label": "does_not_qualify",
+   "requirement": "ICD-10 medical coding",
+   "answer": "I entered the codes doctors picked into the billing system and fixed rejected claims. I never assigned them from the charts myself.",
+   "src": "m11_shadow/check"
+  }
+ ],
+ "verdicts": {
+  "v19": {
+   "supported": 102,
+   "possible": 217,
+   "insufficient_information": 947,
+   "gap": 0
+  },
+  "v20": {
+   "supported": 102,
+   "possible": 216,
+   "insufficient_information": 948,
+   "gap": 0
+  }
+ }
+}

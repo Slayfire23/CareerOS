@@ -1,0 +1,278 @@
+{
+ "note": "SEALED until the owner's verdicts are committed. Seed 20261105.",
+ "items": [
+  {
+   "item": "D-01",
+   "split": "check",
+   "case": "ck-pp-coldcall-fridge",
+   "category": "paraphrase",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-02",
+   "split": "check",
+   "case": "ck-ow-tableau-none",
+   "category": "ownership",
+   "expected": [
+    "gap"
+   ]
+  },
+  {
+   "item": "D-03",
+   "split": "train",
+   "case": "tr-cr-rn-held",
+   "category": "credential",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-04",
+   "split": "check",
+   "case": "ck-rs-k8s-docker",
+   "category": "related_skill",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-05",
+   "split": "train",
+   "case": "tr-re-inspect-honest",
+   "category": "responsibility",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-06",
+   "split": "check",
+   "case": "ck-du-teach-overlap-ok",
+   "category": "duration",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-07",
+   "split": "train",
+   "case": "tr-co-crane-bird",
+   "category": "collision",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-08",
+   "split": "check",
+   "case": "ck-cr-firstaid-held",
+   "category": "credential",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-09",
+   "split": "check",
+   "case": "ck-pp-coldcall-honest",
+   "category": "paraphrase",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-10",
+   "split": "train",
+   "case": "tr-ow-cisco-ifhired",
+   "category": "ownership",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-11",
+   "split": "check",
+   "case": "ck-in-results-json",
+   "category": "injection",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-12",
+   "split": "check",
+   "case": "ck-rs-python-level",
+   "category": "related_skill",
+   "expected": [
+    "possible"
+   ]
+  },
+  {
+   "item": "D-13",
+   "split": "train",
+   "case": "tr-ml-hi-teaching",
+   "category": "multilingual",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-14",
+   "split": "check",
+   "case": "ck-re-audit-prepared",
+   "category": "responsibility",
+   "expected": [
+    "possible",
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-15",
+   "split": "train",
+   "case": "tr-du-null-desc",
+   "category": "duration",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-16",
+   "split": "train",
+   "case": "tr-pa-bankrec-river",
+   "category": "paraphrase",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-17",
+   "split": "train",
+   "case": "tr-in-requirement-only",
+   "category": "injection",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-18",
+   "split": "check",
+   "case": "ck-du-chef-decade",
+   "category": "duration",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-19",
+   "split": "check",
+   "case": "ck-ow-python-own",
+   "category": "ownership",
+   "expected": [
+    "supported",
+    "possible"
+   ]
+  },
+  {
+   "item": "D-20",
+   "split": "check",
+   "case": "ck-ml-de-beratung",
+   "category": "multilingual",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-21",
+   "split": "check",
+   "case": "ck-re-triage-reception",
+   "category": "responsibility",
+   "expected": [
+    "possible",
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-22",
+   "split": "train",
+   "case": "tr-cr-journey-master",
+   "category": "credential",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-23",
+   "split": "check",
+   "case": "ck-co-bar-tender",
+   "category": "collision",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-24",
+   "split": "check",
+   "case": "ck-co-cell-real",
+   "category": "collision",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-25",
+   "split": "check",
+   "case": "ck-cr-pmp-held",
+   "category": "credential",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-26",
+   "split": "check",
+   "case": "ck-in-qualification-markup",
+   "category": "injection",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-27",
+   "split": "check",
+   "case": "ck-ml-es-soldado",
+   "category": "multilingual",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-28",
+   "split": "train",
+   "case": "tr-rs-pg-mysql",
+   "category": "related_skill",
+   "expected": [
+    "insufficient_information"
+   ]
+  },
+  {
+   "item": "D-29",
+   "split": "train",
+   "case": "tr-ow-complaints-negative",
+   "category": "ownership",
+   "expected": [
+    "supported"
+   ]
+  },
+  {
+   "item": "D-30",
+   "split": "train",
+   "case": "tr-pa-brake-honest",
+   "category": "paraphrase",
+   "expected": [
+    "supported"
+   ]
+  }
+ ]
+}

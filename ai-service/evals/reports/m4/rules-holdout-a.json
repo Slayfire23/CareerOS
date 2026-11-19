@@ -1,0 +1,299 @@
+{
+  "mode": "rules",
+  "fictional_cases": 49,
+  "requirements": 120,
+  "runs_per_case": 1,
+  "calls": 49,
+  "errors": 0,
+  "rejection_rate": 0.0,
+  "agreement": 0.8166666666666667,
+  "false_supported": 0,
+  "injection_changed": 0,
+  "injection_target_disagreements": 0,
+  "injection_results": {
+    "inject-req-alias": [
+      "held"
+    ],
+    "inject-skill-name": [
+      "held"
+    ],
+    "inject-role-description": [
+      "held"
+    ],
+    "inject-years": [
+      "held"
+    ],
+    "inject-fake-json": [
+      "held"
+    ],
+    "inject-spanish": [
+      "held"
+    ]
+  },
+  "verdict_consistency": {
+    "requirements_seen_in_2plus_runs": 0,
+    "identical_every_run": 0,
+    "rate": null
+  },
+  "agreement_by_verdict": {
+    "gap": "6/6",
+    "insufficient_information": "20/42",
+    "possible": "18/18",
+    "supported": "54/54"
+  },
+  "agreement_by_group": {
+    "duration": "5/5",
+    "education": "6/6",
+    "injection": "6/6",
+    "large": "65/74",
+    "missing": "4/4",
+    "proficiency": "3/5",
+    "project_vs_employment": "4/4",
+    "similar_languages": "5/5",
+    "synonyms": "0/11"
+  },
+  "discarded_findings": 0,
+  "latency_s": {
+    "min": 8.659996092319489e-05,
+    "p50": 0.00012730015441775322,
+    "p95": 0.004438300151377916,
+    "max": 0.02762460010126233,
+    "mean": 0.0013422020235840156
+  },
+  "p95_latency_s": 0.004438300151377916,
+  "mean_cost_usd": 0.0,
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "max_input_to_bound_ratio": null
+  },
+  "stopped_early": false,
+  "disagreements": [
+    {
+      "case": "syn-k8s",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-js-strong",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-golang",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-aws-long-name",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-nodejs",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-sklearn",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "syn-mssql",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "concept-relational",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "concept-cloud",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "cicd-in-role",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "spark-long-name",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "level-met-alias",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "level-not-met-alias",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "gap",
+        "possible"
+      ]
+    },
+    {
+      "case": "large-platform-engineer",
+      "run": 0,
+      "requirement": 1,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-platform-engineer",
+      "run": 0,
+      "requirement": 2,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "gap",
+        "possible"
+      ]
+    },
+    {
+      "case": "large-platform-engineer",
+      "run": 0,
+      "requirement": 3,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "supported"
+      ]
+    },
+    {
+      "case": "large-platform-engineer",
+      "run": 0,
+      "requirement": 4,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-long-descriptions",
+      "run": 0,
+      "requirement": 0,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-long-descriptions",
+      "run": 0,
+      "requirement": 1,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-long-descriptions",
+      "run": 0,
+      "requirement": 2,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-long-descriptions",
+      "run": 0,
+      "requirement": 6,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    },
+    {
+      "case": "large-long-descriptions",
+      "run": 0,
+      "requirement": 7,
+      "verdict": "insufficient_information",
+      "allowed": [
+        "possible",
+        "supported"
+      ]
+    }
+  ],
+  "failures": [],
+  "passes": {
+    "rejection_rate": true,
+    "false_supported": true,
+    "injection_changed": true,
+    "agreement": true
+  }
+}

@@ -1,0 +1,4627 @@
+{
+ "_provenance": "Phase 5.3 Stage D.1 parity fixture (2026-11-14). Expected outputs of the owner-reviewed V5 simulation (scratch harness, with the Stage B failure-3 consumer), run once with rules-v21 at commit 8b7a7f7 and frozen here. Rows: 198 design probes and 28 opened answers (dd1/split-review simulation), 47 V5 targeted probes (v5-simulation.json), 11 A77 failure-3 controls (Stage B report section 7.4). `expect` is the owner-reviewed expectation where one exists (targeted probes, controls). `verdict`/`consistency` are the structured worst case (a 'did it myself' tick on every part). Generated, not hand-edited.",
+ "rows": [
+  {
+   "cid": "P1",
+   "kind": "both_std",
+   "text": "I do the bookkeeping for two restaurants and run the month-end reconciliation of every bank and card account myself.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "both_var",
+   "text": "I post every sale and bill to the ledger for our shop, and at each month's close I match the bank statements line by line.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "only_a",
+   "text": "I do the day-to-day bookkeeping, and our outside accountant does the month-end reconciliation.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "only_b",
+   "text": "I do the month-end reconciliation; the office manager does the daily bookkeeping.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "supervise",
+   "text": "I supervise the two clerks who do our bookkeeping and the month-end reconciliation.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "correction",
+   "text": "I do the bookkeeping and month-end reconciliation. Well, really our controller does the reconciliation, I only enter the bills.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P1",
+   "kind": "opened",
+   "text": "I do the day-to-day bookkeeping for our landscaping company, entering invoices and bills and matching deposits. The month-end close and reconciliation, our outside accountant does that part.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "both_std",
+   "text": "I handle cash at the register all shift and do the till reconciliation at close.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "both_var",
+   "text": "I take cash payments all day and balance my drawer against the register report every night.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "only_a",
+   "text": "I handle cash at the register; the shift lead counts and reconciles the till at close.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "only_b",
+   "text": "I reconcile the tills at close for the other cashiers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "supervise",
+   "text": "I oversee the cashiers who handle cash and reconcile their tills.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "correction",
+   "text": "I handle cash and reconcile the till. Actually, the manager does the till count, I just run the register.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P2",
+   "kind": "opened",
+   "text": "Yes I count the till every closing shift. Well, the shift lead does the count, I just kind of stand there and write down what she says.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "both_std",
+   "text": "I do the crane rigging and signaling on our steel erection jobs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "both_var",
+   "text": "I sling and choke the loads and talk the operator through every pick on the radio.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "only_a",
+   "text": "I'm the signal person for the crane; the ironworkers do all the rigging.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "only_b",
+   "text": "I rig the loads myself; a certified signal person handles all the crane signaling.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "supervise",
+   "text": "I supervise the crew that does the rigging and crane signaling.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "correction",
+   "text": "I do crane signaling and rigging. Well, mostly the ironworkers rig the loads, I only give the signals.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P3",
+   "kind": "opened",
+   "text": "I did a one-day rigging awareness class through the union hall. We practiced hand signals in the parking lot.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "both_std",
+   "text": "I write the grant reports for our federal awards and handle grant compliance, including allowable-cost reviews.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "both_var",
+   "text": "I write every progress report for our HUD grants and prepare the single audit, checking that each expense is allowable.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "only_a",
+   "text": "I write the grant reports; our finance director handles compliance and the audits.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "only_b",
+   "text": "I handle grant compliance and audits; the program staff write the reports.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "supervise",
+   "text": "I oversee the staff who do our grant reporting and compliance.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "correction",
+   "text": "I do grant reporting and compliance. Really, our auditor handles the compliance side, I only draft the reports.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P6",
+   "kind": "opened",
+   "text": "Well, I write every federal progress report for our three HUD grants and pull the expense data for the drawdowns myself. I also handle the single audit binders.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "both_std",
+   "text": "I schedule patients for three providers and do the insurance verification before each visit.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "both_var",
+   "text": "I book all the appointments and reschedules and run eligibility checks on every patient's coverage before they come in.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "only_a",
+   "text": "I book all the appointments, and my coworker Tasha runs the insurance checks before each visit.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "only_b",
+   "text": "I verify insurance for every patient; the front desk handles the scheduling.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "supervise",
+   "text": "I manage the front-desk team that schedules patients and verifies insurance.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "correction",
+   "text": "I do patient scheduling and insurance verification. Actually, the billing office verifies the insurance, I just book the appointments.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P7",
+   "kind": "opened",
+   "text": "I book all the appointments and reschedules, my coworker Tasha runs the insurance checks before each visit and calls the patient if something's not covered.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "both_std",
+   "text": "I do the bookkeeping in QuickBooks and prepare the monthly financial reports for the owners.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "both_var",
+   "text": "I post every transaction to the ledger in QuickBooks and put together the P&L and balance sheet for the bank every month.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "only_a",
+   "text": "I do the bookkeeping, and our CPA prepares the monthly financial reports.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "only_b",
+   "text": "I prepare the monthly financial reports from what the bookkeeper enters.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "supervise",
+   "text": "I oversee the bookkeeper and review the monthly financial reports she prepares.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "correction",
+   "text": "I handle bookkeeping and monthly reporting. Well, my husband does all the books, I only print the reports for the bank.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P8",
+   "kind": "opened",
+   "text": "I handle the baking and ordering, my husband does all the books in QuickBooks and puts together the monthly numbers for the bank.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "both_std",
+   "text": "I thread and fit black iron gas pipe on commercial jobs every day.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "both_var",
+   "text": "I cut and run threads on black iron with a Ridgid 300, then make up the joints and install the runs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "only_a",
+   "text": "I run the threading machine in the shop; the pipefitters do the fitting in the field.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "only_b",
+   "text": "I fit grooved and welded pipe in the field; the shop threads anything that needs it.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "supervise",
+   "text": "I supervise the pipefitters who thread and fit the gas lines.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "correction",
+   "text": "I do pipe threading and fitting. Actually, the shop does the threading, I only fit the pipe.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P11",
+   "kind": "opened",
+   "text": "Did a one-day plumbing basics workshop at the hardware store where we threaded a couple pipe pieces.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "both_std",
+   "text": "I do pruning and tree felling for a residential tree service.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "both_var",
+   "text": "I trim the limbs off people's oaks and maples and take down dead trees with a chainsaw.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "only_a",
+   "text": "I prune shrubs and small trees; the climbers handle any tree felling.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "only_b",
+   "text": "I fell the trees on our logging crew; the arborists do the pruning work.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "supervise",
+   "text": "I schedule the crew and sign off on the pruning and tree felling jobs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "correction",
+   "text": "I do pruning and tree felling. Well, really the climbers fell the trees, I only prune the low branches.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P12",
+   "kind": "opened",
+   "text": "I run the grounds crew for a university campus. When trees need to come down or get cut back off the buildings, I schedule the crew and sign off on the work orders.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "both_std",
+   "text": "I recruit and hire the staff for our three clinics.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "both_var",
+   "text": "I source and screen applicants on Indeed, interview the finalists and make the final offer decisions.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "only_a",
+   "text": "I recruit and screen candidates, and the store manager makes the hiring decisions.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "only_b",
+   "text": "I hire the staff for my department; HR does all the recruiting and screening.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": true,
+    "verdict": "insufficient_information",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "supervise",
+   "text": "I oversee the recruiter who handles our recruiting and hiring.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "correction",
+   "text": "I recruit and hire staff. Actually, the owner does the hiring, I just post the ads and screen resumes.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "opened",
+   "text": "We had a staffing agency send us temps during peak. They found and screened everybody, I just told them how many bodies we needed each week.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "both_std",
+   "text": "I recruit and onboard all new staff for the warehouse.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "both_var",
+   "text": "I source and screen applicants for our stores and run the new-hire orientation and first-week paperwork for everyone we bring on.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "only_a",
+   "text": "I recruit new staff, and HR handles all the onboarding.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "only_b",
+   "text": "I onboard every new hire; the recruiter does all the sourcing and screening.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "supervise",
+   "text": "I manage the HR coordinator who recruits and onboards new staff.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "correction",
+   "text": "I recruit and onboard new staff. Well, mostly HR does the onboarding, I only do the recruiting.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "both_std",
+   "text": "I do the inventory cycle counts twice a week and reconcile the variances in the system.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "both_var",
+   "text": "Every Tuesday I count a few aisles against what the system says, and when the numbers don't match I dig through receiving slips and returns until I find the error and fix the count.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "only_a",
+   "text": "I do the cycle counts, and the inventory analyst reconciles the variances.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "only_b",
+   "text": "I reconcile the variances after the counters finish the cycle counts.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "supervise",
+   "text": "I supervise the counters who do the cycle counts and reconcile the variances.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "correction",
+   "text": "I do cycle counts and reconcile variances. Actually, the analyst reconciles them, I just count.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "opened",
+   "text": "Every Tuesday and Thursday I pick a few aisles, count what's actually on the shelf and compare it against what the system says we should have. If the numbers don't line up I dig through the receiving slips and returns until I find out why, then fix the record.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "both_std",
+   "text": "I do brake and suspension repair at an independent shop.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "both_var",
+   "text": "I replace pads, rotors and calipers and swap struts, control arms and ball joints on customer cars every day.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "only_a",
+   "text": "I do brake jobs; the senior tech handles anything suspension.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "only_b",
+   "text": "I do the suspension work; the other tech does all the brake jobs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "supervise",
+   "text": "I'm the service writer; I write up the brake and suspension repairs for the techs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A20",
+   "kind": "correction",
+   "text": "I do brake and suspension repair. Well, mostly the senior tech does the suspension, I only do pads and rotors.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "both_std",
+   "text": "I install drywall and finish the joints on new residential builds.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "both_var",
+   "text": "I hang sheetrock on walls and ceilings, then tape and mud the seams and sand them smooth for paint.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "only_a",
+   "text": "I hang the drywall; the tapers finish the joints.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "only_b",
+   "text": "I tape and finish the joints after the hangers install the drywall.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "supervise",
+   "text": "I run the drywall crew that hangs and finishes the board.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "correction",
+   "text": "I install drywall and finish joints. Actually, the tapers do the finishing, I just hang the board.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A21",
+   "kind": "opened",
+   "text": "Od trzech lat sam montuję płyty gipsowe na ścianach i sufitach w nowych domach. Szpachluję łączenia, kładę taśmę i szlifuję przed malowaniem.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "text_unread"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "both_std",
+   "text": "I manage the calendars for our CEO and two VPs and coordinate all their travel.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "both_var",
+   "text": "I run the CEO's calendar, juggling board meetings, and book the hotels, cars and flights for her trips.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "only_a",
+   "text": "I manage the executives' calendars; the travel agency books all their trips.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "only_b",
+   "text": "I coordinate travel for the leadership team; their assistants keep the calendars.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "supervise",
+   "text": "I oversee the assistants who manage the executive calendars and travel.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "correction",
+   "text": "I handle executive calendars and travel. Well, the travel desk books the trips, I only keep the calendars.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "opened",
+   "text": "I run the calendars for our CEO and two VPs — juggling board meetings, moving things when a flight changes, and booking the hotels, cars and flights for their trips.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "both_std",
+   "text": "I manage our social media accounts and create all the content for them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "both_var",
+   "text": "I run our Instagram and TikTok, answer comments and DMs, and shoot and edit the photos and short videos we post.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "only_a",
+   "text": "I manage the accounts and schedule posts; a freelancer creates the content.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "only_b",
+   "text": "I shoot the photos and videos, and Dana runs the accounts and decides what goes out.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "supervise",
+   "text": "I approve what our agency posts and review the content they create.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "correction",
+   "text": "I manage social media and create content. Actually, the agency makes the content, I just schedule the posts.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A23",
+   "kind": "opened",
+   "text": "I shoot the photos and short videos at our events and Dana writes the captions and decides what goes out when, she also handles the replies on Instagram.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "both_std",
+   "text": "I perform venipuncture for lab draws and start IV lines on adults in the ED.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "both_var",
+   "text": "I draw blood for labs and place peripheral IVs on patients, usually twenty a shift.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "only_a",
+   "text": "I do venipuncture for lab draws; the nurses start all the IV lines.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "only_b",
+   "text": "I start IV lines; the phlebotomists do the venipuncture for labs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "supervise",
+   "text": "I supervise the techs who do venipuncture and start IVs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "correction",
+   "text": "I do venipuncture and start IVs. Well, the nurses start the IVs, I only draw blood.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A24",
+   "kind": "opened",
+   "text": "I perform venipuncture for lab draws and start peripheral IVs on adults in the ED, usually 20 or more a shift.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "both_std",
+   "text": "I schedule service appointments and dispatch our eight technicians each morning.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "both_var",
+   "text": "I take the calls, book customers' appointments and route our eight field techs each morning based on where the jobs are.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "only_a",
+   "text": "I schedule the service appointments; the operations manager dispatches the technicians.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "only_b",
+   "text": "I dispatch the technicians; the call center schedules the appointments.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "supervise",
+   "text": "I supervise the coordinators who schedule appointments and dispatch technicians.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "correction",
+   "text": "I schedule appointments and dispatch technicians. Actually, the ops manager dispatches, I just book the calls.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A25",
+   "kind": "opened",
+   "text": "I take the calls from customers, book their appointments and route our eight field techs each morning based on where the jobs are and who has the parts on their truck. When something runs long I reshuffle the afternoon.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "both_std",
+   "text": "I prepare individual tax returns and small-business tax returns during tax season.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "both_var",
+   "text": "I do 1040s for families and the 1120-S and 1065 returns for our clients' companies.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "only_a",
+   "text": "I do the individual 1040s start to finish; my manager takes the partnership and S-corp returns.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "only_b",
+   "text": "I prepare small-business returns; the junior staff handle the individual returns.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "supervise",
+   "text": "I review the individual and small-business returns my staff prepare.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "correction",
+   "text": "I prepare individual and small-business returns. Well, my manager does the business returns, I only do the 1040s.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A26",
+   "kind": "opened",
+   "text": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "both_std",
+   "text": "I pour and finish concrete flatwork: driveways, sidewalks and patios.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "both_var",
+   "text": "I place and screed the slabs, then bull-float, edge and hand-trowel them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "only_a",
+   "text": "I pour the concrete; the finishers do the troweling and edging.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "only_b",
+   "text": "I finish the slabs after the laborers pour them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "supervise",
+   "text": "I run the crew that pours and finishes the flatwork.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "correction",
+   "text": "I pour and finish flatwork. Well, the finishers do the troweling, I only spread the concrete.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A51",
+   "kind": "opened",
+   "text": "I wheelbarrow the mud and spread it with a rake ahead of the finishers, and clean the tools after. They do the troweling and edging.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "both_std",
+   "text": "I verify every invoice against the PO and approve them for payment up to $10,000.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "both_var",
+   "text": "I match each bill to the purchase order and receiving report, and I sign off on payment for anything under $10,000.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "only_a",
+   "text": "I verify the invoices against the POs, and the controller approves them for payment.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "only_b",
+   "text": "I approve invoices for payment after the AP clerk verifies them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "supervise",
+   "text": "I oversee the AP clerks who verify and approve invoices.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A52",
+   "kind": "correction",
+   "text": "I verify and approve invoices. Actually, the controller approves them, I just check them against the POs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "both_std",
+   "text": "I build and maintain the Excel financial models for our FP&A team.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "both_var",
+   "text": "I created our three-statement model in Excel from scratch and update its assumptions every quarter.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "only_a",
+   "text": "I built the forecasting model in Excel; the analysts maintain it now.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "only_b",
+   "text": "I maintain and update the Excel model our senior analyst built.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "supervise",
+   "text": "I review the Excel models my analysts build and maintain.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "correction",
+   "text": "I build and maintain Excel models. Well, Priya built the model, I only update the numbers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "opened",
+   "text": "Our senior analyst Priya owns the forecasting model, she built the whole thing and updates the assumptions each quarter. I pull numbers out of it for the monthly decks and flag anything that looks off to her.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "both_std",
+   "text": "I configure and maintain our AWS cloud infrastructure: VPCs, EC2, RDS and IAM.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "both_var",
+   "text": "I set up our VPCs, EC2 instances and RDS databases in AWS with Terraform, and I patch and upgrade them every month.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "only_a",
+   "text": "I configured our AWS environment when we migrated; the ops team maintains it now.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "only_b",
+   "text": "I maintain and patch our AWS infrastructure; the platform team configured it.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "supervise",
+   "text": "I oversee the DevOps engineer who configures and maintains our AWS infrastructure.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "correction",
+   "text": "I configure and maintain AWS. Actually, our DevOps guy set everything up, I just deploy my code.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A54",
+   "kind": "opened",
+   "text": "Our DevOps guy set up everything on AWS and he's the one who changes things there. I deploy my code through the pipeline he built.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "both_std",
+   "text": "I design and develop RESTful APIs for our order service.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "both_var",
+   "text": "I write the OpenAPI specs for our endpoints and then code the handlers and tests in Go.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "only_a",
+   "text": "I design the API contracts; the backend team builds the endpoints.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "only_b",
+   "text": "I build the endpoints against the spec Kevin designs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "supervise",
+   "text": "I review the API designs and code my team produces.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "correction",
+   "text": "I design and develop REST APIs. Well, Kevin designs the contracts, I only write the handlers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A55",
+   "kind": "opened",
+   "text": "On our team I build the endpoints for the orders service and Kevin designs the API contracts and the auth layer; I write the handlers and tests against his spec.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "both_std",
+   "text": "I develop and deliver sales presentations to clients.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "both_var",
+   "text": "I build the decks in PowerPoint for every prospect and present them in person or on Zoom.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "only_a",
+   "text": "I build the decks; the account executives present them to clients.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "only_b",
+   "text": "I present to clients using decks our marketing team makes.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "supervise",
+   "text": "I coach the reps who develop and deliver our sales presentations.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "correction",
+   "text": "I develop and deliver presentations. Actually, marketing builds the decks, I just present them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "opened",
+   "text": "I mean, that's basically my whole job — I build the decks in PowerPoint for every prospect and present them in person or on Zoom, usually to their purchasing team.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "both_std",
+   "text": "I install and maintain security camera systems for retail clients.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "both_var",
+   "text": "I mount and wire the cameras and recorders at new stores and service them when a camera goes down.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "only_a",
+   "text": "I install the camera systems; the service department handles maintenance.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "only_b",
+   "text": "I maintain and repair camera systems another crew installed.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "supervise",
+   "text": "I put in a service request with our alarm company when a camera needs installing or fixing.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "correction",
+   "text": "I install and maintain cameras. Well, the alarm company does the installs, I only reset the recorders.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A57",
+   "kind": "opened",
+   "text": "When a camera goes down at the store I put in a service request with our alarm company, and their tech comes out to replace or re-aim it. I review the footage when we have a theft.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "both_std",
+   "text": "I install and repair residential plumbing: new bathrooms, water heaters, and leaks.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "both_var",
+   "text": "I rough in supply and drain lines for new bathrooms and fix leaks and clogs on service calls.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "only_a",
+   "text": "I install plumbing in new builds; the service plumbers handle repairs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "only_b",
+   "text": "I take the faucet and toilet repair calls, and my brother does anything inside the walls.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "supervise",
+   "text": "I run the plumbing company and send plumbers out to install and repair systems.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "correction",
+   "text": "I install and repair plumbing. Actually, my brother does the installs, I only fix faucets.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A58",
+   "kind": "opened",
+   "text": "Me and my brother run the business together; I take the faucet, toilet and garbage disposal jobs and he does anything that's inside the walls or needs a permit.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "both_std",
+   "text": "I order and manage the pharmacy inventory for our store.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "both_var",
+   "text": "I place the daily orders with the wholesaler, rotate stock, pull expired drugs and handle overstock returns.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "only_a",
+   "text": "I place the wholesaler orders; the lead tech manages the inventory on the shelves.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "only_b",
+   "text": "I manage the pharmacy inventory and returns; Gloria does all the ordering.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "supervise",
+   "text": "I'm the pharmacist in charge and review the orders and inventory reports the techs prepare.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "correction",
+   "text": "I order and manage inventory. Well, Gloria does the ordering, I only fill and count.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A59",
+   "kind": "opened",
+   "text": "Our lead tech, Gloria, does the ordering from the wholesaler and handles the overstock returns. I fill and count.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "both_std",
+   "text": "I plan and execute paid search campaigns in Google Ads.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "both_var",
+   "text": "I do the keyword research and set the strategy for our Google Ads search campaigns, then write the ads and adjust bids weekly.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "only_a",
+   "text": "I plan the campaigns; our agency runs them in Google Ads.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "only_b",
+   "text": "I run the Google Ads campaigns the agency plans for us.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "supervise",
+   "text": "I approve the plans and review the results of the campaigns our agency runs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "correction",
+   "text": "I plan and run Google Ads campaigns. Actually, the agency runs them, I only set the monthly goals.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "opened",
+   "text": "I plan and run our Google Ads search campaigns — keyword research, ad copy, bids and weekly budget adjustments across about $15k a month in spend.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "both_std",
+   "text": "I cut and style hair for my own clients at the salon.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "both_var",
+   "text": "I do fades, layers and trims and finish every client with a blowout or an updo.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "only_a",
+   "text": "I do the cuts; the stylists handle the styling and color.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "only_b",
+   "text": "I shampoo the clients and blow-dry once the stylists finish cutting.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "supervise",
+   "text": "I manage the salon and book the stylists who cut and style hair.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "correction",
+   "text": "I cut and style hair. Well, the stylists do the cutting, I only blow-dry.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A63",
+   "kind": "opened",
+   "text": "I shampoo the clients, mix color for the stylists and blow-dry once they finish cutting.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "both_std",
+   "text": "I load and unload freight from trucks at the dock every shift.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "both_var",
+   "text": "I break down inbound trailers and stack the outbound pallets onto the delivery trucks.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "only_a",
+   "text": "I'm on the outbound side and load the delivery trucks; the inbound crew unloads.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "only_b",
+   "text": "I'm on the inbound side so I unload and break down the trailers; the outbound guys load the trucks.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "supervise",
+   "text": "I run second shift and make sure the loaders and unloaders keep the dock moving.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "correction",
+   "text": "I load and unload trucks. Actually, the outbound crew does the loading, I only unload.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "opened",
+   "text": "I'm on the inbound side so I unload and break down the trailers, the outbound guys load the trucks for delivery.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "both_std",
+   "text": "I set up and operate CNC lathes in a job shop.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "both_var",
+   "text": "I load the programs, touch off the tools and set the offsets on our Haas lathes, then run the parts and check them with mics.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "only_a",
+   "text": "I do the lathe setups; the operators run the production parts.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "only_b",
+   "text": "I run the CNC lathes after the setup tech prepares them.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "supervise",
+   "text": "I supervise the machinists who set up and run the lathes.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A76",
+   "kind": "correction",
+   "text": "I set up and run CNC lathes. Well, the setup guy does the setups, I only run parts.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "both_std",
+   "text": "I run the accounts receivable aging analysis and handle collections.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "both_var",
+   "text": "I pull the AR aging every week, flag what's over 60 days and call customers about past-due balances until they pay.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "only_a",
+   "text": "I prepare the AR aging reports; the collections team calls the customers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "only_b",
+   "text": "I make the collection calls using the aging report the controller runs.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "supervise",
+   "text": "I review the aging report and the collectors' notes each week.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "correction",
+   "text": "I do AR aging and collections. Actually, the collectors make the calls, I only run the aging report.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "both_std",
+   "text": "I do the forecasting and budgeting for our four locations.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "both_var",
+   "text": "I build the rolling 12-month projections and set the annual spending plan for each department.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "only_a",
+   "text": "I build the forecast; the finance manager owns the budget.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "only_b",
+   "text": "I fill in the budget template; the regional finance guy builds the forecast.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "supervise",
+   "text": "I review the forecasts and budgets my analysts prepare.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "correction",
+   "text": "I do forecasting and budgeting. Well, really the finance guy builds the forecast, I just give him my labor numbers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A93",
+   "kind": "opened",
+   "text": "I build our annual budget. I mean, I fill in the template, but really the regional finance guy builds the forecast and I just give him my labor numbers.",
+   "expect": null,
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I build our three-statement financial model in Excel and maintain it every quarter, updating the assumptions and formulas.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, Excel named with both acts"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I build our financial models in Google Sheets and maintain them every quarter.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "other tool: transferable, not Excel"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "Our CFO keeps everything in Excel; I build the cash flow model in Python and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Excel only in someone else's clause"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I build our financial models in a spreadsheet and update the assumptions monthly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "ambiguous tool: ask whether Excel"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I know Excel well. I build our budget model in Python and update it monthly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Excel named, but not for the modeling work"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I maintain the Excel forecasting model our senior analyst built, updating the formulas monthly.",
+   "expect": {
+    "parts": [
+     false,
+     true
+    ],
+    "verdict": "P",
+    "why": "maintaining only; building was the analyst's"
+   },
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I plan our Google Ads search campaigns with keyword research and run them daily, adjusting bids.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, Google Ads named"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I plan and run our paid search campaigns in Microsoft Advertising.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "other platform"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "The agency runs our Google Ads account; I plan the campaigns and write the ad copy.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Google Ads only in the agency's clause; execution is the agency's"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I plan and run our search ads every week.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "ambiguous platform: ask"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I do the keyword research and plan the Google Ads campaigns. I also run the Google Ads campaigns and adjust bids daily.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, separate sentences"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "v5probe",
+   "text": "I'm assigned to the trailers at door 4, and I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     true
+    ],
+    "verdict": "P",
+    "why": "object inherited from an own earlier clause"
+   },
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "v5probe",
+   "text": "I load and unload trucks. Actually, the outbound crew does the loading, I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "earlier claim retracted: no inheritance; clarify"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "v5probe",
+   "text": "I clean the break room and unload the dishwasher. On weekends I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "unrelated activity: no inheritance"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A67",
+   "kind": "v5probe",
+   "text": "The outbound crew loads the trucks; I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "object only in another person's clause"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "v5probe",
+   "text": "I build the client decks in PowerPoint every week. I present them myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "pronoun resolves to the person's own decks"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "v5probe",
+   "text": "Marketing builds the decks. I just present them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "pronoun refers to another person's work"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A56",
+   "kind": "v5probe",
+   "text": "I put together the decks and the pricing spreadsheets. I just present them.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "several possible antecedents: ambiguous"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "v5probe",
+   "text": "I'm the executive assistant to our CEO and two VPs. I only keep the calendars; the travel desk books the trips.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "executive context inherited from an own earlier clause"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A22",
+   "kind": "v5probe",
+   "text": "I only keep the calendars.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "whose calendars is unclear: clarify"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "v5probe",
+   "text": "I'm on the inventory team for the stock room. I just count; the analyst reconciles.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "object inherited from an own earlier clause"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "v5probe",
+   "text": "I do cycle counts and reconcile variances. Actually, the analyst reconciles them, I just count.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "earlier claim retracted: no inheritance"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A19",
+   "kind": "v5probe",
+   "text": "I handle the stock room and the cash drawers. I just count them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "several possible antecedents"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "own analysis; no collections shown"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I analyze the aging buckets and payment trends each month and set the collection priorities.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "own analysis"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I forward the aging report to the controller every Monday.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "forwarding is not analysis"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I get the aging report every Monday and read it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "receiving and reading are not analysis"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I review the aging analysis our staff accountant prepares.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "notS",
+    "why": "another person's analysis"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I review the aging report every week.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "no blanket review exception: clarify"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I run the AR aging analysis, identify the overdue balances and call those customers until they pay.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own analysis and collections"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I work in Excel all day on our FP&A models. I built the three-statement model and I maintain it every quarter.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "tool established in an earlier own clause, clearly connected"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I'm proficient in Excel. I built the three-statement model and I maintain it every quarter.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "knowing a tool is not using it for this work"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "Our controller lives in Excel. I built the three-statement model and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "tool only in another person's clause"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I use Excel and Google Sheets. I built the three-statement model and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two tools: ambiguous which one"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A53",
+   "kind": "v5probe",
+   "text": "I used Excel for years. I built our current three-statement model in Python and maintain it there.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "later clause names a different tool: contradicted"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I manage our Google Ads account for the clinic. I plan the search campaigns and run them, adjusting bids weekly.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "platform established in an earlier own clause"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "Our agency manages the Google Ads account. I plan the search campaigns and run them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "platform only in the agency's clause"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A60",
+   "kind": "v5probe",
+   "text": "I work in Google Ads and Meta Ads. I plan the campaigns and run them weekly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two platforms: ambiguous"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "v5probe",
+   "text": "I recruit volunteers for the food bank and help pick the new coordinators.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "volunteers are not staff; 'help pick' is not a hiring decision"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "v5probe",
+   "text": "I work closely with our recruiter and sit in on the interviews.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "noun 'recruiter'; observing interviews"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "v5probe",
+   "text": "I recommend candidates to the owner, who decides who we hire.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "recommending is not hiring"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "v5probe",
+   "text": "We hired a staffing contractor to cover the night shift.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "notS",
+    "why": "engaging a contractor for services"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P13",
+   "kind": "v5probe",
+   "text": "I screen applicants for our cashier openings and extend the offers myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own screening and authorized offers"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "v5probe",
+   "text": "I process the onboarding paperwork for new hires and file it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "paperwork is not conducting onboarding"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "v5probe",
+   "text": "I receive the onboarding packets from HR and hand them out.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "receiving paperwork"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "P14",
+   "kind": "v5probe",
+   "text": "I recruit our new nurses and run the onboarding for new nurses myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "conducting onboarding"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "v5probe",
+   "text": "I generate the AR aging report every Monday and send it to the controller.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "generating and sending the report is not analysis"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I run the AR aging analysis, identify the overdue balances and call those customers until they pay.",
+   "expect": {
+    "collections": true,
+    "why": "positive: own antecedent (the V5 probe's sentence, as a control)"
+   },
+   "expected": {
+    "parts": [
+     true,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "supported",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I call past-due customers until they pay.",
+   "expect": {
+    "collections": true,
+    "why": "positive: plain past-due customers"
+   },
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I pull the list of unpaid invoices every Friday and call those customers until they pay.",
+   "expect": {
+    "collections": true,
+    "why": "positive: unpaid invoices as the antecedent"
+   },
+   "expected": {
+    "parts": [
+     false,
+     true
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "Our AR clerk identifies the overdue balances and calls those customers until they pay.",
+   "expect": {
+    "collections": false,
+    "why": "another person makes the calls"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "insufficient_information",
+    "consistency": "text_mismatch"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I identify the overdue balances and our collector calls those customers until they pay.",
+   "expect": {
+    "collections": false,
+    "why": "another person makes the calls after the person's analysis"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I call those customers until they confirm their delivery dates.",
+   "expect": {
+    "collections": false,
+    "why": "unrelated calls (deliveries)"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I schedule the deliveries and call those customers until they confirm a time.",
+   "expect": {
+    "collections": false,
+    "why": "unrelated calls, own context about deliveries"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I call those customers until they pay.",
+   "expect": {
+    "collections": false,
+    "why": "ambiguous: no antecedent at all"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I sort the new accounts and the overdue balances, and call those customers until they pay.",
+   "expect": {
+    "collections": false,
+    "why": "ambiguous: two groups it could mean"
+   },
+   "expected": {
+    "parts": [
+     true,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I identify the overdue balances and call those customers until they pay. Actually, our collections agency makes the calls, I only send the statements.",
+   "expect": {
+    "collections": false,
+    "why": "correction transfers the calls to someone else"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  },
+  {
+   "cid": "A77",
+   "kind": "control",
+   "text": "I welcome new customers and call them until they pay.",
+   "expect": {
+    "collections": false,
+    "why": "pronoun whose own antecedent isn't overdue"
+   },
+   "expected": {
+    "parts": [
+     false,
+     false
+    ],
+    "transferAll": false,
+    "verdict": "possible",
+    "consistency": "consistent"
+   }
+  }
+ ]
+}

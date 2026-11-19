@@ -1,0 +1,60 @@
+labelled items 400 of 400
+
+== rules-v19
+  who did the work (actor) accuracy 0.51; involvement accuracy 0.54
+  passive          F1 0.24 (P 0.15 R 0.56)
+  negated          F1 0.82 (P 0.88 R 0.78)
+  multiple_actors  F1 0.54 (P 0.61 R 0.48)
+  correction       F1 0.29 (P 1.00 R 0.17)
+  ownership: false attribution 45, missed legitimate 127
+    answer           n=220 actor 0.52  false own  28  missed  60
+    reply            n=100 actor 0.52  false own   3  missed  47
+    role_description n= 80 actor 0.44  false own  14  missed  20
+  actor confusion (label -> predicted), top errors: [(('self', 'none'), 41), (('none', 'self'), 36), (('other', 'none'), 33), (('mixed', 'self'), 16), (('other', 'self'), 15), (('other', 'mixed'), 11), (('unclear', 'none'), 7), (('self', 'mixed'), 6)]
+  hard slices (actor right / n): {'ambiguous_subject': '2/7', 'assisted': '4/9', 'assisted_or_observed': '3/8', 'colleague_did': '4/6', 'corrects_itself': '2/17', 'delegated_or_supervised': '1/10', 'handed_off': '3/10', 'mixed_ownership': '6/20', 'observed': '3/9', 'requested_from_provider': '3/10', 'role_description': '35/80', 'supervised': '2/12'}
+
+== wink-nlp
+  who did the work (actor) accuracy 0.30; involvement accuracy 0.47
+  passive          F1 0.20 (P 0.13 R 0.44)
+  negated          F1 0.62 (P 0.69 R 0.56)
+  multiple_actors  F1 0.40 (P 0.25 R 0.90)
+  correction       F1 0.29 (P 1.00 R 0.17)
+  ownership: false attribution 20, missed legitimate 159
+    answer           n=220 actor 0.31  false own  17  missed  84
+    reply            n=100 actor 0.23  false own   3  missed  51
+    role_description n= 80 actor 0.38  false own   0  missed  24
+  actor confusion (label -> predicted), top errors: [(('self', 'other'), 79), (('self', 'mixed'), 55), (('none', 'other'), 31), (('other', 'mixed'), 22), (('other', 'none'), 18), (('self', 'none'), 15), (('mixed', 'other'), 11), (('other', 'self'), 9)]
+  hard slices (actor right / n): {'ambiguous_subject': '2/7', 'assisted': '5/9', 'assisted_or_observed': '0/8', 'colleague_did': '5/6', 'corrects_itself': '5/17', 'delegated_or_supervised': '2/10', 'handed_off': '7/10', 'mixed_ownership': '6/20', 'observed': '3/9', 'requested_from_provider': '4/10', 'role_description': '30/80', 'supervised': '4/12'}
+
+== compromise
+  who did the work (actor) accuracy 0.27; involvement accuracy 0.53
+  passive          F1 0.17 (P 0.12 R 0.33)
+  negated          F1 0.83 (P 0.96 R 0.72)
+  multiple_actors  F1 0.41 (P 0.27 R 0.86)
+  correction       F1 0.29 (P 1.00 R 0.17)
+  ownership: false attribution 8, missed legitimate 188
+    answer           n=220 actor 0.26  false own   7  missed 105
+    reply            n=100 actor 0.25  false own   1  missed  58
+    role_description n= 80 actor 0.29  false own   0  missed  25
+  actor confusion (label -> predicted), top errors: [(('self', 'mixed'), 91), (('other', 'mixed'), 49), (('self', 'other'), 31), (('self', 'none'), 28), (('none', 'other'), 26), (('none', 'mixed'), 12), (('none', 'self'), 11), (('other', 'self'), 10)]
+  hard slices (actor right / n): {'ambiguous_subject': '0/7', 'assisted': '6/9', 'assisted_or_observed': '1/8', 'colleague_did': '0/6', 'corrects_itself': '5/17', 'delegated_or_supervised': '3/10', 'handed_off': '3/10', 'mixed_ownership': '12/20', 'observed': '0/9', 'requested_from_provider': '0/10', 'role_description': '23/80', 'supervised': '4/12'}
+
+== hybrid (rules clauses + compromise subjects)
+  who did the work (actor) accuracy 0.45; involvement accuracy 0.55
+  passive          F1 0.24 (P 0.15 R 0.56)
+  negated          F1 0.80 (P 0.90 R 0.72)
+  multiple_actors  F1 0.51 (P 0.46 R 0.57)
+  correction       F1 0.29 (P 1.00 R 0.17)
+  ownership: false attribution 43, missed legitimate 126
+    answer           n=220 actor 0.48  false own  34  missed  57
+    reply            n=100 actor 0.49  false own   3  missed  47
+    role_description n= 80 actor 0.30  false own   6  missed  22
+  actor confusion (label -> predicted), top errors: [(('self', 'other'), 28), (('none', 'other'), 27), (('none', 'self'), 23), (('other', 'none'), 23), (('other', 'self'), 20), (('self', 'none'), 20), (('self', 'mixed'), 17), (('mixed', 'self'), 16)]
+  hard slices (actor right / n): {'ambiguous_subject': '3/7', 'assisted': '4/9', 'assisted_or_observed': '2/8', 'colleague_did': '2/6', 'corrects_itself': '1/17', 'delegated_or_supervised': '1/10', 'handed_off': '3/10', 'mixed_ownership': '6/20', 'observed': '2/9', 'requested_from_provider': '6/10', 'role_description': '24/80', 'supervised': '3/12'}
+
+== rules-v19 product verdicts: false ownership 29, missed legitimate 124
+    answer           false   8  missed  71
+    reply            false   1  missed  39
+    role_description false  20  missed  14
+  role descriptions labelled word_sense: Counter({'same': 45, 'absent': 22, 'different': 13})
+  role descriptions with a different sense that the product credits: ['train.json:tr-pa-guest-repo:description', 'check2.json:c2-para-bridge-dentist:description', 'holdout_i_cases.json:i-amb-energy-audit:description', 'holdout_j_cases.json:j-rel-food-field-service:description', 'holdout_j_cases.json:j-rel-pest-devops:description', 'holdout_j_cases.json:j-au-detailer:description', 'holdout_i_cases.json:i-amb-drafting:description']

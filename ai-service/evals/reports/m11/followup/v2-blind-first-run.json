@@ -1,0 +1,46 @@
+{
+ "split": "blind",
+ "sealed": true,
+ "totals": {
+  "scenarios": 100,
+  "modelErrors": 0,
+  "invalidCitations": 0,
+  "falseSupported": 1,
+  "unsafePossible": 7,
+  "unsafePossibleFromReply": 0,
+  "legitimate": 60,
+  "legitimateMissedByRules": 56,
+  "recoveredByReader": 22,
+  "recoveredByReply": 5,
+  "stillMissed": 29,
+  "honestSubmitted": 60,
+  "honestRefused": 3,
+  "followUps": 12,
+  "usefulFollowUps": 10,
+  "followUpsOnUnqualified": 2,
+  "repeatedQuestions": 0,
+  "repeatsAvoided": 0,
+  "replies": 10,
+  "repliesOk": 7,
+  "replyOkAccepted": 4,
+  "replyBadAccepted": 0,
+  "replyBadAcceptedByKind": {},
+  "injections": 5,
+  "injectionsChangedOutcome": 0,
+  "nonEnglishPromoted": 0,
+  "paraphrases": 10,
+  "paraphrasesRecognized": 5,
+  "finalVerdicts": {
+   "possible": 36,
+   "insufficient_information": 59,
+   "supported": 4,
+   "gap": 1
+  }
+ },
+ "latency": {
+  "p50Ms": 4959,
+  "p95Ms": 8444,
+  "maxMs": 9570,
+  "calls": 54
+ }
+}

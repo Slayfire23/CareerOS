@@ -5,7 +5,7 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSavedJobsOverview, type RecentJob } from "@/lib/overview";
-import { requirementsHref, SECTIONS } from "@/lib/sections";
+import { matchHref, requirementsHref, SECTIONS } from "@/lib/sections";
 import { ButtonLink, LoadingBlock, PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Job analysis" };
@@ -15,7 +15,7 @@ const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "nume
 const groups: { status: RecentJob["reviewStatus"]; title: string; description: string; action: string; marker: string }[] = [
   { status: "out-of-date", title: "Needs re-review", description: "The job description changed after you reviewed it. Check your saved requirements against the new text.", action: "Review again", marker: "border-l-foreground/40" },
   { status: "not-reviewed", title: "Not reviewed yet", description: "Pick out requirements from the posting text and confirm them.", action: "Review requirements", marker: "border-l-line" },
-  { status: "reviewed", title: "Reviewed", description: "Requirements you confirmed against the current description.", action: "Open analysis", marker: "border-l-accent" },
+  { status: "reviewed", title: "Reviewed", description: "Requirements you confirmed against the current description. Run a requirement analysis to compare them with your profile.", action: "Open review", marker: "border-l-accent" },
 ];
 
 function Breakdown({ job }: { job: RecentJob }) {
@@ -37,9 +37,14 @@ function JobRow({ job, action }: { job: RecentJob; action: string }) {
         <Breakdown job={job} />
       </div>
     </div>
-    <Link className="btn btn-secondary btn-sm shrink-0 self-start sm:self-center" href={requirementsHref(job.id)}>
-      {action}<span className="sr-only"> for {job.title} at {job.company}</span>
-    </Link>
+    <div className="flex shrink-0 flex-wrap gap-2 self-start sm:self-center">
+      {job.reviewStatus === "reviewed" && <Link className="btn btn-primary btn-sm" href={matchHref(job.id)}>
+        Requirement analysis<span className="sr-only"> for {job.title} at {job.company}</span>
+      </Link>}
+      <Link className="btn btn-secondary btn-sm" href={requirementsHref(job.id)}>
+        {action}<span className="sr-only"> for {job.title} at {job.company}</span>
+      </Link>
+    </div>
   </li>;
 }
 

@@ -1,0 +1,3763 @@
+{
+ "answers": 1266,
+ "groups": {
+  "phlebotomy": {
+   "group": {
+    "canonical": "phlebotomy",
+    "asks": [
+     "phlebotomy",
+     "venipuncture",
+     "venepuncture",
+     "blood draws",
+     "drawing blood"
+    ],
+    "descriptions": [
+     "drew blood",
+     "draw blood",
+     "draws blood",
+     "drawing blood",
+     "blood draws",
+     "drew samples of blood"
+    ],
+    "related": [
+     "blood samples",
+     "labeled the tubes"
+    ],
+    "verbs": [
+     "draw",
+     "draws",
+     "drew",
+     "drawing",
+     "collect",
+     "collects",
+     "collected",
+     "collecting"
+    ],
+    "objects": [
+     "blood"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 31-9097.00 Phlebotomists",
+    "source_task": "Draw blood from veins by vacuum tube, syringe, or butterfly venipuncture methods."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I drew blood every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I draw the blood for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to draw blood.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who drew blood and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who drew blood, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker drew blood; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never drew blood.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could draw blood if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "bookkeeping": {
+   "group": {
+    "canonical": "bookkeeping",
+    "asks": [
+     "bookkeeping",
+     "general ledger",
+     "ledger maintenance"
+    ],
+    "descriptions": [
+     "kept the ledgers",
+     "kept the ledger",
+     "kept the books",
+     "maintained the ledger",
+     "maintained ledgers",
+     "posted journal entries",
+     "posted entries to the ledger",
+     "posted to the ledger"
+    ],
+    "related": [
+     "recorded receipts",
+     "filed invoices"
+    ],
+    "verbs": [
+     "keep",
+     "keeps",
+     "kept",
+     "post",
+     "posts",
+     "posted",
+     "maintain",
+     "maintains",
+     "maintained"
+    ],
+    "objects": [
+     "ledger",
+     "ledgers",
+     "books",
+     "journal entries"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
+    "source_task": "Transfer details from separate journals to general ledgers or data processing sheets."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I kept the ledgers every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I keep the ledger for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to keep ledger.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who kept the ledgers and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who kept the ledgers, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker kept the ledgers; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never kept the ledgers.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could keep ledger if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "payroll": {
+   "group": {
+    "canonical": "payroll",
+    "asks": [
+     "payroll",
+     "payroll processing",
+     "process payroll",
+     "run payroll"
+    ],
+    "descriptions": [
+     "calculated wages",
+     "computed wages",
+     "prepared paychecks",
+     "processed paychecks",
+     "issued paychecks",
+     "cut paychecks",
+     "ran paychecks",
+     "ran payroll"
+    ],
+    "related": [
+     "collected timesheets",
+     "tracked timesheets",
+     "entered timesheets"
+    ],
+    "verbs": [
+     "prepare",
+     "prepares",
+     "prepared",
+     "process",
+     "processes",
+     "processed",
+     "issue",
+     "issues",
+     "issued",
+     "calculate",
+     "calculates",
+     "calculated",
+     "compute",
+     "computed",
+     "cut",
+     "cuts"
+    ],
+    "objects": [
+     "paychecks",
+     "wages"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-3051.00 Payroll and Timekeeping Clerks",
+    "source_task": "Process and issue employee paychecks and statements of earnings and deductions."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I calculated wages every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I prepare the paychecks for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to prepare paychecks.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who calculated wages and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who calculated wages, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker calculated wages; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never calculated wages.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could prepare paychecks if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "accountspayable": {
+   "group": {
+    "canonical": "accountspayable",
+    "asks": [
+     "accounts payable"
+    ],
+    "descriptions": [
+     "paid vendor invoices",
+     "paid supplier invoices",
+     "processed vendor invoices",
+     "processed supplier invoices",
+     "paid vendors",
+     "ran payment batches",
+     "matched invoices to purchase orders"
+    ],
+    "related": [
+     "filed invoices"
+    ],
+    "verbs": [
+     "pay",
+     "pays",
+     "paid",
+     "process",
+     "processes",
+     "processed"
+    ],
+    "objects": [
+     "vendor invoices",
+     "supplier invoices",
+     "vendors"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-3031.00 Bookkeeping, Accounting, and Auditing Clerks",
+    "source_task": "Match order forms with invoices, and record the necessary information."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I paid vendor invoices every week at my last job.",
+     "verdict": "insufficient_information",
+     "ok": false
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I pay the vendor invoices for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to pay vendor invoices.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who paid vendor invoices and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who paid vendor invoices, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker paid vendor invoices; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never paid vendor invoices.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could pay vendor invoices if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "accountsreceivable": {
+   "group": {
+    "canonical": "accountsreceivable",
+    "asks": [
+     "accounts receivable",
+     "a/r"
+    ],
+    "descriptions": [
+     "billed customers",
+     "sent customer invoices",
+     "issued customer invoices",
+     "collected overdue accounts",
+     "collected overdue payments",
+     "chased overdue invoices",
+     "posted customer payments"
+    ],
+    "related": [
+     "answered billing questions"
+    ],
+    "verbs": [
+     "bill",
+     "bills",
+     "billed",
+     "invoice",
+     "invoices",
+     "invoiced",
+     "collect",
+     "collects",
+     "collected",
+     "chase",
+     "chases",
+     "chased"
+    ],
+    "objects": [
+     "customers",
+     "overdue accounts",
+     "overdue invoices",
+     "overdue payments"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-3011.00 Bill and Account Collectors",
+    "source_task": "Locate and monitor overdue accounts, using computers and a variety of automated systems."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I billed customers every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I bill the customers for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to bill customers.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who billed customers and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who billed customers, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker billed customers; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never billed customers.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could bill customers if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "bankreconciliation": {
+   "group": {
+    "canonical": "bankreconciliation",
+    "asks": [
+     "bank reconciliation",
+     "bank reconciliations"
+    ],
+    "descriptions": [
+     "reconciled bank statements",
+     "reconciled the bank statements",
+     "reconciled accounts to the bank",
+     "reconciled accounts to the bank statements",
+     "matched bank statements"
+    ],
+    "related": [],
+    "verbs": [
+     "reconcile",
+     "reconciles",
+     "reconciled",
+     "match",
+     "matches",
+     "matched"
+    ],
+    "objects": [
+     "bank statement",
+     "bank statements",
+     "statement activity"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-3021.00 Billing and Posting Clerks",
+    "source_task": "Compare previously prepared bank statements with canceled checks and reconcile discrepancies."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Performing bank reconciliations",
+     "answer": "Each month I matched the statement activity for our six checking accounts line by line to the ledger and cleared outstanding deposits and uncashed checks.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "Each month I matched the statement activity for our six checking accounts line by line to the ledger and cleared outstanding deposits and uncashed checks"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I reconciled bank statements every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I reconcile the bank statement for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to reconcile bank statement.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who reconciled bank statements and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who reconciled bank statements, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker reconciled bank statements; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never reconciled bank statements.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could reconcile bank statement if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "medicationadministration": {
+   "group": {
+    "canonical": "medicationadministration",
+    "asks": [
+     "medication administration",
+     "administer medications",
+     "administering medications",
+     "administer medication",
+     "medication passes"
+    ],
+    "descriptions": [
+     "gave medications",
+     "gave medication",
+     "administered medications",
+     "administered medication",
+     "passed medications",
+     "gave injections",
+     "gave oral and injectable"
+    ],
+    "related": [
+     "ordered medications"
+    ],
+    "verbs": [
+     "give",
+     "gives",
+     "gave",
+     "administer",
+     "administers",
+     "administered",
+     "pass",
+     "passes",
+     "passed"
+    ],
+    "objects": [
+     "medication",
+     "medications",
+     "injections",
+     "meds"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 29-1141.00 Registered Nurses",
+    "source_task": "Administer medications to patients and monitor patients for reactions or side effects."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I gave medications every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I give the medication for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to give medication.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who gave medications and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who gave medications, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker gave medications; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never gave medications.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could give medication if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "vitalsigns": {
+   "group": {
+    "canonical": "vitalsigns",
+    "asks": [
+     "vital signs",
+     "taking vitals"
+    ],
+    "descriptions": [
+     "took vitals",
+     "took vital signs",
+     "recorded vitals",
+     "recorded vital signs",
+     "took blood pressure",
+     "measured blood pressure",
+     "checked blood pressure"
+    ],
+    "related": [],
+    "verbs": [
+     "take",
+     "takes",
+     "took",
+     "record",
+     "records",
+     "recorded",
+     "measure",
+     "measures",
+     "measured",
+     "check",
+     "checks",
+     "checked"
+    ],
+    "objects": [
+     "vitals",
+     "vital signs",
+     "blood pressure"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
+    "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I took vitals every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I take the vitals for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to take vitals.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who took vitals and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who took vitals, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker took vitals; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never took vitals.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could take vitals if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "woundcare": {
+   "group": {
+    "canonical": "woundcare",
+    "asks": [
+     "wound care"
+    ],
+    "descriptions": [
+     "dressed wounds",
+     "changed dressings",
+     "changed wound dressings",
+     "cleaned wounds",
+     "cleaned and dressed wounds"
+    ],
+    "related": [],
+    "verbs": [
+     "dress",
+     "dresses",
+     "dressed",
+     "change",
+     "changes",
+     "changed",
+     "clean",
+     "cleans",
+     "cleaned"
+    ],
+    "objects": [
+     "wounds",
+     "dressings"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 29-2061.00 Licensed Practical and Licensed Vocational Nurses",
+    "source_task": "Provide basic patient care or treatments, such as taking temperatures or blood pressures, dressing wounds, treating bedsores, giving enemas or douches, rubbing with alcohol, massag"
+   },
+   "changes": [
+    {
+     "src": "m11_followup:fu-042",
+     "requirement": "Wound care",
+     "answer": "I change dressings on pressure sores and diabetic foot ulcers, measure them each visit and send pictures to the doctor.",
+     "label": "supported",
+     "before": "possible",
+     "after": "supported",
+     "quote": "I change dressings on pressure sores and diabetic foot ulcers, measure them each visit and send pictures to the doctor"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I dressed wounds every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I dress the wounds for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to dress wounds.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who dressed wounds and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who dressed wounds, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker dressed wounds; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never dressed wounds.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could dress wounds if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "drywallfinishing": {
+   "group": {
+    "canonical": "drywallfinishing",
+    "asks": [
+     "drywall finishing"
+    ],
+    "descriptions": [
+     "taped and mudded",
+     "taped joints",
+     "taped drywall joints",
+     "applied joint compound",
+     "sanded and finished drywall"
+    ],
+    "related": [
+     "hung drywall",
+     "hung sheetrock"
+    ],
+    "verbs": [
+     "tape",
+     "tapes",
+     "taped",
+     "mud",
+     "muds",
+     "mudded",
+     "sand",
+     "sands",
+     "sanded",
+     "finish",
+     "finishes",
+     "finished"
+    ],
+    "objects": [
+     "drywall",
+     "sheetrock"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 47-2082.00 Tapers",
+    "source_task": "Press paper tape over joints to embed tape into sealing compound and to seal joints."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I taped and mudded every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I tape the drywall for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to tape drywall.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who taped and mudded and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who taped and mudded, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker taped and mudded; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never taped and mudded.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could tape drywall if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "forkliftoperation": {
+   "group": {
+    "canonical": "forkliftoperation",
+    "asks": [
+     "forklift operation",
+     "forklift operating",
+     "forklift driving",
+     "operate a forklift",
+     "operating a forklift"
+    ],
+    "descriptions": [
+     "drove a forklift",
+     "operated a forklift",
+     "drove forklifts",
+     "operated forklifts",
+     "drove a lift truck",
+     "operated a lift truck",
+     "ran a forklift"
+    ],
+    "related": [
+     "loaded trucks by hand"
+    ],
+    "verbs": [
+     "drive",
+     "drives",
+     "drove",
+     "operate",
+     "operates",
+     "operated",
+     "run",
+     "runs",
+     "ran"
+    ],
+    "objects": [
+     "forklift",
+     "forklifts",
+     "lift truck",
+     "fork truck",
+     "reach truck"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 53-7051.00 Industrial Truck and Tractor Operators",
+    "source_task": "Move controls to drive gasoline- or electric-powered trucks, cars, or tractors and transport materials between loading, processing, and storage areas."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I drove a forklift every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I drive the forklift for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to drive forklift.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who drove a forklift and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who drove a forklift, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker drove a forklift; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never drove a forklift.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could drive forklift if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "brakerepair": {
+   "group": {
+    "canonical": "brakerepair",
+    "asks": [
+     "brake repair",
+     "brake system repair",
+     "brake service"
+    ],
+    "descriptions": [
+     "replaced brake pads",
+     "replaced brake rotors",
+     "changed brake pads",
+     "relined brakes",
+     "repaired brakes",
+     "rebuilt brake calipers"
+    ],
+    "related": [
+     "ordered brake parts"
+    ],
+    "verbs": [
+     "replace",
+     "replaces",
+     "replaced",
+     "change",
+     "changes",
+     "changed",
+     "repair",
+     "repairs",
+     "repaired",
+     "rebuild",
+     "rebuilds",
+     "rebuilt",
+     "reline",
+     "relines",
+     "relined"
+    ],
+    "objects": [
+     "brake pads",
+     "brake rotors",
+     "brakes",
+     "brake calipers"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+    "source_task": "Follow checklists to ensure all important parts are examined, including belts, hoses, steering systems, spark plugs, brake and fuel systems, wheel bearings, and other potentially t"
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I replaced brake pads every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I replace the brake pads for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to replace brake pads.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who replaced brake pads and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who replaced brake pads, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker replaced brake pads; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never replaced brake pads.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could replace brake pads if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "cashhandling": {
+   "group": {
+    "canonical": "cashhandling",
+    "asks": [
+     "cash handling",
+     "handling cash"
+    ],
+    "descriptions": [
+     "balanced the register",
+     "balanced the till",
+     "counted the register",
+     "counted the till",
+     "handled cash",
+     "counted cash",
+     "reconciled the cash drawer"
+    ],
+    "related": [],
+    "verbs": [
+     "balance",
+     "balances",
+     "balanced",
+     "count",
+     "counts",
+     "counted",
+     "handle",
+     "handles",
+     "handled"
+    ],
+    "objects": [
+     "register",
+     "till",
+     "cash",
+     "cash drawer"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 41-2011.00 Cashiers",
+    "source_task": "Receive payment by cash, check, credit cards, vouchers, or automatic debits."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I balanced the register every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I balance the register for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to balance register.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who balanced the register and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who balanced the register, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker balanced the register; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never balanced the register.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could balance register if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "customerservice": {
+   "group": {
+    "canonical": "customerservice",
+    "asks": [
+     "customer service",
+     "customer support"
+    ],
+    "descriptions": [
+     "resolved customer complaints",
+     "handled customer complaints",
+     "answered customer questions",
+     "helped customers with",
+     "resolved customer issues"
+    ],
+    "related": [],
+    "verbs": [
+     "resolve",
+     "resolves",
+     "resolved",
+     "handle",
+     "handles",
+     "handled",
+     "answer",
+     "answers",
+     "answered"
+    ],
+    "objects": [
+     "customer complaints",
+     "customer questions",
+     "customer issues",
+     "guest complaints",
+     "guest issues"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-4051.00 Customer Service Representatives",
+    "source_task": "Resolve customers' service or billing complaints by performing activities such as exchanging merchandise, refunding money, or adjusting bills."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I resolved customer complaints every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I resolve the customer complaints for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to resolve customer complaints.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who resolved customer complaints and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who resolved customer complaints, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker resolved customer complaints; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never resolved customer complaints.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could resolve customer complaints if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "cyclecounting": {
+   "group": {
+    "canonical": "cyclecounting",
+    "asks": [
+     "cycle counting",
+     "cycle counts",
+     "inventory counting",
+     "stock counts"
+    ],
+    "descriptions": [
+     "counted stock",
+     "counted inventory",
+     "did stock counts",
+     "ran cycle counts",
+     "took inventory",
+     "performed stock counts"
+    ],
+    "related": [],
+    "verbs": [
+     "count",
+     "counts",
+     "counted"
+    ],
+    "objects": [
+     "stock",
+     "inventory",
+     "cycle counts",
+     "the walk-in"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-5071.00 Shipping, Receiving, and Inventory Clerks",
+    "source_task": "Requisition and store shipping materials and supplies to maintain inventory of stock."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I counted stock every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I count the stock for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to count stock.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who counted stock and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who counted stock, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker counted stock; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never counted stock.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could count stock if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "orderpicking": {
+   "group": {
+    "canonical": "orderpicking",
+    "asks": [
+     "order picking",
+     "picking orders",
+     "pick orders"
+    ],
+    "descriptions": [
+     "picked orders",
+     "pulled orders",
+     "picked customer orders",
+     "filled orders from the shelves"
+    ],
+    "related": [],
+    "verbs": [
+     "pick",
+     "picks",
+     "picked",
+     "pull",
+     "pulls",
+     "pulled",
+     "fill",
+     "fills",
+     "filled"
+    ],
+    "objects": [
+     "orders"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 53-7065.00 Stockers and Order Fillers",
+    "source_task": "Read orders to ascertain catalog numbers, sizes, colors, and quantities of merchandise."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I picked orders every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I pick the orders for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to pick orders.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who picked orders and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who picked orders, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker picked orders; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never picked orders.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could pick orders if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "appointmentscheduling": {
+   "group": {
+    "canonical": "appointmentscheduling",
+    "asks": [
+     "appointment scheduling",
+     "patient scheduling",
+     "schedule appointments",
+     "scheduling appointments"
+    ],
+    "descriptions": [
+     "booked appointments",
+     "scheduled appointments",
+     "booked patient appointments",
+     "scheduled patient visits"
+    ],
+    "related": [],
+    "verbs": [
+     "book",
+     "books",
+     "booked",
+     "schedule",
+     "schedules",
+     "scheduled"
+    ],
+    "objects": [
+     "appointments",
+     "patient visits"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-6013.00 Medical Secretaries and Administrative Assistants",
+    "source_task": "Schedule and confirm patient diagnostic appointments, surgeries, or medical consultations."
+   },
+   "changes": [
+    {
+     "src": "m11_followup2:fv-017",
+     "requirement": "Patient scheduling",
+     "answer": "I book appointments for three physical therapists. Well, I also handle the waitlist and rebook cancellations, which is most of my mornings.",
+     "label": "supported",
+     "before": "possible",
+     "after": "supported",
+     "quote": "I book appointments for three physical therapists"
+    },
+    {
+     "src": "benchmark:pc-017",
+     "requirement": "Patient scheduling",
+     "answer": "I book appointments for three physical therapists. Well, I also handle the waitlist and rebook cancellations, which is most of my mornings.",
+     "label": "ownership:yes",
+     "before": "possible",
+     "after": "supported",
+     "quote": "I book appointments for three physical therapists"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I booked appointments every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I book the appointments for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to book appointments.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who booked appointments and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who booked appointments, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker booked appointments; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never booked appointments.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could book appointments if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "dataentry": {
+   "group": {
+    "canonical": "dataentry",
+    "asks": [
+     "data entry"
+    ],
+    "descriptions": [
+     "keyed records",
+     "keyed in records",
+     "entered records",
+     "typed records into",
+     "entered data into"
+    ],
+    "related": [],
+    "verbs": [
+     "key",
+     "keys",
+     "keyed",
+     "enter",
+     "enters",
+     "entered",
+     "type",
+     "types",
+     "typed"
+    ],
+    "objects": [
+     "records",
+     "data"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-9021.00 Data Entry Keyers",
+    "source_task": "Locate and correct data entry errors, or report them to supervisors."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I keyed records every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I key the records for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to key records.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who keyed records and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who keyed records, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker keyed records; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never keyed records.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could key records if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "lessonplanning": {
+   "group": {
+    "canonical": "lessonplanning",
+    "asks": [
+     "lesson planning",
+     "develop lesson plans",
+     "lesson plans"
+    ],
+    "descriptions": [
+     "wrote lesson plans",
+     "prepared lesson plans",
+     "planned lessons",
+     "planned weekly lessons",
+     "wrote weekly lessons"
+    ],
+    "related": [],
+    "verbs": [
+     "write",
+     "writes",
+     "wrote",
+     "prepare",
+     "prepares",
+     "prepared",
+     "plan",
+     "plans",
+     "planned"
+    ],
+    "objects": [
+     "lessons",
+     "lesson plans"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 25-2021.00 Elementary School Teachers, Except Special Education",
+    "source_task": "Establish clear objectives for all lessons, units, and projects and communicate those objectives to students."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I wrote lesson plans every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I write the lessons for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to write lessons.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who wrote lesson plans and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who wrote lesson plans, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker wrote lesson plans; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never wrote lesson plans.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could write lessons if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "legalresearch": {
+   "group": {
+    "canonical": "legalresearch",
+    "asks": [
+     "legal research"
+    ],
+    "descriptions": [
+     "researched case law",
+     "researched statutes",
+     "researched precedents",
+     "looked up case law"
+    ],
+    "related": [],
+    "verbs": [
+     "research",
+     "researches",
+     "researched"
+    ],
+    "objects": [
+     "case law",
+     "statutes",
+     "precedents"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
+    "source_task": "Gather and analyze research data, such as statutes, decisions, and legal articles, codes, and documents."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I researched case law every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I research the case law for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to research case law.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who researched case law and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who researched case law, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker researched case law; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never researched case law.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could research case law if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "contractdrafting": {
+   "group": {
+    "canonical": "contractdrafting",
+    "asks": [
+     "contract drafting",
+     "draft contracts",
+     "drafting contracts",
+     "draft commercial contracts"
+    ],
+    "descriptions": [
+     "drafted contracts",
+     "wrote contracts",
+     "drafted agreements",
+     "prepared contracts"
+    ],
+    "related": [
+     "filed contracts"
+    ],
+    "verbs": [
+     "draft",
+     "drafts",
+     "drafted",
+     "write",
+     "writes",
+     "wrote",
+     "prepare",
+     "prepares",
+     "prepared"
+    ],
+    "objects": [
+     "contracts",
+     "agreements"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 23-1011.00 Lawyers",
+    "source_task": "Prepare, draft, and review legal documents, such as wills, deeds, patent applications, mortgages, leases, and contracts."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I drafted contracts every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I draft the contracts for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to draft contracts.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who drafted contracts and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who drafted contracts, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker drafted contracts; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never drafted contracts.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could draft contracts if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "recruiting": {
+   "group": {
+    "canonical": "recruiting",
+    "asks": [
+     "recruiting",
+     "recruitment",
+     "candidate screening"
+    ],
+    "descriptions": [
+     "interviewed applicants",
+     "interviewed candidates",
+     "screened applicants",
+     "screened resumes",
+     "screened candidates"
+    ],
+    "related": [],
+    "verbs": [
+     "interview",
+     "interviews",
+     "interviewed",
+     "screen",
+     "screens",
+     "screened"
+    ],
+    "objects": [
+     "applicants",
+     "candidates",
+     "resumes"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 13-1071.00 Human Resources Specialists",
+    "source_task": "Review employment applications and job orders to match applicants with job requirements."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I interviewed applicants every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I interview the applicants for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to interview applicants.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who interviewed applicants and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who interviewed applicants, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker interviewed applicants; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never interviewed applicants.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could interview applicants if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "teamsupervision": {
+   "group": {
+    "canonical": "teamsupervision",
+    "asks": [
+     "team supervision",
+     "supervise a team",
+     "supervising staff",
+     "staff supervision",
+     "team leadership"
+    ],
+    "descriptions": [
+     "supervised staff",
+     "supervised a team",
+     "supervised a crew",
+     "led a team",
+     "led a crew",
+     "managed a team of",
+     "managed a crew"
+    ],
+    "related": [
+     "member of a"
+    ],
+    "verbs": [
+     "supervise",
+     "supervises",
+     "supervised",
+     "lead",
+     "leads",
+     "led",
+     "manage",
+     "manages",
+     "managed"
+    ],
+    "objects": [
+     "staff",
+     "team",
+     "crew"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-1011.00 First-Line Supervisors of Office and Administrative Support Workers",
+    "source_task": "Supervise the work of office, administrative, or customer service employees to ensure adherence to quality standards, deadlines, and proper procedures, correcting errors or problem"
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I supervised staff every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I supervise the staff for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to supervise staff.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who supervised staff and I approve their work.",
+     "verdict": "supported",
+     "ok": false
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who supervised staff, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker supervised staff; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never supervised staff.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could supervise staff if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "budgeting": {
+   "group": {
+    "canonical": "budgeting",
+    "asks": [
+     "budgeting",
+     "budget preparation",
+     "prepare budgets",
+     "budget management"
+    ],
+    "descriptions": [
+     "prepared budgets",
+     "prepared the budget",
+     "built the budget",
+     "managed the budget",
+     "drew up the budget"
+    ],
+    "related": [
+     "collected receipts"
+    ],
+    "verbs": [
+     "prepare",
+     "prepares",
+     "prepared",
+     "build",
+     "builds",
+     "built",
+     "manage",
+     "manages",
+     "managed"
+    ],
+    "objects": [
+     "budget",
+     "budgets"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 13-2031.00 Budget Analysts",
+    "source_task": "Analyze monthly department budgeting and accounting reports to maintain expenditure controls."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I prepared budgets every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I prepare the budget for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to prepare budget.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who prepared budgets and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who prepared budgets, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker prepared budgets; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never prepared budgets.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could prepare budget if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "oilchanges": {
+   "group": {
+    "canonical": "oilchanges",
+    "asks": [
+     "oil changes",
+     "lube service"
+    ],
+    "descriptions": [
+     "changed oil",
+     "changed the oil",
+     "did oil changes",
+     "performed oil changes"
+    ],
+    "related": [],
+    "verbs": [
+     "change",
+     "changes",
+     "changed",
+     "drain",
+     "drains",
+     "drained"
+    ],
+    "objects": [
+     "oil"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+    "source_task": "Perform routine and scheduled maintenance services, such as oil changes, lubrications, and tune-ups."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I changed oil every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I change the oil for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to change oil.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who changed oil and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who changed oil, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker changed oil; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never changed oil.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could change oil if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "wheelalignment": {
+   "group": {
+    "canonical": "wheelalignment",
+    "asks": [
+     "wheel alignment",
+     "wheel alignments"
+    ],
+    "descriptions": [
+     "aligned wheels",
+     "did alignments",
+     "performed alignments"
+    ],
+    "related": [],
+    "verbs": [],
+    "objects": [],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+    "source_task": "Align wheels, axles, frames, torsion bars, and steering mechanisms of automobiles, using special alignment equipment and wheel-balancing machines."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I aligned wheels every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to aligned wheels.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who aligned wheels and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who aligned wheels, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker aligned wheels; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never aligned wheels.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could aligned wheels if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "pipefitting": {
+   "group": {
+    "canonical": "pipefitting",
+    "asks": [
+     "pipefitting",
+     "pipe fitting"
+    ],
+    "descriptions": [
+     "threaded pipe",
+     "cut and threaded pipe",
+     "fitted pipe",
+     "installed process piping"
+    ],
+    "related": [],
+    "verbs": [
+     "thread",
+     "threads",
+     "threaded",
+     "fit",
+     "fits",
+     "fitted",
+     "install",
+     "installs",
+     "installed"
+    ],
+    "objects": [
+     "pipe",
+     "piping"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 47-2152.00 Plumbers, Pipefitters, and Steamfitters",
+    "source_task": "Assemble pipe sections, tubing, or fittings, using couplings, clamps, screws, bolts, cement, plastic solvent, caulking, or soldering, brazing, or welding equipment."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I threaded pipe every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I thread the pipe for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to thread pipe.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who threaded pipe and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who threaded pipe, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker threaded pipe; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never threaded pipe.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could thread pipe if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "patientintake": {
+   "group": {
+    "canonical": "patientintake",
+    "asks": [
+     "patient intake",
+     "patient check-in",
+     "patient registration"
+    ],
+    "descriptions": [
+     "checked in patients",
+     "registered patients",
+     "took patient histories",
+     "recorded patient histories",
+     "roomed patients"
+    ],
+    "related": [],
+    "verbs": [
+     "register",
+     "registers",
+     "registered",
+     "room",
+     "rooms",
+     "roomed"
+    ],
+    "objects": [
+     "patients"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 31-9092.00 Medical Assistants",
+    "source_task": "Interview patients to obtain medical information and measure their vital signs, weight, and height."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I checked in patients every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I register the patients for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to register patients.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who checked in patients and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who checked in patients, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker checked in patients; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never checked in patients.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could register patients if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "vehiclemaintenance": {
+   "group": {
+    "canonical": "vehiclemaintenance",
+    "asks": [
+     "routine vehicle maintenance",
+     "vehicle maintenance",
+     "preventive maintenance on vehicles"
+    ],
+    "descriptions": [
+     "oil and filter"
+    ],
+    "related": [],
+    "verbs": [
+     "rotate",
+     "rotates",
+     "rotated",
+     "replace",
+     "replaces",
+     "replaced",
+     "swap",
+     "swaps",
+     "swapped"
+    ],
+    "objects": [
+     "tires"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 49-3023.00 Automotive Service Technicians and Mechanics",
+    "source_task": "Perform routine and scheduled maintenance services, such as oil changes, lubrications, and tune-ups."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Performing routine vehicle maintenance",
+     "answer": "All day I drain and refill oil, swap filters, rotate tires, and top off fluids on customers' cars.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "All day I drain and refill oil, swap filters, rotate tires, and top off fluids on customers' cars"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I oil and filter every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I rotate the tires for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to rotate tires.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who oil and filter and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who oil and filter, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker oil and filter; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never oil and filter.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could rotate tires if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "monthendclose": {
+   "group": {
+    "canonical": "monthendclose",
+    "asks": [
+     "month-end close",
+     "month end close",
+     "managing the month-end close"
+    ],
+    "descriptions": [
+     "closed the books",
+     "closed the month",
+     "ran the month-end close"
+    ],
+    "related": [],
+    "verbs": [
+     "close",
+     "closes",
+     "closed",
+     "run",
+     "runs",
+     "ran"
+    ],
+    "objects": [
+     "the books",
+     "the month",
+     "month-end"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 13-2011.00 Accountants and Auditors",
+    "source_task": "Prepare, examine, or analyze accounting records, financial statements, or other financial reports to assess accuracy, completeness, and conformance to reporting and procedural stan"
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I closed the books every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I close the the books for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to close the books.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who closed the books and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who closed the books, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker closed the books; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never closed the books.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could close the books if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "ivmedications": {
+   "group": {
+    "canonical": "ivmedications",
+    "asks": [
+     "iv medications",
+     "administering iv medications",
+     "intravenous medications"
+    ],
+    "descriptions": [
+     "started ivs",
+     "hung iv"
+    ],
+    "related": [],
+    "verbs": [
+     "hang",
+     "hangs",
+     "hung",
+     "start",
+     "starts",
+     "started",
+     "push",
+     "pushes",
+     "pushed"
+    ],
+    "objects": [
+     "ivs",
+     "piggybacks",
+     "iv",
+     "peripheral lines"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 29-1141.03 Critical Care Nurses",
+    "source_task": "Administer medications intravenously, by injection, orally, through gastric tubes, or by other methods."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Administering IV medications",
+     "answer": "I hang antibiotic piggybacks, push ordered drugs through patients' peripheral lines and PICCs, and program the pumps for each drip.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "I hang antibiotic piggybacks, push ordered drugs through patients' peripheral lines and PICCs, and program the pumps for each drip"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I started ivs every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I hang the ivs for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to hang ivs.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who started ivs and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who started ivs, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker started ivs; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never started ivs.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could hang ivs if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "discovery": {
+   "group": {
+    "canonical": "discovery",
+    "asks": [
+     "discovery responses",
+     "preparing discovery responses",
+     "responding to discovery"
+    ],
+    "descriptions": [
+     "answered interrogatories",
+     "responded to discovery"
+    ],
+    "related": [],
+    "verbs": [
+     "draft",
+     "drafts",
+     "drafted",
+     "answer",
+     "answers",
+     "answered",
+     "prepare",
+     "prepares",
+     "prepared"
+    ],
+    "objects": [
+     "interrogatories",
+     "document demands",
+     "document requests"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 23-2011.00 Paralegals and Legal Assistants",
+    "source_task": "Prepare, edit, or review legal documents, including legislation, briefs, pleadings, appeals, wills, contracts, and real estate closing statements."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I answered interrogatories every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I draft the interrogatories for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to draft interrogatories.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who answered interrogatories and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who answered interrogatories, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker answered interrogatories; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never answered interrogatories.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could draft interrogatories if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "routedispatch": {
+   "group": {
+    "canonical": "routedispatch",
+    "asks": [
+     "route dispatching",
+     "driver routes",
+     "coordinating driver routes",
+     "routing and scheduling",
+     "route planning",
+     "dispatching"
+    ],
+    "descriptions": [
+     "assigned drivers",
+     "dispatched drivers",
+     "dispatched trucks",
+     "planned delivery routes"
+    ],
+    "related": [],
+    "verbs": [
+     "assign",
+     "assigns",
+     "assigned",
+     "dispatch",
+     "dispatches",
+     "dispatched",
+     "plan",
+     "plans",
+     "planned"
+    ],
+    "objects": [
+     "drivers",
+     "trucks",
+     "routes"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-5032.00 Dispatchers, Except Police, Fire, and Ambulance",
+    "source_task": "Schedule or dispatch workers, work crews, equipment, or service vehicles to appropriate locations, according to customer requests, specifications, or needs, using radios or telepho"
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I assigned drivers every week at my last job.",
+     "verdict": "insufficient_information",
+     "ok": false
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I assign the drivers for our team.",
+     "verdict": "insufficient_information",
+     "ok": false
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to assign drivers.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who assigned drivers and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who assigned drivers, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker assigned drivers; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never assigned drivers.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could assign drivers if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "travelbooking": {
+   "group": {
+    "canonical": "travelbooking",
+    "asks": [
+     "business travel",
+     "booking business travel",
+     "travel arrangements"
+    ],
+    "descriptions": [
+     "booked flights",
+     "booked travel",
+     "arranged travel"
+    ],
+    "related": [],
+    "verbs": [
+     "book",
+     "books",
+     "booked",
+     "find",
+     "finds",
+     "found",
+     "arrange",
+     "arranges",
+     "arranged"
+    ],
+    "objects": [
+     "flights",
+     "hotels",
+     "travel"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 43-6014.00 Secretaries and Administrative Assistants, Except Legal, Medical, and Executive",
+    "source_task": "Arrange conference, meeting, or travel reservations for office personnel."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Booking business travel",
+     "answer": "I find flights and hotels for our directors, send them the itinerary, and file the receipts when they get back from a trip.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "I find flights and hotels for our directors, send them the itinerary, and file the receipts when they get back from a trip"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I booked flights every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I book the flights for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to book flights.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who booked flights and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who booked flights, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker booked flights; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never booked flights.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could book flights if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "coldcalling": {
+   "group": {
+    "canonical": "coldcalling",
+    "asks": [
+     "cold calling",
+     "outbound prospecting",
+     "prospecting"
+    ],
+    "descriptions": [
+     "made cold calls",
+     "cold called",
+     "make cold calls"
+    ],
+    "related": [],
+    "verbs": [
+     "make",
+     "makes",
+     "made"
+    ],
+    "objects": [
+     "cold calls"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 41-9041.00 Telemarketers",
+    "source_task": "Contact businesses or private individuals by telephone to solicit sales for goods or services, or to request donations for charitable causes."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Outbound prospecting",
+     "answer": "I work a list of companies who've never bought from us, make about sixty cold calls a day, and book first meetings for the team.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "I work a list of companies who've never bought from us, make about sixty cold calls a day, and book first meetings for the team"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I made cold calls every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I make the cold calls for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to make cold calls.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who made cold calls and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who made cold calls, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker made cold calls; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never made cold calls.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could make cold calls if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "pretrip": {
+   "group": {
+    "canonical": "pretrip",
+    "asks": [
+     "pre-trip inspections",
+     "pre trip inspections",
+     "completing pre-trip inspections",
+     "vehicle inspections"
+    ],
+    "descriptions": [
+     "inspected the truck",
+     "inspected my truck",
+     "walked around the rig"
+    ],
+    "related": [],
+    "verbs": [
+     "inspect",
+     "inspects",
+     "inspected",
+     "check",
+     "checks",
+     "checked"
+    ],
+    "objects": [
+     "the truck",
+     "my truck",
+     "the rig",
+     "the trailer"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 53-3032.00 Heavy and Tractor-Trailer Truck Drivers",
+    "source_task": "Check vehicles to ensure that mechanical, safety, and emergency equipment is in good working order."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I inspected the truck every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I inspect the the truck for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to inspect the truck.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who inspected the truck and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who inspected the truck, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker inspected the truck; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never inspected the truck.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could inspect the truck if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "ductwork": {
+   "group": {
+    "canonical": "ductwork",
+    "asks": [
+     "ductwork installation",
+     "installing ductwork",
+     "installing residential ductwork",
+     "duct installation"
+    ],
+    "descriptions": [
+     "installed ductwork",
+     "hung ductwork",
+     "ran ductwork"
+    ],
+    "related": [],
+    "verbs": [
+     "hang",
+     "hangs",
+     "hung",
+     "install",
+     "installs",
+     "installed",
+     "run",
+     "runs",
+     "ran"
+    ],
+    "objects": [
+     "ductwork",
+     "ducts",
+     "duct",
+     "sheet metal trunks",
+     "flex runs"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 47-2211.00 Sheet Metal Workers",
+    "source_task": "Fabricate ducts for high efficiency heating, ventilating, and air conditioning (HVAC) systems to maximize efficiency of systems."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Installing residential ductwork",
+     "answer": "I hang sheet metal trunks and flex runs in attics, seal the joints with mastic, and cut in the registers on new houses.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "I hang sheet metal trunks and flex runs in attics, seal the joints with mastic, and cut in the registers on new houses"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I installed ductwork every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I hang the ductwork for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to hang ductwork.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who installed ductwork and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who installed ductwork, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker installed ductwork; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never installed ductwork.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could hang ductwork if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "claimrejections": {
+   "group": {
+    "canonical": "claimrejections",
+    "asks": [
+     "insurance claim rejections",
+     "claim rejections",
+     "resolving insurance claim rejections",
+     "insurance claims",
+     "handle insurance claims"
+    ],
+    "descriptions": [
+     "resubmitted claims",
+     "fixed rejected claims",
+     "appealed denied claims"
+    ],
+    "related": [],
+    "verbs": [
+     "fix",
+     "fixes",
+     "fixed",
+     "resubmit",
+     "resubmits",
+     "resubmitted",
+     "appeal",
+     "appeals",
+     "appealed"
+    ],
+    "objects": [
+     "claims",
+     "rejected claims",
+     "denied claims"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 29-2052.00 Pharmacy Technicians",
+    "source_task": "Prepare and process medical insurance claim forms and records."
+   },
+   "changes": [
+    {
+     "src": "m11_remediation/check",
+     "requirement": "Resolving insurance claim rejections",
+     "answer": "Fixed rejected claims by calling the PBM.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "Fixed rejected claims by calling the PBM"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I resubmitted claims every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I fix the claims for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to fix claims.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who resubmitted claims and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who resubmitted claims, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker resubmitted claims; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never resubmitted claims.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could fix claims if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "blueprintreading": {
+   "group": {
+    "canonical": "blueprintreading",
+    "asks": [
+     "blueprint reading",
+     "reading blueprints",
+     "read blueprints"
+    ],
+    "descriptions": [
+     "read blueprints",
+     "read drawings",
+     "worked from blueprints",
+     "worked from drawings"
+    ],
+    "related": [],
+    "verbs": [
+     "read",
+     "reads",
+     "follow",
+     "follows",
+     "followed"
+    ],
+    "objects": [
+     "blueprints",
+     "drawings"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 47-2111.00 Electricians",
+    "source_task": "Prepare sketches or follow blueprints to determine the location of wiring or equipment and to ensure conformance to building and safety codes."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I read blueprints every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I read the blueprints for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to read blueprints.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who read blueprints and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who read blueprints, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker read blueprints; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never read blueprints.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could read blueprints if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "conduit": {
+   "group": {
+    "canonical": "conduit",
+    "asks": [
+     "conduit bending",
+     "conduit installation",
+     "conduit bending and installation"
+    ],
+    "descriptions": [
+     "bent conduit",
+     "ran conduit",
+     "installed conduit",
+     "bent emt",
+     "shaped emt"
+    ],
+    "related": [],
+    "verbs": [
+     "bend",
+     "bends",
+     "bent",
+     "run",
+     "runs",
+     "ran",
+     "install",
+     "installs",
+     "installed",
+     "shape",
+     "shapes",
+     "shaped"
+    ],
+    "objects": [
+     "conduit"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 47-2111.00 Electricians",
+    "source_task": "Place conduit, pipes, or tubing, inside designated partitions, walls, or other concealed areas, and pull insulated wires or cables through the conduit to complete circuits between "
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Conduit bending and installation",
+     "answer": "I shaped EMT with a hand bender, mostly offsets and saddles, and strapped the runs along block walls between the boxes.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "I shaped EMT with a hand bender, mostly offsets and saddles, and strapped the runs along block walls between the boxes"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I bent conduit every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I bend the conduit for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to bend conduit.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who bent conduit and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who bent conduit, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker bent conduit; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never bent conduit.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could bend conduit if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "nonconformance": {
+   "group": {
+    "canonical": "nonconformance",
+    "asks": [
+     "non-conformance reports",
+     "nonconformance reports",
+     "writing non-conformance reports"
+    ],
+    "descriptions": [
+     "wrote up defects",
+     "quarantined parts",
+     "quarantine the parts",
+     "documented defects"
+    ],
+    "related": [],
+    "verbs": [
+     "tag",
+     "tags",
+     "tagged",
+     "quarantine",
+     "quarantines",
+     "quarantined",
+     "document",
+     "documents",
+     "documented"
+    ],
+    "objects": [
+     "defects",
+     "failed parts"
+    ],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 51-9061.00 Inspectors, Testers, Sorters, Samplers, and Weighers",
+    "source_task": "Discard or reject products, materials, or equipment not meeting specifications."
+   },
+   "changes": [
+    {
+     "src": "m11_review/train",
+     "requirement": "Writing non-conformance reports",
+     "answer": "When a lot fails, I tag and quarantine the parts, write up what's wrong against the drawing and send the paperwork to engineering for disposition.",
+     "label": null,
+     "before": "possible",
+     "after": "supported",
+     "quote": "When a lot fails, I tag and quarantine the parts, write up what's wrong against the drawing and send the paperwork to engineering for disposition"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I wrote up defects every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "own work, pattern",
+     "text": "Most days I tag the defects for our team.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to tag defects.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who wrote up defects and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who wrote up defects, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker wrote up defects; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never wrote up defects.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could tag defects if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  },
+  "mentalhealth": {
+   "group": {
+    "canonical": "mentalhealth",
+    "asks": [
+     "crisis intervention"
+    ],
+    "descriptions": [
+     "de-escalated patients",
+     "de-escalated clients"
+    ],
+    "related": [],
+    "verbs": [],
+    "objects": [],
+    "status": "source_checked",
+    "source": "O*NET 31.0 task statement, 21-1014.00 Mental Health Counselors",
+    "source_task": "Perform crisis interventions to help ensure the safety of the patients and others."
+   },
+   "changes": [],
+   "probes": [
+    {
+     "kind": "own work, exact phrase",
+     "text": "I de-escalated patients every week at my last job.",
+     "verdict": "supported",
+     "ok": true
+    },
+    {
+     "kind": "introductory class",
+     "text": "I took a one-day class where we practiced how to de-escalated patients.",
+     "verdict": "possible",
+     "ok": false
+    },
+    {
+     "kind": "supervision",
+     "text": "I supervise the staff who de-escalated patients and I approve their work.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "helping",
+     "text": "I helped the specialist who de-escalated patients, mostly fetching supplies.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "someone else",
+     "text": "My coworker de-escalated patients; I just watched.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "negated",
+     "text": "I have never de-escalated patients.",
+     "verdict": "insufficient_information",
+     "ok": true
+    },
+    {
+     "kind": "hypothetical",
+     "text": "I could de-escalated patients if needed.",
+     "verdict": "insufficient_information",
+     "ok": true
+    }
+   ]
+  }
+ }
+}

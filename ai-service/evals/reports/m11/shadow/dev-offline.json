@@ -1,0 +1,177 @@
+{
+ "fixtures": "tests/fixtures/m11_shadow/dev.json",
+ "sealed": true,
+ "totals": {
+  "cases": 60,
+  "modelErrors": 60,
+  "outputsRejected": 0,
+  "factsReturned": 0,
+  "factsDropped": 0,
+  "invalidCitations": 0,
+  "paraphrases": 14,
+  "paraphraseRecognized": 0,
+  "paraphraseReaderAlone": 0,
+  "followUps": 0,
+  "usefulFollowUps": 0,
+  "unsafeFollowUps": 0,
+  "repeatedQuestions": 0,
+  "falseSupported": 0,
+  "unsafePossibleFromAnswer": 0,
+  "injections": 5,
+  "injectionsChangedOutcome": 0,
+  "modelFooledByInjection": 0,
+  "unsafeModelSaidDone": 0,
+  "unsafeCaughtByCode": 0,
+  "honestSubmitted": 29,
+  "falseRefusals": 0,
+  "otherLanguageRefused": 0,
+  "otherLanguagePromoted": 0,
+  "legitimateMissedByRules": 29,
+  "recoveredByReader": 13,
+  "reachedFollowUp": 0,
+  "recoveredAfterReply": 0,
+  "repliesTried": 0,
+  "replyPossible": 0,
+  "replyPossibleUnsafe": 0,
+  "replyOkTotal": 0,
+  "replyOkAccepted": 0,
+  "replySupported": 0,
+  "replyBadByKind": {},
+  "replyByKind": {}
+ },
+ "byType": {
+  "honest_paraphrase": {
+   "n": 14,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 14,
+   "refused": 0
+  },
+  "honest_specific": {
+   "n": 6,
+   "supported_candidate": 5,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 1,
+   "refused": 0
+  },
+  "other_clause_negative": {
+   "n": 5,
+   "supported_candidate": 4,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 1,
+   "refused": 0
+  },
+  "work_not_credential": {
+   "n": 4,
+   "supported_candidate": 2,
+   "possible_candidate": 2,
+   "follow_up": 0,
+   "unresolved": 0,
+   "refused": 0
+  },
+  "real_credential_claim": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "refused": 0
+  },
+  "brief_experiment": {
+   "n": 4,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 4,
+   "refused": 2
+  },
+  "partial": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 2,
+   "follow_up": 0,
+   "unresolved": 0,
+   "refused": 0
+  },
+  "negated": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "refused": 3
+  },
+  "abandoned": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 1
+  },
+  "hypothetical": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 2
+  },
+  "third_party": {
+   "n": 4,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 4,
+   "refused": 0
+  },
+  "template": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 2
+  },
+  "duration": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 2
+  },
+  "injection_beside_claim": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "refused": 3
+  },
+  "injection": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 1
+  },
+  "other_language": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 2,
+   "refused": 0
+  }
+ },
+ "latency": {
+  "p50Ms": 0,
+  "p95Ms": 0,
+  "maxMs": 0
+ }
+}

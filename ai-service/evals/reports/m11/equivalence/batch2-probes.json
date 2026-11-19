@@ -1,0 +1,178 @@
+[
+ {
+  "group": "phlebotomy",
+  "requirement": "Phlebotomy",
+  "text": "I drew blood from about 20 patients each morning using vacuum tubes.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "phlebotomy",
+  "requirement": "Phlebotomy",
+  "text": "I collect blood samples from the lab fridge and drive them to the hospital.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "phlebotomy",
+  "requirement": "Phlebotomy",
+  "text": "I collected blood donation pledges at the company drive.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "medicationadministration",
+  "requirement": "Medication administration",
+  "text": "I passed medications to 30 residents on the evening shift.",
+  "want": "credit",
+  "now": "insufficient_information",
+  "approved": "insufficient_information"
+ },
+ {
+  "group": "medicationadministration",
+  "requirement": "Medication administration",
+  "text": "I give medications back to the pharmacy for disposal at the end of each month.",
+  "want": "no",
+  "now": "supported",
+  "approved": "supported"
+ },
+ {
+  "group": "medicationadministration",
+  "requirement": "Medication administration",
+  "text": "I administer the medication reimbursement forms for the union.",
+  "want": "no",
+  "now": "supported",
+  "approved": "supported"
+ },
+ {
+  "group": "vitalsigns",
+  "requirement": "Vital signs",
+  "text": "I took vitals on every patient I roomed for two doctors.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "vitalsigns",
+  "requirement": "Vital signs",
+  "text": "I check blood pressure cuffs for damage in central supply.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "vitalsigns",
+  "requirement": "Vital signs",
+  "text": "I record vitals that the nurse calls out to me during rounds.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "woundcare",
+  "requirement": "Wound care",
+  "text": "I changed dressings on pressure sores and cleaned wounds every shift.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "woundcare",
+  "requirement": "Wound care",
+  "text": "I change the dressings on the salads before service.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "woundcare",
+  "requirement": "Wound care",
+  "text": "I clean the wounds on the training mannequins after each class.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "ivmedications",
+  "requirement": "IV medications",
+  "text": "I started IVs and hung piggybacks on a med-surg floor for two years.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "ivmedications",
+  "requirement": "IV medications",
+  "text": "I hang IV poles and restock the supply room.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "ivmedications",
+  "requirement": "IV medications",
+  "text": "I push IV carts between rooms for the nurses.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "patientintake",
+  "requirement": "Patient intake",
+  "text": "I checked in patients and roomed them for three doctors.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "patientintake",
+  "requirement": "Patient intake",
+  "text": "I register patients for parking passes at the garage booth.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "mentalhealth",
+  "requirement": "Crisis intervention",
+  "text": "I de-escalated patients in crisis on the psych unit several times a week.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "mentalhealth",
+  "requirement": "Crisis intervention",
+  "text": "I de-escalated clients who were upset about their bills at the front desk.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "claimrejections",
+  "requirement": "Resolving insurance claim rejections",
+  "text": "I resubmitted claims and appealed denied claims for our clinic every week.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "claimrejections",
+  "requirement": "Resolving insurance claim rejections",
+  "text": "I fix the claims department's computers when they freeze.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "claimrejections",
+  "requirement": "Insurance claims",
+  "text": "I fixed rejected claims for our warranty department, mostly missing serial numbers.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ }
+]

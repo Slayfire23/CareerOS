@@ -1,0 +1,220 @@
+{
+ "fixtures": "tests/fixtures/m11_remediation/check.json",
+ "engine": "rules-v14",
+ "sealed": true,
+ "totals": {
+  "jobs": 24,
+  "requirements": 139,
+  "before": {
+   "acceptable": 74,
+   "supported": 2,
+   "falseSupported": 0,
+   "settled": 7,
+   "settledCorrect": 7
+  },
+  "after": {
+   "acceptable": 94,
+   "supported": 22,
+   "falseSupported": 0,
+   "overstatedSupported": 3,
+   "settled": 27
+  },
+  "truly": 65,
+  "trulyMissedBefore": 60,
+  "recoveredPossibleOrBetter": 25,
+  "recoveredSupported": 16,
+  "stillMissed": 35,
+  "questionsTotal": 132,
+  "questionsFirstScreen": [
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   5,
+   4,
+   5,
+   5,
+   5,
+   4
+  ],
+  "answeredQuestions": 124,
+  "questionsResolved": 37,
+  "questionsMovedToSupportedOrNot": 20,
+  "honestSubmitted": 42,
+  "honestRefused": 1,
+  "vagueSubmitted": 8,
+  "vagueAccepted": 8,
+  "attacks": 8,
+  "attacksMovedVerdict": 0,
+  "attacksSaved": 3,
+  "unsafeMoved": 6,
+  "unsafeToSupported": 0,
+  "injectionsMoved": 0,
+  "otherLanguageMoved": 0,
+  "otherLanguageRefused": 4,
+  "honestLegit": 42,
+  "honestRecoveredPossibleOrBetter": 22,
+  "honestRecoveredSupported": 13,
+  "profileVerdictsChanged": 0,
+  "invalidCitations": 0,
+  "repeatsPossible": 0,
+  "repeatsAvoided": 0,
+  "repeatsAskedAnyway": 0,
+  "differentQuestions": 0,
+  "wronglySuppressed": 0,
+  "notAskedOverLimit": 0
+ },
+ "questionsPerJob": {
+  "median": 5,
+  "max": 5
+ },
+ "byType": {
+  "credential": {
+   "n": 6,
+   "acceptable": 4,
+   "supported": 4,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "honest_specific": {
+   "n": 18,
+   "acceptable": 12,
+   "supported": 12,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "honest_paraphrase": {
+   "n": 18,
+   "acceptable": 0,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "honest_terse": {
+   "n": 6,
+   "acceptable": 5,
+   "supported": 1,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "non_english_honest": {
+   "n": 8,
+   "acceptable": 7,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 7
+  },
+  "injection": {
+   "n": 8,
+   "acceptable": 8,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 8
+  },
+  "incorrect_claim": {
+   "n": 6,
+   "acceptable": 5,
+   "supported": 3,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "duration_claim": {
+   "n": 5,
+   "acceptable": 5,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 5
+  },
+  "vague": {
+   "n": 8,
+   "acceptable": 7,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 8
+  },
+  "quoted_instruction": {
+   "n": 4,
+   "acceptable": 4,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 4
+  },
+  "no_answer": {
+   "n": 6,
+   "acceptable": 4,
+   "supported": 2,
+   "falseSupported": 0,
+   "before": 4
+  },
+  "third_party": {
+   "n": 9,
+   "acceptable": 6,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 8
+  },
+  "negated": {
+   "n": 7,
+   "acceptable": 6,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 6
+  },
+  "denial": {
+   "n": 6,
+   "acceptable": 0,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 0
+  },
+  "abandoned": {
+   "n": 5,
+   "acceptable": 3,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 5
+  },
+  "hypothetical": {
+   "n": 6,
+   "acceptable": 6,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 6
+  },
+  "vague_confirmation": {
+   "n": 5,
+   "acceptable": 4,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 5
+  },
+  "mixed_language": {
+   "n": 4,
+   "acceptable": 4,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 4
+  },
+  "skip": {
+   "n": 4,
+   "acceptable": 4,
+   "supported": 0,
+   "falseSupported": 0,
+   "before": 4
+  }
+ }
+}

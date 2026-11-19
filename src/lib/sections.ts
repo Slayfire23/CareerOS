@@ -16,3 +16,4 @@ export type SectionKey = keyof typeof SECTIONS;
 
 export const requirementsHref = (jobId: string) => `${SECTIONS.jobs.href}/${jobId}/requirements`;
 export const resumeReviewHref = (key: string) => `${SECTIONS.resumes.href}/review/${encodeURIComponent(key)}`;
+export const matchHref = (jobId: string) => `${SECTIONS.jobs.href}/${jobId}/match`;

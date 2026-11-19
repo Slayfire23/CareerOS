@@ -6,9 +6,9 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
 import { suggestRequirements, validateRequirements } from "@/lib/job-requirements";
-import { SECTIONS } from "@/lib/sections";
+import { matchHref, SECTIONS } from "@/lib/sections";
 import { JobRequirementsReview } from "@/components/job-requirements-review";
-import { Card, LoadingBlock, PageHeader } from "@/components/ui";
+import { ButtonLink, Card, LoadingBlock, PageHeader } from "@/components/ui";
 export const metadata: Metadata = { title: "Review job requirements" };
 async function ReviewContent({params}: {params: Promise<{id: string}>}) {
  await connection();
@@ -21,7 +21,7 @@ async function ReviewContent({params}: {params: Promise<{id: string}>}) {
  if (!job) notFound();
  const reviewed = job.reviewedDescription !== null;
  const initial = reviewed ? validateRequirements(job.requirements) : suggestRequirements(job.description);
- return <section className="space-y-6"><PageHeader eyebrow={`${job.title} at ${job.company}`} title="Review job requirements" />
+ return <section className="space-y-6"><PageHeader eyebrow={`${job.title} at ${job.company}`} title="Review job requirements" actions={reviewed && job.reviewedDescription === job.description ? <ButtonLink href={matchHref(job.id)}>Requirement analysis</ButtonLink> : undefined} />
   <Card><JobRequirementsReview key={job.id} id={job.id} description={job.description} version={job.reviewVersion} reviewed={reviewed} stale={reviewed && job.reviewedDescription !== job.description} initial={initial} /></Card>
  </section>;
 }

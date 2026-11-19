@@ -10,11 +10,21 @@ import { join } from "node:path";
 function assertLocalSupabase() {
   const app = loadEnvConfig(process.cwd(), true, { info: () => {}, error: console.error }).combinedEnv;
   const tests = existsSync(".env.playwright.local") ? parse(readFileSync(".env.playwright.local")) : {};
+  const ai = existsSync("ai-service/.env") ? parse(readFileSync("ai-service/.env")) : {};
   const isLocal = (url?: string) => { try { return ["127.0.0.1", "localhost"].includes(new URL(url!).hostname); } catch { return false; } };
+  // Browser tests must never reach a paid AI provider: a cloud provider may only use the fictional
+  // test key and the local mock API (ai-service/devtools/mock_anthropic.py).
+  // Local providers are allowed: rules, fake, and Ollama on this machine (alone, "hybrid", or "assisted").
+  const cloudInAiService = (ai.AI_PROVIDERS ?? "").split(",").map(p => p.trim()).some(p => p && !["rules", "fake", "ollama", "hybrid", "assisted"].includes(p));
+  const unsafeCloud = (cloudInAiService || ai.ANTHROPIC_API_KEY) &&
+    (!(ai.ANTHROPIC_API_KEY ?? "").startsWith("sk-ant-test.") || !isLocal(ai.AI_ANTHROPIC_BASE_URL));
   const problems = [
     !isLocal(app.NEXT_PUBLIC_SUPABASE_URL) && "NEXT_PUBLIC_SUPABASE_URL is not the local Supabase API",
     !isLocal(app.DATABASE_URL) && "DATABASE_URL is not the local Supabase database",
     tests.E2E_SUPABASE_URL !== app.NEXT_PUBLIC_SUPABASE_URL && "E2E_SUPABASE_URL does not match the app (run npm run db:local:setup)",
+    app.AI_SERVICE_URL && !isLocal(app.AI_SERVICE_URL) && "AI_SERVICE_URL is not a local AI service",
+    unsafeCloud && "the AI service could reach a real AI provider (use the fictional test key and the local mock API)",
+    ai.AI_OLLAMA_URL && !isLocal(ai.AI_OLLAMA_URL) && "AI_OLLAMA_URL is not on this machine",
   ].filter(Boolean);
   if (problems.length) throw new Error(`Browser tests blocked: ${problems.join("; ")}.`);
 }
@@ -31,7 +41,7 @@ export default defineConfig({
   reporter: "list",
   outputDir: join(tmpdir(), "careeros-playwright-results"),
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000",
     storageState: { cookies: [], origins: [] },
     trace: "off",
     screenshot: "off",

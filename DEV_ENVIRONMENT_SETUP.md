@@ -59,10 +59,57 @@ APP_URL=http://localhost:3000
 
 Keep using `localhost:3000` in the browser. Auth redirect URLs in [supabase/config.toml](supabase/config.toml) are configured for it.
 
+## Requirement analysis (optional)
+
+The analysis page needs the local AI service. Without it, everything else works and the page says the service is unavailable. Generate one random secret (at least 32 characters) and put it in both files; never commit it.
+
+```dotenv
+# .env
+AI_SERVICE_URL=http://127.0.0.1:8010
+AI_SERVICE_SECRET=<random secret>
+AI_ANALYSIS_DAILY_LIMIT=20
+
+# ai-service/.env
+AI_SERVICE_SECRET=<same secret>
+AI_ENVIRONMENT=development
+AI_PROVIDERS=rules
+AI_REPLAY_STORE_URL=redis://127.0.0.1:6379/0
+```
+
+Start the local replay store once (free, Redis-compatible, reachable from this machine only):
+
+```bash
+docker run -d --name careeros-replay-store -p 127.0.0.1:6379:6379 valkey/valkey:8
+```
+
+Then, from ai-service/: `uv run uvicorn app.main:app_factory --factory --host 127.0.0.1 --port 8010`. Apply the analysis tables with `npm run db:local:setup`.
+
+### Cloud analysis against the local mock (no cost)
+
+To exercise consent and the cloud path without any paid call, run the mock Anthropic API and point the AI service at it. It accepts only the fictional test key below. Never put a real key in these files.
+
+```dotenv
+# ai-service/.env (in addition to the above)
+AI_PROVIDERS=rules,anthropic
+ANTHROPIC_API_KEY=sk-ant-test.not.a.real.key.000000000000000000
+AI_ANTHROPIC_BASE_URL=http://127.0.0.1:8020
+
+# .env (in addition to the above)
+AI_CLOUD_ENABLED=true
+AI_COST_USER_DAILY_USD=1
+AI_COST_GLOBAL_DAILY_USD=3
+AI_COST_GLOBAL_MONTHLY_USD=25
+AI_CLOUD_ALLOWED_USERS=<internal User ids, comma-separated>
+```
+
+From ai-service/: `uv run uvicorn devtools.mock_anthropic:app --host 127.0.0.1 --port 8020`. The AI service refuses `AI_ANTHROPIC_BASE_URL` in production or for a non-local host.
+
 ## Safety guards
 
 - `playwright.config.ts` resolves the app's env exactly as `next dev` does. It refuses to run unless the Supabase API and the database are on `127.0.0.1`/`localhost` and `.env.playwright.local` names the same API URL. Hosted projects are always rejected.
 - Unit tests mock Supabase and Prisma. Integration tests use only the fixed `careeros-test-db` address.
+- Playwright also refuses an `AI_SERVICE_URL` that is not local, and refuses to run if `ai-service/.env` could reach a real AI provider (any key other than the fictional test key, or a non-local `AI_ANTHROPIC_BASE_URL`).
+- AI service tests unset Anthropic credentials and fail if any test resolves or connects to a non-local host.
 - Only `prisma.production.config.ts` can reach production, and only through `.env.hosted-production`.
 - One gap remains: a dev server started with production env variables in the shell would not be detected. Start it with plain `npm run dev`.
 
@@ -87,3 +134,30 @@ npx prisma migrate deploy --config prisma.production.config.ts
 ```
 
 Production Auth URLs, Storage, and Vercel variables are not changed by this setup.
+
+### Local AI with Ollama (free; nothing leaves the machine)
+
+Install Ollama for Windows (a pinned release that is at least two weeks old), keep its default `127.0.0.1:11434` binding, and pull the approved model: `ollama pull qwen3:8b`. Then:
+
+```dotenv
+# ai-service/.env ("assisted" turns on the /v1/suggest bridge; the rules run in Next.js and need none of this)
+AI_PROVIDERS=assisted
+AI_OLLAMA_MODEL=qwen3:8b
+
+# .env
+AI_LOCAL_LLM_ENABLED=true
+AI_LOCAL_LLM_MODEL=qwen3:8b
+AI_LOCAL_LLM_ALLOWED_USERS=<internal User ids, comma-separated>
+```
+
+Never set `OLLAMA_HOST` to `0.0.0.0`. The AI service and the browser tests refuse a non-local Ollama URL. To evaluate for free, on the development cases or a held-out set:
+
+```bash
+EVAL_CASES=ai-service/evals/holdout_g_cases.json EVAL_MODE=assisted EVAL_RUNS=3 EVAL_REPORT=ai-service/evals/reports/m7/g.json npx vitest run --config vitest.eval.config.mts
+```
+
+Run that from the `web` folder. `EVAL_MODE` is `rules`, `offline` (every network call throws), `closed_port` (the bridge is unreachable), or `assisted`. The Python harness (`uv run python -m evals.run_eval`) remains only for the frozen Python rules and retired methods. The held-out sets (`evals/holdout_*.json`) were labeled before any run; never edit their labels to match results.
+
+If port 3000 is taken, run `npx next dev --port 3002`, set `APP_URL=http://localhost:3002` in `.env`, and run browser tests with `E2E_BASE_URL=http://localhost:3002`. With the AI service stopped, `E2E_AI_SERVICE_OFF=true npx playwright test e2e/job-match-offline.spec.ts` checks the laptop-off case.
+
+Rules-only analysis needs no AI service settings. To add a rule, change `src/lib/ai/rules/` only: the Python rules are frozen, and any difference from them must be listed in `tests/ai-rules-parity.test.ts`.

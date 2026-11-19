@@ -1,0 +1,152 @@
+{
+ "fixtures": "tests/fixtures/m11_interpret/check.json",
+ "model": "qwen3:8b",
+ "sealed": true,
+ "totals": {
+  "cases": 45,
+  "droppedFields": {},
+  "modelErrors": 45,
+  "outputsRejected": 0,
+  "factsReturned": 0,
+  "factsDropped": 0,
+  "casesWithDroppedFacts": 0,
+  "invalidEvidenceSpans": 0,
+  "honestParaphrases": 14,
+  "paraphraseFollowUp": 0,
+  "paraphrasePossible": 0,
+  "paraphraseSupported": 0,
+  "paraphraseReaderAlone": 0,
+  "paraphraseUnresolved": 14,
+  "qualifying": 17,
+  "missedByRules": 16,
+  "recoveredByReaderAlone": 0,
+  "reachedByInterpretation": 0,
+  "falseSupported": 0,
+  "unsafePossible": 1,
+  "unsafeFollowUp": 0,
+  "followUps": 0,
+  "followUpsFromRelatedWork": 0,
+  "injections": 4,
+  "injectionsEffective": 0,
+  "modelFooledByInjection": 0,
+  "unsafeModelSaidDone": 0,
+  "unsafeCaughtByCode": 0,
+  "nonEnglishPromoted": 0,
+  "ifModelTrusted": {
+   "possible": 0,
+   "possibleQualifying": 0,
+   "possibleUnsafe": 0
+  },
+  "identicalOnRerun": 0,
+  "reruns": 9
+ },
+ "byType": {
+  "honest_paraphrase": {
+   "n": 14,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 14,
+   "modelSaysDone": 0
+  },
+  "partial": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 2,
+   "follow_up": 0,
+   "unresolved": 1,
+   "modelSaysDone": 0
+  },
+  "negated": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  },
+  "abandoned": {
+   "n": 2,
+   "supported_candidate": 0,
+   "possible_candidate": 1,
+   "follow_up": 0,
+   "unresolved": 1,
+   "modelSaysDone": 0
+  },
+  "hypothetical": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  },
+  "third_party": {
+   "n": 4,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 4,
+   "modelSaysDone": 0
+  },
+  "template": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  },
+  "credential": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  },
+  "duration": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  },
+  "injection": {
+   "n": 4,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 4,
+   "modelSaysDone": 0
+  },
+  "multilingual": {
+   "n": 3,
+   "supported_candidate": 0,
+   "possible_candidate": 0,
+   "follow_up": 0,
+   "unresolved": 3,
+   "modelSaysDone": 0
+  }
+ },
+ "latency": {
+  "coldStartMs": 1600,
+  "p50Ms": 0,
+  "p95Ms": 0,
+  "maxMs": null
+ },
+ "memory": {
+  "idleGpuMb": 5492,
+  "loadedGpuMb": 5492,
+  "ollamaRamMb": 143,
+  "peakAfterRunGpuMb": 5492,
+  "loadedModel": [
+   {
+    "name": "qwen3:8b",
+    "sizeMb": 5587,
+    "vramMb": 5587
+   }
+  ]
+ }
+}

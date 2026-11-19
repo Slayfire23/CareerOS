@@ -1,0 +1,6257 @@
+{
+ "note": "before = Batch 3 commit 1fa8b93; after = ten Batch 4 approvals (answer-equivalences-v5). Probes combine Batches 1-4 and the B3-BLUEPRINT cases.",
+ "probes": {
+  "before": [
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I post our daily sales to the general ledger and keep the books for two shops.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:bookkeeping"
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I keep the books on the shelves in order at the library.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I maintain the ledger of tool checkouts in the shop.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "Our accountant keeps the books; I file the receipts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "Every other Friday I calculate wages from the timesheets and issue paychecks for 40 people.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:payroll"
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "I calculate wages for our labor cost forecast each quarter.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I match invoices to purchase orders and pay vendors twice a week.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I paid vendor invoices every week at my last job.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I process vendors' onboarding forms for procurement.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I bill customers at month-end and chase overdue invoices.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:accountsreceivable"
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I collect customers' coats at the front desk.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I chase customers who leave without paying for gas.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bankreconciliation",
+    "requirement": "Bank reconciliation",
+    "text": "Each month I reconcile the operating account to the bank statements.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:bankreconciliation"
+   },
+   {
+    "group": "bankreconciliation",
+    "requirement": "Bank reconciliation",
+    "text": "I match bank statements to the right folders before filing them.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I close the books every month: accruals, reconciliations and the trial balance.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I ran the month-end inventory count in the warehouse.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I close the month's schedule in the staffing app.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "budgeting",
+    "requirement": "Budgeting",
+    "text": "I build the annual budget for our department and track spending against it.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "budgeting",
+    "requirement": "Budgeting",
+    "text": "I manage the budget for the office holiday party.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "cashhandling",
+    "requirement": "Cash handling",
+    "text": "I count the till at open and close and balance the register every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:cashhandling"
+   },
+   {
+    "group": "cashhandling",
+    "requirement": "Cash handling",
+    "text": "I balance the register tape rolls in the supply closet.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I enter patient records into Epic all day.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I enter the data center through the badge door every morning.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I type records of our team meetings now and then.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I drew blood from about 20 patients each morning using vacuum tubes.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I collect blood samples from the lab fridge and drive them to the hospital.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I collected blood donation pledges at the company drive.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I passed medications to 30 residents on the evening shift.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I give medications back to the pharmacy for disposal at the end of each month.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I administer the medication reimbursement forms for the union.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I took vitals on every patient I roomed for two doctors.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:vitalsigns"
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I check blood pressure cuffs for damage in central supply.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I record vitals that the nurse calls out to me during rounds.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I changed dressings on pressure sores and cleaned wounds every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:woundcare"
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I change the dressings on the salads before service.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I clean the wounds on the training mannequins after each class.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I started IVs and hung piggybacks on a med-surg floor for two years.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I hang IV poles and restock the supply room.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I push IV carts between rooms for the nurses.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "patientintake",
+    "requirement": "Patient intake",
+    "text": "I checked in patients and roomed them for three doctors.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "patientintake",
+    "requirement": "Patient intake",
+    "text": "I register patients for parking passes at the garage booth.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "mentalhealth",
+    "requirement": "Crisis intervention",
+    "text": "I de-escalated patients in crisis on the psych unit several times a week.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "mentalhealth",
+    "requirement": "Crisis intervention",
+    "text": "I de-escalated clients who were upset about their bills at the front desk.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Resolving insurance claim rejections",
+    "text": "I resubmitted claims and appealed denied claims for our clinic every week.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Resolving insurance claim rejections",
+    "text": "I fix the claims department's computers when they freeze.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Insurance claims",
+    "text": "I fixed rejected claims for our warranty department, mostly missing serial numbers.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Vital signs",
+    "text": "I measured blood pressure cuffs for a purchasing contract.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Patient registration",
+    "text": "I handled patient registration for parking permits at the garage.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Patient registration",
+    "text": "I registered patients for parking passes at the garage booth.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Medication administration",
+    "text": "I give medications back to the pharmacy for disposal at the end of each month.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Medication administration",
+    "text": "I administer the medication reimbursement forms for the union.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B3",
+    "requirement": "Oil changes",
+    "text": "I changed the oil in restaurant deep fryers each night.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B3",
+    "requirement": "Oil changes",
+    "text": "I changed the engine oil on delivery vans every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B1",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B1",
+    "requirement": "Budgeting",
+    "text": "I manage the budget for the office holiday party.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Vital signs",
+    "text": "I took vitals on every patient I roomed for two doctors.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:vitalsigns"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Wound care",
+    "text": "I changed wound dressings on post-surgical patients every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:woundcare"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "IV medications",
+    "text": "I hung antibiotic piggybacks on a med-surg floor for two years.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:ivmedications"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Patient registration",
+    "text": "I checked in patients for appointments at a family clinic.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:patientintake"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Insurance claim rejections",
+    "text": "I appealed denied medical claims for our clinic every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:claimrejections"
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped drywall joints on apartment walls every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:drywallfinishing"
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped joints on shipping cartons before dispatch.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I hung drywall while the finishing crew taped the seams.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I rebuilt brake calipers on customer vehicles.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:brakerepair"
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I replaced the shelf labels for brake pads in our parts warehouse.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I ordered brake parts and the mechanic installed them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I changed the engine oil on delivery vans every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I changed the oil in restaurant deep fryers each night.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I drained cooking oil after each weekend shift.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed wheel alignments on customer cars using a calibrated rack.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:wheelalignment"
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed alignments on graphics for a print catalogue.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I aligned wheels on display racks for photos.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I cut and threaded pipe for the new boiler plant.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pipefitting"
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I installed software for pipe inventory on warehouse tablets.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I fitted pipe insulation sleeves over existing plumbing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I performed scheduled maintenance on fleet vehicles at our depot.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I replaced price labels on tires in the showroom.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I stocked oil and filter kits in our parts warehouse.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I completed pre-trip safety inspections before driving the school bus.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pretrip"
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I walked around the rig to take advertising photos.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I inspected the truck for cosmetic damage for an auction listing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I hung ductwork and sealed the seams in new homes.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I installed price tags on ductwork at the supply store.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I ran a camera through existing ducts to inspect them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read construction drawings to lay out framing on site.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I worked from drawings of flowers for greeting cards.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read drawings at a gallery workshop.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I bent conduit and installed the runs on commercial jobs.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I installed conduit on site; our fabricator did all the bending.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I shaped EMT with a hand bender in the shop.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I documented nonconformances in quality reports for engineering disposition.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I quarantined parts on the loading dock; the engineers wrote the reports.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I documented defects in my apartment for the landlord.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped drywall joints every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:drywallfinishing"
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I took a one-day class where the instructor taped drywall joints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I supervise the crew who taped drywall joints and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I helped the technician who taped drywall joints, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "We hired an outside contractor that taped drywall joints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "My coworker taped drywall joints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I have never taped drywall joints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I could tape drywall joints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I replaced brake pads every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:brakerepair"
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I took a one-day class where the instructor replaced brake pads and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I supervise the crew who replaced brake pads and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I helped the technician who replaced brake pads, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "We hired an outside contractor that replaced brake pads for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "My coworker replaced brake pads; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I have never replaced brake pads.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I could replace brake pads if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed wheel alignments every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:wheelalignment"
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I took a one-day class where the instructor performed wheel alignments and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I supervise the crew who performed wheel alignments and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I helped the technician who performed wheel alignments, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "We hired an outside contractor that performed wheel alignments for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "My coworker performed wheel alignments; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I have never performed wheel alignments.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I could perform wheel alignments if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I cut and threaded pipe every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pipefitting"
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I took a one-day class where the instructor cut and threaded pipe and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I supervise the crew who cut and threaded pipe and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I helped the technician who cut and threaded pipe, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "We hired an outside contractor that cut and threaded pipe for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "My coworker cut and threaded pipe; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I have never cut and threaded pipe.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I could cut and thread pipe if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I completed pre-trip safety inspections every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pretrip"
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I took a one-day class where the instructor completed pre-trip safety inspections and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I supervise the crew who completed pre-trip safety inspections and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I helped the technician who completed pre-trip safety inspections, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "We hired an outside contractor that completed pre-trip safety inspections for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "My coworker completed pre-trip safety inspections; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I have never completed pre-trip safety inspections.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I could complete pre-trip safety inspections if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I took a one-day class where the instructor read blueprints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I supervise the crew who read blueprints and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I helped the technician who read blueprints, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "We hired an outside contractor that read blueprints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "My coworker read blueprints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I have never read blueprints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I could read blueprints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang ductwork in new homes for a residential HVAC contractor.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I install ductwork in attics and crawlspaces every day.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang sheet metal trunks and flex runs in attics.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang ductwork signs in the showroom.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I sell the hangers people use to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I teach apprentices how to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I watched videos on how to install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I'll install ductwork once I finish my apprenticeship.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "We hired a contractor to install ductwork in the office.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I help the crew that hang sheet metal trunks by carrying material.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I supervise the installers who install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "My coworker and I were supposed to install ductwork, but he did it.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I have never had to install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I could install ductwork if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I took a class where we learned to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I install ductwork insulation wrap on existing ducts.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I schedule the crews who install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:umbrella",
+    "requirement": "Vehicle inspections",
+    "text": "I completed pre-trip safety inspections before driving the school bus.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "pretrip:umbrella",
+    "requirement": "Vehicle inspections",
+    "text": "I inspected the truck for cosmetic damage for an auction listing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints on every job site.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read construction drawings daily as a site lead.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I teach apprentices how to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I sell the books people use to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I'll read blueprints once I start my apprenticeship.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I want to read blueprints someday.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I am learning to read blueprints in night school.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I hope to read construction drawings on my next job.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I train new hires to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I need to learn to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I worked from blueprints of my house that the architect explained to me.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "The foreman read blueprints to us each morning.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints of famous buildings as a hobby.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Brake repair",
+    "text": "I teach apprentices how to replace brake pads.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Wheel alignment",
+    "text": "I'll perform wheel alignments once I'm certified.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift every shift, loading and unloading trailers at the distribution center.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift rental counter at the equipment store.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I ran a forklift dealership's service desk.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I scheduled the drivers who operated forklifts on second shift.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I teach new hires how to operate a forklift.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I'm learning to drive a forklift for my certification next month.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I took a one-day class where the instructor operated a forklift and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I supervise the people who operated a forklift and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I helped the specialist who operated a forklift, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "We hired an outside firm that operated a forklift for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "My coworker operated a forklift; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I have never operated a forklift.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I could operate a forklift if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints at the service desk and issued refunds when needed.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints data in a spreadsheet for the analytics team.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I helped customers with their bags as a volunteer.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I analyzed reports of resolved customer issues for my manager.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I teach new reps how to handle customer complaints.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I took a one-day class where the instructor handled customer complaints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I supervise the people who handled customer complaints and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I helped the specialist who handled customer complaints, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "We hired an outside firm that handled customer complaints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "My coworker handled customer complaints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I have never handled customer complaints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I could handle customer complaints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I ran cycle counts on the pick faces every morning and fixed variances in the system.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I took inventory of my skills at a career workshop.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I counted stock certificates for the estate attorney.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I counted inventory of my record collection for insurance.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I reviewed the stock counts the clerks submitted.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I ran cycle counts every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I took a one-day class where the instructor ran cycle counts and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I supervise the people who ran cycle counts and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I helped the specialist who ran cycle counts, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "We hired an outside firm that ran cycle counts for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "My coworker ran cycle counts; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I have never ran cycle counts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I could run cycle counts if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders with an RF scanner and staged them for shipping.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked orders up from the front counter and drove them to customers.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I pulled orders from the supplier when prices rose.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders up at the curbside lane.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I audited the orders the pickers filled from the shelves.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I took a one-day class where the instructor picked customer orders and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I supervise the people who picked customer orders and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I helped the specialist who picked customer orders, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "We hired an outside firm that picked customer orders for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "My coworker picked customer orders; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I have never picked customer orders.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I could pick customer orders if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked patient appointments for three providers and confirmed them by phone the day before.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked appointments for my dog at the vet.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled appointments with my own doctors after surgery.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled patient visits as a patient, for my own physical therapy.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I trained the front desk to schedule patient visits.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked patient appointments every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I took a one-day class where the instructor booked patient appointments and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I supervise the people who booked patient appointments and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I helped the specialist who booked patient appointments, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "We hired an outside firm that booked patient appointments for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "My coworker booked patient appointments; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I have never booked patient appointments.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I could book patient appointments if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans for my fourth-grade class every week, aligned to state standards.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans as an assignment in my education course.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I planned lessons for my own guitar practice.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I reviewed the lesson plans our teachers prepared.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I printed and filed the lesson plans for the teachers.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I took a one-day class where the instructor wrote lesson plans and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I supervise the people who wrote lesson plans and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I helped the specialist who wrote lesson plans, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "We hired an outside firm that wrote lesson plans for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "My coworker wrote lesson plans; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I have never wrote lesson plans.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I could write lesson plans if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched case law on Westlaw and wrote memos for the litigation partners.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched precedents for our branding redesign.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I looked up case law for a school debate.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I proofread the memos after the associates researched case law.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched case law every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I took a one-day class where the instructor researched case law and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I supervise the people who researched case law and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I helped the specialist who researched case law, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "We hired an outside firm that researched case law for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "My coworker researched case law; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I have never researched case law.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I could research case law if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted commercial contracts and negotiated redlines with opposing counsel.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I prepared contracts for signature by printing and tabbing them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted agreements for our roommate chore schedule.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I filed the contracts the attorneys drafted.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I wrote contracts on the whiteboard for the sales team's goals.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted contracts every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I took a one-day class where the instructor drafted contracts and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I supervise the people who drafted contracts and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I helped the specialist who drafted contracts, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "We hired an outside firm that drafted contracts for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "My coworker drafted contracts; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I have never drafted contracts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I could draft contracts if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened resumes and interviewed job applicants for our warehouse roles.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I interviewed candidates for the school newspaper election story.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened candidates for symptoms at the clinic door.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened applicants' badges at the security desk.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I scheduled the interviews the hiring managers held with candidates.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened resumes every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I took a one-day class where the instructor screened resumes and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I supervise the people who screened resumes and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I helped the specialist who screened resumes, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "We hired an outside firm that screened resumes for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "My coworker screened resumes; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I have never screened resumes.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I could screen resumes if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised a team of nine cashiers and wrote their schedules.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I led a team-building game at the company picnic.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised staff parking in the lot as a valet.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I was supervised by a team lead.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I was a member of a team that a manager supervised.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised a crew of six every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I took a one-day class where the instructor supervised a crew of six and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I supervise the people who supervised a crew of six and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I helped the specialist who supervised a crew of six, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "We hired an outside firm that supervised a crew of six for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "My coworker supervised a crew of six; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I have never supervised a crew of six.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I could supervise a crew of six if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I drafted discovery responses and organized document productions for our litigation team.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I answered interrogatories in my own divorce case.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I responded to discovery as a defendant in a small claims case.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I copied the discovery responses the paralegals drafted.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I drafted discovery responses every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I took a one-day class where the instructor drafted discovery responses and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I supervise the people who drafted discovery responses and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I helped the specialist who drafted discovery responses, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "We hired an outside firm that drafted discovery responses for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "My coworker drafted discovery responses; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I have never drafted discovery responses.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I could draft discovery responses if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched drivers and planned delivery routes for drivers across three counties.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I assigned drivers parking spots in the new lot.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I planned delivery routes for my own newspaper route.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched trucks of donated food to shelters as a volunteer driver.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I rode along while the dispatcher dispatched drivers.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched drivers every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I took a one-day class where the instructor dispatched drivers and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I supervise the people who dispatched drivers and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I helped the specialist who dispatched drivers, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "We hired an outside firm that dispatched drivers for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "My coworker dispatched drivers; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I have never dispatched drivers.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I could dispatch drivers if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked business travel for our sales team, including flights, hotels and car rentals.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked flights for my family vacation.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I arranged travel for my own wedding guests.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I found hotels for my road trip.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I approved the business travel the assistants booked.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked business travel every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I took a one-day class where the instructor booked business travel and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I supervise the people who booked business travel and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I helped the specialist who booked business travel, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "We hired an outside firm that booked business travel for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "My coworker booked business travel; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I have never booked business travel.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I could book business travel if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I made cold calls to small businesses every morning and booked demos for the account executives.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I hate to make cold calls.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I was cold called by recruiters every week.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I'm learning to make cold calls in a sales course.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I prospecting for gold in Alaska on weekends.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I made cold calls every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I took a one-day class where the instructor made cold calls and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I supervise the people who made cold calls and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I helped the specialist who made cold calls, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "We hired an outside firm that made cold calls for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "My coworker made cold calls; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I have never made cold calls.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I could make cold calls if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   }
+  ],
+  "after": [
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I post our daily sales to the general ledger and keep the books for two shops.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:bookkeeping"
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I keep the books on the shelves in order at the library.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "I maintain the ledger of tool checkouts in the shop.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bookkeeping",
+    "requirement": "Bookkeeping",
+    "text": "Our accountant keeps the books; I file the receipts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "Every other Friday I calculate wages from the timesheets and issue paychecks for 40 people.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:payroll"
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "I calculate wages for our labor cost forecast each quarter.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "payroll",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I match invoices to purchase orders and pay vendors twice a week.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I paid vendor invoices every week at my last job.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountspayable",
+    "requirement": "Accounts payable",
+    "text": "I process vendors' onboarding forms for procurement.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I bill customers at month-end and chase overdue invoices.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:accountsreceivable"
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I collect customers' coats at the front desk.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "accountsreceivable",
+    "requirement": "Accounts receivable",
+    "text": "I chase customers who leave without paying for gas.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "bankreconciliation",
+    "requirement": "Bank reconciliation",
+    "text": "Each month I reconcile the operating account to the bank statements.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:bankreconciliation"
+   },
+   {
+    "group": "bankreconciliation",
+    "requirement": "Bank reconciliation",
+    "text": "I match bank statements to the right folders before filing them.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I close the books every month: accruals, reconciliations and the trial balance.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I ran the month-end inventory count in the warehouse.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "monthendclose",
+    "requirement": "Month-end close",
+    "text": "I close the month's schedule in the staffing app.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "budgeting",
+    "requirement": "Budgeting",
+    "text": "I build the annual budget for our department and track spending against it.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "budgeting",
+    "requirement": "Budgeting",
+    "text": "I manage the budget for the office holiday party.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "cashhandling",
+    "requirement": "Cash handling",
+    "text": "I count the till at open and close and balance the register every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:cashhandling"
+   },
+   {
+    "group": "cashhandling",
+    "requirement": "Cash handling",
+    "text": "I balance the register tape rolls in the supply closet.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I enter patient records into Epic all day.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I enter the data center through the badge door every morning.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "dataentry",
+    "requirement": "Data entry",
+    "text": "I type records of our team meetings now and then.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I drew blood from about 20 patients each morning using vacuum tubes.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I collect blood samples from the lab fridge and drive them to the hospital.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "phlebotomy",
+    "requirement": "Phlebotomy",
+    "text": "I collected blood donation pledges at the company drive.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I passed medications to 30 residents on the evening shift.",
+    "want": "credit",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I give medications back to the pharmacy for disposal at the end of each month.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "medicationadministration",
+    "requirement": "Medication administration",
+    "text": "I administer the medication reimbursement forms for the union.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I took vitals on every patient I roomed for two doctors.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:vitalsigns"
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I check blood pressure cuffs for damage in central supply.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "vitalsigns",
+    "requirement": "Vital signs",
+    "text": "I record vitals that the nurse calls out to me during rounds.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I changed dressings on pressure sores and cleaned wounds every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:woundcare"
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I change the dressings on the salads before service.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "woundcare",
+    "requirement": "Wound care",
+    "text": "I clean the wounds on the training mannequins after each class.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I started IVs and hung piggybacks on a med-surg floor for two years.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I hang IV poles and restock the supply room.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ivmedications",
+    "requirement": "IV medications",
+    "text": "I push IV carts between rooms for the nurses.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "patientintake",
+    "requirement": "Patient intake",
+    "text": "I checked in patients and roomed them for three doctors.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "patientintake",
+    "requirement": "Patient intake",
+    "text": "I register patients for parking passes at the garage booth.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "mentalhealth",
+    "requirement": "Crisis intervention",
+    "text": "I de-escalated patients in crisis on the psych unit several times a week.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "mentalhealth",
+    "requirement": "Crisis intervention",
+    "text": "I de-escalated clients who were upset about their bills at the front desk.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Resolving insurance claim rejections",
+    "text": "I resubmitted claims and appealed denied claims for our clinic every week.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Resolving insurance claim rejections",
+    "text": "I fix the claims department's computers when they freeze.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "claimrejections",
+    "requirement": "Insurance claims",
+    "text": "I fixed rejected claims for our warranty department, mostly missing serial numbers.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Vital signs",
+    "text": "I measured blood pressure cuffs for a purchasing contract.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Patient registration",
+    "text": "I handled patient registration for parking permits at the garage.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Patient registration",
+    "text": "I registered patients for parking passes at the garage booth.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Medication administration",
+    "text": "I give medications back to the pharmacy for disposal at the end of each month.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B2",
+    "requirement": "Medication administration",
+    "text": "I administer the medication reimbursement forms for the union.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B3",
+    "requirement": "Oil changes",
+    "text": "I changed the oil in restaurant deep fryers each night.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B3",
+    "requirement": "Oil changes",
+    "text": "I changed the engine oil on delivery vans every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B1",
+    "requirement": "Payroll processing",
+    "text": "I collect timesheets and send them to the payroll company.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "blocker-B1",
+    "requirement": "Budgeting",
+    "text": "I manage the budget for the office holiday party.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Vital signs",
+    "text": "I took vitals on every patient I roomed for two doctors.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:vitalsigns"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Wound care",
+    "text": "I changed wound dressings on post-surgical patients every shift.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:woundcare"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "IV medications",
+    "text": "I hung antibiotic piggybacks on a med-surg floor for two years.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:ivmedications"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Patient registration",
+    "text": "I checked in patients for appointments at a family clinic.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:patientintake"
+   },
+   {
+    "group": "approved-B2",
+    "requirement": "Insurance claim rejections",
+    "text": "I appealed denied medical claims for our clinic every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:claimrejections"
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped drywall joints on apartment walls every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:drywallfinishing"
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped joints on shipping cartons before dispatch.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I hung drywall while the finishing crew taped the seams.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I rebuilt brake calipers on customer vehicles.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:brakerepair"
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I replaced the shelf labels for brake pads in our parts warehouse.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I ordered brake parts and the mechanic installed them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I changed the engine oil on delivery vans every week.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I changed the oil in restaurant deep fryers each night.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "oilchanges",
+    "requirement": "Oil changes",
+    "text": "I drained cooking oil after each weekend shift.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed wheel alignments on customer cars using a calibrated rack.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:wheelalignment"
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed alignments on graphics for a print catalogue.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I aligned wheels on display racks for photos.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I cut and threaded pipe for the new boiler plant.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pipefitting"
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I installed software for pipe inventory on warehouse tablets.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I fitted pipe insulation sleeves over existing plumbing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I performed scheduled maintenance on fleet vehicles at our depot.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I replaced price labels on tires in the showroom.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "vehiclemaintenance",
+    "requirement": "Routine vehicle maintenance",
+    "text": "I stocked oil and filter kits in our parts warehouse.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I completed pre-trip safety inspections before driving the school bus.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pretrip"
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I walked around the rig to take advertising photos.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I inspected the truck for cosmetic damage for an auction listing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I hung ductwork and sealed the seams in new homes.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I installed price tags on ductwork at the supply store.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork",
+    "requirement": "Ductwork installation",
+    "text": "I ran a camera through existing ducts to inspect them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read construction drawings to lay out framing on site.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I worked from drawings of flowers for greeting cards.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read drawings at a gallery workshop.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I bent conduit and installed the runs on commercial jobs.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I installed conduit on site; our fabricator did all the bending.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "conduit",
+    "requirement": "Conduit bending and installation",
+    "text": "I shaped EMT with a hand bender in the shop.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I documented nonconformances in quality reports for engineering disposition.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I quarantined parts on the loading dock; the engineers wrote the reports.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "nonconformance",
+    "requirement": "Writing non-conformance reports",
+    "text": "I documented defects in my apartment for the landlord.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing",
+    "requirement": "Drywall finishing",
+    "text": "I taped drywall joints every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:drywallfinishing"
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I took a one-day class where the instructor taped drywall joints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I supervise the crew who taped drywall joints and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I helped the technician who taped drywall joints, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "We hired an outside contractor that taped drywall joints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "My coworker taped drywall joints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I have never taped drywall joints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "drywallfinishing:ownership",
+    "requirement": "Drywall finishing",
+    "text": "I could tape drywall joints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair",
+    "requirement": "Brake repair",
+    "text": "I replaced brake pads every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:brakerepair"
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I took a one-day class where the instructor replaced brake pads and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I supervise the crew who replaced brake pads and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I helped the technician who replaced brake pads, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "We hired an outside contractor that replaced brake pads for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "My coworker replaced brake pads; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I have never replaced brake pads.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "brakerepair:ownership",
+    "requirement": "Brake repair",
+    "text": "I could replace brake pads if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment",
+    "requirement": "Wheel alignment",
+    "text": "I performed wheel alignments every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:wheelalignment"
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I took a one-day class where the instructor performed wheel alignments and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I supervise the crew who performed wheel alignments and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I helped the technician who performed wheel alignments, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "We hired an outside contractor that performed wheel alignments for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "My coworker performed wheel alignments; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I have never performed wheel alignments.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "wheelalignment:ownership",
+    "requirement": "Wheel alignment",
+    "text": "I could perform wheel alignments if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting",
+    "requirement": "Pipefitting",
+    "text": "I cut and threaded pipe every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pipefitting"
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I took a one-day class where the instructor cut and threaded pipe and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I supervise the crew who cut and threaded pipe and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I helped the technician who cut and threaded pipe, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "We hired an outside contractor that cut and threaded pipe for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "My coworker cut and threaded pipe; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I have never cut and threaded pipe.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pipefitting:ownership",
+    "requirement": "Pipefitting",
+    "text": "I could cut and thread pipe if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip",
+    "requirement": "Pre-trip inspections",
+    "text": "I completed pre-trip safety inspections every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:pretrip"
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I took a one-day class where the instructor completed pre-trip safety inspections and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I supervise the crew who completed pre-trip safety inspections and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I helped the technician who completed pre-trip safety inspections, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "We hired an outside contractor that completed pre-trip safety inspections for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "My coworker completed pre-trip safety inspections; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I have never completed pre-trip safety inspections.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:ownership",
+    "requirement": "Pre-trip inspections",
+    "text": "I could complete pre-trip safety inspections if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I took a one-day class where the instructor read blueprints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I supervise the crew who read blueprints and I sign off on their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I helped the technician who read blueprints, mostly fetching tools.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "We hired an outside contractor that read blueprints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "My coworker read blueprints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I have never read blueprints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprintreading:ownership",
+    "requirement": "Blueprint reading",
+    "text": "I could read blueprints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang ductwork in new homes for a residential HVAC contractor.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I install ductwork in attics and crawlspaces every day.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang sheet metal trunks and flex runs in attics.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I hang ductwork signs in the showroom.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I sell the hangers people use to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I teach apprentices how to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I watched videos on how to install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I'll install ductwork once I finish my apprenticeship.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "We hired a contractor to install ductwork in the office.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I help the crew that hang sheet metal trunks by carrying material.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I supervise the installers who install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "My coworker and I were supposed to install ductwork, but he did it.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I have never had to install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I could install ductwork if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I took a class where we learned to hang ductwork.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I install ductwork insulation wrap on existing ducts.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "ductwork:present",
+    "requirement": "Ductwork installation",
+    "text": "I schedule the crews who install ductwork.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "pretrip:umbrella",
+    "requirement": "Vehicle inspections",
+    "text": "I completed pre-trip safety inspections before driving the school bus.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "pretrip:umbrella",
+    "requirement": "Vehicle inspections",
+    "text": "I inspected the truck for cosmetic damage for an auction listing.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints on every job site.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read construction drawings daily as a site lead.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I teach apprentices how to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I sell the books people use to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I'll read blueprints once I start my apprenticeship.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I want to read blueprints someday.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I am learning to read blueprints in night school.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I hope to read construction drawings on my next job.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I train new hires to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I need to learn to read blueprints.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I worked from blueprints of my house that the architect explained to me.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "The foreman read blueprints to us each morning.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Blueprint reading",
+    "text": "I read blueprints of famous buildings as a hobby.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Brake repair",
+    "text": "I teach apprentices how to replace brake pads.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "blueprint:present",
+    "requirement": "Wheel alignment",
+    "text": "I'll perform wheel alignments once I'm certified.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift every shift, loading and unloading trailers at the distribution center.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:forkliftoperation"
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift rental counter at the equipment store.",
+    "want": "no",
+    "v": "supported",
+    "source": "equivalence:forkliftoperation"
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I ran a forklift dealership's service desk.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I scheduled the drivers who operated forklifts on second shift.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I teach new hires how to operate a forklift.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I'm learning to drive a forklift for my certification next month.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation",
+    "requirement": "Forklift operation",
+    "text": "I operated a forklift every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:forkliftoperation"
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I took a one-day class where the instructor operated a forklift and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I supervise the people who operated a forklift and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I helped the specialist who operated a forklift, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "We hired an outside firm that operated a forklift for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "My coworker operated a forklift; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I have never operated a forklift.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:forkliftoperation:ownership",
+    "requirement": "Forklift operation",
+    "text": "I could operate a forklift if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints at the service desk and issued refunds when needed.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints data in a spreadsheet for the analytics team.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I helped customers with their bags as a volunteer.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I analyzed reports of resolved customer issues for my manager.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I teach new reps how to handle customer complaints.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice",
+    "requirement": "Customer service",
+    "text": "I handled customer complaints every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I took a one-day class where the instructor handled customer complaints and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I supervise the people who handled customer complaints and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I helped the specialist who handled customer complaints, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "We hired an outside firm that handled customer complaints for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "My coworker handled customer complaints; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I have never handled customer complaints.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:customerservice:ownership",
+    "requirement": "Customer service",
+    "text": "I could handle customer complaints if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I ran cycle counts on the pick faces every morning and fixed variances in the system.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:cyclecounting"
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I took inventory of my skills at a career workshop.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I counted stock certificates for the estate attorney.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I counted inventory of my record collection for insurance.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I reviewed the stock counts the clerks submitted.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting",
+    "requirement": "Cycle counting",
+    "text": "I ran cycle counts every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:cyclecounting"
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I took a one-day class where the instructor ran cycle counts and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I supervise the people who ran cycle counts and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I helped the specialist who ran cycle counts, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "We hired an outside firm that ran cycle counts for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "My coworker ran cycle counts; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I have never ran cycle counts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:cyclecounting:ownership",
+    "requirement": "Cycle counting",
+    "text": "I could run cycle counts if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders with an RF scanner and staged them for shipping.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:orderpicking"
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked orders up from the front counter and drove them to customers.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I pulled orders from the supplier when prices rose.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders up at the curbside lane.",
+    "want": "no",
+    "v": "supported",
+    "source": "equivalence:orderpicking"
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I audited the orders the pickers filled from the shelves.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking",
+    "requirement": "Order picking",
+    "text": "I picked customer orders every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:orderpicking"
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I took a one-day class where the instructor picked customer orders and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I supervise the people who picked customer orders and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I helped the specialist who picked customer orders, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "We hired an outside firm that picked customer orders for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "My coworker picked customer orders; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I have never picked customer orders.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:orderpicking:ownership",
+    "requirement": "Order picking",
+    "text": "I could pick customer orders if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked patient appointments for three providers and confirmed them by phone the day before.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked appointments for my dog at the vet.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled appointments with my own doctors after surgery.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I scheduled patient visits as a patient, for my own physical therapy.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I trained the front desk to schedule patient visits.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling",
+    "requirement": "Appointment scheduling",
+    "text": "I booked patient appointments every week at my last job.",
+    "want": "credit",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I took a one-day class where the instructor booked patient appointments and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I supervise the people who booked patient appointments and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I helped the specialist who booked patient appointments, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "We hired an outside firm that booked patient appointments for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "My coworker booked patient appointments; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I have never booked patient appointments.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:appointmentscheduling:ownership",
+    "requirement": "Appointment scheduling",
+    "text": "I could book patient appointments if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans for my fourth-grade class every week, aligned to state standards.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:lessonplanning"
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans as an assignment in my education course.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I planned lessons for my own guitar practice.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I reviewed the lesson plans our teachers prepared.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I printed and filed the lesson plans for the teachers.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning",
+    "requirement": "Lesson planning",
+    "text": "I wrote lesson plans every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:lessonplanning"
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I took a one-day class where the instructor wrote lesson plans and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I supervise the people who wrote lesson plans and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I helped the specialist who wrote lesson plans, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "We hired an outside firm that wrote lesson plans for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "My coworker wrote lesson plans; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I have never wrote lesson plans.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:lessonplanning:ownership",
+    "requirement": "Lesson planning",
+    "text": "I could write lesson plans if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched case law on Westlaw and wrote memos for the litigation partners.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:legalresearch"
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched precedents for our branding redesign.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I looked up case law for a school debate.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I proofread the memos after the associates researched case law.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch",
+    "requirement": "Legal research",
+    "text": "I researched case law every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:legalresearch"
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I took a one-day class where the instructor researched case law and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I supervise the people who researched case law and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I helped the specialist who researched case law, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "We hired an outside firm that researched case law for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "My coworker researched case law; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I have never researched case law.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:legalresearch:ownership",
+    "requirement": "Legal research",
+    "text": "I could research case law if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted commercial contracts and negotiated redlines with opposing counsel.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:contractdrafting"
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I prepared contracts for signature by printing and tabbing them.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted agreements for our roommate chore schedule.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I filed the contracts the attorneys drafted.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I wrote contracts on the whiteboard for the sales team's goals.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting",
+    "requirement": "Contract drafting",
+    "text": "I drafted contracts every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:contractdrafting"
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I took a one-day class where the instructor drafted contracts and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I supervise the people who drafted contracts and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I helped the specialist who drafted contracts, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "We hired an outside firm that drafted contracts for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "My coworker drafted contracts; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I have never drafted contracts.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:contractdrafting:ownership",
+    "requirement": "Contract drafting",
+    "text": "I could draft contracts if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened resumes and interviewed job applicants for our warehouse roles.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:recruiting"
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I interviewed candidates for the school newspaper election story.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened candidates for symptoms at the clinic door.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened applicants' badges at the security desk.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I scheduled the interviews the hiring managers held with candidates.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting",
+    "requirement": "Recruiting",
+    "text": "I screened resumes every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:recruiting"
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I took a one-day class where the instructor screened resumes and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I supervise the people who screened resumes and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I helped the specialist who screened resumes, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "We hired an outside firm that screened resumes for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "My coworker screened resumes; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I have never screened resumes.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:recruiting:ownership",
+    "requirement": "Recruiting",
+    "text": "I could screen resumes if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised a team of nine cashiers and wrote their schedules.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:teamsupervision"
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I led a team-building game at the company picnic.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised staff parking in the lot as a valet.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I was supervised by a team lead.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I was a member of a team that a manager supervised.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision",
+    "requirement": "Team supervision",
+    "text": "I supervised a crew of six every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:teamsupervision"
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I took a one-day class where the instructor supervised a crew of six and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I supervise the people who supervised a crew of six and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I helped the specialist who supervised a crew of six, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "We hired an outside firm that supervised a crew of six for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "My coworker supervised a crew of six; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I have never supervised a crew of six.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:teamsupervision:ownership",
+    "requirement": "Team supervision",
+    "text": "I could supervise a crew of six if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I drafted discovery responses and organized document productions for our litigation team.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:discovery"
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I answered interrogatories in my own divorce case.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I responded to discovery as a defendant in a small claims case.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I copied the discovery responses the paralegals drafted.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:discovery",
+    "requirement": "Preparing discovery responses",
+    "text": "I drafted discovery responses every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:discovery"
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I took a one-day class where the instructor drafted discovery responses and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I supervise the people who drafted discovery responses and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I helped the specialist who drafted discovery responses, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "We hired an outside firm that drafted discovery responses for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "My coworker drafted discovery responses; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I have never drafted discovery responses.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:discovery:ownership",
+    "requirement": "Preparing discovery responses",
+    "text": "I could draft discovery responses if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched drivers and planned delivery routes for drivers across three counties.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:routedispatch"
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I assigned drivers parking spots in the new lot.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I planned delivery routes for my own newspaper route.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched trucks of donated food to shelters as a volunteer driver.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I rode along while the dispatcher dispatched drivers.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch",
+    "requirement": "Route dispatching",
+    "text": "I dispatched drivers every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": "equivalence:routedispatch"
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I took a one-day class where the instructor dispatched drivers and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I supervise the people who dispatched drivers and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I helped the specialist who dispatched drivers, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "We hired an outside firm that dispatched drivers for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "My coworker dispatched drivers; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I have never dispatched drivers.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:routedispatch:ownership",
+    "requirement": "Route dispatching",
+    "text": "I could dispatch drivers if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked business travel for our sales team, including flights, hotels and car rentals.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked flights for my family vacation.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I arranged travel for my own wedding guests.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I found hotels for my road trip.",
+    "want": "no",
+    "v": "possible",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I approved the business travel the assistants booked.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking",
+    "requirement": "Booking business travel",
+    "text": "I booked business travel every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I took a one-day class where the instructor booked business travel and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I supervise the people who booked business travel and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I helped the specialist who booked business travel, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "We hired an outside firm that booked business travel for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "My coworker booked business travel; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I have never booked business travel.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:travelbooking:ownership",
+    "requirement": "Booking business travel",
+    "text": "I could book business travel if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I made cold calls to small businesses every morning and booked demos for the account executives.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I hate to make cold calls.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I was cold called by recruiters every week.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I'm learning to make cold calls in a sales course.",
+    "want": "no",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I prospecting for gold in Alaska on weekends.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling",
+    "requirement": "Cold calling",
+    "text": "I made cold calls every week at my last job.",
+    "want": "credit",
+    "v": "supported",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I took a one-day class where the instructor made cold calls and we watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I supervise the people who made cold calls and I approve their work.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I helped the specialist who made cold calls, mostly fetching files.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "We hired an outside firm that made cold calls for us.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "My coworker made cold calls; I just watched.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I have never made cold calls.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   },
+   {
+    "group": "b4:coldcalling:ownership",
+    "requirement": "Cold calling",
+    "text": "I could make cold calls if needed.",
+    "want": "no",
+    "v": "insufficient_information",
+    "source": null
+   }
+  ]
+ },
+ "question_keys": {
+  "before": [
+   {
+    "a": "Pre-trip inspections",
+    "b": "Vehicle inspections",
+    "same": false
+   },
+   {
+    "a": "Pre-trip inspections",
+    "b": "Completing pre-trip inspections",
+    "same": true
+   },
+   {
+    "a": "Drywall finishing",
+    "b": "Drywall finishing",
+    "same": true
+   },
+   {
+    "a": "Brake repair",
+    "b": "Brake service",
+    "same": true
+   },
+   {
+    "a": "Wheel alignment",
+    "b": "Wheel alignments",
+    "same": true
+   },
+   {
+    "a": "Pipefitting",
+    "b": "Pipe fitting",
+    "same": true
+   },
+   {
+    "a": "Blueprint reading",
+    "b": "Reading blueprints",
+    "same": true
+   },
+   {
+    "a": "Oil changes",
+    "b": "Lube service",
+    "same": false
+   },
+   {
+    "a": "Routine vehicle maintenance",
+    "b": "Vehicle maintenance",
+    "same": false
+   },
+   {
+    "a": "Conduit bending",
+    "b": "Conduit installation",
+    "same": false
+   },
+   {
+    "a": "Conduit bending",
+    "b": "Conduit bending and installation",
+    "same": false
+   },
+   {
+    "a": "Non-conformance reports",
+    "b": "Writing non-conformance reports",
+    "same": true
+   },
+   {
+    "a": "Ductwork installation",
+    "b": "Installing ductwork",
+    "same": false
+   },
+   {
+    "a": "Phlebotomy",
+    "b": "Venipuncture",
+    "same": true
+   },
+   {
+    "a": "Budgeting",
+    "b": "Budget preparation",
+    "same": false
+   },
+   {
+    "a": "forklift operation",
+    "b": "forklift operating",
+    "same": true
+   },
+   {
+    "a": "forklift operation",
+    "b": "forklift driving",
+    "same": false
+   },
+   {
+    "a": "forklift operation",
+    "b": "operate a forklift",
+    "same": false
+   },
+   {
+    "a": "forklift operation",
+    "b": "operating a forklift",
+    "same": false
+   },
+   {
+    "a": "customer service",
+    "b": "customer support",
+    "same": true
+   },
+   {
+    "a": "cycle counting",
+    "b": "cycle counts",
+    "same": false
+   },
+   {
+    "a": "cycle counting",
+    "b": "inventory counting",
+    "same": false
+   },
+   {
+    "a": "cycle counting",
+    "b": "stock counts",
+    "same": false
+   },
+   {
+    "a": "order picking",
+    "b": "picking orders",
+    "same": false
+   },
+   {
+    "a": "order picking",
+    "b": "pick orders",
+    "same": false
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "patient scheduling",
+    "same": false
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "schedule appointments",
+    "same": false
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "scheduling appointments",
+    "same": false
+   },
+   {
+    "a": "lesson planning",
+    "b": "develop lesson plans",
+    "same": false
+   },
+   {
+    "a": "lesson planning",
+    "b": "lesson plans",
+    "same": false
+   },
+   {
+    "a": "contract drafting",
+    "b": "draft contracts",
+    "same": false
+   },
+   {
+    "a": "contract drafting",
+    "b": "drafting contracts",
+    "same": false
+   },
+   {
+    "a": "contract drafting",
+    "b": "draft commercial contracts",
+    "same": false
+   },
+   {
+    "a": "recruiting",
+    "b": "recruitment",
+    "same": false
+   },
+   {
+    "a": "recruiting",
+    "b": "candidate screening",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "supervise a team",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "supervising staff",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "staff supervision",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "team leadership",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "team leadership",
+    "same": false
+   },
+   {
+    "a": "discovery responses",
+    "b": "preparing discovery responses",
+    "same": false
+   },
+   {
+    "a": "discovery responses",
+    "b": "responding to discovery",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "driver routes",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "coordinating driver routes",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "routing and scheduling",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "route planning",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "dispatching",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "dispatching",
+    "same": false
+   },
+   {
+    "a": "business travel",
+    "b": "booking business travel",
+    "same": false
+   },
+   {
+    "a": "business travel",
+    "b": "travel arrangements",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "outbound prospecting",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "prospecting",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "prospecting",
+    "same": false
+   }
+  ],
+  "after": [
+   {
+    "a": "Pre-trip inspections",
+    "b": "Vehicle inspections",
+    "same": false
+   },
+   {
+    "a": "Pre-trip inspections",
+    "b": "Completing pre-trip inspections",
+    "same": true
+   },
+   {
+    "a": "Drywall finishing",
+    "b": "Drywall finishing",
+    "same": true
+   },
+   {
+    "a": "Brake repair",
+    "b": "Brake service",
+    "same": true
+   },
+   {
+    "a": "Wheel alignment",
+    "b": "Wheel alignments",
+    "same": true
+   },
+   {
+    "a": "Pipefitting",
+    "b": "Pipe fitting",
+    "same": true
+   },
+   {
+    "a": "Blueprint reading",
+    "b": "Reading blueprints",
+    "same": true
+   },
+   {
+    "a": "Oil changes",
+    "b": "Lube service",
+    "same": false
+   },
+   {
+    "a": "Routine vehicle maintenance",
+    "b": "Vehicle maintenance",
+    "same": false
+   },
+   {
+    "a": "Conduit bending",
+    "b": "Conduit installation",
+    "same": false
+   },
+   {
+    "a": "Conduit bending",
+    "b": "Conduit bending and installation",
+    "same": false
+   },
+   {
+    "a": "Non-conformance reports",
+    "b": "Writing non-conformance reports",
+    "same": true
+   },
+   {
+    "a": "Ductwork installation",
+    "b": "Installing ductwork",
+    "same": false
+   },
+   {
+    "a": "Phlebotomy",
+    "b": "Venipuncture",
+    "same": true
+   },
+   {
+    "a": "Budgeting",
+    "b": "Budget preparation",
+    "same": false
+   },
+   {
+    "a": "forklift operation",
+    "b": "forklift operating",
+    "same": true
+   },
+   {
+    "a": "forklift operation",
+    "b": "forklift driving",
+    "same": true
+   },
+   {
+    "a": "forklift operation",
+    "b": "operate a forklift",
+    "same": true
+   },
+   {
+    "a": "forklift operation",
+    "b": "operating a forklift",
+    "same": true
+   },
+   {
+    "a": "customer service",
+    "b": "customer support",
+    "same": true
+   },
+   {
+    "a": "cycle counting",
+    "b": "cycle counts",
+    "same": true
+   },
+   {
+    "a": "cycle counting",
+    "b": "inventory counting",
+    "same": true
+   },
+   {
+    "a": "cycle counting",
+    "b": "stock counts",
+    "same": true
+   },
+   {
+    "a": "order picking",
+    "b": "picking orders",
+    "same": true
+   },
+   {
+    "a": "order picking",
+    "b": "pick orders",
+    "same": true
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "patient scheduling",
+    "same": false
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "schedule appointments",
+    "same": false
+   },
+   {
+    "a": "appointment scheduling",
+    "b": "scheduling appointments",
+    "same": false
+   },
+   {
+    "a": "lesson planning",
+    "b": "develop lesson plans",
+    "same": true
+   },
+   {
+    "a": "lesson planning",
+    "b": "lesson plans",
+    "same": true
+   },
+   {
+    "a": "contract drafting",
+    "b": "draft contracts",
+    "same": true
+   },
+   {
+    "a": "contract drafting",
+    "b": "drafting contracts",
+    "same": true
+   },
+   {
+    "a": "contract drafting",
+    "b": "draft commercial contracts",
+    "same": true
+   },
+   {
+    "a": "recruiting",
+    "b": "recruitment",
+    "same": true
+   },
+   {
+    "a": "recruiting",
+    "b": "candidate screening",
+    "same": true
+   },
+   {
+    "a": "team supervision",
+    "b": "supervise a team",
+    "same": true
+   },
+   {
+    "a": "team supervision",
+    "b": "supervising staff",
+    "same": true
+   },
+   {
+    "a": "team supervision",
+    "b": "staff supervision",
+    "same": true
+   },
+   {
+    "a": "team supervision",
+    "b": "team leadership",
+    "same": false
+   },
+   {
+    "a": "team supervision",
+    "b": "team leadership",
+    "same": false
+   },
+   {
+    "a": "discovery responses",
+    "b": "preparing discovery responses",
+    "same": true
+   },
+   {
+    "a": "discovery responses",
+    "b": "responding to discovery",
+    "same": true
+   },
+   {
+    "a": "route dispatching",
+    "b": "driver routes",
+    "same": true
+   },
+   {
+    "a": "route dispatching",
+    "b": "coordinating driver routes",
+    "same": true
+   },
+   {
+    "a": "route dispatching",
+    "b": "routing and scheduling",
+    "same": true
+   },
+   {
+    "a": "route dispatching",
+    "b": "route planning",
+    "same": true
+   },
+   {
+    "a": "route dispatching",
+    "b": "dispatching",
+    "same": false
+   },
+   {
+    "a": "route dispatching",
+    "b": "dispatching",
+    "same": false
+   },
+   {
+    "a": "business travel",
+    "b": "booking business travel",
+    "same": false
+   },
+   {
+    "a": "business travel",
+    "b": "travel arrangements",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "outbound prospecting",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "prospecting",
+    "same": false
+   },
+   {
+    "a": "cold calling",
+    "b": "prospecting",
+    "same": false
+   }
+  ]
+ }
+}

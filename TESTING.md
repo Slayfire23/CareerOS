@@ -169,3 +169,373 @@ Directly executed on branch ui-redesign against local Supabase: 227 unit tests, 
 ## UI redesign phase 4 and final refinements - October 29, 2026
 
 Directly executed against local Supabase: 229 unit tests (new: month formatting), 25 integration tests, all 27 Chromium tests (new: e2e/confirmation.spec.ts for Cancel, Escape, focus, and confirmed removal), TypeScript, lint, and a clean no-env production build. A scripted audit of 15 pages at 375/768/1280px in light and dark mode (90 views) found no horizontal overflow, missing h1, or incorrect navigation highlighting. Browser specs use e2e/support.ts: openPage() waits for loading placeholders (aria-busy) to clear, and confirmAction() completes inline destructive confirmations.
+
+
+## Milestone 3 Phase 1 - October 30, 2026 (branch milestone-3-ai-matching)
+
+AI service (ai-service/, Python): 93 pytest tests passed; ruff format and lint clean; uv sync --locked succeeds. Verified over real HTTP with uvicorn and inside the production-mode Docker image: health 200, signed match 200, replay 409, unsigned 401, docs disabled, non-root, healthy health check, no profile text in logs, rejected secrets not printed. The CI workflow parses locally and will run on GitHub after the branch is pushed. Next.js (unchanged by Phase 1): TypeScript and lint passed; 229 unit, 25 integration, and all 27 Chromium tests passed against local Supabase; a fresh clone built with no environment variables. No test touched production Supabase or any AI provider. Details: docs/MILESTONE_3_PHASE_1_REPORT.md.
+
+## Milestone 3 Phase 2 - October 30, 2026 (branch milestone-3-ai-matching)
+
+All against local resources only. Python: 94 pytest tests (including the shared signature vector), ruff format and lint clean. Next.js: TypeScript and lint clean; 271 unit tests (42 new in tests/ai.test.ts: signing vector, config, evidence minimization, validator rejections, client error mapping); 45 integration tests (20 new in tests/integration/ai-analysis.integration.ts: owner scoping, cross-account refusal, malformed responses, foreign citations, disallowed provider, stale and unreviewed requirements, 25 concurrent requests against a limit of 20, feedback versioning, consent gate, database constraints, server-action input checks); 28 Chromium tests including e2e/job-match.spec.ts against the local rules service on 127.0.0.1:8010. With the AI service stopped, e2e/job-requirements.spec.ts still passed and the analysis page showed the unavailable message. Playwright refuses a non-local AI_SERVICE_URL. Replay rejection is covered by the Python tests.
+
+## Milestone 3 Phase 2 stabilization - October 30, 2026
+
+Local resources only. New regression tests: tests/integration/job-review.integration.ts (6 tests: LF and CRLF descriptions reviewed and re-reviewed, stored text kept exactly, real changes, stale versions, and other accounts still refused, line-ending-only job edits keep a review current, owner-scoped edits) and one sameDescription unit test. The three line-ending tests fail with the fix reverted and pass with it. Results: 94 pytest, ruff clean; TypeScript and lint clean; 272 unit; 51 integration; Chromium 27 of 28 in the full run. The failure was e2e/location-preferences.spec.ts, which passed on its own and failed 1 of 5 repeats (pre-existing flake; nothing in it changed on this branch). A real browser re-reviewed an LF-only demo job and ran its analysis. The shadow-replay failure of migration 20261028010000 was reproduced in a throwaway database, and a guarded version of the statement was verified; the merged migration is unchanged.
+
+## RLS migration replay fix - October 30, 2026
+
+Owner-approved change to 20261028010000_enable_row_level_security: only the _prisma_migrations statement changed (now guarded with to_regclass). Verified on throwaway databases on the local test container, all dropped afterwards. All 12 migrations replay with raw psql and no _prisma_migrations table, with RLS on all 9 app tables. `prisma migrate deploy` into a fresh database applies all 12 with _prisma_migrations RLS enabled. `prisma migrate dev --create-only` with a shadow database now succeeds and generates an empty migration (no drift), where the original file fails with P3006. `prisma migrate diff --from-migrations` against the schema finds no difference. Local Supabase and the test database report up to date; their recorded checksum for this migration was updated to the new file's, so `migrate dev` reports no modification. Results: schema valid; 94 pytest; TypeScript and lint clean; 272 unit; 51 integration; all 28 Chromium tests passed.
+
+## Milestone 3 Phase 3 - October 31, 2026 (local commits, not pushed)
+
+All local; no paid Anthropic call. Python 152 passed (real-Valkey replay tests with AI_TEST_REPLAY_STORE_URL, mocked Messages API, SDK round trip against devtools/mock_anthropic.py, network guard, evaluation harness), ruff clean. Next.js: TypeScript and lint clean; 304 unit; 69 integration (19 new cloud tests: consent and allow-list gating, redaction, billing states, unresolved holds and reconciliation, global daily and monthly caps, 25 concurrent cloud requests against the global cap, outage storms against the attempt cap, abandoned runs, ledger constraints, account scoping); 29 Chromium tests including e2e/job-match-cloud.spec.ts against the local mock. All 13 migrations replay into a fresh shadow database with no drift. Secret check passed. Docker image builds with app/ only. Offline evaluation: rules baseline 95.7% agreement with 1 false "supported" (proficiency ignored). Details: docs/MILESTONE_3_PHASE_3_REPORT.md.
+
+## Phase 5.3 structured ownership Stage 0 - November 10, 2026 (local commits, not pushed)
+
+New sealed evaluation split `tests/fixtures/m11_structured/` (208 structured-ownership scenarios), made under docs/PHASE5_3_STAGE0_STRUCTURED_EVAL_PROTOCOL.md before any reader, rule or schema change. One agent wrote the scenarios without reading the repository. A second agent labeled a blind, shuffled copy with no category tags, using only the protocol's rules. The implementer never read either. Frozen with per-file SHA-256 hashes, normalized to LF so Windows and CI checkouts agree, and a combined hash (`c8f1e49d…`) in `MANIFEST.json`. 208 scenarios; validation found 0 problems and no coverage shortfall; writer–labeler agreement was 204 of 208.
+
+- **Validate (counts only):** `STRUCTURED_REPORT=out.json npx vitest run --config vitest.eval.config.mts structured`.
+- **The one-time Stage 7 evaluation:** needs `STRUCTURED_UNSEAL=1`, `STRUCTURED_FREEZE_COMMIT` equal to HEAD, a clean working tree, matching hashes, and `STRUCTURED_ADAPTER`.
+- **Guard:** `tests/sealed-splits.test.ts` (unit suite) fails if any source, script, browser test or ordinary test names `m11_structured` or `m11_followup4`, if application code refers to test fixtures, or if either split's bytes change. It was checked with a deliberate violation and a one-byte change, and both were caught.
+
+## Phase 5.3 structured ownership Stage 1 - November 10, 2026 (local commits, not pushed)
+
+Additive schema for structured ownership, migration `20261110010000_structured_ownership`, applied to local Supabase (127.0.0.1:54322) and the isolated test database (127.0.0.1:5433) only.
+
+- **New enums:** `Involvement` (including TAUGHT, O1, and REQUESTED, covering arranging, requesting and paperwork, O2), `WorkFrequency` and `WorkRecency`.
+- **New fields on `CandidateClarification`:** involvement, also-did-some, frequency, recency, claimed months, consistency, and `formVersion`, which defaults to 1 for every earlier answer.
+- **`ClarificationEvent`** gains `involvement`, the choice's name only, never the person's words.
+- **New table `ClarificationPart`** for compound requirements (O3). Its composite (answer, owner) foreign key stops a part from being attached to another account's answer. RLS is on, with no policies.
+- **Database `CHECK` constraints** accept only the shapes the form can produce: 10 valid shapes accepted and 22 malformed ones rejected in a throwaway database. The answer-shape constraint changes only so a structured answer's explanation can be optional.
+- **Analysis:** reads only free-text answers (form version 1) until the structured rule table exists, so a structured answer can't be credited from its text alone. With the guard removed, the test fails: a "supervised" answer got Supported.
+
+**Verified:**
+- Pre-existing rows are byte-identical after the migration (snapshot hash), in a throwaway database seeded with every outcome, events, a follow-up and a superseded chain.
+- A fresh replay of all 18 migrations has no drift; local Supabase and the test database have no drift.
+- 7 new integration tests: compatibility, constraints, part ownership and deletion, RLS, fail-closed.
+- 2,452 unit tests, 183 integration tests, TypeScript, lint and the production build pass.
+- Engine baseline: 0 of 2,121 rows changed.
+- Both sealed splits are unchanged.
+
+## Phase 5.3 structured ownership Stage 2 - November 11, 2026 (local commit, not pushed)
+
+**New:**
+- **`src/lib/ai/rules/structured-answer.ts`:** the deterministic rule table (`readStructuredAnswer`). It covers design sections 4-5, D1-D3 and O1-O3. It is pure and structured-only: what the explanation shows is a supplied consistency state, and Stage 3 computes that.
+- **`requirement-structure.ts`:** gains `explicitRecency` (D2) and the compound splitter (`proposeCompoundSplit`, O3).
+- **`review-queue.ts`:** gains `partQuestionKey` and `compoundQuestionKey`.
+- **Isolation:** nothing in matching or the review queue calls any of these; a test enforces it.
+
+**Tests:** `tests/ai-structured-answer.test.ts` has 46 tests:
+- an exhaustive table of more than 5,000 combinations of choice, requirement kind, frequency, recency and consistency state, against an independent oracle;
+- property tests (never Supported without consistent text that shows the work; a contradiction never raises and always asks; unread text equals no text; no free-text access);
+- D2 window cases, O1/O2/O3 cases, clarification reasons, the splitter, and the keys.
+
+**Owner-review split report** over the 2,121 baseline requirements (1,553 distinct texts) is in docs/PHASE5_3_STAGE2_SPLIT_PROPOSALS.md, with evidence in ai-service/evals/reports/m11/structured/:
+- 16 proposed splits;
+- 93 ambiguous cases;
+- 1,402 single.
+
+No split is active.
+
+**Results:**
+- Historical: 0 of 1,266 changed.
+- Engine baseline: 0 of 2,121 changed.
+- 2,498 unit and 183 integration tests, TypeScript, lint and schema checks pass.
+- Sealed-split integrity guard passes (hashes only; neither split was opened).
+
+## Phase 5.3 structured ownership Stage 3 - November 11, 2026 (local commit, not pushed)
+
+**Matching is unchanged (rules-v19).**
+- **rules-v20:** clause rules for teaching others, learning or intent, others' purpose and finished work, reviewing others' work, paperwork for others (O2), personal context, plus two recognition fixes. They sit behind `readAnswer(..., { textRules: "v20" })`, which only tests and evaluations use.
+- **Consistency module:** new `src/lib/ai/rules/structured-consistency.ts` turns a choice plus an explanation into the rule table's consistency state; non-English text is never read (D3).
+
+**Tests:** `tests/ai-rules-v20.test.ts` has 53 tests: traps and keeps per rule, 8 labeled regression cases, consistency, end-to-end D1–D3, and isolation.
+
+**Results, v19 → v20:**
+- **Historical:** 1 change on the 1,266 answers, a labeled gain, with 0 labeled losses.
+- **Ownership benchmark:** unchanged.
+- **Probes:** 11 distinct false Supported removed, 0 new, 0 positives lowered.
+- **Engine:** 0 of 2,121 changed.
+- **Suites:** 2,551 unit and 183 integration tests pass.
+- **Sealed splits:** the hash guard only.
+
+**O4 (scratch only, not adopted):** the modifier rule would lose 62 labeled-qualified Supported, and the targeted-question rule 90.
+
+**Batch 5 under v20:** both groups still fail (3 and 2 false Supported), and both stay held.
+
+Report: docs/PHASE5_3_STAGE3_REPORT.md.
+
+
+## Phase 5.3 rules-v20 adopted for matching - November 11, 2026 (local commit, not pushed)
+
+**Matching now reads with rules-v20** (`DEFAULT_TEXT_RULES`, `RULES_VERSION = "rules-v20"`); `textRules: "v19"` stays available for comparisons. Adoption found two misreadings in the follow-up reply reader, both fixed:
+- "on my own" (by myself) was read as personal context;
+- "got her signers added" (a causative) was read as overseeing others' finished work.
+
+**Tests:** 20 adoption regression tests in `tests/ai-rules-v20.test.ts`.
+
+**Results, before (v19) → after (v20):**
+- **Historical (1,266, including the 220-answer benchmark):** 1 change, the expected ICD-10 labeled gain; 0 labeled losses; 0 new Supported.
+- **Probes (392):** 11 distinct false Supported removed, 0 new, 0 positives lowered.
+- **Follow-up replies (320):** 0 changed.
+- **Follow-up regression sets (4):** 0 rows changed.
+- **Engine:** 0 of 2,121 changed.
+- **Suites:** 2,571 unit and 183 integration tests pass.
+- **Sealed splits:** the hash guard only.
+
+Report: docs/PHASE5_3_RULES_V20_ADOPTION.md.
+
+## Phase 5.3 Stage B, rules-v21 opt-in reader - November 13, 2026 (local commit, not pushed)
+
+**rules-v21 is selectable with `textRules: "v21"` only.** `DEFAULT_TEXT_RULES` stays `"v20"`; nothing in the app asks for v21, and a test enforces that. It adds F1–F9, the DD3 correction precedence, and F6 (a contradicted checkbox gives no credit) in the structured rule table.
+
+**Tests:** 28 in `tests/ai-rules-v21.test.ts`, with positive and negative controls for each fix.
+
+**Results, v20 → v21 (opened data only):**
+- **Historical (1,266):** 2 changes, both labeled gains.
+- **Structured, with a tick (1,266):** 19 changes: 4 gains, 15 corrections, all matching their labels.
+- **Stage 3 probes (392):** 0 changed.
+- **Design rows (226):** 16 changes; no false Supported; no genuine row lowered.
+- **V5 probes:** 45 of 47 pass (v20: 43); 46 of 47 with the simulated Stage D consumer for failure 3.
+- **Follow-up replies (320):** 0 changed.
+- **Engine (2,121 rows, default path):** byte-identical.
+- **Suites:** 2,603 unit and 183 integration tests pass. TypeScript, lint and schema are clean. Sealed splits: hash guard and parts validate mode only.
+
+**Stage D dependency (owner-approved):** V5 failure 3 ("…until they pay"). The reader keeps the person's own end condition in a verdict-inert `bounded` field. Recognizing collections from it is future Stage D work; it is unimplemented and unverified.
+
+Report: docs/PHASE5_3_STAGE_B_REPORT.md. Stage G policy proposal: docs/PHASE5_3_STAGE_G_EVAL_QUALITY_POLICY.md.
+
+## Phase 5.3 Stage C, rules-v21 adoption review - November 13, 2026 (docs only; local commit, not pushed)
+
+**rules-v21 isn't adopted:** `DEFAULT_TEXT_RULES` stays `"v20"`, and no application code changed.
+
+**How adoption was measured:** the minimal patch was placed in scratch copies of the affected modules and aliased into the app's own suites; `src/` was not touched.
+- **Engine:** byte-identical.
+- **Unit:** 2,600 of 2,603 pass (the 3 others assert the default is `"v20"`).
+- **Integration:** 183 of 183.
+- **Follow-up sets:** 0 replies changed. One question is no longer asked (fu-059, justified).
+
+**Result:** 7 of 8 gates pass. **Gate 4 fails:** F1's `META_AS_ADJECTIVE` stops flagging four adversarial remarks about the candidate, though no verdict rose. The recommendation is to defer until a narrow fix (P1).
+
+Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md.
+
+## Phase 5.3 P1, rules-v21 profile-meta fix - November 13, 2026 (local commit, not pushed)
+
+The F1 exception ("the individual 1040s") no longer lets remarks about the candidate through:
+- "the person" is out of it;
+- it never applies before a word for the candidate, their record, or whoever is being judged;
+- it never applies in a segment that uses judging words.
+
+**Tests:** 6 new groups (34 tests in `tests/ai-rules-v21.test.ts`).
+
+**Results:**
+- **Sweep:** 32 of 32 evaluator-style remarks stay flagged under v21; legitimate tax-return wording is read.
+- **Opened comparison:** identical to Stage B.
+- **Suites:** 2,609 unit and 183 integration tests pass.
+- **Default path:** engine byte-identical; 0 of 340 follow-up rows changed.
+- **Stage C:** all 8 adoption gates now pass. v21 stays opt-in until the owner approves adoption.
+
+## Phase 5.3 Stage C, rules-v21 adopted for matching - November 14, 2026 (local commit, not pushed)
+
+**Matching now reads with rules-v21** (`DEFAULT_TEXT_RULES`, `RULES_VERSION = "rules-v21"`). The save-time answer check follows it too (D2), with P1's protections. `textRules: "v20"` and `"v19"` stay available for comparisons.
+
+**Results, before (v20 default) → after (v21 default):**
+- **Historical (1,266):** 2 changes, both labeled gains (A26: Not enough → Possible).
+- **Probes and replies:** 0 of 392 and 0 of 320 changed. No new false Supported; the ICD-10 gain is kept.
+- **Engine:** every row identical; only the report's version label changed.
+- **Follow-up sets:** fu-059 (question no longer asked) and fw-024 (now saved and Possible) changed; 0 replies changed. Matches the simulated adoption.
+- **Suites:** 2,610 unit and 183 integration tests pass.
+
+Report: docs/PHASE5_3_STAGE_C_ADOPTION_REVIEW.md §9.
+
+
+## Phase 5.3 Stage D.1, inactive split-recognition module - November 14, 2026 (local commit, not pushed)
+
+`src/lib/ai/rules/split-recognition.ts` (`splits-v1`) is a verbatim port of the owner-reviewed V5 simulation for the 33 approved splits. It uses the approved patterns unchanged (`data/approved_splits.json`) and includes the A77 consumer of `bounded`. Nothing in the app calls it.
+
+**Tests:** 310 in `tests/split-recognition.test.ts`.
+- **Parity:** 284 of 284 rows identical to the frozen simulation (`tests/fixtures/split_recognition/parity.json`).
+- **A77 controls:** 3 positive and 12 negative, including the insurance claims.
+- **Safety:** corrections, supervision and single-part rows never reach Supported; instruction text and non-English text aren't read.
+- **Isolation:** nothing in the app imports the module.
+
+**Results:**
+- **Suites:** 2,920 unit and 183 integration tests pass.
+- **App readings:** unchanged from `8b7a7f7`.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_D1_REPORT.md.
+
+## Phase 5.3 Stage D.2, delegated work in the split-recognition module - November 14, 2026 (local commit, not pushed)
+
+`splits-v1.1`: work the person hands to someone else ("I have my clerk call the overdue customers", "I send plumbers out to install…") is removed from the person's own evidence before markers are matched. Parts whose approved markers name it are flagged `transferred` (informational). Parts the person's own words show are never cancelled. Module only; no reader, engine or wiring change.
+
+**Tests:** 33 new in `tests/split-recognition.test.ts`:
+- the 3 false-Supported cases, now corrected;
+- the 10 conceptual cases;
+- mixed personal and delegated work;
+- the 12 opened-data false-positive controls, which find no delegation;
+- the people served, and instructions the person receives.
+
+**Results:**
+- **Parity:** 284 of 284 unchanged.
+- **Suites:** 2,953 unit and 183 integration tests pass.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_D2_REPORT.md.
+
+## Phase 5.3 Stage E, structured "your part" questionnaire - November 14, 2026 (local commit, not pushed)
+
+The form sits behind `STRUCTURED_OWNERSHIP_FORM_ENABLED` (off by default; needs `CLARIFICATION_REVIEW_ENABLED`; refused on Vercel).
+- **Fields:** the ownership choice (8 options), how often, most recently, role, an optional description, and unticked per-part checkboxes for an approved split.
+- **Linking (E1):** exact requirement wording only.
+- **Follow-ups:** neutral questions, each asked once.
+- **Storage:** answers are saved as formVersion 2; **matching ignores them until Stage F**.
+
+**Tests:**
+- 24 new in `tests/structured-form.test.ts`, plus a new guard that the rule table is called nowhere;
+- 8 new in `tests/integration/structured-form.integration.ts`;
+- the browser spec `e2e/job-structured-form.spec.ts` (local; run against a server with both flags and `E2E_STRUCTURED_FORM=true`).
+
+**Results:**
+- **Verdicts:** identical before and after saving structured answers. No counting answer is replaced. Nothing reaches Supported on its own.
+- **Suites:** 2,978 unit and 191 integration tests pass. The browser spec passes. With flags off, the related browser specs pass.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_E_REPORT.md.
+
+## Phase 5.3 Stage F0, rules-v22 "directed at the person" (opt-in) - November 14, 2026 (local commit, not pushed)
+
+rules-v22 (`textRules: "v22"`) is rules-v21 plus one rule: "My boss sends me out to install water heaters" and "My supervisor has me fix leaks" are read as the person's own act. tell, ask, let and make are excluded, as are negated, modal, intended or conditional directing verbs, "to" + a place or thing, and "me and others". **rules-v21 stays the default**; `RULES_VERSION` and the recognition version are unchanged.
+
+**Tests:** 67 new in `tests/ai-rules-v22.test.ts` (opt-in guard, the v21 baseline, 8 dispatched-work probes, 17 negatives, first-person equivalence, verbatim quotes, follow-up replies).
+
+**Results:**
+- **Probes:** P1–P8 read exactly as the person's own words; all 17 negatives read as v21.
+- **v21 vs v22:** 0 changes on 1,266 opened answers, 392 probes, 226 design rows, 320 replies and the 284 parity rows (readings and recognition). The detector fires on none of the 1,976 opened texts.
+- **Suites:** 3,045 unit and 191 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F0_REPORT.md.
+
+## Phase 5.3 Stage F1, recognition-version audit and structured evidence ids - November 14, 2026 (local commit, not pushed)
+
+Migration `20261114010000_structured_matching_audit` (local only) adds a nullable `recognitionVersion` (format `splits-v…`) to `JobMatchAnalysis` and `ClarificationEvent`, and backfills `experience:<id>` on structured role answers. Structured saves now get that id when created. **Matching still ignores structured answers.**
+
+**Tests:**
+- 10 new in `tests/integration/structured-audit.integration.ts`: columns and format checks, audit values, ids, backfill, correction, revocation, deletion, masking, isolation;
+- 6 new in `tests/structured-audit.test.ts`;
+- a 37-check migration and rollback script, run in a rolled-back transaction on the test database.
+
+**Results:**
+- **Isolation:** verdicts and stored results are identical before and after structured saves, corrections and revocations, under every flag state.
+- **Suites:** 3,051 unit and 201 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F1_REPORT.md.
+
+## Phase 5.3 Stage F2, the pure structured-matching module - November 14, 2026 (local commit, not pushed)
+
+`src/lib/ai/rules/structured-matching.ts` (`matchStructuredAnswer`) applies one structured answer to one requirement's rules finding, through the approved rule table. It is pure, with explicitly versioned readings, and **nothing in the app imports it**.
+
+**Tests:** 650 new in `tests/structured-matching.test.ts`:
+- the 284 parity rows, read through the module;
+- 62,150 exhaustive decision-table combinations;
+- all 33 splits, 9 cases each;
+- the F0 consistency gap;
+- claimed months, malformed input, versions, purity and isolation.
+
+Two isolation guards allow the new module, and only it, to call `readStructuredAnswer`; both also check that nothing imports it.
+
+**Results:**
+- **Parity:** 284 of 284 match the owner-reviewed simulation through the module.
+- **Suites:** 3,701 unit and 201 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F2_REPORT.md.
+
+## Phase 5.3 Stage F3, candidate_choice citations - November 14, 2026 (local commit, not pushed)
+
+A structured choice can be cited by its own `choice:<answer id>` item, kept apart from evidence. The citation quotes only CareerOS's fixed wording, which says the answer is self-reported and not independently verified. The validator allows it only as `candidate_choice`, and only for Possible, never beside other evidence and never from a language model. Masking and deletion cover `choice:` ids. Nothing in the app produces one yet. The match page gained one owner-approved label line.
+
+**Tests:**
+- 31 new in `tests/choice-evidence.test.ts`;
+- 6 new in `tests/integration/structured-choice-lifecycle.integration.ts` (create, correct, replace, revoke, delete, isolation; every flag state). Mutation checks confirm the masking and deletion lines.
+
+**Results:**
+- **Suites:** 3,732 unit and 207 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** the match, clarification and dark-mode specs pass on a flags-off production build.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F3_REPORT.md.
+
+## Phase 5.3 Stage F4, structured matching behind STRUCTURED_MATCHING_ENABLED - November 14, 2026 (local commit, not pushed)
+
+`STRUCTURED_MATCHING_ENABLED` is off by default. It needs the structured form and the review, and is never on Vercel. With it on, active structured answers go through the approved rule table after free-text answers (which win), and only `candidate_answer` results are stored: choice-only results are withheld until F5. With it off:
+- stored structured results are masked everywhere: the page, counts, run history, review queue and other readers;
+- structured answers don't affect freshness.
+
+A local launch entry, `careeros-matching-3100`, starts a production build with all three flags.
+
+**Tests:**
+- 159 new in `tests/structured-apply.test.ts` (all 33 splits through the validator);
+- 16 new in `tests/integration/structured-matching.integration.ts` (every flag state, rollback against stored findings, freshness, lifecycle). Mutation checks confirm the rollback and freshness tests.
+
+**Results:**
+- **Suites:** 3,891 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** production-build specs pass with the flags off, form only, and all three flags.
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F4_REPORT.md.
+
+## Phase 5.3 Stage F5, the match page for structured findings - November 14, 2026 (local commit, not pushed)
+
+With structured matching on, a choice-only answer is stored as Possible (`candidate_choice`). The page shows it as "Your choice" with CareerOS's fixed wording, which is self-reported and not independently verified, never as the person's words or profile. Stored choice findings show only when they cite the current wording of an active answer; anything else is withheld. Unknown citation sources render safely. The saved-answer wording depends on the flag.
+
+**Tests:**
+- unit: `tests/structured-apply.test.ts` (choice persistence, validity, wording) and the updated `tests/choice-evidence.test.ts`;
+- integration: the F3 lifecycle and F4 matching tests updated to F5;
+- browser: `e2e/job-structured-matching.spec.ts`, run against `careeros-matching-3100` with `E2E_STRUCTURED_MATCHING=true`.
+
+**Results:**
+- **Suites:** 3,895 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Browser:** specs pass with the flags off, form only, and all flags. `job-clarification` fails whenever the review is on (pre-existing).
+- **Engine and follow-up sets:** engine byte-identical; 0 of 340 follow-up rows changed.
+
+Report: docs/PHASE5_3_STAGE_F5_REPORT.md.
+
+## Phase 5.3 Stage F6, Stage F audit and regression - November 15, 2026 (local commit, not pushed)
+
+A read-only audit of F0–F5; no code changed.
+
+**Results:**
+- **Suites:** 3,895 unit and 223 integration tests pass; parity 343; sealed guard 11 of 11; parts validate passes; TypeScript, prisma and build clean.
+- **Engine and follow-up sets:** engine byte-identical to the pre-Stage F baseline (`c4ebce9`); 0 of 340 follow-up rows changed.
+- **Migration rehearsal:** Stage 1 then F1 on a throwaway local database, 11 of 11.
+- **Browser:** the full suite with the flags off gives 29 passed, 1 failed, 6 skipped. The failure is `job-match-assisted`: the local E2E account isn't on the local-AI allowlist, an environment issue. The flag-specific specs were run per state.
+
+**Open:**
+- D1: `recheck()` reads the earlier analysis unmasked with the flag off. A fix is proposed and needs approval.
+- `job-clarification` and `job-review` scoping depends on `.env` only. A test-only fix is proposed.
+
+Report: docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md.
+
+## Phase 5.3 F6 remediation, D1 and browser-spec scoping - November 15, 2026 (local commit, not pushed)
+
+**D1:** `recheck()` now reads the earlier analysis through the shared F-9 step (`rollbackFindings`). `tests/integration/structured-recheck.integration.ts` (3 tests) fails without the fix and passes with it.
+
+**Browser scoping:** `job-clarification` and `job-review` take the review mode from `E2E_REVIEW`, or from `E2E_STRUCTURED_FORM` / `E2E_STRUCTURED_MATCHING`, falling back to `.env`. They check it against the page; a mismatch fails loudly.
+
+Example: run the review spec against the local `careeros-review-3100` entry:
+
+    E2E_BASE_URL=http://localhost:3100 E2E_REVIEW=true npx playwright test e2e/job-review.spec.ts
+
+**Results:**
+- **Suites:** 3,895 unit and 226 integration tests pass; parity 343; sealed guard 11 of 11.
+- **Engine:** byte-identical.
+- **Follow-up:** 0 of 340 rows changed in any result field. The local model's advisory `decision` changed on 28 rows after an Ollama restart.
+- **Browser:** the review spec passed against a review-on server.
+- **Blocked:** `job-clarification` and `job-structured-matching` (the test account's daily answer limit), and `job-match-assisted` (the local AI allowlist).
+
+Report: docs/PHASE5_3_STAGE_F_COMPLETION_REPORT.md §13.

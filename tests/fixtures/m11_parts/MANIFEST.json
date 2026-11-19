@@ -1,0 +1,13 @@
+{
+ "split": "R4 compound-split evaluation",
+ "protocol": "docs/PHASE5_3_R4_EVAL_PROTOCOL.md",
+ "frozen": "2026-11-13",
+ "count": 312,
+ "files": {
+  "scenarios.json": "8abd560405c829f65de42cd18647b57ea9e214cee53486904a703c1640773b10",
+  "for_labeling.json": "9d1f8dd62b082742d45d1218ef349a4f629d2d9629e9ea9927132bd546063fac",
+  "labels.json": "3489d419168bf29ec89837f9afda8e135888407343bc975fbff09c7f4afde5ca"
+ },
+ "combined": "32e3cf2ed03042d78719c65d132cbfb9e6f278c1e7f0abe2a5a9bdec42b0c93c",
+ "note": "Written by an independent writer agent and labeled blind by a separate agent; never opened by the implementer. LF-normalized hashes."
+}

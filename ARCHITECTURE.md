@@ -117,3 +117,112 @@ SavedJob now stores a bounded JSON requirements list, the reviewed description s
 ## Signed-in layout and navigation - October 28, 2026
 
 All signed-in pages live under /dashboard and share src/app/dashboard/layout.tsx. The layout is presentation only and is not a security boundary: every page re-verifies the session with getUser (directly or through getCurrentProfile) inside a Suspense boundary, and every server action keeps its own authentication and ownership filter. The overview reads only the current user's profile, resume listing, and saved jobs. Its counts are derived from saved data (for example, a review counts as reviewed only while reviewedDescription equals the current description). Job analysis groups saved jobs by review status and counts reviewed requirements by priority. It does not score fit or call external services. Save actions revalidate the /dashboard layout so the overview and section pages stay consistent. next.config.ts issues temporary (307) redirects from /jobs, /jobs/:id/requirements, and /dashboard/resume-review/:key. The menu reads the current path inside Suspense so dynamic routes can prerender.
+
+## AI service (Milestone 3, Phase 1) - October 30, 2026
+
+Phase 1 adds ai-service/, a separate, stateless Python 3.13 FastAPI service (managed with uv). Nothing in the Next.js app calls it yet, and it is not deployed. See ai-service/README.md and docs/MILESTONE_3_PLAN.md.
+
+- Boundary: Next.js remains the only authentication and authorization boundary. The AI service holds no database or Supabase credentials and never receives user identity. In Phase 2, Next.js will load the signed-in user's own job and profile through the existing owner-scoped queries and send a minimal evidence package.
+- Internal authentication: requests are signed with HMAC-SHA256 over `v1:{timestamp}:{request_id}:{sha256(body)}` using a shared secret kept in server-side environment variables. Requests expire after 5 minutes, request ids must be canonical UUIDv4 values, and each id is accepted once (in-process replay cache, so one worker per instance). Bodies are size-limited before parsing.
+- Contract: strict Pydantic models in ai-service/app/schemas.py reject unknown fields and cap sizes. Evidence items carry a fixed kind (skill, experience, education, project) and a `<kind>:<uuid>` id, so findings cite exact profile entries. Example files in contracts/match/ are checked by the Python tests and are intended for the Next.js tests in Phase 2.
+- Providers: one interface (app/providers/base.py). Phase 1 has a deterministic rules provider and a test-only fake provider. Anthropic (Claude Sonnet by default, decision D1) arrives in Phase 3 and Ollama in Phase 5; selecting them now fails at startup.
+- Validation: app/matching/validate.py applies the same code-enforced rules to every provider. Citations must refer to supplied evidence (otherwise the whole result is discarded) and quote it verbatim. Projects never count as professional employment. Stated durations must match the requirement or durations computed from the user's dates. A gap is not allowed for an empty profile area. There is no numeric fit score; responses carry verdict counts only.
+- Data handling: logs contain request metadata only (method, path, status, duration, request id), never profile or job text. Validation errors name fields but never echo values, including rejected secrets. Production mode disables the API docs and refuses the fake provider.
+- Delivery: a non-root Docker image (python:3.13-slim, locked dependencies, no secrets or tests in the image, health check) and a GitHub Actions workflow (.github/workflows/ai-service.yml) that runs locked install, format, lint, tests, and an image build with no secrets. Actions are pinned to commit SHAs. Vercel ignores ai-service/ via .vercelignore.
+
+## Requirement analysis (Milestone 3, Phase 2) - October 30, 2026
+
+Next.js now calls the AI service, still using only the deterministic rules provider. Code lives in src/lib/ai/ (server-only) and the page is /dashboard/jobs/[id]/match.
+
+- Flow: the server action checks the session, then runJobAnalysis loads the user's own job and confirmed profile by internal user id, checks that the requirement review is current, reserves a run under the daily limit, builds the evidence, sends a signed request, re-validates the response, and saves the result and run status in one transaction.
+- Minimization: evidence carries only skill names and levels, experience titles, dates and descriptions, education qualification, field, dates and description, and project title, description, contribution, results, and skills. Company, institution, links, contact details, salary, location, and resume text are never sent. Ids are prefixed by kind; at most 200 entries.
+- Validation in Next.js (src/lib/ai/match-validation.ts) repeats the service's rules and rejects the whole response on any violation, so a compromised or faulty service cannot store invented evidence.
+- Storage: AiAnalysisRun stores metadata only (status, provider, error code, times) for audit and rate limiting. JobMatchAnalysis stores the requirements sent, findings, counts, a SHA-256 fingerprint of the evidence (to detect profile changes without copying the profile), the review version, and feedback. Both tables tie rows to their owner with composite foreign keys, have RLS enabled with no policies, and use CHECK constraints. Deleting a job keeps its run audit rows (job link set to null).
+- Rate limit: AI_ANALYSIS_DAILY_LIMIT (default 20) per rolling 24 hours, counted inside a transaction holding a per-user advisory lock, so concurrent requests cannot exceed it.
+- Consent: User.aiCloudConsentAt is required before any non-local provider runs; the rules engine is local and needs none. AI_ANALYSIS_PROVIDER accepts only "rules".
+- Replay protection: the AI service remembers request ids per process, which is complete only for one long-running process. Production must run one worker and one instance until the cache moves to a shared store (see ai-service/README.md, "Replay protection in production").
+- Line endings: browsers submit form text with CRLF. Job saves and requirement reviews compare descriptions with line endings normalized (sameDescription in src/lib/saved-jobs.ts) and never rewrite the stored text, so review status comparisons stay exact.
+- Independence: requirement review never calls the AI service. If the service is down, only the analysis run fails, with a friendly message, and the failure is recorded.
+
+## Anthropic provider and cost controls (Milestone 3, Phase 3) - October 31, 2026
+
+Claude Sonnet 5.5 (`claude-sonnet-5-5`) is an optional provider beside the rules engine, which stays the default and a separate user choice. Cloud analysis is off unless `AI_CLOUD_ENABLED=true`, all cost caps are set, and the account is in `AI_CLOUD_ALLOWED_USERS`. It also needs the user's current, versioned consent. No paid call has been made; every cloud test uses mocked responses.
+
+- Request path: the server action passes the chosen method. Next.js checks consent and the allow-list, builds evidence, and redacts it for the cloud (src/lib/ai/redaction.ts: the profile name, employers, schools, the saved job's company, the account email, and any email address, phone number, or link). It sizes a token budget from the request bytes plus a fixed prompt allowance, and reserves the worst-case cost before calling the AI service.
+- Cost ledger (AiAnalysisRun): `reservedMicroUsd` is held while a call is in flight (RESERVED) and while its billing is uncertain (UNRESOLVED: timeouts, failures after the request may have been processed, crashes). `confirmedMicroUsd` is set only from provider-reported usage at verified prices (src/lib/ai/pricing.ts). Charges the provider didn't process are RELEASED. CHECK constraints stop a held state from carrying a confirmed amount. Unresolved charges count toward every cap until reconciled (`reconcileUnresolvedRun`, operator only).
+- Caps: the per-user daily count and attempt cap (3x), per-user daily cost, global daily cost, and global calendar-month cost are checked in one transaction, under a per-user advisory lock plus a global lock for cloud runs. An Anthropic Console workspace spend limit is the independent backstop.
+- AI service: each request names its provider. Cloud requests must carry a budget, and the prompt is refused if its byte bound exceeds it.
+  - One billable call per request. The only retry follows a 429 whose retry-after fits the deadline.
+  - `stop_reason` is checked before parsing. Output is structured; no sampling parameters or forced tools are sent.
+  - A circuit breaker stops calls after repeated failures.
+  - Strict validation: any finding that would be downgraded discards the whole response.
+  - Every error reports `billed` (no, yes, or unknown) and usage when known.
+  - The Anthropic SDK and HTTP client loggers are pinned to WARNING, because the SDK logs request bodies at DEBUG. In production, unexpected errors are logged by type only.
+- Replay protection uses a shared Redis-compatible store (`SET NX EX`) and fails closed. It's required for cloud providers and in production, with TLS when off this machine. See docs/REPLAY_STORE_OPTIONS.md.
+- The Anthropic key lives only in the AI service environment. Next.js, Vercel, the browser, CI, and the repository never hold it.
+
+## Local AI with Ollama (Milestone 3) - October 31, 2026
+
+The project now uses free local models instead of paid ones. Claude remains in the code, disabled.
+
+- **Provider:** the Ollama provider (ai-service/app/providers/ollama.py) talks to Ollama on 127.0.0.1 only.
+  - Settings: approved models, schema-constrained output, temperature 0, thinking off.
+  - It refuses requests that might not fit the 8K context window, rejects truncated output, runs one generation at a time, and is never billed.
+- **Validation:** providers declare `local` (free, on CareerOS hardware) and `generative` (a language model) separately. Every generative provider is strictly validated, and must cite evidence that mentions the requirement for any "supported" finding. Both services check this.
+- **Prompt v3:** shared by all language models. It supplies employment years, role years, and empty profile categories computed in code.
+- **Next.js:** "Local AI" is a third method, off unless `AI_LOCAL_LLM_ENABLED`, an approved model, and an allow-list are set. Runs are recorded with billing state NONE.
+- Evaluation results and the model choice are in docs/MILESTONE_3_OLLAMA_REPORT.md. The remote-access options are in docs/REMOTE_ACCESS_PLAN.md (not configured).
+
+## Rules on the Next.js server (Milestone 7) - November 2, 2026
+
+The rules engine (`src/lib/ai/rules/engine.ts`, `rules-v6`) is the only authority for verdicts. It runs on the Next.js server with no network call, so rules-only analysis works with the AI service, Ollama, and the laptop all off. It needs no AI settings. The tables live in `src/lib/ai/rules/data/`, because `.vercelignore` excludes `ai-service/`.
+
+- **Order:** decide, validate, save, and only then ask local AI. The later step writes only `aiSuggestions` and `aiAssist`, so it can't reach a verdict or a count.
+- **FastAPI:** a thin signed bridge (`POST /v1/suggest`). Its schema has no dates, education, or verdicts. Next.js removes claims before sending and checks every pointer afterward (`rules/suggestions.ts`).
+- **Typed fields (`rules/profile-fields.ts`):** a field holding a remark, claim, markup, hidden characters, or look-alike letters isn't evidence. "Supported" can rest only on a clean listed skill or qualification.
+- **Python rules:** frozen at `rules-v5` as a test reference (`tests/fixtures/rules_v5_golden.json`) and refused in production. They are to be deleted after the next evaluation confirms the TypeScript engine.
+- **Milestone 8 (`rules-v7`):** education status is completed, in progress, incomplete, or unknown, and free text can only lower it. Negated clauses and fake audits or scores are untrusted. Years count only in the field asked for. Foreign degrees with no exact counterpart are at most possible.
+- **Milestone 9 (`rules-v9`):** from the owner's review of Set H, a role stating direct use of a technology is Supported, and an explicit statement of not having something is Not supported. Thresholds are at the top of `rules/engine.ts` and in docs/MILESTONE_9_REPORT.md.
+- **Milestone 10 (`rules-v10`):** a question on uncertain results (`rules/clarifications.ts`). Answers are stored in `CandidateClarification`, reach the engine as ordinary evidence with `source: "clarification"`, and are re-read by the rules with no AI service. `Finding.evidenceSources` records where evidence came from, apart from the verdict. Everything is self-reported: there is no verified state. Reviewed alternate names are in `rules/data/terminology.json`.
+- **Milestone 11 (`rules-v11`, shadow):** `src/lib/ai/claims/` turns each occurrence into a typed claim with exact offsets, and arbitrates in shadow. Production still decides with `assessRequirements` alone, and doesn't import this layer. `POST /v1/retrieve` (bge-m3) is off unless enabled and refused in production.
+- **Milestone 11, Phase 3 (`rules-v12`):** `claims/language.ts` is a conservative gate that can only keep text from the model. The rules engine has no multilingual negation.
+- **Milestone 11, Phase 4 (`rules-v13`, flag off by default):** `CLARIFICATION_REVIEW_ENABLED` turns on a review of up to five questions per job (`rules/review-queue.ts`, `clarification-review.ts`). `rules/answer-review.ts` reads answers with deterministic checks and `rules/data/answer_equivalences.json`, and can only move Not enough information or Possible, keeping `rules_only_verdict` beside the result. See docs/MILESTONE_11_PHASE_4_REPORT.md.
+- **Phase 4 remediation (`rules-v14`):** `evidence-boundary.ts` is the one place text is cleared. Answers aren't read by the engine or sent to any AI provider; `answer-review.ts` reads each active answer again on every analysis, in both workflows, only for the requirement it answered. `answer-language.ts` lets only plainly English answers be read. A table group needs status `owner_approved` to grant Supported. Production no longer imports anything from the shadow layer. `answer-deletion.ts` is the one deletion path. See docs/MILESTONE_11_PHASE_4_REMEDIATION_REPORT.md.
+- **Phase 5 (`rules-v15`, shadow):** `interpretation.ts` checks a local model's structured reading of an answer, and `interpretation-shadow.ts` runs it only with `INTERPRETATION_SHADOW_ENABLED`, on this machine, and records an outcome and a reason as metadata. Nothing that decides a verdict imports either. The model's readings can only take credit away, and its link to a requirement can only propose a question. See docs/MILESTONE_11_PHASE_5_SHADOW_REPORT.md.
+- **Phase 5 follow-ups (`rules-v16`, local only):** `follow-up.ts` asks `qwen3:8b` whether an answer suggests related work, and stores an offset-only `ClarificationFollowUp`. `rules/follow-up-reply.ts` reads replies with no model, reaching Possible at most under basis `candidate_follow_up`. Statements now carry an ownership reading (performed, oversaw, assisted). See docs/MILESTONE_11_PHASE_5_FOLLOW_UP_REPORT.md.
+- **Phase 5 fix round (`rules-v17`):** `correctsItself` in `evidence-boundary.ts` treats "well / actually / I mean" as a correction only when what follows shrinks, denies, or hands off the claim. Brief exposure (a class, a workshop, one session) is kept as a `brief` statement: Possible at most for a skill, nothing where the requirement asks for experience, proficiency or time. `applyAnswers` lets a confirmed answer that states more time than the listed roles reach Possible (`rules_only_verdict: "gap"`), and the question asks for earlier roles. See docs/PHASE5_FIX_ROUND_REPORT.md.
+- **Phase 5.2 (`rules-v18`):** `clauses.ts` splits a sentence where it changes hands (boundary, subject, verb). `involvement()` in `evidence-boundary.ts` reads the main verb and object: performed, oversaw, requested, assisted, observed; only performed counts unless the requirement asks for that kind of work. `retractions()` takes back only the contradicted claim; `othersParts()` caps mixed ownership at Possible. "We" gives no lead. `followUpNeed()` lets code ask "did you do it yourself?" or "which part was yours?" without the model; `readFollowUpReply` takes the whole answer and refuses replies that reverse it without saying what changed. See docs/PHASE5_2_EVALUATION_REPORT.md.
+- Results and limitations: docs/MILESTONE_11_PHASE_3_REPORT.md, docs/MILESTONE_11_PHASE_2_REPORT.md, docs/MILESTONE_7_REPORT.md, docs/MILESTONE_8_REPORT.md, docs/MILESTONE_9_REPORT.md, and docs/MILESTONE_10_REPORT.md.
+
+## AI-assisted analysis: rules decide, local AI suggests (Milestone 6, superseded by Milestone 7) - November 2, 2026
+
+The method the app offers as "Rules + AI suggestions" (provider `assisted`, ai-service/app/providers/assisted.py). It replaces hybrid, which let local AI raise a verdict.
+
+- **Verdicts:** the rules engine decides and validates every finding before local AI runs. Verdicts are identical whether Ollama answers, fails, or is off, and there is no fallback to another provider. Each finding records its `basis`, shown as where the result came from.
+- **Suggestions (app/matching/suggestions.py):** the model's schema has no verdict field. It returns pointers, code checks them, and code writes all wording. They are stored apart (`JobMatchAnalysis.aiSuggestions`, `aiAssist`) and never affect verdicts or counts.
+- **What is sent:** only requirements that are unsupported, unflagged, and judged from skills or work. Never durations, credentials, education, or dates.
+- **Next.js:** `src/lib/ai/match-validation.ts` independently rejects any assisted finding not from the rules engine and re-checks each suggestion.
+- **Known limitation:** the rules engine runs in FastAPI, so when the laptop is off, rules analysis is unavailable on Vercel too. Results and next steps: docs/MILESTONE_6_REPORT.md.
+
+## Hybrid analysis: rules engine plus local AI (Milestone 3, retired in Milestone 6) - October 31, 2026
+
+Retired: not offered by the app and refused in production. Stored analyses still display.
+
+
+The method the app offers as "Rules + local AI" (provider `hybrid`, ai-service/app/providers/hybrid.py). Local AI alone stays in the service for evaluation only; the app no longer offers it.
+
+- **Rules first.** The rules engine assesses every requirement. Its verdict is final for hard qualifications: experience, durations, education, credentials, and any requirement whose text reads like instructions to an AI (app/matching/requirement_text.py). Those are never sent to local AI.
+- **Local AI only for unmatched skills.** Skill and "other" requirements the rules engine did not already support go to qwen3:8b in as few calls as fit the 8K context. Only skills, role titles and descriptions, and projects are sent, under short ids (s1, x1, p1). The output schema lists the only ids and requirement indexes that exist, and code maps short ids back to the real evidence ids.
+- **Code decides, per requirement** (app/matching/hybrid_checks.py). The model returns citations and a verdict only, never shown text. A curated relation table (app/matching/skill_relations.json) tells code whether a quote names the same technology (including known alternate names), a related one, or neither:
+  - "supported" needs a cited listed skill that is the same technology, at the level the requirement asks for;
+  - otherwise a confirmed link is at most "possible", with a code-written explanation and caveat;
+  - any unverifiable or unrelated citation rejects that answer, and the rules verdict stands.
+  - Local AI may only add a stronger match; it never lowers or replaces a rules verdict.
+- **Labels.** Every hybrid finding carries `method` (`rules` or `local_ai`) and `ai_status` (`accepted`, `not_eligible`, `not_needed`, `no_match`, `rejected`, `unavailable`). The page shows them on each finding. Other providers may not set them.
+- **When local AI is off, slow, or busy**, the analysis still completes with rules results, each labeled "local AI was unavailable". It never fails because of local AI.
+- **Next.js re-checks all of this** (src/lib/ai/match-validation.ts with src/lib/ai/skill-relations.ts, which reads the same relation table). A shared fixture (ai-service/tests/fixtures/relation_cases.json) keeps the Python and TypeScript rules identical.
+- Findings are stored as JSON, so the new fields needed no database migration.
+- **Untrusted text (rules-v2, hybrid-v3):** job and profile text is split into segments, and segments directed at an AI or reviewer are excluded from matching (app/matching/untrusted_text.py, shared patterns in untrusted_text.json, mirrored in src/lib/ai/untrusted-text.ts). The job review flags such text. This is a classifier and misses new wording; see docs/MILESTONE_3_HYBRID_V3_REPORT.md.
+- **Word sense:** ambiguous words ("Rust", "Go", "Excel") count in free text only next to a technical word (skill_relations.json `ambiguous` / `tech_context`). "Experience with <technology>" with no duration, role, or domain is judged as a skill.
+- **Requirement structure (Milestone 4, rules-v3, hybrid-v4):** only a requirement's head clause and later clauses that state a need can earn credit; asides and claims ("X counts as Y") never do; items joined by "and" are all mandatory; profile sentences about the evaluation are never evidence (app/matching/requirement_structure.py, mirrored in src/lib/ai/requirement-structure.ts). Known gaps are listed in docs/MILESTONE_4_REPORT.md.
+- **Structured requirements and confirmation (Milestone 5, rules-v4, hybrid-v5):** each requirement is parsed into requested items (mandatory groups and alternatives), optional, supplemental, and instruction text, and duration. A requirement containing instructions or evaluation language is not judged ("needs confirmation"); the job review asks the person to confirm it, which lets it be judged but is never evidence. Local AI sees and relates evidence only to the requested items. Requirement objects may carry `confirmed: true`; findings may carry `review: "needs_confirmation"`, which both services enforce.

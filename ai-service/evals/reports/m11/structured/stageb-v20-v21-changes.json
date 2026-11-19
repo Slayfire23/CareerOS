@@ -1,0 +1,1793 @@
+{
+ "note": "Phase 5.3 Stage B: every v20 -> v21 change on opened data (default path unchanged). Structured = worst case, a 'did it myself' tick. V5 = parts-layer simulation on each reader. V5 rows use the simulated Stage D consumer of the verdict-inert 'bounded' field (failure 3); controls test it.",
+ "counts": {
+  "history": 1266,
+  "structured": 1266,
+  "probes": 392,
+  "design": 226,
+  "replies": 320,
+  "v5_probes": 47
+ },
+ "changes": {
+  "history": [
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "label": "possible",
+    "src": "m11_followup3:fw-024",
+    "requirement": "Prepare tax returns for individuals and small businesses",
+    "answer": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents."
+   },
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "label": "ownership:partial",
+    "src": "benchmark:pc-124",
+    "requirement": "Prepare tax returns for individuals and small businesses",
+    "answer": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents."
+   }
+  ],
+  "structured": [
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": {
+     "qualified": false,
+     "accept": [
+      "insufficient_information"
+     ]
+    },
+    "src": "m11_remediation/dev",
+    "requirement": "Using Google Classroom",
+    "answer": "If the school uses Google Classroom, I plan to learn it over the summer."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": {
+     "qualified": false,
+     "accept": [
+      "insufficient_information",
+      "gap"
+     ]
+    },
+    "src": "m11_remediation/dev",
+    "requirement": "Menu costing",
+    "answer": "Menu prices and plate costs get worked out by the owner. I just cook what's on the ticket."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": {
+     "qualified": false,
+     "accept": [
+      "insufficient_information"
+     ]
+    },
+    "src": "m11_remediation/check",
+    "requirement": "Using Workday",
+    "answer": "I intend to learn Workday if that's your system."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": {
+     "qualified": false,
+     "accept": [
+      "insufficient_information"
+     ]
+    },
+    "src": "m11_remediation/check",
+    "requirement": "Benefits administration",
+    "answer": "My mentor's template reads: \"administered benefits programs for 500+ employees\". I used that wording."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": {
+     "qualified": false,
+     "accept": [
+      "insufficient_information",
+      "gap"
+     ]
+    },
+    "src": "m11_remediation/check",
+    "requirement": "Aquatic therapy",
+    "answer": "We don't have a pool, so I've not done aquatic therapy. I do land-based balance work."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": "does_not_qualify",
+    "src": "m11_interpret/dev",
+    "requirement": "TIG welding",
+    "answer": "I've only done MIG and stick. No TIG."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "does_not_qualify",
+    "src": "m11_interpret/check",
+    "requirement": "Deposition transcript summaries",
+    "answer": "Priya takes care of those. I just save them in the case folder when she's done."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "not_supported",
+    "src": "m11_followup:fu-003",
+    "requirement": "Medication reconciliation at discharge",
+    "answer": "Our pharmacists and discharge nurses do that on my floor. I print the packets once they've finished."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "not_supported",
+    "src": "m11_followup:fu-071",
+    "requirement": "Machine learning model training",
+    "answer": "I clean up the data and build the features in pandas. Then the ML engineer trains the model and I do charts on the results."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": "not_supported",
+    "src": "m11_followup2:fv-044",
+    "requirement": "Mobile app development",
+    "answer": "No, I haven't built mobile apps. I test our web app."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "not_supported",
+    "src": "m11_followup3:fw-021",
+    "requirement": "Perform payroll processing for 100+ employees",
+    "answer": "I haven't run payroll — our controller handles that. I gather the timesheets and changes and send them over."
+   },
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "reason": "consistent",
+    "label": "possible",
+    "src": "m11_followup3:fw-024",
+    "requirement": "Prepare tax returns for individuals and small businesses",
+    "answer": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents."
+   },
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "reason": "consistent",
+    "label": "supported",
+    "src": "m11_followup3:fw-031",
+    "requirement": "Conduct customer site surveys and measurements",
+    "answer": "I do the in-home measures for every sale. Well, not all of them — on the big commercial jobs our estimator goes out, and I only measure the residential rooms."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "not_supported",
+    "src": "m11_followup3:fw-059",
+    "requirement": "Write grant proposals",
+    "answer": "Our development director writes the grant proposals; I pull the program numbers and participant stories she asks for and format the attachments."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "denies_doing_it",
+    "label": "ownership:no",
+    "src": "benchmark:pc-044",
+    "requirement": "Mobile app development",
+    "answer": "No, I haven't built mobile apps. I test our web app."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "ownership:no",
+    "src": "benchmark:pc-121",
+    "requirement": "Perform payroll processing for 100+ employees",
+    "answer": "I haven't run payroll — our controller handles that. I gather the timesheets and changes and send them over."
+   },
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "reason": "consistent",
+    "label": "ownership:partial",
+    "src": "benchmark:pc-124",
+    "requirement": "Prepare tax returns for individuals and small businesses",
+    "answer": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents."
+   },
+   {
+    "kind": "gain",
+    "v20": "I",
+    "v21": "P",
+    "reason": "consistent",
+    "label": "ownership:partial",
+    "src": "benchmark:pc-131",
+    "requirement": "Conduct customer site surveys and measurements",
+    "answer": "I do the in-home measures for every sale. Well, not all of them — on the big commercial jobs our estimator goes out, and I only measure the residential rooms."
+   },
+   {
+    "kind": "correction (label not qualified)",
+    "v20": "P",
+    "v21": "I",
+    "reason": "someone_else_did_it",
+    "label": "ownership:no",
+    "src": "benchmark:pc-159",
+    "requirement": "Write grant proposals",
+    "answer": "Our development director writes the grant proposals; I pull the program numbers and participant stories she asks for and format the attachments."
+   }
+  ],
+  "replies": [],
+  "probes": [],
+  "design": [
+   {
+    "kind": "ok",
+    "cid": "P13",
+    "row": "both_std",
+    "readAnswer_v20": "S",
+    "readAnswer_v21": "S",
+    "tick_v20": "I",
+    "tick_v21": "S",
+    "text": "I recruit and hire the staff for our three clinics."
+   },
+   {
+    "kind": "ok",
+    "cid": "P13",
+    "row": "only_b",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "I",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I hire the staff for my department; HR does all the recruiting and screening."
+   },
+   {
+    "kind": "ok",
+    "cid": "P14",
+    "row": "supervise",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "I",
+    "tick_v20": "P",
+    "tick_v21": "I",
+    "text": "I manage the HR coordinator who recruits and onboards new staff."
+   },
+   {
+    "kind": "ok",
+    "cid": "A26",
+    "row": "only_a",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "P",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I do the individual 1040s start to finish; my manager takes the partnership and S-corp returns."
+   },
+   {
+    "kind": "ok",
+    "cid": "A26",
+    "row": "opened",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "P",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I do the individual 1040s start to finish and my manager takes the partnership and S-corp returns, though I gather their source documents."
+   },
+   {
+    "kind": "ok",
+    "cid": "A52",
+    "row": "both_std",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "S",
+    "tick_v20": "I",
+    "tick_v21": "S",
+    "text": "I verify every invoice against the PO and approve them for payment up to $10,000."
+   },
+   {
+    "kind": "ok",
+    "cid": "A52",
+    "row": "only_a",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "P",
+    "tick_v20": "P",
+    "tick_v21": "P",
+    "text": "I verify the invoices against the POs, and the controller approves them for payment."
+   },
+   {
+    "kind": "ok",
+    "cid": "A52",
+    "row": "only_b",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "I",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I approve invoices for payment after the AP clerk verifies them."
+   },
+   {
+    "kind": "ok",
+    "cid": "A53",
+    "row": "supervise",
+    "readAnswer_v20": "P",
+    "readAnswer_v21": "I",
+    "tick_v20": "P",
+    "tick_v21": "I",
+    "text": "I review the Excel models my analysts build and maintain."
+   },
+   {
+    "kind": "ok",
+    "cid": "A55",
+    "row": "supervise",
+    "readAnswer_v20": "P",
+    "readAnswer_v21": "I",
+    "tick_v20": "P",
+    "tick_v21": "I",
+    "text": "I review the API designs and code my team produces."
+   },
+   {
+    "kind": "ok",
+    "cid": "A56",
+    "row": "supervise",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "I",
+    "tick_v20": "P",
+    "tick_v21": "I",
+    "text": "I coach the reps who develop and deliver our sales presentations."
+   },
+   {
+    "kind": "ok",
+    "cid": "A57",
+    "row": "only_b",
+    "readAnswer_v20": "S",
+    "readAnswer_v21": "I",
+    "tick_v20": "S",
+    "tick_v21": "P",
+    "text": "I maintain and repair camera systems another crew installed."
+   },
+   {
+    "kind": "ok",
+    "cid": "A58",
+    "row": "supervise",
+    "readAnswer_v20": "S",
+    "readAnswer_v21": "I",
+    "tick_v20": "S",
+    "tick_v21": "P",
+    "text": "I run the plumbing company and send plumbers out to install and repair systems."
+   },
+   {
+    "kind": "ok",
+    "cid": "A60",
+    "row": "only_a",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "P",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I plan the campaigns; our agency runs them in Google Ads."
+   },
+   {
+    "kind": "ok",
+    "cid": "A60",
+    "row": "correction",
+    "readAnswer_v20": "I",
+    "readAnswer_v21": "I",
+    "tick_v20": "I",
+    "tick_v21": "P",
+    "text": "I plan and run Google Ads campaigns. Actually, the agency runs them, I only set the monthly goals."
+   },
+   {
+    "kind": "ok",
+    "cid": "A93",
+    "row": "supervise",
+    "readAnswer_v20": "S",
+    "readAnswer_v21": "I",
+    "tick_v20": "S",
+    "tick_v21": "I",
+    "text": "I review the forecasts and budgets my analysts prepare."
+   }
+  ]
+ },
+ "v5_probes": [
+  {
+   "cid": "A53",
+   "text": "I build our three-statement financial model in Excel and maintain it every quarter, updating the assumptions and formulas.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, Excel named with both acts"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I build our financial models in Google Sheets and maintain them every quarter.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "other tool: transferable, not Excel"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "Our CFO keeps everything in Excel; I build the cash flow model in Python and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Excel only in someone else's clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I build our financial models in a spreadsheet and update the assumptions monthly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "ambiguous tool: ask whether Excel"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I know Excel well. I build our budget model in Python and update it monthly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Excel named, but not for the modeling work"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I maintain the Excel forecasting model our senior analyst built, updating the formulas monthly.",
+   "expect": {
+    "parts": [
+     false,
+     true
+    ],
+    "verdict": "P",
+    "why": "maintaining only; building was the analyst's"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I plan our Google Ads search campaigns with keyword research and run them daily, adjusting bids.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, Google Ads named"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I plan and run our paid search campaigns in Microsoft Advertising.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "other platform"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "The agency runs our Google Ads account; I plan the campaigns and write the ad copy.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "Google Ads only in the agency's clause; execution is the agency's"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I plan and run our search ads every week.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "ambiguous platform: ask"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I do the keyword research and plan the Google Ads campaigns. I also run the Google Ads campaigns and adjust bids daily.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "genuine, separate sentences"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A67",
+   "text": "I'm assigned to the trailers at door 4, and I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     true
+    ],
+    "verdict": "P",
+    "why": "object inherited from an own earlier clause"
+   },
+   "v20": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A67",
+   "text": "I load and unload trucks. Actually, the outbound crew does the loading, I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "earlier claim retracted: no inheritance; clarify"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A67",
+   "text": "I clean the break room and unload the dishwasher. On weekends I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "unrelated activity: no inheritance"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A67",
+   "text": "The outbound crew loads the trucks; I only unload.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "object only in another person's clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A56",
+   "text": "I build the client decks in PowerPoint every week. I present them myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "pronoun resolves to the person's own decks"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A56",
+   "text": "Marketing builds the decks. I just present them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "pronoun refers to another person's work"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A56",
+   "text": "I put together the decks and the pricing spreadsheets. I just present them.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "several possible antecedents: ambiguous"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A22",
+   "text": "I'm the executive assistant to our CEO and two VPs. I only keep the calendars; the travel desk books the trips.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "executive context inherited from an own earlier clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A22",
+   "text": "I only keep the calendars.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "whose calendars is unclear: clarify"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A19",
+   "text": "I'm on the inventory team for the stock room. I just count; the analyst reconciles.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "object inherited from an own earlier clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A19",
+   "text": "I do cycle counts and reconcile variances. Actually, the analyst reconciles them, I just count.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "earlier claim retracted: no inheritance"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A19",
+   "text": "I handle the stock room and the cash drawers. I just count them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "several possible antecedents"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I pull the AR aging every week, flag everything over 60 days and decide which accounts to call first.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "own analysis; no collections shown"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I analyze the aging buckets and payment trends each month and set the collection priorities.",
+   "expect": {
+    "parts": [
+     true,
+     false
+    ],
+    "verdict": "P",
+    "why": "own analysis"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I forward the aging report to the controller every Monday.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "forwarding is not analysis"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I get the aging report every Monday and read it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "receiving and reading are not analysis"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I review the aging analysis our staff accountant prepares.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "notS",
+    "why": "another person's analysis"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I review the aging report every week.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "no blanket review exception: clarify"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I run the AR aging analysis, identify the overdue balances and call those customers until they pay.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own analysis and collections"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I work in Excel all day on our FP&A models. I built the three-statement model and I maintain it every quarter.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "tool established in an earlier own clause, clearly connected"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I'm proficient in Excel. I built the three-statement model and I maintain it every quarter.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "knowing a tool is not using it for this work"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "Our controller lives in Excel. I built the three-statement model and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "tool only in another person's clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I use Excel and Google Sheets. I built the three-statement model and maintain it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two tools: ambiguous which one"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A53",
+   "text": "I used Excel for years. I built our current three-statement model in Python and maintain it there.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "later clause names a different tool: contradicted"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I manage our Google Ads account for the clinic. I plan the search campaigns and run them, adjusting bids weekly.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "platform established in an earlier own clause"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "Our agency manages the Google Ads account. I plan the search campaigns and run them.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "platform only in the agency's clause"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "A60",
+   "text": "I work in Google Ads and Meta Ads. I plan the campaigns and run them weekly.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "two platforms: ambiguous"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P13",
+   "text": "I recruit volunteers for the food bank and help pick the new coordinators.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "volunteers are not staff; 'help pick' is not a hiring decision"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P13",
+   "text": "I work closely with our recruiter and sit in on the interviews.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "noun 'recruiter'; observing interviews"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P13",
+   "text": "I recommend candidates to the owner, who decides who we hire.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "recommending is not hiring"
+   },
+   "v20": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P13",
+   "text": "We hired a staffing contractor to cover the night shift.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "notS",
+    "why": "engaging a contractor for services"
+   },
+   "v20": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P13",
+   "text": "I screen applicants for our cashier openings and extend the offers myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "own screening and authorized offers"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "P14",
+   "text": "I process the onboarding paperwork for new hires and file it.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "paperwork is not conducting onboarding"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P14",
+   "text": "I receive the onboarding packets from HR and hand them out.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "receiving paperwork"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  },
+  {
+   "cid": "P14",
+   "text": "I recruit our new nurses and run the onboarding for new nurses myself.",
+   "expect": {
+    "parts": [
+     true,
+     true
+    ],
+    "verdict": "S",
+    "why": "conducting onboarding"
+   },
+   "v20": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   },
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ]
+   }
+  },
+  {
+   "cid": "A77",
+   "text": "I generate the AR aging report every Monday and send it to the controller.",
+   "expect": {
+    "parts": [
+     false,
+     false
+    ],
+    "verdict": "P",
+    "why": "generating and sending the report is not analysis"
+   },
+   "v20": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   },
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ]
+   }
+  }
+ ],
+ "failure3_controls": [
+  {
+   "text": "I run the AR aging analysis, identify the overdue balances and call those customers until they pay.",
+   "expect_collections": true,
+   "why": "positive: own antecedent (the V5 probe's sentence, as a control)",
+   "v21": {
+    "verdict": "S",
+    "parts": [
+     true,
+     true
+    ],
+    "reasons": [
+     "part 2: approved phrase on the own act with its end condition"
+    ]
+   }
+  },
+  {
+   "text": "I call past-due customers until they pay.",
+   "expect_collections": true,
+   "why": "positive: plain past-due customers",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     true
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I pull the list of unpaid invoices every Friday and call those customers until they pay.",
+   "expect_collections": true,
+   "why": "positive: unpaid invoices as the antecedent",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     true
+    ],
+    "reasons": [
+     "part 2: approved phrase on the own act with its end condition"
+    ]
+   }
+  },
+  {
+   "text": "Our AR clerk identifies the overdue balances and calls those customers until they pay.",
+   "expect_collections": false,
+   "why": "another person makes the calls",
+   "v21": {
+    "verdict": "I",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I identify the overdue balances and our collector calls those customers until they pay.",
+   "expect_collections": false,
+   "why": "another person makes the calls after the person's analysis",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I call those customers until they confirm their delivery dates.",
+   "expect_collections": false,
+   "why": "unrelated calls (deliveries)",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I schedule the deliveries and call those customers until they confirm a time.",
+   "expect_collections": false,
+   "why": "unrelated calls, own context about deliveries",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I call those customers until they pay.",
+   "expect_collections": false,
+   "why": "ambiguous: no antecedent at all",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": [
+     "part 2: \"call those customers until they pay\" has no own antecedent"
+    ]
+   }
+  },
+  {
+   "text": "I sort the new accounts and the overdue balances, and call those customers until they pay.",
+   "expect_collections": false,
+   "why": "ambiguous: two groups it could mean",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     true,
+     false
+    ],
+    "reasons": [
+     "part 2: ambiguous antecedent (the new accounts)"
+    ]
+   }
+  },
+  {
+   "text": "I identify the overdue balances and call those customers until they pay. Actually, our collections agency makes the calls, I only send the statements.",
+   "expect_collections": false,
+   "why": "correction transfers the calls to someone else",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": []
+   }
+  },
+  {
+   "text": "I welcome new customers and call them until they pay.",
+   "expect_collections": false,
+   "why": "pronoun whose own antecedent isn't overdue",
+   "v21": {
+    "verdict": "P",
+    "parts": [
+     false,
+     false
+    ],
+    "reasons": []
+   }
+  }
+ ]
+}

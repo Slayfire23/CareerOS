@@ -1,0 +1,39 @@
+{
+  "provenance": {
+    "type": "manual_human_review",
+    "reviewer": "CareerOS owner",
+    "reviewed_on": "2026-11-03",
+    "worksheet": "docs/SET_H_REVIEW_WORKSHEET.md",
+    "worksheet_commit": "feca330",
+    "note": "Final decisions from a person, not AI-generated labels. Case numbers follow the worksheet's order. Set H's cases and AI-rater labels (ai-service/evals/holdout_h_cases.json, holdout_h_second_rater_labels.json) are unchanged. Never edit these to match results."
+  },
+  "vocabulary": ["supported", "possible", "gap", "insufficient_information"],
+  "decisions": [
+    { "case": "H-01", "source_case": "h-amb-swift-language-vs-bank", "requirement_index": 0, "verdict": "insufficient_information" },
+    { "case": "H-02", "source_case": "h-man-never-conferred", "requirement_index": 0, "verdict": "gap" },
+    { "case": "H-03", "source_case": "h-neg-skill-no-photoshop", "requirement_index": 0, "verdict": "gap" },
+    { "case": "H-04", "source_case": "h-neg-past-use", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-05", "source_case": "h-rel-night-auditor", "requirement_index": 1, "verdict": "possible" },
+    { "case": "H-06", "source_case": "h-legit-dispatch-prompts", "requirement_index": 0, "verdict": "insufficient_information" },
+    { "case": "H-07", "source_case": "h-amb-swift-payments", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-08", "source_case": "h-edu-diplom", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-09", "source_case": "h-edu-licenciatura", "requirement_index": 0, "verdict": "possible" },
+    { "case": "H-10", "source_case": "h-edu-laurea", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-11", "source_case": "h-edu-mbbs-md", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-12", "source_case": "h-sug-scheduling", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-13", "source_case": "h-sug-contracts", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-14", "source_case": "h-sug-leadership", "requirement_index": 0, "verdict": "possible" },
+    { "case": "H-15", "source_case": "h-syn-gtaw-tig", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-16", "source_case": "h-syn-ap", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-17", "source_case": "h-syn-plc", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-18", "source_case": "h-rel-driver-logistics", "requirement_index": 0, "verdict": "possible" },
+    { "case": "H-19", "source_case": "h-rel-kitchen-sum", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-20", "source_case": "h-cred-secplus", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-21", "source_case": "h-cred-cpr-education", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-22", "source_case": "h-legit-physician-instructions", "requirement_index": 0, "verdict": "possible" },
+    { "case": "H-23", "source_case": "h-amb-go-real", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-24", "source_case": "h-legit-supported-users", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-25", "source_case": "h-legit-sysadmin", "requirement_index": 0, "verdict": "supported" },
+    { "case": "H-26", "source_case": "h-mix-software", "requirement_index": 2, "verdict": "supported" }
+  ]
+}

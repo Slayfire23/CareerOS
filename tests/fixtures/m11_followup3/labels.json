@@ -1,0 +1,1084 @@
+{
+ "labels": [
+  {
+   "id": "fw-001",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-002",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-003",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-004",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-005",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-006",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "end-user only, not admin"
+  },
+  {
+   "id": "fw-007",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-008",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "helper only"
+  },
+  {
+   "id": "fw-009",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "took back claim"
+  },
+  {
+   "id": "fw-010",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "content only, Dana manages"
+  },
+  {
+   "id": "fw-011",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-012",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-013",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "labeled some specimens"
+  },
+  {
+   "id": "fw-014",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-015",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-016",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "passive voice"
+  },
+  {
+   "id": "fw-017",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-018",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "workshop only"
+  },
+  {
+   "id": "fw-019",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-020",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-021",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "specific change explained"
+  },
+  {
+   "id": "fw-022",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-023",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "few shifts only"
+  },
+  {
+   "id": "fw-024",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "individual only"
+  },
+  {
+   "id": "fw-025",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "hypothetical"
+  },
+  {
+   "id": "fw-026",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "license claim"
+  },
+  {
+   "id": "fw-027",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-028",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-029",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "tracks, PM manages"
+  },
+  {
+   "id": "fw-030",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-031",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "residential only"
+  },
+  {
+   "id": "fw-032",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-033",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-034",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-035",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-036",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-037",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "specific change explained"
+  },
+  {
+   "id": "fw-038",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-039",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-040",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "cert not shown, time claim"
+  },
+  {
+   "id": "fw-041",
+   "answer_verdict": "not_supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "class-only, experience wording"
+  },
+  {
+   "id": "fw-042",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-043",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "passive voice"
+  },
+  {
+   "id": "fw-044",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-045",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-046",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "setup only"
+  },
+  {
+   "id": "fw-047",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-048",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-049",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-050",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "Excel only, no SQL"
+  },
+  {
+   "id": "fw-051",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-052",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "mixed",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "took back lead claim"
+  },
+  {
+   "id": "fw-053",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-054",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "develop not design"
+  },
+  {
+   "id": "fw-055",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-056",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-057",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-058",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "cert claim"
+  },
+  {
+   "id": "fw-059",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-060",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-061",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-062",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-063",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "ATP swabs only"
+  },
+  {
+   "id": "fw-064",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-065",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "specific change explained"
+  },
+  {
+   "id": "fw-066",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-067",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-068",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-069",
+   "answer_verdict": "not_supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "demo only"
+  },
+  {
+   "id": "fw-070",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-071",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-072",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "passive voice"
+  },
+  {
+   "id": "fw-073",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-074",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-075",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-076",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-077",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "residential only"
+  },
+  {
+   "id": "fw-078",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-079",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "observed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-080",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "few floats"
+  },
+  {
+   "id": "fw-081",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-082",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "specific change explained"
+  },
+  {
+   "id": "fw-083",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-084",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-085",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-086",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "took back claim"
+  },
+  {
+   "id": "fw-087",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "refers to prior answer"
+  },
+  {
+   "id": "fw-088",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-089",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "unload only"
+  },
+  {
+   "id": "fw-090",
+   "answer_verdict": "not_supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "course only"
+  },
+  {
+   "id": "fw-091",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "supervised",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": "team of 4 vs 10+"
+  },
+  {
+   "id": "fw-092",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-093",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-094",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-095",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-096",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-097",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": "license claim"
+  },
+  {
+   "id": "fw-098",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-099",
+   "answer_verdict": "not_enough",
+   "personally_did": false,
+   "involvement": "unclear",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "passive voice"
+  },
+  {
+   "id": "fw-100",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-101",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-102",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "assisted",
+   "hands_on": false,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-103",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "flats only"
+  },
+  {
+   "id": "fw-104",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-105",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-106",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "brief supervised use"
+  },
+  {
+   "id": "fw-107",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-108",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "other_person",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-109",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "credible time claim"
+  },
+  {
+   "id": "fw-110",
+   "answer_verdict": "possible",
+   "personally_did": false,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "Xero not QuickBooks"
+  },
+  {
+   "id": "fw-111",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "assisted",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-112",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-113",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "coordinated",
+   "hands_on": false,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-114",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "requested",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": ""
+  },
+  {
+   "id": "fw-115",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "none",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "class only"
+  },
+  {
+   "id": "fw-116",
+   "answer_verdict": "not_supported",
+   "personally_did": false,
+   "involvement": "supervised",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "specific change explained"
+  },
+  {
+   "id": "fw-117",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-118",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": ""
+  },
+  {
+   "id": "fw-119",
+   "answer_verdict": "supported",
+   "personally_did": true,
+   "involvement": "performed",
+   "hands_on": true,
+   "reply_ok": false,
+   "note": "shop-side claims"
+  },
+  {
+   "id": "fw-120",
+   "answer_verdict": "possible",
+   "personally_did": true,
+   "involvement": "mixed",
+   "hands_on": true,
+   "reply_ok": true,
+   "note": "fixtures only"
+  }
+ ]
+}

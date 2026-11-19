@@ -1,0 +1,1529 @@
+{
+ "forkliftoperation": {
+  "history": [],
+  "probes": [
+   [
+    "forkliftoperation",
+    "credit",
+    "I operated a forklift every shift, loading and unloading trailers at the distribution center.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "forkliftoperation",
+    "no",
+    "I operated a forklift rental counter at the equipment store.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "forkliftoperation",
+    "no",
+    "I ran a forklift dealership's service desk.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "forkliftoperation",
+    "no",
+    "I scheduled the drivers who operated forklifts on second shift.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation",
+    "no",
+    "I teach new hires how to operate a forklift.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "forkliftoperation",
+    "no",
+    "I'm learning to drive a forklift for my certification next month.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation",
+    "credit",
+    "I operated a forklift every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "I took a one-day class where the instructor operated a forklift and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "I supervise the people who operated a forklift and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "I helped the specialist who operated a forklift, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "We hired an outside firm that operated a forklift for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "My coworker operated a forklift; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "I have never operated a forklift.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "forkliftoperation:ownership",
+    "no",
+    "I could operate a forklift if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "customerservice": {
+  "history": [],
+  "probes": [
+   [
+    "customerservice",
+    "credit",
+    "I handled customer complaints at the service desk and issued refunds when needed.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "customerservice",
+    "no",
+    "I handled customer complaints data in a spreadsheet for the analytics team.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "customerservice",
+    "no",
+    "I helped customers with their bags as a volunteer.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice",
+    "no",
+    "I analyzed reports of resolved customer issues for my manager.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "customerservice",
+    "no",
+    "I teach new reps how to handle customer complaints.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "customerservice",
+    "credit",
+    "I handled customer complaints every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "I took a one-day class where the instructor handled customer complaints and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "I supervise the people who handled customer complaints and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "I helped the specialist who handled customer complaints, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "We hired an outside firm that handled customer complaints for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "My coworker handled customer complaints; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "I have never handled customer complaints.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "customerservice:ownership",
+    "no",
+    "I could handle customer complaints if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "cyclecounting": {
+  "history": [],
+  "probes": [
+   [
+    "cyclecounting",
+    "credit",
+    "I ran cycle counts on the pick faces every morning and fixed variances in the system.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "cyclecounting",
+    "no",
+    "I took inventory of my skills at a career workshop.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "cyclecounting",
+    "no",
+    "I counted stock certificates for the estate attorney.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "cyclecounting",
+    "no",
+    "I counted inventory of my record collection for insurance.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "cyclecounting",
+    "no",
+    "I reviewed the stock counts the clerks submitted.",
+    "P",
+    "P",
+    "P"
+   ],
+   [
+    "cyclecounting",
+    "credit",
+    "I ran cycle counts every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "I took a one-day class where the instructor ran cycle counts and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "I supervise the people who ran cycle counts and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "I helped the specialist who ran cycle counts, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "We hired an outside firm that ran cycle counts for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "My coworker ran cycle counts; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "I have never ran cycle counts.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "cyclecounting:ownership",
+    "no",
+    "I could run cycle counts if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "orderpicking": {
+  "history": [],
+  "probes": [
+   [
+    "orderpicking",
+    "credit",
+    "I picked customer orders with an RF scanner and staged them for shipping.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "orderpicking",
+    "no",
+    "I picked orders up from the front counter and drove them to customers.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "orderpicking",
+    "no",
+    "I pulled orders from the supplier when prices rose.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "orderpicking",
+    "no",
+    "I picked customer orders up at the curbside lane.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "orderpicking",
+    "no",
+    "I audited the orders the pickers filled from the shelves.",
+    "P",
+    "P",
+    "P"
+   ],
+   [
+    "orderpicking",
+    "credit",
+    "I picked customer orders every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "I took a one-day class where the instructor picked customer orders and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "I supervise the people who picked customer orders and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "I helped the specialist who picked customer orders, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "We hired an outside firm that picked customer orders for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "My coworker picked customer orders; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "I have never picked customer orders.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "orderpicking:ownership",
+    "no",
+    "I could pick customer orders if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "appointmentscheduling": {
+  "history": [
+   "m11_followup2:fv-017 · Patient scheduling · “I book appointments for three physical therapists. Well, I also handle the waitlist and rebook cancellations, which is most of my mornings.” · P / S / I · label supported",
+   "m11_followup3:fw-038 · Handle patient scheduling and insurance verification · “I book all the appointments and reschedules, my coworker Tasha runs the insurance checks before each visit and calls the patient if something's not covered.” · P / P / I · label possible",
+   "benchmark:pc-017 · Patient scheduling · “I book appointments for three physical therapists. Well, I also handle the waitlist and rebook cancellations, which is most of my mornings.” · P / S / I · label ownership:yes",
+   "benchmark:pc-138 · Handle patient scheduling and insurance verification · “I book all the appointments and reschedules, my coworker Tasha runs the insurance checks before each visit and calls the patient if something's not covered.” · P / P / I · label ownership:partial"
+  ],
+  "probes": [
+   [
+    "appointmentscheduling",
+    "credit",
+    "I booked patient appointments for three providers and confirmed them by phone the day before.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "appointmentscheduling",
+    "no",
+    "I booked appointments for my dog at the vet.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "appointmentscheduling",
+    "no",
+    "I scheduled appointments with my own doctors after surgery.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "appointmentscheduling",
+    "no",
+    "I scheduled patient visits as a patient, for my own physical therapy.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "appointmentscheduling",
+    "no",
+    "I trained the front desk to schedule patient visits.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "appointmentscheduling",
+    "credit",
+    "I booked patient appointments every week at my last job.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "I took a one-day class where the instructor booked patient appointments and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "I supervise the people who booked patient appointments and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "I helped the specialist who booked patient appointments, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "We hired an outside firm that booked patient appointments for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "My coworker booked patient appointments; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "I have never booked patient appointments.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "appointmentscheduling:ownership",
+    "no",
+    "I could book patient appointments if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "lessonplanning": {
+  "history": [],
+  "probes": [
+   [
+    "lessonplanning",
+    "credit",
+    "I wrote lesson plans for my fourth-grade class every week, aligned to state standards.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "lessonplanning",
+    "no",
+    "I wrote lesson plans as an assignment in my education course.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning",
+    "no",
+    "I planned lessons for my own guitar practice.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "lessonplanning",
+    "no",
+    "I reviewed the lesson plans our teachers prepared.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "lessonplanning",
+    "no",
+    "I printed and filed the lesson plans for the teachers.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "lessonplanning",
+    "credit",
+    "I wrote lesson plans every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "I took a one-day class where the instructor wrote lesson plans and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "I supervise the people who wrote lesson plans and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "I helped the specialist who wrote lesson plans, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "We hired an outside firm that wrote lesson plans for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "My coworker wrote lesson plans; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "I have never wrote lesson plans.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "lessonplanning:ownership",
+    "no",
+    "I could write lesson plans if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "legalresearch": {
+  "history": [],
+  "probes": [
+   [
+    "legalresearch",
+    "credit",
+    "I researched case law on Westlaw and wrote memos for the litigation partners.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "legalresearch",
+    "no",
+    "I researched precedents for our branding redesign.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "legalresearch",
+    "no",
+    "I looked up case law for a school debate.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch",
+    "no",
+    "I proofread the memos after the associates researched case law.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch",
+    "credit",
+    "I researched case law every week at my last job.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "I took a one-day class where the instructor researched case law and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "I supervise the people who researched case law and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "I helped the specialist who researched case law, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "We hired an outside firm that researched case law for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "My coworker researched case law; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "I have never researched case law.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "legalresearch:ownership",
+    "no",
+    "I could research case law if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "contractdrafting": {
+  "history": [],
+  "probes": [
+   [
+    "contractdrafting",
+    "credit",
+    "I drafted commercial contracts and negotiated redlines with opposing counsel.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "contractdrafting",
+    "no",
+    "I prepared contracts for signature by printing and tabbing them.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "contractdrafting",
+    "no",
+    "I drafted agreements for our roommate chore schedule.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "contractdrafting",
+    "no",
+    "I filed the contracts the attorneys drafted.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "contractdrafting",
+    "no",
+    "I wrote contracts on the whiteboard for the sales team's goals.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "contractdrafting",
+    "credit",
+    "I drafted contracts every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "I took a one-day class where the instructor drafted contracts and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "I supervise the people who drafted contracts and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "I helped the specialist who drafted contracts, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "We hired an outside firm that drafted contracts for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "My coworker drafted contracts; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "I have never drafted contracts.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "contractdrafting:ownership",
+    "no",
+    "I could draft contracts if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "recruiting": {
+  "history": [],
+  "probes": [
+   [
+    "recruiting",
+    "credit",
+    "I screened resumes and interviewed job applicants for our warehouse roles.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "recruiting",
+    "no",
+    "I interviewed candidates for the school newspaper election story.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "recruiting",
+    "no",
+    "I screened candidates for symptoms at the clinic door.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "recruiting",
+    "no",
+    "I screened applicants' badges at the security desk.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "recruiting",
+    "no",
+    "I scheduled the interviews the hiring managers held with candidates.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "recruiting",
+    "credit",
+    "I screened resumes every week at my last job.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "I took a one-day class where the instructor screened resumes and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "I supervise the people who screened resumes and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "I helped the specialist who screened resumes, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "We hired an outside firm that screened resumes for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "My coworker screened resumes; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "I have never screened resumes.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "recruiting:ownership",
+    "no",
+    "I could screen resumes if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "teamsupervision": {
+  "history": [],
+  "probes": [
+   [
+    "teamsupervision",
+    "credit",
+    "I supervised a team of nine cashiers and wrote their schedules.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "teamsupervision",
+    "no",
+    "I led a team-building game at the company picnic.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "teamsupervision",
+    "no",
+    "I supervised staff parking in the lot as a valet.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "teamsupervision",
+    "no",
+    "I was supervised by a team lead.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision",
+    "no",
+    "I was a member of a team that a manager supervised.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision",
+    "credit",
+    "I supervised a crew of six every week at my last job.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "I took a one-day class where the instructor supervised a crew of six and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "I supervise the people who supervised a crew of six and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "I helped the specialist who supervised a crew of six, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "We hired an outside firm that supervised a crew of six for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "My coworker supervised a crew of six; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "I have never supervised a crew of six.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "teamsupervision:ownership",
+    "no",
+    "I could supervise a crew of six if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "discovery": {
+  "history": [],
+  "probes": [
+   [
+    "discovery",
+    "credit",
+    "I drafted discovery responses and organized document productions for our litigation team.",
+    "P",
+    "P",
+    "S"
+   ],
+   [
+    "discovery",
+    "no",
+    "I answered interrogatories in my own divorce case.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "discovery",
+    "no",
+    "I responded to discovery as a defendant in a small claims case.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "discovery",
+    "no",
+    "I copied the discovery responses the paralegals drafted.",
+    "P",
+    "P",
+    "P"
+   ],
+   [
+    "discovery",
+    "credit",
+    "I drafted discovery responses every week at my last job.",
+    "P",
+    "P",
+    "S"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "I took a one-day class where the instructor drafted discovery responses and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "I supervise the people who drafted discovery responses and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "I helped the specialist who drafted discovery responses, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "We hired an outside firm that drafted discovery responses for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "My coworker drafted discovery responses; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "I have never drafted discovery responses.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "discovery:ownership",
+    "no",
+    "I could draft discovery responses if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "routedispatch": {
+  "history": [],
+  "probes": [
+   [
+    "routedispatch",
+    "credit",
+    "I dispatched drivers and planned delivery routes for drivers across three counties.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "routedispatch",
+    "no",
+    "I assigned drivers parking spots in the new lot.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch",
+    "no",
+    "I planned delivery routes for my own newspaper route.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "routedispatch",
+    "no",
+    "I dispatched trucks of donated food to shelters as a volunteer driver.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "routedispatch",
+    "no",
+    "I rode along while the dispatcher dispatched drivers.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch",
+    "credit",
+    "I dispatched drivers every week at my last job.",
+    "P",
+    "S",
+    "S"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "I took a one-day class where the instructor dispatched drivers and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "I supervise the people who dispatched drivers and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "I helped the specialist who dispatched drivers, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "We hired an outside firm that dispatched drivers for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "My coworker dispatched drivers; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "I have never dispatched drivers.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "routedispatch:ownership",
+    "no",
+    "I could dispatch drivers if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "travelbooking": {
+  "history": [
+   "m11_review/train · Booking business travel · “I find flights and hotels for our directors, send them the itinerary, and file the receipts when they get back from a trip.” · P / S / I · labeled qualified (accept supported)"
+  ],
+  "probes": [
+   [
+    "travelbooking",
+    "credit",
+    "I booked business travel for our sales team, including flights, hotels and car rentals.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "travelbooking",
+    "no",
+    "I booked flights for my family vacation.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "travelbooking",
+    "no",
+    "I arranged travel for my own wedding guests.",
+    "P",
+    "S",
+    "P"
+   ],
+   [
+    "travelbooking",
+    "no",
+    "I found hotels for my road trip.",
+    "P",
+    "S",
+    "I"
+   ],
+   [
+    "travelbooking",
+    "no",
+    "I approved the business travel the assistants booked.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking",
+    "credit",
+    "I booked business travel every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "I took a one-day class where the instructor booked business travel and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "I supervise the people who booked business travel and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "I helped the specialist who booked business travel, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "We hired an outside firm that booked business travel for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "My coworker booked business travel; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "I have never booked business travel.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "travelbooking:ownership",
+    "no",
+    "I could book business travel if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ },
+ "coldcalling": {
+  "history": [
+   "m11_review/train · Outbound prospecting · “I work a list of companies who've never bought from us, make about sixty cold calls a day, and book first meetings for the team.” · P / S / I · labeled qualified (accept supported)"
+  ],
+  "probes": [
+   [
+    "coldcalling",
+    "credit",
+    "I made cold calls to small businesses every morning and booked demos for the account executives.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "coldcalling",
+    "no",
+    "I hate to make cold calls.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "coldcalling",
+    "no",
+    "I was cold called by recruiters every week.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling",
+    "no",
+    "I'm learning to make cold calls in a sales course.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "coldcalling",
+    "no",
+    "I prospecting for gold in Alaska on weekends.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling",
+    "credit",
+    "I made cold calls every week at my last job.",
+    "S",
+    "S",
+    "S"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "I took a one-day class where the instructor made cold calls and we watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "I supervise the people who made cold calls and I approve their work.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "I helped the specialist who made cold calls, mostly fetching files.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "We hired an outside firm that made cold calls for us.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "My coworker made cold calls; I just watched.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "I have never made cold calls.",
+    "I",
+    "I",
+    "I"
+   ],
+   [
+    "coldcalling:ownership",
+    "no",
+    "I could make cold calls if needed.",
+    "I",
+    "I",
+    "I"
+   ]
+  ]
+ }
+}

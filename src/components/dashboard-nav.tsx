@@ -10,8 +10,8 @@ const NAV_ORDER: SectionKey[] = ["overview", "profile", "preferences", "skills",
 function isCurrent(key: SectionKey, pathname: string) {
   const href = SECTIONS[key].href;
   if (key === "overview") return pathname === href;
-  // A job's requirement review belongs to Job analysis, not Saved jobs.
-  const isRequirements = /^\/dashboard\/jobs\/[^/]+\/requirements/.test(pathname);
+  // A job's requirement review and its analysis belong to Job analysis, not Saved jobs.
+  const isRequirements = /^\/dashboard\/jobs\/[^/]+\/(requirements|match)/.test(pathname);
   if (key === "analysis") return pathname === href || isRequirements;
   if (key === "jobs" && isRequirements) return false;
   return pathname === href || pathname.startsWith(`${href}/`);

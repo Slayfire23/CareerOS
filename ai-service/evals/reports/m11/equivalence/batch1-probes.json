@@ -1,0 +1,202 @@
+[
+ {
+  "group": "bookkeeping",
+  "requirement": "Bookkeeping",
+  "text": "I post our daily sales to the general ledger and keep the books for two shops.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "bookkeeping",
+  "requirement": "Bookkeeping",
+  "text": "I keep the books on the shelves in order at the library.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "bookkeeping",
+  "requirement": "Bookkeeping",
+  "text": "I maintain the ledger of tool checkouts in the shop.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "bookkeeping",
+  "requirement": "Bookkeeping",
+  "text": "Our accountant keeps the books; I file the receipts.",
+  "want": "no",
+  "now": "insufficient_information",
+  "approved": "insufficient_information"
+ },
+ {
+  "group": "payroll",
+  "requirement": "Payroll processing",
+  "text": "Every other Friday I calculate wages from the timesheets and issue paychecks for 40 people.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "payroll",
+  "requirement": "Payroll processing",
+  "text": "I calculate wages for our labor cost forecast each quarter.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "payroll",
+  "requirement": "Payroll processing",
+  "text": "I collect timesheets and send them to the payroll company.",
+  "want": "no",
+  "now": "supported",
+  "approved": "supported"
+ },
+ {
+  "group": "accountspayable",
+  "requirement": "Accounts payable",
+  "text": "I match invoices to purchase orders and pay vendors twice a week.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "accountspayable",
+  "requirement": "Accounts payable",
+  "text": "I paid vendor invoices every week at my last job.",
+  "want": "credit",
+  "now": "insufficient_information",
+  "approved": "insufficient_information"
+ },
+ {
+  "group": "accountspayable",
+  "requirement": "Accounts payable",
+  "text": "I process vendors' onboarding forms for procurement.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "accountsreceivable",
+  "requirement": "Accounts receivable",
+  "text": "I bill customers at month-end and chase overdue invoices.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "accountsreceivable",
+  "requirement": "Accounts receivable",
+  "text": "I collect customers' coats at the front desk.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "accountsreceivable",
+  "requirement": "Accounts receivable",
+  "text": "I chase customers who leave without paying for gas.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "bankreconciliation",
+  "requirement": "Bank reconciliation",
+  "text": "Each month I reconcile the operating account to the bank statements.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "bankreconciliation",
+  "requirement": "Bank reconciliation",
+  "text": "I match bank statements to the right folders before filing them.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "monthendclose",
+  "requirement": "Month-end close",
+  "text": "I close the books every month: accruals, reconciliations and the trial balance.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "monthendclose",
+  "requirement": "Month-end close",
+  "text": "I ran the month-end inventory count in the warehouse.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "monthendclose",
+  "requirement": "Month-end close",
+  "text": "I close the month's schedule in the staffing app.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "budgeting",
+  "requirement": "Budgeting",
+  "text": "I build the annual budget for our department and track spending against it.",
+  "want": "credit",
+  "now": "supported",
+  "approved": "supported"
+ },
+ {
+  "group": "budgeting",
+  "requirement": "Budgeting",
+  "text": "I manage the budget for the office holiday party.",
+  "want": "no",
+  "now": "supported",
+  "approved": "supported"
+ },
+ {
+  "group": "cashhandling",
+  "requirement": "Cash handling",
+  "text": "I count the till at open and close and balance the register every shift.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "cashhandling",
+  "requirement": "Cash handling",
+  "text": "I balance the register tape rolls in the supply closet.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "dataentry",
+  "requirement": "Data entry",
+  "text": "I enter patient records into Epic all day.",
+  "want": "credit",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "dataentry",
+  "requirement": "Data entry",
+  "text": "I enter the data center through the badge door every morning.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ },
+ {
+  "group": "dataentry",
+  "requirement": "Data entry",
+  "text": "I type records of our team meetings now and then.",
+  "want": "no",
+  "now": "possible",
+  "approved": "supported"
+ }
+]

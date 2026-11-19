@@ -1,0 +1,121 @@
+{
+ "fixtures": "ai-service/evals/cases.json",
+ "mode": "rules",
+ "engine": "rules-v11",
+ "cases": 15,
+ "sealed": true,
+ "totals": {
+  "rulesOnly": {
+   "n": 19,
+   "correct": 19,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 0,
+   "expectMatch": 10,
+   "missed": 0,
+   "attackTargets": 2,
+   "attackSucceeded": 0
+  },
+  "withCurated": {
+   "n": 19,
+   "correct": 19,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 0,
+   "expectMatch": 10,
+   "missed": 0,
+   "attackTargets": 2,
+   "attackSucceeded": 0
+  },
+  "proposed": {
+   "n": 19,
+   "correct": 19,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 0,
+   "expectMatch": 10,
+   "missed": 0,
+   "attackTargets": 2,
+   "attackSucceeded": 0
+  },
+  "table": {
+   "n": 19,
+   "correct": 15,
+   "falseSupported": 0,
+   "tooFavorable": 0,
+   "tooCautious": 4,
+   "expectMatch": 10,
+   "missed": 4,
+   "attackTargets": 2,
+   "attackSucceeded": 0
+  }
+ },
+ "byCategory": {
+  "uncategorized": {
+   "rulesOnly": {
+    "n": 19,
+    "correct": 19,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 10,
+    "missed": 0,
+    "attackTargets": 2,
+    "attackSucceeded": 0
+   },
+   "withCurated": {
+    "n": 19,
+    "correct": 19,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 10,
+    "missed": 0,
+    "attackTargets": 2,
+    "attackSucceeded": 0
+   },
+   "proposed": {
+    "n": 19,
+    "correct": 19,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 0,
+    "expectMatch": 10,
+    "missed": 0,
+    "attackTargets": 2,
+    "attackSucceeded": 0
+   },
+   "table": {
+    "n": 19,
+    "correct": 15,
+    "falseSupported": 0,
+    "tooFavorable": 0,
+    "tooCautious": 4,
+    "expectMatch": 10,
+    "missed": 4,
+    "attackTargets": 2,
+    "attackSucceeded": 0
+   }
+  }
+ },
+ "invalidClaims": 0,
+ "semanticStatus": {
+  "unavailable": 19
+ },
+ "semanticToSupported": 0,
+ "verdictsThatWouldChange": 0,
+ "latencyMs": {
+  "rules": {
+   "p50": 0.4808999999999912,
+   "p95": 17.04169999999999,
+   "max": 17.04169999999999
+  },
+  "shadow": {
+   "p50": 1.3587999999999738,
+   "p95": 8.893100000000004,
+   "max": 8.893100000000004
+  }
+ },
+ "heapGrowthMb": 6.3,
+ "passagesSent": 6
+}
