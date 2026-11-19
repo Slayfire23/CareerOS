@@ -269,7 +269,7 @@ Expected:
 - **Recovery:** a manual repair, or the full rollback in `V1_PRODUCTION_ROLLBACK_PROCEDURE.md`, which was rehearsed from exactly this state.
 - **Keep V1 code off:** the live site still runs pre-V1 code, so don't merge.
 
-**E. Verify (read-only, Supabase SQL editor):**
+**E. Verify (read-only, Supabase SQL editor):** run **`scripts/backup/verify-after-migration.sql`**. It checks everything below in one query, plus the original data against the backup's fingerprints, and must end with `OVERALL | PASS`. Tested locally on the real backup after the 10 migrations: all PASS; an edited row, a tampered checksum or a table without RLS each gives FAIL. The individual queries:
 ```sql
 select migration_name, checksum, finished_at is not null as finished, rolled_back_at is null as not_rolled_back
 from "_prisma_migrations" where migration_name > '20261026010000_job_requirements' order by migration_name;
